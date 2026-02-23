@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="OFC — Official Fantasy Commission. Home of the OFC Football League and Blue Ribbon Cup Basketball." />
+  <title>OFC — Fantasy Commission</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- User config loads FIRST, then engine code -->
+  <script src="admin-config.js"></script>
+  <script src="admin.js"></script>
+</head>
+<body>
+
+  <!-- ── TOP NAV ─────────────────────────────────────────── -->
+  <nav class="topnav" role="navigation" aria-label="Site navigation">
+    <span class="topnav-logo">OFC</span>
+    <button class="menu-trigger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="site-drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- ── DRAWER ──────────────────────────────────────────── -->
+  <div class="drawer-overlay" aria-hidden="true"></div>
+  <aside id="site-drawer" class="drawer" role="dialog" aria-modal="true" aria-label="Navigation">
+    <p class="drawer-label">Navigate</p>
+    <ul class="drawer-nav"></ul>
+    <div class="drawer-footer"></div>
+  </aside>
+
+  <!-- ── LANDING ─────────────────────────────────────────── -->
+  <main class="landing-page">
+
+    <!-- Slideshow layers — JS swaps between slide-a and slide-b -->
+    <div class="slide-layer" id="slideA" aria-hidden="true"></div>
+    <div class="slide-layer" id="slideB" aria-hidden="true"></div>
+
+    <!-- Overlay darkens the image -->
+    <div class="landing-overlay" aria-hidden="true"></div>
+
+    <!-- Vignette -->
+    <div class="landing-vignette" aria-hidden="true"></div>
+
+    <!-- Hero text -->
+    <div class="landing-content">
+      <p class="landing-eyebrow" id="landing-eyebrow">Official Fantasy Commission</p>
+      <h1 class="landing-title">OFC</h1>
+      <p class="landing-subtitle">Official Fantasy Commission</p>
+    </div>
+
+    <!-- League entry cards -->
+    <div class="league-cards" role="list"></div>
+
+    <!-- Tagline — below the cards -->
+    <p class="landing-tagline">Where Legends Are Made &amp; Legacies Are Settled</p>
+
+    <!-- Bottom rule -->
+    <div class="landing-rule" aria-hidden="true"></div>
+
+    <!-- Footer -->
+    <footer class="site-footer" role="contentinfo"></footer>
+
+  </main>
+
+  <script src="menu.js"></script>
+</body>
+</html>

@@ -1,0 +1,2361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OFC — Admin</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="admin-config.js"></script>
+  <script src="admin.js"></script>
+</head>
+<body class="admin-page-body">
+  <div id="versionLockBanner" class="version-lock-banner" style="display:none;">
+    &#x26A0;&nbsp; A new <code>admin.js</code> has been deployed. Import your <code>admin-config.js</code> to unlock Save and Export.
+  </div>
+
+<!-- ══════════════════════════════════════════════════════════
+     PIN GATE
+══════════════════════════════════════════════════════════ -->
+<div class="pin-gate" id="pinGate">
+  <p class="pin-gate-eyebrow">OFC · Restricted Access</p>
+  <h1 class="pin-gate-title">Admin Panel</h1>
+  <div class="pin-gate-form">
+    <div class="pin-dots" id="pinDots">
+      <div class="pin-dot" id="dot0"></div>
+      <div class="pin-dot" id="dot1"></div>
+      <div class="pin-dot" id="dot2"></div>
+      <div class="pin-dot" id="dot3"></div>
+    </div>
+    <div class="pin-keypad">
+      <button class="pin-key" data-val="1">1</button>
+      <button class="pin-key" data-val="2">2</button>
+      <button class="pin-key" data-val="3">3</button>
+      <button class="pin-key" data-val="4">4</button>
+      <button class="pin-key" data-val="5">5</button>
+      <button class="pin-key" data-val="6">6</button>
+      <button class="pin-key" data-val="7">7</button>
+      <button class="pin-key" data-val="8">8</button>
+      <button class="pin-key" data-val="9">9</button>
+      <button class="pin-key clear" data-val="clear">Clear</button>
+      <button class="pin-key" data-val="0">0</button>
+      <button class="pin-key" data-val="back">&#x232B;</button>
+    </div>
+    <p class="pin-error-msg" id="pinError">Incorrect PIN — try again</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     ADMIN PAGE
+══════════════════════════════════════════════════════════ -->
+<div class="admin-page" id="adminPage" style="display:none;">
+
+  <nav class="topnav" role="navigation">
+    <a href="index.html" class="topnav-logo">OFC</a>
+    <button class="menu-trigger" aria-label="Open menu" aria-expanded="false" aria-controls="site-drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <div class="drawer-overlay" aria-hidden="true"></div>
+  <aside id="site-drawer" class="drawer" role="dialog" aria-modal="true" aria-label="Navigation">
+    <p class="drawer-label">Admin</p>
+    <ul class="admin-drawer-nav" id="adminDrawerNav">
+      <li><a href="index.html" target="_blank" class="drawer-link">Preview Site <span style="opacity:.5;font-size:.8em;">&#x2197;</span></a></li>
+      <li><a href="#" class="drawer-link" id="drawerSave">Save Changes</a></li>
+      <li><a href="#" class="drawer-link" id="drawerImport">Import Config</a></li>
+      <li><a href="#" class="drawer-link" id="drawerExport">Export Config</a></li>
+    </ul>
+    <div class="admin-drawer-footer">OFC Admin Panel</div>
+  </aside>
+
+  <header class="admin-hero">
+    <div class="admin-hero-text">
+      <p class="admin-eyebrow">Content Management</p>
+      <h1>Admin Panel</h1>
+    </div>
+    <div class="admin-hero-actions">
+      <a href="index.html" target="_blank" class="btn">Preview Site &#x2197;</a>
+      <button class="btn" id="btnSave">Save Changes</button>
+      <button class="btn" id="btnImport">Import Config</button>
+      <input type="file" id="importFileInput" accept=".js" style="display:none;" />
+      <button class="btn" id="btnExport">Export Config</button>
+    </div>
+  </header>
+
+  <main class="admin-body">
+
+    <!-- ══════════════════════════════════════════════════════
+         TOP-LEVEL: SITE SETTINGS (default closed)
+    ══════════════════════════════════════════════════════════ -->
+    <section class="admin-section is-collapsed admin-top-section">
+      <div class="admin-section-header">
+        <span class="admin-section-label">Site Settings</span>
+        <span class="admin-section-toggle">&#x25BC;</span>
+      </div>
+      <div class="admin-section-body">
+
+        <!-- Landing Text -->
+        <section class="admin-section admin-nested-section is-collapsed">
+          <div class="admin-section-header">
+            <span class="admin-section-label">Landing Page — Text</span>
+            <span class="admin-section-toggle">&#x25BC;</span>
+          </div>
+          <div class="admin-section-body">
+            <div class="field-row">
+              <div class="field-label">Logo Mark<span class="field-hint">Upper-left corner nav text</span></div>
+              <input class="admin-input" type="text" id="f_logoMark" placeholder="OFC" />
+            </div>
+            <div class="field-row">
+              <div class="field-label">Eyebrow Line<span class="field-hint">Small caps above the title</span></div>
+              <input class="admin-input" type="text" id="f_eyebrow" placeholder="Official Fantasy Commission" />
+            </div>
+            <div class="field-row">
+              <div class="field-label">Page Title<span class="field-hint">Large hero text (e.g. "OFC")</span></div>
+              <input class="admin-input" type="text" id="f_title" />
+            </div>
+            <div class="field-row">
+              <div class="field-label">Subtitle<span class="field-hint">Below the title</span></div>
+              <input class="admin-input" type="text" id="f_subtitle" />
+            </div>
+            <div class="field-row">
+              <div class="field-label">Tagline<span class="field-hint">Italic line beneath the cards</span></div>
+              <input class="admin-input" type="text" id="f_tagline" />
+            </div>
+            <div class="field-row">
+              <div class="field-label">Footer Text<span class="field-hint">Bottom of landing page</span></div>
+              <input class="admin-input" type="text" id="f_footerText" />
+            </div>
+          </div>
+        </section>
+
+        <!-- Slideshow -->
+        <section class="admin-section admin-nested-section is-collapsed">
+          <div class="admin-section-header">
+            <span class="admin-section-label">Background Slideshow</span>
+            <span class="admin-section-toggle">&#x25BC;</span>
+          </div>
+          <div class="admin-section-body">
+            <div class="section-desc-row">
+              <p class="admin-section-desc">Images that cycle behind the landing page hero.</p>
+            </div>
+            <div class="card-list" id="slideList"></div>
+            <button class="btn btn-sm" id="btnAddSlide" style="margin-top:0.5rem;">+ Add Slide</button>
+            <div class="field-row" style="margin-top:0.5rem;">
+              <div class="field-label">Display Duration<span class="field-hint">Seconds each slide is shown</span></div>
+              <input class="admin-input" type="number" id="f_displayDuration" min="2" max="60" step="1" placeholder="4" style="max-width:120px;" />
+            </div>
+            <div class="field-row">
+              <div class="field-label">Fade Duration<span class="field-hint">Seconds for cross-fade transition</span></div>
+              <input class="admin-input" type="number" id="f_fadeDuration" min="0.5" max="10" step="0.5" placeholder="2" style="max-width:120px;" />
+            </div>
+            <div class="field-row">
+              <div class="field-label">Overlay Darkness<span class="field-hint">0 = none · 0.9 = very dark</span></div>
+              <input class="admin-input" type="text" id="f_ssOverlay" placeholder="rgba(0,0,0,0.55)" />
+            </div>
+          </div>
+        </section>
+
+        <!-- Typography -->
+        <section class="admin-section admin-nested-section is-collapsed">
+          <div class="admin-section-header">
+            <span class="admin-section-label">Typography</span>
+            <span class="admin-section-toggle">&#x25BC;</span>
+          </div>
+          <div class="admin-section-body">
+            <div class="field-row">
+              <div class="field-label">Display Font<span class="field-hint">Titles &amp; hero text</span></div>
+              <div style="display:flex;flex-direction:column;gap:0.8rem;">
+                <select class="admin-input" id="f_fontDisplay"></select>
+                <div id="prevDisplay" style="font-size:2.8rem;line-height:1;color:var(--accent);padding:0.5rem 0;transition:font-family 0.3s ease;">OFC &middot; Blue Ribbon Cup</div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-label">Body Font<span class="field-hint">Nav, labels, cards</span></div>
+              <div style="display:flex;flex-direction:column;gap:0.8rem;">
+                <select class="admin-input" id="f_fontBody"></select>
+                <div id="prevBody" style="font-size:0.85rem;letter-spacing:0.35em;text-transform:uppercase;color:var(--accent-dim);padding:0.2rem 0;transition:font-family 0.3s ease;">Football &middot; Basketball &middot; Standings</div>
+              </div>
+            </div>
+            <div class="admin-subsection-label">Hero Text</div>
+            <div class="field-row"><div class="field-label">Eyebrow Size<span class="field-hint">pt — e.g. 8</span></div><div style="display:flex;align-items:center;gap:0.5rem;"><input class="admin-input" type="number" id="f_sizeEyebrow" min="4" max="72" step="0.5" style="max-width:100px;" /><span class="pt-label">PT</span></div></div>
+            <div class="field-row"><div class="field-label">Title Size<span class="field-hint">pt — e.g. 72</span></div><div style="display:flex;align-items:center;gap:0.5rem;"><input class="admin-input" type="number" id="f_sizeTitle" min="12" max="300" step="1" style="max-width:100px;" /><span class="pt-label">PT</span></div></div>
+            <div class="field-row"><div class="field-label">Subtitle Size<span class="field-hint">pt — e.g. 10</span></div><div style="display:flex;align-items:center;gap:0.5rem;"><input class="admin-input" type="number" id="f_sizeSubtitle" min="4" max="72" step="0.5" style="max-width:100px;" /><span class="pt-label">PT</span></div></div>
+            <div class="field-row"><div class="field-label">Tagline Size<span class="field-hint">pt — e.g. 12</span></div><div style="display:flex;align-items:center;gap:0.5rem;"><input class="admin-input" type="number" id="f_sizeTagline" min="4" max="72" step="0.5" style="max-width:100px;" /><span class="pt-label">PT</span></div></div>
+            <div class="admin-subsection-label">Navigation Menu</div>
+            <div class="field-row"><div class="field-label">Menu Item Size<span class="field-hint">pt — e.g. 18</span></div><div style="display:flex;align-items:center;gap:0.5rem;"><input class="admin-input" type="number" id="f_sizeNavItem" min="8" max="120" step="0.5" style="max-width:100px;" /><span class="pt-label">PT</span></div></div>
+            <div class="field-row"><div class="field-label">Menu Footer Size<span class="field-hint">pt — e.g. 7</span></div><div style="display:flex;align-items:center;gap:0.5rem;"><input class="admin-input" type="number" id="f_sizeNavFooter" min="4" max="24" step="0.5" style="max-width:100px;" /><span class="pt-label">PT</span></div></div>
+            <div class="admin-subsection-label">League Cards</div>
+            <div class="field-row"><div class="field-label">Sport / Season Size<span class="field-hint">pt — e.g. 7</span></div><div style="display:flex;align-items:center;gap:0.5rem;"><input class="admin-input" type="number" id="f_sizeCardSport" min="4" max="36" step="0.5" style="max-width:100px;" /><span class="pt-label">PT</span></div></div>
+            <div class="field-row"><div class="field-label">League Name Size<span class="field-hint">pt — e.g. 16</span></div><div style="display:flex;align-items:center;gap:0.5rem;"><input class="admin-input" type="number" id="f_sizeCardName" min="6" max="72" step="0.5" style="max-width:100px;" /><span class="pt-label">PT</span></div></div>
+            <div class="field-row"><div class="field-label">CTA Link Size<span class="field-hint">pt — e.g. 8</span></div><div style="display:flex;align-items:center;gap:0.5rem;"><input class="admin-input" type="number" id="f_sizeCardCta" min="4" max="36" step="0.5" style="max-width:100px;" /><span class="pt-label">PT</span></div></div>
+            <div class="admin-subsection-label">Admin Panel UI</div>
+            <div class="field-row"><div class="field-label">Field Label Size<span class="field-hint">pt — e.g. 9</span></div><div style="display:flex;align-items:center;gap:0.5rem;"><input class="admin-input" type="number" id="f_sizeAdminLabel" min="4" max="24" step="0.5" style="max-width:100px;" /><span class="pt-label">PT</span></div></div>
+            <div class="field-row"><div class="field-label">Field Hint Size<span class="field-hint">pt — e.g. 8</span></div><div style="display:flex;align-items:center;gap:0.5rem;"><input class="admin-input" type="number" id="f_sizeAdminHint" min="4" max="18" step="0.5" style="max-width:100px;" /><span class="pt-label">PT</span></div></div>
+          </div>
+        </section>
+
+        <!-- Theme Colors -->
+        <section class="admin-section admin-nested-section is-collapsed">
+          <div class="admin-section-header">
+            <span class="admin-section-label">Theme &amp; Colors</span>
+            <span class="admin-section-toggle">&#x25BC;</span>
+          </div>
+          <div class="admin-section-body">
+            <div class="field-row"><div class="field-label">Accent Color<span class="field-hint">Main silver/white</span></div><div class="color-field"><input class="color-swatch" type="color" id="f_accentColor" /><input class="admin-input" type="text" id="f_accentColorHex" placeholder="#e8e8e8" /></div></div>
+            <div class="field-row"><div class="field-label">Accent Dim<span class="field-hint">Secondary muted text</span></div><div class="color-field"><input class="color-swatch" type="color" id="f_accentDim" /><input class="admin-input" type="text" id="f_accentDimHex" placeholder="#888888" /></div></div>
+            <div class="field-row"><div class="field-label">Hint Text<span class="field-hint">Field labels &amp; helper tips</span></div><div class="color-field"><input class="color-swatch" type="color" id="f_hintColor" /><input class="admin-input" type="text" id="f_hintColorHex" placeholder="#555555" /></div></div>
+            <div class="field-row"><div class="field-label">Drawer Background<span class="field-hint">Slide-out menu bg</span></div><div class="color-field"><input class="color-swatch" type="color" id="f_drawerBg" /><input class="admin-input" type="text" id="f_drawerBgHex" placeholder="#0d0d0d" /></div></div>
+          </div>
+        </section>
+
+        <!-- Navigation Menu -->
+        <section class="admin-section admin-nested-section is-collapsed">
+          <div class="admin-section-header">
+            <span class="admin-section-label">Navigation Menu</span>
+            <span class="admin-section-toggle">&#x25BC;</span>
+          </div>
+          <div class="admin-section-body">
+            <div class="section-desc-row" style="margin-bottom:0.5rem;">
+              <p class="admin-section-desc">Links shown in the slide-out drawer.</p>
+            </div>
+            <div class="field-row">
+              <div class="field-label">Menu Footer Text<span class="field-hint">Bottom of the slide-out menu</span></div>
+              <input class="admin-input" type="text" id="f_drawerFooter" placeholder="OFC · Est. 2005" />
+            </div>
+            <div class="card-list" id="menuList"></div>
+            <button class="btn btn-sm" id="btnAddMenuItem" style="margin-top:0.5rem;">+ Add Item</button>
+          </div>
+        </section>
+
+        <!-- Commissioner Settings -->
+        <section class="admin-section admin-nested-section is-collapsed">
+          <div class="admin-section-header">
+            <span class="admin-section-label">Commissioner Settings</span>
+            <span class="admin-section-toggle">&#x25BC;</span>
+          </div>
+          <div class="admin-section-body">
+            <div class="admin-notice"><span class="admin-notice-icon">&#x26A0;</span>PIN changes are active immediately. Download a new <code>admin-config.js</code> to make permanent.</div>
+            <div class="field-row"><div class="field-label">Current PIN<span class="field-hint">Required to verify</span></div><input class="admin-input" type="password" id="f_pinCurrent" placeholder="Enter current PIN" style="max-width:220px;" autocomplete="off" /></div>
+            <div class="field-row"><div class="field-label">New PIN<span class="field-hint">4 digits only</span></div><input class="admin-input" type="password" id="f_pinNew" placeholder="New 4-digit PIN" maxlength="4" style="max-width:220px;" autocomplete="off" /></div>
+            <div class="field-row"><div class="field-label">Confirm New PIN</div><div style="display:flex;gap:0.8rem;align-items:center;flex-wrap:wrap;"><input class="admin-input" type="password" id="f_pinConfirm" placeholder="Repeat new PIN" maxlength="4" style="max-width:220px;" autocomplete="off" /><button class="btn btn-sm" id="btnChangePin">Update PIN</button></div></div>
+          </div>
+        </section>
+
+        <!-- Danger Zone -->
+        <section class="admin-section admin-nested-section is-collapsed">
+          <div class="admin-section-header">
+            <span class="admin-section-label">Danger Zone</span>
+            <span class="admin-section-toggle">&#x25BC;</span>
+          </div>
+          <div class="admin-section-body">
+            <div class="field-row"><div class="field-label">Reset Config<span class="field-hint">Wipe localStorage and revert to defaults</span></div><button class="btn btn-danger" id="btnResetDefaults">Reset to Defaults</button></div>
+            <div class="field-row"><div class="field-label">Lock Panel<span class="field-hint">End this session — PIN required to re-enter</span></div><button class="btn btn-danger" id="btnLockAdmin">Lock Admin Panel</button></div>
+          </div>
+        </section>
+
+      </div><!-- /site-settings body -->
+    </section><!-- /site-settings -->
+
+    <!-- ══════════════════════════════════════════════════════
+         TOP-LEVEL: MASTER ROSTER (default closed)
+    ══════════════════════════════════════════════════════════ -->
+    <section class="admin-section is-collapsed admin-top-section">
+      <div class="admin-section-header">
+        <span class="admin-section-label">Master Roster</span>
+        <span class="admin-section-toggle">&#x25BC;</span>
+      </div>
+      <div class="admin-section-body">
+        <div class="section-desc-row">
+          <p class="admin-section-desc">All people who have ever played in any league. Active members appear in league dropdowns. Inactive members are archived but preserved in historical data.</p>
+        </div>
+        <div class="card-list" id="rosterList"></div>
+        <button class="btn btn-sm" id="btnAddMember" style="margin-top:0.5rem;">+ Add Member</button>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         TOP-LEVEL: LEAGUE SETTINGS (default closed)
+    ══════════════════════════════════════════════════════════ -->
+    <section class="admin-section is-collapsed admin-top-section">
+      <div class="admin-section-header">
+        <span class="admin-section-label">League Settings</span>
+        <span class="admin-section-toggle">&#x25BC;</span>
+      </div>
+      <div class="admin-section-body">
+        <div class="section-desc-row">
+          <p class="admin-section-desc">Configure each league — members, seasons, awards, slideshow, and card template.</p>
+        </div>
+        <div id="leagueDataList"></div>
+        <button class="btn btn-sm" id="btnAddLeague" style="margin-top:0.5rem;">+ Add League</button>
+      </div>
+    </section>
+
+  </main>
+</div><!-- /adminPage -->
+
+<!-- ══════════════════════════════════════════════════════════
+     EXPORT MODAL
+══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="exportModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Export — admin-config.js</span>
+      <button class="btn btn-sm" id="btnCloseModal">&#x2715; Close</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-family:var(--font-body);font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--accent-dim);margin-bottom:1rem;">
+        Download and replace your <code style="color:rgba(232,232,232,0.5)">admin-config.js</code> to make all changes permanent across devices.
+      </p>
+      <textarea class="modal-code" id="exportCode" readonly></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" id="btnCopyExport">Copy to Clipboard</button>
+      <button class="btn btn-primary" id="btnDownloadExport">&#x2913; Download admin-config.js</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     CONFIRM MODAL
+══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <span class="modal-title" id="confirmModalTitle">Confirm Action</span>
+    </div>
+    <div class="modal-body">
+      <p class="confirm-modal-msg" id="confirmModalMsg"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" id="btnConfirmCancel">Cancel</button>
+      <button class="btn btn-danger" id="btnConfirmOk">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="admin-toast" id="adminToast"></div>
+
+<script src="menu.js"></script>
+<script>
+/* Admin drawer close — menu.js binds close to .drawer-nav a which doesn't exist here */
+document.addEventListener('DOMContentLoaded', function () {
+  var drawer  = document.querySelector('.drawer');
+  var overlay = document.querySelector('.drawer-overlay');
+  var trigger = document.querySelector('.menu-trigger');
+  function closeDrawer() {
+    if (drawer)  drawer.classList.remove('is-open');
+    if (overlay) overlay.classList.remove('is-visible');
+    if (trigger) { trigger.classList.remove('is-active'); trigger.setAttribute('aria-expanded','false'); }
+    document.body.classList.remove('no-scroll');
+  }
+  document.querySelectorAll('.admin-drawer-nav a').forEach(function (a) {
+    a.addEventListener('click', function () {
+      if (!a.target || a.target !== '_blank') closeDrawer();
+    });
+  });
+});
+</script>
+<script>
+(function () {
+  'use strict';
+
+  /* ═══════════════════════════════════════════════════════════
+     PIN GATE
+  ═══════════════════════════════════════════════════════════ */
+  var pinEntry    = '';
+  var PIN         = window.ADMIN_PIN || '1234';
+  var SESSION_KEY = 'ofc_admin_unlocked';
+  var pinGate     = document.getElementById('pinGate');
+  var adminPage   = document.getElementById('adminPage');
+  var pinError    = document.getElementById('pinError');
+
+  function updateDots() {
+    for (var i = 0; i < 4; i++) {
+      var dot = document.getElementById('dot' + i);
+      if (i < pinEntry.length) { dot.classList.add('filled'); } else { dot.classList.remove('filled'); }
+      dot.classList.remove('error');
+    }
+  }
+
+  function shakeError() {
+    for (var i = 0; i < 4; i++) { document.getElementById('dot' + i).classList.add('error'); }
+    pinError.classList.add('visible');
+    setTimeout(function () { pinEntry = ''; updateDots(); pinError.classList.remove('visible'); }, 1200);
+  }
+
+  function checkPin() {
+    if (pinEntry === PIN) { sessionStorage.setItem(SESSION_KEY, '1'); unlock(); }
+    else { shakeError(); }
+  }
+
+  function unlock() {
+    pinGate.style.display   = 'none';
+    adminPage.style.display = 'block';
+    document.body.classList.add('admin-page');
+    initAdmin();
+  }
+
+  if (sessionStorage.getItem(SESSION_KEY) === '1') { unlock(); }
+
+  document.querySelectorAll('.pin-key').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var val = btn.getAttribute('data-val');
+      if (val === 'clear')          { pinEntry = ''; }
+      else if (val === 'back')      { pinEntry = pinEntry.slice(0, -1); }
+      else if (pinEntry.length < 4) {
+        pinEntry += val;
+        if (pinEntry.length === 4) { updateDots(); setTimeout(checkPin, 150); return; }
+      }
+      updateDots();
+    });
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (pinGate.style.display === 'none') return;
+    if (/^[0-9]$/.test(e.key) && pinEntry.length < 4) {
+      pinEntry += e.key;
+      if (pinEntry.length === 4) { updateDots(); setTimeout(checkPin, 150); return; }
+    } else if (e.key === 'Backspace') { pinEntry = pinEntry.slice(0, -1); }
+    else if (e.key === 'Escape')      { pinEntry = ''; }
+    updateDots();
+  });
+
+  /* ═══════════════════════════════════════════════════════════
+     ADMIN INIT
+  ═══════════════════════════════════════════════════════════ */
+  function initAdmin() {
+
+    if (!window.SITE_CONFIG || !window.FONT_OPTIONS) {
+      document.getElementById('adminPage').innerHTML = '<p style="color:red;padding:4rem;font-family:monospace;">ERROR: admin.js did not load correctly.</p>';
+      return;
+    }
+
+    var workingConfig = JSON.parse(JSON.stringify(window.SITE_CONFIG));
+    var FONTS         = window.FONT_OPTIONS;
+    var SCHEMAS       = window.SPORT_STAT_SCHEMAS;
+
+    /* Ensure leagueData exists */
+    if (!workingConfig.leagueData)   workingConfig.leagueData   = [];
+    if (!workingConfig.masterRoster) workingConfig.masterRoster = [];
+
+    /* ── Migrate roster members from old flat teams[] to new leagues[] schema ── */
+    workingConfig.masterRoster.forEach(function (m) { MemberFactory.migrate(m); });
+
+    if (workingConfig.theme && workingConfig.theme.hintColor) {
+      document.documentElement.style.setProperty('--hint-color', workingConfig.theme.hintColor);
+    }
+
+    /* ── Toast ────────────────────────────────────────────── */
+    var toast = document.getElementById('adminToast');
+    var toastTimer;
+    function showToast(msg, duration) {
+      clearTimeout(toastTimer);
+      toast.textContent = msg;
+      toast.classList.add('visible');
+      toastTimer = setTimeout(function () { toast.classList.remove('visible'); }, duration || 2400);
+    }
+
+    /* ── Dirty state ──────────────────────────────────────── */
+    var isDirty   = false;
+    var exportBtn = document.getElementById('btnExport');
+    var saveBtn   = document.getElementById('btnSave');
+    var importBtn = document.getElementById('btnImport');
+
+    /* ── Version lock ─────────────────────────────────────────
+       Compare ENGINE_VERSION (from admin.js) against the last
+       version recorded in localStorage after a successful import.
+       If they differ, lock Save + Export and highlight Import.
+    ────────────────────────────────────────────────────────── */
+    var ENGINE_VERSION  = window.ENGINE_VERSION || '0';
+    var STORED_VERSION  = localStorage.getItem('ofc_engine_version') || '';
+    var isVersionLocked = ENGINE_VERSION !== STORED_VERSION;
+
+    function applyVersionLock() {
+      var banner = document.getElementById('versionLockBanner');
+      if (isVersionLocked) {
+        banner.style.display = 'block';
+        importBtn.classList.add('btn-import-needed');
+        exportBtn.disabled = true;
+        saveBtn.disabled   = true;
+        exportBtn.style.opacity = '0.35';
+        saveBtn.style.opacity   = '0.35';
+      } else {
+        banner.style.display = 'none';
+        importBtn.classList.remove('btn-import-needed');
+        exportBtn.disabled = false;
+        saveBtn.disabled   = false;
+        exportBtn.style.opacity = '';
+        saveBtn.style.opacity   = '';
+      }
+    }
+
+    function unlockVersion() {
+      isVersionLocked = false;
+      localStorage.setItem('ofc_engine_version', ENGINE_VERSION);
+      applyVersionLock();
+    }
+
+    applyVersionLock();
+
+    function markDirty() {
+      if (!isDirty) {
+        isDirty = true;
+        exportBtn.textContent = 'Export Config \u25CF';
+        exportBtn.classList.add('btn-export-dirty');
+        saveBtn.classList.add('btn-primary');
+        saveBtn.textContent = 'Save Changes \u25CF';
+      }
+      autoSave();
+    }
+
+    function markClean() {
+      isDirty = false;
+      exportBtn.textContent = 'Export Config';
+      exportBtn.classList.remove('btn-export-dirty');
+      saveBtn.classList.remove('btn-primary');
+      saveBtn.textContent = 'Save Changes';
+    }
+
+    /* ── Auto-save ────────────────────────────────────────── */
+    var autoSaveTimer;
+    function autoSave() {
+      clearTimeout(autoSaveTimer);
+      autoSaveTimer = setTimeout(function () {
+        collectFields();
+        localStorage.setItem('ofc_site_config', JSON.stringify(workingConfig));
+        window.SITE_CONFIG = JSON.parse(JSON.stringify(workingConfig));
+      }, 400);
+    }
+
+    /* ── Core actions (shared by header buttons and drawer links) ── */
+    function doSave() {
+      collectFields();
+      localStorage.setItem('ofc_site_config', JSON.stringify(workingConfig));
+      window.SITE_CONFIG = JSON.parse(JSON.stringify(workingConfig));
+      markClean();
+      showToast('\u2713  Changes saved');
+    }
+    function doImport() {
+      document.getElementById('importFileInput').click();
+    }
+    function doExport() {
+      collectFields();
+      document.getElementById('exportCode').value = buildConfigJs(workingConfig);
+      document.getElementById('exportModal').classList.add('visible');
+    }
+
+    saveBtn.addEventListener('click', doSave);
+
+    /* ── Admin drawer link wiring ─────────────────────────── */
+    document.getElementById('drawerSave').addEventListener('click',   function (e) { e.preventDefault(); doSave();   });
+    document.getElementById('drawerImport').addEventListener('click', function (e) { e.preventDefault(); doImport(); });
+    document.getElementById('drawerExport').addEventListener('click', function (e) { e.preventDefault(); doExport(); });
+
+    /* ── Helpers ──────────────────────────────────────────── */
+    function esc(str) {
+      return (str === undefined || str === null ? '' : String(str))
+        .replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+    function setVal(id, val) {
+      var el = document.getElementById(id);
+      if (el) el.value = (val !== undefined && val !== null) ? val : '';
+    }
+    function getVal(id)    { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+    function getRawVal(id) { var el = document.getElementById(id); return el ? el.value : ''; }
+    function setSwatch(id, hex) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.value = (hex && hex.charAt(0) === '#') ? hex.slice(0, 7) : '#888888';
+    }
+    function hexToRgba(hex, alpha) {
+      var h = (hex || '#e8e8e8').replace('#','');
+      if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+      var r = parseInt(h.slice(0,2),16), g = parseInt(h.slice(2,4),16), b = parseInt(h.slice(4,6),16);
+      if (isNaN(r)) r=232; if (isNaN(g)) g=232; if (isNaN(b)) b=232;
+      return 'rgba('+r+','+g+','+b+','+alpha+')';
+    }
+
+    /* ── Collapsible sections ─────────────────────────────── */
+    /* ── Collapsible — single delegated listener ─────────────
+       Works for all sections including dynamically rendered
+       league panels and season panels added after page load.
+    ────────────────────────────────────────────────────────── */
+    function initCollapsible() { /* wired once below — no-op on repeat calls */ }
+
+    document.getElementById('adminPage').addEventListener('click', function (e) {
+      /* If the click was on a button anywhere inside a section header,
+         let the button's own handler run — do NOT toggle the section. */
+      if (e.target.closest('.btn')) return;
+      /* Only toggle when clicking the header itself (label, toggle arrow, padding) */
+      var header = e.target.closest('.admin-section-header');
+      if (!header) return;
+      var section = header.closest('.admin-section');
+      if (section) section.classList.toggle('is-collapsed');
+    });
+
+    /* ── Google Font loader ───────────────────────────────── */
+    var loadedFonts = {};
+    function loadGoogleFont(googleName) {
+      if (!googleName || loadedFonts[googleName]) return;
+      loadedFonts[googleName] = true;
+      var link = document.createElement('link');
+      link.rel  = 'stylesheet';
+      link.href = 'https://fonts.googleapis.com/css2?family=' + googleName + '&display=swap';
+      document.head.appendChild(link);
+    }
+
+    /* ── Font dropdowns ───────────────────────────────────── */
+    function buildFontDropdown(selectId, fontList, currentValue) {
+      var sel = document.getElementById(selectId);
+      if (!sel) return;
+      sel.innerHTML = '';
+      fontList.forEach(function (f) {
+        var opt = document.createElement('option');
+        opt.value = f.value; opt.textContent = f.label;
+        if (f.value === currentValue) opt.selected = true;
+        sel.appendChild(opt);
+        loadGoogleFont(f.google);
+      });
+    }
+
+    function updateFontPreview(selectId, previewId, cssVar) {
+      var sel  = document.getElementById(selectId);
+      var prev = document.getElementById(previewId);
+      if (!sel || !prev) return;
+      var chosen = sel.options[sel.selectedIndex];
+      if (!chosen) return;
+      prev.style.fontFamily = chosen.value;
+      document.documentElement.style.setProperty(cssVar, chosen.value);
+    }
+
+    function initFontDropdowns() {
+      var T = workingConfig.theme || {};
+      buildFontDropdown('f_fontDisplay', FONTS.display, T.fontDisplay);
+      buildFontDropdown('f_fontBody',    FONTS.body,    T.fontBody);
+      updateFontPreview('f_fontDisplay', 'prevDisplay', '--font-display');
+      updateFontPreview('f_fontBody',    'prevBody',    '--font-body');
+      document.getElementById('f_fontDisplay').addEventListener('change', function () {
+        workingConfig.theme.fontDisplay = this.value;
+        updateFontPreview('f_fontDisplay', 'prevDisplay', '--font-display'); markDirty();
+      });
+      document.getElementById('f_fontBody').addEventListener('change', function () {
+        workingConfig.theme.fontBody = this.value;
+        updateFontPreview('f_fontBody', 'prevBody', '--font-body'); markDirty();
+      });
+    }
+
+    /* ── Font size live fields ────────────────────────────── */
+    function initFontSizeFields() {
+      [
+        { id:'f_sizeEyebrow',    cssVar:'--size-eyebrow'    },
+        { id:'f_sizeTitle',      cssVar:'--size-title'      },
+        { id:'f_sizeSubtitle',   cssVar:'--size-subtitle'   },
+        { id:'f_sizeTagline',    cssVar:'--size-tagline'    },
+        { id:'f_sizeNavItem',    cssVar:'--size-nav-item'   },
+        { id:'f_sizeNavFooter',  cssVar:'--size-nav-footer' },
+        { id:'f_sizeCardSport',  cssVar:'--size-card-sport' },
+        { id:'f_sizeCardName',   cssVar:'--size-card-name'  },
+        { id:'f_sizeCardCta',    cssVar:'--size-card-cta'   },
+        { id:'f_sizeAdminLabel', cssVar:'--size-admin-label'},
+        { id:'f_sizeAdminHint',  cssVar:'--size-admin-hint' },
+      ].forEach(function (item) {
+        var el = document.getElementById(item.id);
+        if (!el) return;
+        el.addEventListener('input', function () {
+          var val = this.value.trim();
+          if (val) document.documentElement.style.setProperty(item.cssVar, val + 'pt');
+          markDirty();
+        });
+      });
+    }
+
+    /* ── Color fields ─────────────────────────────────────── */
+    function initColorFields() {
+      [
+        { swatch:'f_accentColor', hex:'f_accentColorHex' },
+        { swatch:'f_accentDim',   hex:'f_accentDimHex'   },
+        { swatch:'f_hintColor',   hex:'f_hintColorHex'   },
+        { swatch:'f_drawerBg',    hex:'f_drawerBgHex'    },
+      ].forEach(function (pair) {
+        var sw = document.getElementById(pair.swatch);
+        var hx = document.getElementById(pair.hex);
+        if (!sw || !hx) return;
+        sw.addEventListener('input', function () { hx.value = sw.value; markDirty(); });
+        hx.addEventListener('input', function () {
+          var v = hx.value.trim();
+          if (/^#[0-9a-fA-F]{6}$/.test(v)) { sw.value = v; }
+          markDirty();
+        });
+      });
+    }
+
+    /* ══════════════════════════════════════════════════════
+       SLIDE LIST (global slideshow)
+    ══════════════════════════════════════════════════════ */
+    function renderSlideList(containerId, slidesArr, onChanged) {
+      var KB        = window.KB_DIRECTIONS || [];
+      var container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = '';
+
+      slidesArr.forEach(function (slide, idx) {
+        var card = document.createElement('div');
+        card.className = 'admin-card';
+        var dirOpts = KB.map(function (d) {
+          return '<option value="'+d.value+'"'+(slide.direction===d.value?' selected':'')+'>'+d.label+'</option>';
+        }).join('');
+        var isFirst = idx === 0, isLast = idx === slidesArr.length - 1;
+        card.innerHTML =
+          '<div class="admin-card-header">' +
+            '<span class="admin-card-title">Slide '+(idx+1)+'</span>' +
+            '<div class="admin-card-actions">' +
+              '<button class="btn btn-sm btn-icon slide-up"'+(isFirst?' disabled':'')+'>&#x2191;</button>' +
+              '<button class="btn btn-sm btn-icon slide-dn"'+(isLast?' disabled':'')+'>&#x2193;</button>' +
+              '<button class="btn btn-sm btn-danger btn-icon slide-del">&#x2715;</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="admin-card-fields">' +
+            '<div class="admin-field-group full-width"><label>Image Path</label><input class="admin-input slide-path" type="text" value="'+esc(slide.image||'')+'" placeholder="assets/photo.jpg" /></div>' +
+            '<div class="admin-field-group"><label>Ken Burns Direction</label><select class="admin-input slide-dir">'+dirOpts+'</select></div>' +
+            '<div class="admin-field-group"><label>Preview</label><div class="image-preview-placeholder slide-ph">Enter path above</div><img class="image-preview slide-img" src="" alt="" /></div>' +
+          '</div>';
+
+        var pathEl = card.querySelector('.slide-path');
+        var imgEl  = card.querySelector('.slide-img');
+        var phEl   = card.querySelector('.slide-ph');
+
+        function refreshPreview(path) {
+          if (!path) { imgEl.classList.remove('visible'); phEl.style.display='flex'; phEl.textContent='Enter path above'; return; }
+          imgEl.src     = path;
+          imgEl.onload  = function () { imgEl.classList.add('visible'); phEl.style.display='none'; };
+          imgEl.onerror = function () { imgEl.classList.remove('visible'); phEl.style.display='flex'; phEl.textContent='Not found: '+path; };
+        }
+        refreshPreview(slide.image);
+
+        pathEl.addEventListener('input', function () { slide.image = this.value.trim(); refreshPreview(slide.image); onChanged(); });
+        card.querySelector('.slide-dir').addEventListener('change', function () { slide.direction = this.value; onChanged(); });
+        card.querySelector('.slide-del').addEventListener('click', function () { slidesArr.splice(idx,1); renderSlideList(containerId, slidesArr, onChanged); onChanged(); });
+        card.querySelector('.slide-up').addEventListener('click', function () {
+          if (idx > 0) { var t=slidesArr[idx-1]; slidesArr[idx-1]=slidesArr[idx]; slidesArr[idx]=t; renderSlideList(containerId,slidesArr,onChanged); onChanged(); }
+        });
+        card.querySelector('.slide-dn').addEventListener('click', function () {
+          if (idx < slidesArr.length-1) { var t=slidesArr[idx]; slidesArr[idx]=slidesArr[idx+1]; slidesArr[idx+1]=t; renderSlideList(containerId,slidesArr,onChanged); onChanged(); }
+        });
+        container.appendChild(card);
+      });
+    }
+
+    document.getElementById('btnAddSlide').addEventListener('click', function () {
+      var s = document.getElementById('btnAddSlide').closest('.admin-section');
+      if (s) s.classList.remove('is-collapsed');
+      if (!workingConfig.slideshow) workingConfig.slideshow = { slides:[] };
+      if (!workingConfig.slideshow.slides) workingConfig.slideshow.slides = [];
+      workingConfig.slideshow.slides.push({ image:'', direction:'kb-zoom-in' });
+      renderSlideList('slideList', workingConfig.slideshow.slides, markDirty);
+      markDirty();
+    });
+
+    /* ══════════════════════════════════════════════════════
+       MENU LIST
+    ══════════════════════════════════════════════════════ */
+    function renderMenuList() {
+      var container = document.getElementById('menuList');
+      if (!container) return;
+      container.innerHTML = '';
+      var items = workingConfig.menu || [];
+      items.forEach(function (item, idx) {
+        var card = document.createElement('div');
+        card.className = 'admin-card';
+        var isFirst = idx===0, isLast = idx===items.length-1;
+        card.innerHTML =
+          '<div class="admin-card-header">' +
+            '<span class="admin-card-title">'+esc(item.label||'Nav Item')+'</span>' +
+            '<div class="admin-card-actions">' +
+              '<button class="btn btn-sm btn-icon menu-up"'+(isFirst?' disabled':'')+'>&#x2191;</button>' +
+              '<button class="btn btn-sm btn-icon menu-dn"'+(isLast?' disabled':'')+'>&#x2193;</button>' +
+              '<button class="btn btn-sm btn-danger btn-icon menu-del">&#x2715;</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="admin-card-fields">' +
+            '<div class="admin-field-group"><label>Label</label><input class="admin-input" type="text" data-field="label" value="'+esc(item.label)+'" /></div>' +
+            '<div class="admin-field-group"><label>Link (href)</label><input class="admin-input" type="text" data-field="href" value="'+esc(item.href)+'" placeholder="page.html" /></div>' +
+            '<div class="admin-field-group"><label>New Tab?</label><select class="admin-input" data-field="external"><option value="false"'+(!item.external?' selected':'')+'>No</option><option value="true"'+(item.external?' selected':'')+'>Yes</option></select></div>' +
+          '</div>';
+        card.querySelectorAll('[data-field]').forEach(function (input) {
+          var ev = input.tagName==='SELECT' ? 'change' : 'input';
+          input.addEventListener(ev, function () {
+            var f = input.getAttribute('data-field');
+            items[idx][f] = f==='external' ? input.value==='true' : input.value;
+            if (f==='label') card.querySelector('.admin-card-title').textContent = input.value;
+            markDirty();
+          });
+        });
+        card.querySelector('.menu-del').addEventListener('click', function () { items.splice(idx,1); renderMenuList(); markDirty(); });
+        card.querySelector('.menu-up').addEventListener('click', function () { if (idx>0){var t=items[idx-1];items[idx-1]=items[idx];items[idx]=t;renderMenuList();markDirty();} });
+        card.querySelector('.menu-dn').addEventListener('click', function () { if (idx<items.length-1){var t=items[idx];items[idx]=items[idx+1];items[idx+1]=t;renderMenuList();markDirty();} });
+        container.appendChild(card);
+      });
+    }
+
+    document.getElementById('btnAddMenuItem').addEventListener('click', function () {
+      var s = document.getElementById('btnAddMenuItem').closest('.admin-section');
+      if (s) s.classList.remove('is-collapsed');
+      if (!workingConfig.menu) workingConfig.menu = [];
+      workingConfig.menu.push({ label:'New Page', href:'#', external:false });
+      renderMenuList(); markDirty();
+    });
+
+    /* ══════════════════════════════════════════════════════
+       MASTER ROSTER
+    ══════════════════════════════════════════════════════ */
+    function getLeagueNames() {
+      return (workingConfig.leagueData || []).map(function (l) { return l.name || ''; }).filter(Boolean);
+    }
+
+
+    /* ── Helper: get teams for a member in a specific league ── */
+    /* Supports both new leagues[] schema and legacy flat teams[] fallback */
+    function getMemberTeamsForLeague(member, leagueName) {
+      if (!member) return [];
+      // New schema
+      if (member.leagues) {
+        var entry = (member.leagues || []).find(function (lg) {
+          return lg.leagueKey === leagueName || lg.leagueName === leagueName;
+        });
+        return entry ? (entry.teams || []) : [];
+      }
+      // Legacy flat fallback
+      return (member.teams || []).filter(function (t) { return t.league === leagueName; });
+    }
+
+    /* ── Helper: build a team dropdown from season roster ────── */
+    /* Returns <option> HTML. Selecting resolves memberId+ownerName. */
+    function buildTeamDropdown(seasonRoster, selectedTeamName, includeBlank) {
+      var opts = includeBlank ? '<option value="">— Select Team —</option>' : '';
+      (seasonRoster || []).forEach(function (entry) {
+        if (!entry.teamName) return;
+        var sel = entry.teamName === selectedTeamName ? ' selected' : '';
+        opts += '<option value="'+esc(entry.teamName)+'"'+sel+' data-mid="'+esc(entry.memberId)+'" data-owner="'+esc(entry.ownerName)+'">'+esc(entry.teamName)+' — '+esc(entry.ownerName)+'</option>';
+      });
+      return opts;
+    }
+
+    /* ── Resolve team selection to { memberId, ownerName, teamName } ── */
+    function resolveTeamSelection(sel, seasonRoster) {
+      var teamName = sel.value;
+      var entry    = (seasonRoster || []).find(function (e) { return e.teamName === teamName; });
+      return entry ? { memberId: entry.memberId, ownerName: entry.ownerName, teamName: teamName } : { memberId: '', ownerName: '', teamName: teamName };
+    }
+
+    /* ── Roster: league keys available to members ─────────────── */
+    var MEMBER_LEAGUE_KEYS = ['OFC', 'BRC', 'Other'];
+
+    /* Build the Leagues collapsible section HTML for one member */
+    function buildMemberLeaguesHtml(member) {
+      if (!member.leagues) member.leagues = [];
+      var usedKeys = member.leagues.map(function (lg) { return lg.leagueKey; });
+      var available = MEMBER_LEAGUE_KEYS.filter(function (k) { return usedKeys.indexOf(k) === -1; });
+
+      var leaguesBodyHtml = member.leagues.map(function (lg, lgIdx) {
+        var isOFC = lg.leagueKey === 'OFC';
+        var leagueNameFieldHtml = lg.leagueKey === 'Other'
+          ? '<div class="admin-field-group"><label>League Name</label>' +
+              '<input class="admin-input lg-name-field" type="text" value="'+esc(lg.leagueName||'')+'" placeholder="e.g. Poker Night" /></div>'
+          : '';
+
+        var teamsHtml = (lg.teams || []).map(function (t, tIdx) {
+          var logoField = isOFC
+            ? '<div class="admin-field-group"><label>Team Logo URL</label>' +
+                '<input class="admin-input team-logo-field" type="text" value="'+esc(t.logo||'')+'" placeholder="assets/logos/team.png" /></div>'
+            : '';
+          return '<div class="team-entry-v2" data-tidx="'+tIdx+'">' +
+            '<div class="team-entry-fields">' +
+              '<div class="admin-field-group"><label>Team Name</label>' +
+                '<input class="admin-input team-name-field" type="text" value="'+esc(t.name||'')+'" placeholder="Team name" /></div>' +
+              logoField +
+            '</div>' +
+            '<button class="btn btn-sm btn-danger btn-icon team-del-v2" style="align-self:flex-start;margin-top:1.4rem;">&#x2715;</button>' +
+          '</div>';
+        }).join('');
+
+        return '<div class="member-league-block" data-lgidx="'+lgIdx+'">' +
+          '<div class="member-league-block-header">' +
+            '<span class="member-league-key-badge">'+esc(lg.leagueKey)+(lg.leagueKey==='Other'&&lg.leagueName?' · '+esc(lg.leagueName):'')+'</span>' +
+            '<button class="btn btn-sm btn-danger btn-icon league-block-del">&#x2715;</button>' +
+          '</div>' +
+          leagueNameFieldHtml +
+          '<div class="team-entries-v2">'+teamsHtml+'</div>' +
+          '<button class="btn btn-sm add-team-v2-btn">+ Add Team</button>' +
+        '</div>';
+      }).join('');
+
+      var addLeagueBtnHtml = available.length
+        ? '<div class="add-league-row">' +
+            '<select class="admin-input add-league-sel" style="min-width:140px;">' +
+              '<option value="">— Select League —</option>' +
+              available.map(function (k) { return '<option value="'+k+'">'+k+'</option>'; }).join('') +
+            '</select>' +
+            '<button class="btn btn-sm add-league-btn">+ Join League</button>' +
+          '</div>'
+        : '<p style="font-size:0.8rem;opacity:0.5;margin:0.4rem 0 0;">All leagues added.</p>';
+
+      return '<div class="member-leagues-section">' +
+        '<div class="member-leagues-body">'+leaguesBodyHtml+'</div>' +
+        addLeagueBtnHtml +
+      '</div>';
+    }
+
+    function bindMemberLeagueEvents(section, member) {
+      var leaguesSec = section.querySelector('.member-leagues-section');
+      if (!leaguesSec) return;
+
+      /* Add League button */
+      var addLeagueBtn = leaguesSec.querySelector('.add-league-btn');
+      if (addLeagueBtn) {
+        addLeagueBtn.addEventListener('click', function () {
+          var sel = leaguesSec.querySelector('.add-league-sel');
+          var key = sel ? sel.value : '';
+          if (!key) return;
+          if (!member.leagues) member.leagues = [];
+          member.leagues.push(MemberFactory.createLeagueEntry(key, ''));
+          renderRosterList(); markDirty();
+        });
+      }
+
+      /* Per-league-block events */
+      leaguesSec.querySelectorAll('.member-league-block').forEach(function (block, lgIdx) {
+        var lg = member.leagues[lgIdx];
+        if (!lg) return;
+
+        /* League name field (Other only) */
+        var lgNameField = block.querySelector('.lg-name-field');
+        if (lgNameField) {
+          lgNameField.addEventListener('input', function () {
+            lg.leagueName = this.value;
+            /* Update badge inline */
+            var badge = block.querySelector('.member-league-key-badge');
+            if (badge) badge.textContent = 'Other' + (this.value ? ' · ' + this.value : '');
+            markDirty();
+          });
+        }
+
+        /* Delete league block */
+        block.querySelector('.league-block-del').addEventListener('click', function () {
+          showConfirm('Remove League', 'Remove the '+esc(lg.leagueKey)+' league entry for this member? All team data will be lost.', function () {
+            member.leagues.splice(lgIdx, 1);
+            renderRosterList(); markDirty();
+          });
+        });
+
+        /* Add team button */
+        block.querySelector('.add-team-v2-btn').addEventListener('click', function () {
+          if (!lg.teams) lg.teams = [];
+          var newTeam = { name: '' };
+          if (lg.leagueKey === 'OFC') newTeam.logo = '';
+          lg.teams.push(newTeam);
+          renderRosterList(); markDirty();
+        });
+
+        /* Per-team events */
+        block.querySelectorAll('.team-entry-v2').forEach(function (te, tIdx) {
+          var t = lg.teams[tIdx];
+          if (!t) return;
+          var nameField = te.querySelector('.team-name-field');
+          if (nameField) nameField.addEventListener('input', function () { t.name = this.value; markDirty(); });
+          var logoField = te.querySelector('.team-logo-field');
+          if (logoField) logoField.addEventListener('input', function () { t.logo = this.value; markDirty(); });
+          te.querySelector('.team-del-v2').addEventListener('click', function () {
+            lg.teams.splice(tIdx, 1);
+            renderRosterList(); markDirty();
+          });
+        });
+      });
+    }
+
+    function renderRosterList() {
+      var container = document.getElementById('rosterList');
+      if (!container) return;
+      container.innerHTML = '';
+      var roster = workingConfig.masterRoster || [];
+
+      roster.forEach(function (member, mIdx) {
+        /* Ensure migrated */
+        MemberFactory.migrate(member);
+
+        var section = document.createElement('section');
+        section.className = 'admin-section admin-nested-section is-collapsed admin-member-section' +
+          (member.active === false ? ' member-inactive' : '');
+
+        section.innerHTML =
+          '<div class="admin-section-header">' +
+            '<div class="member-header-info">' +
+              '<span class="admin-card-title member-title">'+esc(member.name||'New Member')+'</span>' +
+              '<span class="member-status-badge '+(member.active===false?'inactive':'active')+'">'+(member.active===false?'Inactive':'Active')+'</span>' +
+            '</div>' +
+            '<div class="admin-card-actions">' +
+              '<button class="btn btn-sm member-toggle">'+(member.active===false?'Activate':'Deactivate')+'</button>' +
+              '<button class="btn btn-sm btn-danger btn-icon member-del">&#x2715;</button>' +
+            '</div>' +
+            '<span class="admin-section-toggle">&#x25BC;</span>' +
+          '</div>' +
+          '<div class="admin-section-body">' +
+            '<!-- Identity fields -->' +
+            '<div class="admin-card-fields" style="margin-bottom:1.2rem;">' +
+              '<div class="admin-field-group"><label>Full Name</label>' +
+                '<input class="admin-input member-name" type="text" value="'+esc(member.name||'')+'" placeholder="Owner Name" /></div>' +
+              '<div class="admin-field-group"><label>Nickname <span style="opacity:.5;font-weight:400;">(optional)</span></label>' +
+                '<input class="admin-input member-nick" type="text" value="'+esc(member.nickname||'')+'" placeholder="Optional" /></div>' +
+              '<div class="admin-field-group full-width"><label>Mugshot <span style="opacity:.5;font-weight:400;">— action shot or arrest pic</span><span class="field-hint">Image path for baseball card</span></label>' +
+                '<input class="admin-input member-mugshot" type="text" value="'+esc(member.mugshot||'')+'" placeholder="assets/mugs/spider.jpg" /></div>' +
+            '</div>' +
+            '<!-- Leagues collapsible -->' +
+            '<div class="member-leagues-outer">' +
+              '<div class="member-leagues-toggle-row" role="button" tabindex="0" aria-expanded="false">' +
+                '<span class="admin-subsection-label" style="margin:0;">Leagues Joined</span>' +
+                '<span class="member-leagues-caret">&#x25BC;</span>' +
+              '</div>' +
+              '<div class="member-leagues-collapsible" style="display:none;">' +
+                buildMemberLeaguesHtml(member) +
+              '</div>' +
+            '</div>' +
+          '</div>';
+
+        /* ── Identity field events ── */
+        section.querySelector('.member-name').addEventListener('input', function () {
+          member.name = this.value;
+          section.querySelector('.member-title').textContent = this.value || 'New Member';
+          (workingConfig.leagueData || []).forEach(function (league) {
+            (league.seasons || []).forEach(function (season) {
+              (season.roster || []).forEach(function (entry) {
+                if (entry.memberId === member.id) entry.ownerName = member.name;
+              });
+            });
+          });
+          document.querySelectorAll('.roster-add-sel').forEach(function (sel) {
+            var currentVal = sel.value;
+            var opts = '<option value="">— Add member to roster —</option>';
+            (workingConfig.masterRoster || []).forEach(function (m) {
+              if (m.active === false) return;
+              opts += '<option value="'+esc(m.id)+'"'+(m.id===currentVal?' selected':'')+'>'+esc(m.name)+(m.nickname?' ('+esc(m.nickname)+')':'')+'</option>';
+            });
+            sel.innerHTML = opts;
+          });
+          markDirty();
+        });
+        section.querySelector('.member-nick').addEventListener('input', function () { member.nickname = this.value; markDirty(); });
+        section.querySelector('.member-mugshot').addEventListener('input', function () { member.mugshot = this.value; markDirty(); });
+        section.querySelector('.member-toggle').addEventListener('click', function () {
+          member.active = (member.active === false) ? true : false;
+          renderRosterList(); markDirty();
+        });
+        section.querySelector('.member-del').addEventListener('click', function () {
+          showConfirm('Remove Member', 'Remove '+esc(member.name)+'? This cannot be undone.', function () {
+            roster.splice(mIdx, 1); renderRosterList(); markDirty();
+          });
+        });
+
+        /* ── Leagues collapsible toggle ── */
+        var toggleRow = section.querySelector('.member-leagues-toggle-row');
+        var collapsible = section.querySelector('.member-leagues-collapsible');
+        toggleRow.addEventListener('click', function () {
+          var open = collapsible.style.display !== 'none';
+          collapsible.style.display = open ? 'none' : 'block';
+          toggleRow.setAttribute('aria-expanded', String(!open));
+          toggleRow.querySelector('.member-leagues-caret').style.transform = open ? '' : 'rotate(180deg)';
+        });
+        toggleRow.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleRow.click(); }
+        });
+
+        /* ── League block events ── */
+        bindMemberLeagueEvents(section, member);
+
+        container.appendChild(section);
+      });
+    }
+
+    function buildOwnerDropdown(leagueMembers, roster, selectedId, includeBlank) {
+      var opts = includeBlank ? '<option value="">— Select Owner —</option>' : '';
+      (leagueMembers || []).forEach(function (mid) {
+        var m = roster.find(function (r) { return r.id === mid; });
+        if (!m) return;
+        opts += '<option value="'+esc(mid)+'"'+(selectedId===mid?' selected':'')+'>'+esc(m.name)+'</option>';
+      });
+      return opts;
+    }
+
+    function renderLeagueDataList() {
+      var container = document.getElementById('leagueDataList');
+      if (!container) return;
+      container.innerHTML = '';
+      var leagues = workingConfig.leagueData || [];
+
+      leagues.forEach(function (league, lgIdx) {
+        renderLeaguePanel(container, league, lgIdx);
+      });
+
+      initCollapsible();
+    }
+
+    function renderLeaguePanel(container, league, lgIdx) {
+      var schema    = SCHEMAS[league.sport] || SCHEMAS.other;
+      var roster    = workingConfig.masterRoster || [];
+      var sportOpts = ['football','madness','other'].map(function (s) {
+        var label = SCHEMAS[s] ? SCHEMAS[s].label : s;
+        return '<option value="'+s+'"'+(league.sport===s?' selected':'')+'>'+label+'</option>';
+      }).join('');
+
+      var leagueSection = document.createElement('section');
+      leagueSection.className = 'admin-section admin-nested-section is-collapsed admin-league-panel';
+      leagueSection.setAttribute('data-lgid', league.id);
+
+      leagueSection.innerHTML =
+        '<div class="admin-section-header">' +
+          '<div class="league-panel-title-group">' +
+            '<span class="admin-card-title">'+esc(league.name||'New League')+'</span>' +
+            '<span class="league-sport-badge">'+esc((SCHEMAS[league.sport]||{}).label||league.sport||'')+'</span>' +
+          '</div>' +
+          '<div class="admin-card-actions">' +
+            '<button class="btn btn-sm btn-danger league-del">&#x2715; Remove</button>' +
+          '</div>' +
+          '<span class="admin-section-toggle">&#x25BC;</span>' +
+        '</div>' +
+        '<div class="admin-section-body"></div>';
+
+      var body = leagueSection.querySelector('.admin-section-body');
+
+      leagueSection.querySelector('.league-del').addEventListener('click', function () {
+        showConfirm('Remove League', 'Remove '+esc(league.name)+'? All season data will be lost.', function () {
+          workingConfig.leagueData.splice(lgIdx, 1); renderLeagueDataList(); markDirty();
+        });
+      });
+
+
+      /* ── PAGE LAYOUT collapsible (Hero + Slideshow) ───────── */
+      var pageLayoutSection = buildNestedSection('Page Layout', false, function (wrap) {
+
+      /* ── Hero ─────────────────────────────────────────── */
+      wrap.appendChild(buildNestedSection('Hero', true, function (sec) {
+        if (!league.heroEyebrow && !league.heroTitle && !league.heroSubtitle) {
+          league.heroEyebrow  = league.heroEyebrow  || '';
+          league.heroTitle    = league.heroTitle    || '';
+          league.heroSubtitle = league.heroSubtitle || '';
+        }
+        sec.innerHTML =
+          '<div class="field-row"><div class="field-label">Eyebrow<span class="field-hint">Small text above title</span></div><input class="admin-input lg-hero-eyebrow" type="text" value="'+esc(league.heroEyebrow||'')+'" placeholder="e.g. Osborne Fantasy Commission" /></div>' +
+          '<div class="field-row"><div class="field-label">Title<span class="field-hint">Large hero title</span></div><input class="admin-input lg-hero-title" type="text" value="'+esc(league.heroTitle||'')+'" placeholder="e.g. OFC" /></div>' +
+          '<div class="field-row"><div class="field-label">Subtitle<span class="field-hint">Below the title</span></div><input class="admin-input lg-hero-subtitle" type="text" value="'+esc(league.heroSubtitle||'')+'" placeholder="e.g. Football League" /></div>';
+        sec.querySelector('.lg-hero-eyebrow').addEventListener('input', function () { league.heroEyebrow  = this.value; markDirty(); });
+        sec.querySelector('.lg-hero-title').addEventListener('input',   function () { league.heroTitle    = this.value; markDirty(); });
+        sec.querySelector('.lg-hero-subtitle').addEventListener('input',function () { league.heroSubtitle = this.value; markDirty(); });
+      }));
+
+      /* ── Slideshow ────────────────────────────────────── */
+      wrap.appendChild(buildNestedSection('Background Slideshow', true, function (sec) {
+        if (!league.slideshow) league.slideshow = { slides:[], overlay:'rgba(0,0,0,0.55)' };
+        if (!league.slideshow.slides) league.slideshow.slides = [];
+
+        sec.innerHTML =
+          '<div class="field-row"><div class="field-label">Overlay<span class="field-hint">Darkness over images</span></div><input class="admin-input lg-ss-overlay" type="text" value="'+esc(league.slideshow.overlay||'rgba(0,0,0,0.55)')+'" /></div>' +
+          '<div class="card-list" id="lgSlides_'+league.id+'"></div>' +
+          '<button class="btn btn-sm" style="margin-top:0.75rem;" id="lgAddSlide_'+league.id+'">+ Add Slide</button>';
+
+        renderSlideList('lgSlides_'+league.id, league.slideshow.slides, markDirty);
+
+        sec.querySelector('.lg-ss-overlay').addEventListener('input', function () { league.slideshow.overlay = this.value; markDirty(); });
+        sec.querySelector('#lgAddSlide_'+league.id).addEventListener('click', function () {
+          league.slideshow.slides.push({ image:'', direction:'kb-zoom-in' });
+          renderSlideList('lgSlides_'+league.id, league.slideshow.slides, markDirty); markDirty();
+        });
+      }));
+
+      /* ── Page Sections toggles ────────────────────────── */
+      wrap.appendChild(buildNestedSection('Page Sections', true, function (sec) {
+        if (!league.pageLayout) league.pageLayout = { showChampion:true, showStandings:true, showAwards:true, showPastSeasons:true };
+        var pl = league.pageLayout;
+        var toggles = [
+          { key:'showChampion',    label:'Current Champion Block' },
+          { key:'showStandings',   label:'Final Standings' },
+          { key:'showAwards',      label:'Season Awards' },
+          { key:'showPastSeasons', label:'Past Seasons' }
+        ];
+        sec.innerHTML = '<p class="field-hint" style="margin-bottom:0.75rem;">Toggle which sections appear on the public league page.</p>';
+        toggles.forEach(function (t) {
+          var row = document.createElement('div');
+          row.className = 'field-row';
+          row.innerHTML = '<div class="field-label">'+esc(t.label)+'</div>' +
+            '<label class="toggle-switch"><input type="checkbox" class="pg-toggle" data-key="'+t.key+'"'+(pl[t.key]!==false?' checked':'')+' /><span class="toggle-track"></span></label>';
+          row.querySelector('.pg-toggle').addEventListener('change', function () {
+            pl[this.getAttribute('data-key')] = this.checked; markDirty();
+          });
+          sec.appendChild(row);
+        });
+      }));
+
+      }); /* end Page Layout */
+      body.appendChild(pageLayoutSection);
+
+      /* ── League Settings collapsible (Info / Awards / Card Template) */
+      var leagueSettingsSection = buildNestedSection('League Settings', false, function (wrap) {
+
+      /* ── League Info ──────────────────────────────────── */
+      wrap.appendChild(buildNestedSection('League Info', true, function (sec) {
+        sec.innerHTML =
+          '<div class="field-row"><div class="field-label">Short Name<span class="field-hint">e.g. OFC</span></div><input class="admin-input lg-name" type="text" value="'+esc(league.name||'')+'" /></div>' +
+          '<div class="field-row"><div class="field-label">Full Name<span class="field-hint">e.g. Osborne Football Cup</span></div><input class="admin-input lg-fullname" type="text" value="'+esc(league.fullName||'')+'" /></div>' +
+          '<div class="field-row"><div class="field-label">Sport<span class="field-hint">Determines stat fields available</span></div><select class="admin-input lg-sport">'+sportOpts+'</select></div>' +
+          '<div class="field-row"><div class="field-label">Season<span class="field-hint">e.g. 2024-25</span></div><input class="admin-input lg-season" type="text" value="'+esc(league.season||'')+'" /></div>' +
+          '<div class="field-row"><div class="field-label">Page Link<span class="field-hint">URL for this league page</span></div><input class="admin-input lg-link" type="text" value="'+esc(league.link||'')+'" /></div>' +
+          '<div class="field-row"><div class="field-label">Link Label<span class="field-hint">CTA button text</span></div><input class="admin-input lg-linklabel" type="text" value="'+esc(league.linkLabel||'')+'" /></div>' +
+          '<div class="field-row"><div class="field-label">Accent Color<span class="field-hint">Leave blank to use global</span></div><div class="color-field"><input class="color-swatch lg-accent-sw" type="color" value="'+(league.accentColor&&league.accentColor.charAt(0)==='#'?league.accentColor:'#e8e8e8')+'" /><input class="admin-input lg-accent" type="text" value="'+esc(league.accentColor||'')+'" placeholder="#e8e8e8" /></div></div>' +
+          '<div class="field-row"><div class="field-label">League Logo<span class="field-hint">Filepath to logo image</span></div><input class="admin-input lg-logo" type="text" value="'+esc(league.logo||'')+'" placeholder="assets/logos/ofc.png" /></div>';
+
+        sec.querySelector('.lg-name').addEventListener('input', function () {
+          league.name = this.value;
+          leagueSection.querySelector('.admin-card-title').textContent = this.value || 'New League';
+          markDirty();
+        });
+        sec.querySelector('.lg-fullname').addEventListener('input', function () { league.fullName = this.value; markDirty(); });
+        sec.querySelector('.lg-sport').addEventListener('change', function () {
+          league.sport = this.value;
+          leagueSection.querySelector('.league-sport-badge').textContent = (SCHEMAS[this.value]||{}).label || this.value;
+          renderLeagueDataList(); markDirty();
+        });
+        sec.querySelector('.lg-season').addEventListener('input', function () { league.season = this.value; markDirty(); });
+        sec.querySelector('.lg-link').addEventListener('input', function () { league.link = this.value; markDirty(); });
+        sec.querySelector('.lg-linklabel').addEventListener('input', function () { league.linkLabel = this.value; markDirty(); });
+        sec.querySelector('.lg-logo').addEventListener('input', function () { league.logo = this.value; markDirty(); });
+        var swEl = sec.querySelector('.lg-accent-sw');
+        var hxEl = sec.querySelector('.lg-accent');
+        swEl.addEventListener('input', function () { hxEl.value = swEl.value; league.accentColor = swEl.value; markDirty(); });
+        hxEl.addEventListener('input', function () { league.accentColor = hxEl.value; if (/^#[0-9a-fA-F]{6}$/.test(hxEl.value)) swEl.value = hxEl.value; markDirty(); });
+      }));
+
+      /* ── Awards ───────────────────────────────────────── */
+      wrap.appendChild(buildNestedSection('Award Names', true, function (sec) {
+        if (!league.awards) league.awards = {};
+        var awardDefs = (schema.awards || []);
+        if (awardDefs.length === 0) {
+          sec.innerHTML = '<p style="color:var(--accent-dim);font-size:0.8rem;">No predefined awards for this sport. Use custom stats on seasons.</p>';
+          return;
+        }
+        awardDefs.forEach(function (a) {
+          if (!league.awards[a.key]) league.awards[a.key] = a.defaultLabel;
+          var row = document.createElement('div');
+          row.className = 'field-row';
+          row.innerHTML = '<div class="field-label">'+esc(a.hint)+'</div><input class="admin-input award-name-input" type="text" data-key="'+esc(a.key)+'" value="'+esc(league.awards[a.key]||a.defaultLabel)+'" />';
+          row.querySelector('.award-name-input').addEventListener('input', function () {
+            league.awards[this.getAttribute('data-key')] = this.value; markDirty();
+          });
+          sec.appendChild(row);
+        });
+      }));
+
+      /* ── Card Template ────────────────────────────────── */
+      wrap.appendChild(buildNestedSection('Card Template', true, function (sec) {
+        if (!league.cardTemplate || !league.cardTemplate.length) {
+          league.cardTemplate = window.CardTemplateEngine.getDefaults(league.sport);
+        }
+        sec.innerHTML = '<p class="field-hint" style="margin-bottom:1rem;">Drag to reorder. Toggle to show/hide on the season baseball card.</p>';
+        var list = document.createElement('div');
+        list.className = 'card-template-list';
+        sec.appendChild(list);
+
+        function renderCardTemplate() {
+          list.innerHTML = '';
+          league.cardTemplate.forEach(function (field, fIdx) {
+            var item = document.createElement('div');
+            item.className = 'card-template-item' + (field.show ? '' : ' ct-hidden');
+            item.setAttribute('draggable', 'true');
+            item.innerHTML =
+              '<span class="ct-drag-handle" title="Drag to reorder">&#x2630;</span>' +
+              '<span class="ct-label">'+esc(field.label)+'</span>' +
+              '<label class="ct-toggle-label">' +
+                '<input type="checkbox" class="ct-toggle"'+(field.show?' checked':'')+' />' +
+                '<span class="ct-toggle-track"></span>' +
+              '</label>';
+            item.querySelector('.ct-toggle').addEventListener('change', function () {
+              league.cardTemplate[fIdx].show = this.checked;
+              item.classList.toggle('ct-hidden', !this.checked); markDirty();
+            });
+
+            /* Drag-and-drop */
+            item.addEventListener('dragstart', function (e) {
+              e.dataTransfer.setData('text/plain', fIdx);
+              item.classList.add('ct-dragging');
+            });
+            item.addEventListener('dragend', function () { item.classList.remove('ct-dragging'); });
+            item.addEventListener('dragover', function (e) { e.preventDefault(); item.classList.add('ct-drag-over'); });
+            item.addEventListener('dragleave', function () { item.classList.remove('ct-drag-over'); });
+            item.addEventListener('drop', function (e) {
+              e.preventDefault();
+              item.classList.remove('ct-drag-over');
+              var fromIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
+              if (fromIdx === fIdx) return;
+              var moved = league.cardTemplate.splice(fromIdx, 1)[0];
+              league.cardTemplate.splice(fIdx, 0, moved);
+              renderCardTemplate(); markDirty();
+            });
+
+            list.appendChild(item);
+          });
+        }
+        renderCardTemplate();
+      }));
+
+
+      }); /* end League Settings */
+      body.appendChild(leagueSettingsSection);
+
+      /* ── Seasons ──────────────────────────────────────── */
+      body.appendChild(buildNestedSection('Seasons', false, function (sec) {
+        if (!league.seasons) league.seasons = [];
+
+        var seasonHint = document.createElement('p');
+        seasonHint.className = 'field-hint';
+        seasonHint.style.marginBottom = '0.75rem';
+        seasonHint.textContent = 'Newest season first. Click a season to expand and edit.';
+        sec.appendChild(seasonHint);
+
+        var seasonListEl = document.createElement('div');
+        seasonListEl.className = 'season-list';
+        sec.appendChild(seasonListEl);
+
+        var addSeasonBtn = document.createElement('button');
+        addSeasonBtn.className = 'btn btn-sm add-season-btn';
+        addSeasonBtn.style.marginTop = '0.5rem';
+        addSeasonBtn.textContent = '+ Add Season';
+        sec.appendChild(addSeasonBtn);
+
+        function renderSeasonList() {
+          seasonListEl.innerHTML = '';
+          league.seasons.forEach(function (season, sIdx) {
+            renderSeasonPanel(seasonListEl, league, season, sIdx, renderSeasonList);
+          });
+          initCollapsible();
+        }
+        renderSeasonList();
+
+        addSeasonBtn.addEventListener('click', function () {
+          var newSeason = window.SeasonFactory.create(workingConfig, league, new Date().getFullYear().toString());
+          league.seasons.unshift(newSeason);
+          league.currentSeasonId = newSeason.id;
+          renderSeasonList(); markDirty();
+        });
+      }, true)); // extra button arg = add top padding
+
+      container.appendChild(leagueSection);
+    }
+
+    /* ── Season Panel ─────────────────────────────────────── */
+    /* ── Season Panel ─────────────────────────────────────── */
+    function renderSeasonPanel(container, league, season, sIdx, onRerender) {
+      var schema    = SCHEMAS[league.sport] || SCHEMAS.other;
+      var roster    = workingConfig.masterRoster || [];
+
+      /* Ensure currentSeasonId defaults to the first (newest) season */
+      if (!league.currentSeasonId && league.seasons && league.seasons.length > 0) {
+        league.currentSeasonId = league.seasons[0].id;
+      }
+      var isCurrent = league.currentSeasonId === season.id;
+
+      if (!season.roster) season.roster = [];
+
+      /* ── Derive champion/runner-up from standings ─────────
+         Called after any standings change so data stays live. */
+      function deriveFromStandings() {
+        var st = season.standings || [];
+        var first  = st[0], second = st[1], last = st[st.length - 1];
+        if (first) {
+          season.championMemberId  = first.memberId  || '';
+          season.championName      = first.owner      || '';
+          season.championTeamName  = first.teamName   || first.bracketName || '';
+          season.record            = first.record     || first.wins || '';
+        } else {
+          season.championMemberId = season.championName = season.championTeamName = season.record = '';
+        }
+        if (second) {
+          season.runnerUpMemberId  = second.memberId  || '';
+          season.runnerUpName      = second.owner      || '';
+          season.runnerUpTeamName  = second.teamName   || second.bracketName || '';
+        } else {
+          season.runnerUpMemberId = season.runnerUpName = season.runnerUpTeamName = '';
+        }
+        var finalsKey = league.sport === 'football' ? 'finals' : null;
+        if (finalsKey && season.playoffs && season.playoffs[finalsKey]) {
+          var games = season.playoffs[finalsKey];
+          var lastGame = games[games.length - 1];
+          if (lastGame && (lastGame.homeScore || lastGame.awayScore)) {
+            season.championshipScore = esc(lastGame.homeTeamName||'') + ' ' + esc(lastGame.homeScore||'') +
+              ' – ' + esc(lastGame.awayTeamName||'') + ' ' + esc(lastGame.awayScore||'');
+          }
+        }
+        /* ── Madness-specific derived stats ── */
+        if (league.sport === 'madness' && st.length > 0) {
+          if (!season.stats) season.stats = {};
+          if (first) {
+            season.stats.winningBracket = {
+              memberId:     first.memberId  || '',
+              ownerName:    first.owner     || '',
+              bracketName:  first.bracketName || first.teamName || '',
+              correctPicks: parseFloat(first.correctPicks) || 0,
+              totalPoints:  parseFloat(first.totalPoints)  || 0
+            };
+          }
+          var maxPicks = 0;
+          st.forEach(function (r) { var p = parseFloat(r.correctPicks)||0; if (p > maxPicks) maxPicks = p; });
+          var pickWinners = st.filter(function (r) { return (parseFloat(r.correctPicks)||0) === maxPicks && maxPicks > 0; });
+          season.stats.mostCorrectPicks = pickWinners.length === 1
+            ? { memberId: pickWinners[0].memberId, ownerName: pickWinners[0].owner, bracketName: pickWinners[0].bracketName||pickWinners[0].teamName, count: maxPicks }
+            : { memberId: '', ownerName: pickWinners.map(function(w){return w.owner;}).join(' · '), bracketName: pickWinners.map(function(w){return w.bracketName||w.teamName;}).join(' · '), count: maxPicks };
+          if (last && last !== first) {
+            season.stats.lastPlace = {
+              memberId:    last.memberId  || '',
+              ownerName:   last.owner     || '',
+              bracketName: last.bracketName || last.teamName || '',
+              totalPoints: parseFloat(last.totalPoints) || 0
+            };
+          }
+          document.querySelectorAll('[data-derived-stat]').forEach(function (el) {
+            var key = el.getAttribute('data-derived-stat');
+            if (season.stats[key]) updateDerivedDisplay(el, key, season.stats[key]);
+          });
+        }
+        updateSeasonTitle();
+      }
+
+      function updateDerivedDisplay(el, key, stat) {
+        var parts = [];
+        if (stat.ownerName)   parts.push(stat.ownerName);
+        if (stat.bracketName && stat.bracketName !== stat.ownerName) parts.push('('+stat.bracketName+')');
+        if (key === 'mostCorrectPicks' && stat.count)        parts.push('— '+stat.count+' picks');
+        if (key === 'winningBracket'   && stat.totalPoints)  parts.push('— '+stat.totalPoints+' pts');
+        if (key === 'lastPlace'        && stat.totalPoints)  parts.push('— '+stat.totalPoints+' pts');
+        el.textContent = parts.length ? parts.join(' ') : '— not yet set —';
+      }
+
+      /* ── Eligible master roster members for this league ── */
+      function getEligibleMembers() {
+        return roster.filter(function (m) {
+          return m.active !== false && getMemberTeamsForLeague(m, league.name).length > 0;
+        });
+      }
+
+      /* ── Panel shell ─────────────────────────────────────── */
+      var panel = document.createElement('section');
+      panel.className = 'admin-section admin-nested-section admin-season-panel is-collapsed' + (isCurrent ? ' season-current' : '');
+      panel.setAttribute('data-sid', season.id);
+
+      function champLabel() {
+        return season.championTeamName
+          ? season.championTeamName + (season.championName ? ' ('+season.championName+')' : '')
+          : 'No champion set';
+      }
+
+      panel.innerHTML =
+        '<div class="admin-section-header">' +
+          '<div style="display:flex;align-items:center;gap:0.6rem;">' +
+            '<span class="admin-card-title season-panel-title">'+esc(season.year||'????')+' — '+esc(champLabel())+(isCurrent?' ★':'')+'</span>' +
+            (isCurrent ? '<span class="season-current-badge">Current</span>' : '') +
+          '</div>' +
+          '<div class="admin-card-actions">' +
+            (!isCurrent ? '<button class="btn btn-sm set-current-btn">Set as Current</button>' : '') +
+            '<button class="btn btn-sm btn-danger season-del">&#x2715;</button>' +
+          '</div>' +
+          '<span class="admin-section-toggle">&#x25BC;</span>' +
+        '</div>' +
+        '<div class="admin-section-body"></div>';
+
+      var pbody = panel.querySelector('.admin-section-body');
+
+      panel.querySelector('.season-del').addEventListener('click', function () {
+        showConfirm('Remove Season', 'Remove the '+esc(season.year)+' season? All data will be lost.', function () {
+          league.seasons.splice(sIdx, 1);
+          if (league.currentSeasonId === season.id) {
+            league.currentSeasonId = league.seasons.length ? league.seasons[0].id : '';
+          }
+          onRerender(); markDirty();
+        });
+      });
+
+      var setCurrentBtn = panel.querySelector('.set-current-btn');
+      if (setCurrentBtn) {
+        setCurrentBtn.addEventListener('click', function () {
+          league.currentSeasonId = season.id;
+          onRerender(); markDirty();
+        });
+      }
+
+      function updateSeasonTitle() {
+        panel.querySelector('.season-panel-title').textContent =
+          (season.year || '????') + ' — ' + champLabel() + (isCurrent ? ' ★' : '');
+      }
+
+      /* ══════════════════════════════════════════════════════
+         SEASON YEAR — inline at top of body (not in subsection)
+      ══════════════════════════════════════════════════════ */
+      var yearRow = document.createElement('div');
+      yearRow.className = 'field-row season-year-row';
+      yearRow.innerHTML =
+        '<div class="field-label">Season Year</div>' +
+        '<input class="admin-input s-year" type="text" value="'+esc(season.year||'')+'" placeholder="2024" style="max-width:160px;" />';
+      yearRow.querySelector('.s-year').addEventListener('input', function () {
+        season.year = this.value; updateSeasonTitle(); markDirty();
+      });
+      pbody.appendChild(yearRow);
+
+      /* ══════════════════════════════════════════════════════
+         1. SEASON ROSTER
+      ══════════════════════════════════════════════════════ */
+      pbody.appendChild(buildNestedSection('Season Roster', false, function (sec) {
+        sec.innerHTML = '<p class="field-hint" style="margin-bottom:1rem;">' +
+          'Only master roster members with a team entry for <strong>'+esc(league.name)+'</strong> can be added.</p>';
+
+        var rosterContainer = document.createElement('div');
+        rosterContainer.className = 'season-roster-list';
+        sec.appendChild(rosterContainer);
+
+        function buildEligibleOpts() {
+          var already  = season.roster.map(function (e) { return e.memberId; });
+          var eligible = getEligibleMembers().filter(function (m) { return already.indexOf(m.id) === -1; });
+          if (eligible.length === 0) return '<option value="">— All eligible members added —</option>';
+          return '<option value="">— Add member to roster —</option>' +
+            eligible.map(function (m) {
+              return '<option value="'+esc(m.id)+'">'+esc(m.name)+(m.nickname?' ('+esc(m.nickname)+')':'')+'</option>';
+            }).join('');
+        }
+
+        function renderSeasonRoster() {
+          rosterContainer.innerHTML = '';
+          season.roster.forEach(function (entry, rIdx) {
+            var member    = roster.find(function (m) { return m.id === entry.memberId; });
+            var teamsList = member ? getMemberTeamsForLeague(member, league.name) : [];
+            var row = document.createElement('div');
+            row.className = 'season-roster-row';
+
+            var teamControl = teamsList.length <= 1
+              ? '<div class="admin-field-group"><label>Team</label>' +
+                  '<input class="admin-input sr-team-text" type="text" value="'+esc(entry.teamName||'')+'" readonly style="opacity:0.6;" /></div>'
+              : '<div class="admin-field-group"><label>Team</label>' +
+                  '<select class="admin-input sr-team-sel">' +
+                  teamsList.map(function (t) {
+                    return '<option value="'+esc(t.name)+'"'+(entry.teamName===t.name?' selected':'')+'>'+esc(t.name)+'</option>';
+                  }).join('') + '</select></div>';
+
+            row.innerHTML =
+              '<div class="season-roster-row-inner">' +
+                '<div class="admin-field-group"><label>Owner</label>' +
+                  '<div class="sr-owner-name">'+esc(entry.ownerName||'Unknown')+'</div></div>' +
+                teamControl +
+                '<div class="admin-field-group"><label>Logo Path</label>' +
+                  '<input class="admin-input sr-logo" type="text" value="'+esc(entry.logo||'')+'" placeholder="assets/logos/team.png" /></div>' +
+                '<button class="btn btn-sm btn-danger btn-icon sr-del" style="align-self:flex-end;">&#x2715;</button>' +
+              '</div>';
+
+            var teamSel = row.querySelector('.sr-team-sel');
+            if (teamSel) {
+              teamSel.addEventListener('change', function () {
+                entry.teamName = this.value;
+                var t = teamsList.find(function (t) { return t.name === this.value; }.bind(this));
+                if (t) entry.logo = t.logo || '';
+                row.querySelector('.sr-logo').value = entry.logo;
+                markDirty();
+              });
+            }
+            row.querySelector('.sr-logo').addEventListener('input', function () { entry.logo = this.value; markDirty(); });
+            row.querySelector('.sr-del').addEventListener('click', function () {
+              season.roster.splice(rIdx, 1); renderSeasonRoster(); markDirty();
+            });
+            rosterContainer.appendChild(row);
+          });
+
+          var addRow = document.createElement('div');
+          addRow.className = 'roster-add-row';
+          addRow.innerHTML = '<select class="admin-input roster-add-sel">'+buildEligibleOpts()+'</select>';
+          addRow.querySelector('.roster-add-sel').addEventListener('change', function () {
+            var mid = this.value;
+            if (!mid) return;
+            var member = roster.find(function (m) { return m.id === mid; });
+            if (!member) return;
+            var teams = getMemberTeamsForLeague(member, league.name);
+            var team  = teams[0] || { name:'', logo:'' };
+            season.roster.push({ memberId:member.id, ownerName:member.name, teamName:team.name, logo:team.logo||'' });
+            renderSeasonRoster(); markDirty();
+          });
+          rosterContainer.appendChild(addRow);
+        }
+        renderSeasonRoster();
+      }));
+
+      pbody.appendChild(buildNestedSection('Final Standings', false, function (sec) {
+        var isMadness = league.sport === 'madness';
+        sec.innerHTML = '<p class="field-hint" style="margin-bottom:1rem;">#1 = Champion — derived automatically. Use arrows to reorder.' +
+          (isMadness ? ' Standings auto-sort by Points on each entry.' : '') + '</p>';
+
+        /* Tournament Winner — madness only, sits above the standings list */
+        if (isMadness) {
+          var twRow = document.createElement('div');
+          twRow.className = 'admin-field-group';
+          twRow.style.cssText = 'margin-bottom:1rem;';
+          twRow.innerHTML =
+            '<label>Tournament Winner</label>' +
+            '<input class="admin-input tw-school" type="text" value="'+esc(season.tournamentWinner||'')+'" placeholder="School" />';
+          twRow.querySelector('.tw-school').addEventListener('input', function () {
+            season.tournamentWinner = this.value; markDirty();
+          });
+          sec.appendChild(twRow);
+        }
+
+        var standingsContainer = document.createElement('div');
+        sec.appendChild(standingsContainer);
+
+        function syncStandingsToRoster() {
+          if (!season.standings) season.standings = [];
+          season.roster.forEach(function (entry) {
+            var exists = season.standings.find(function (r) { return r.memberId === entry.memberId; });
+            if (!exists) {
+              season.standings.push({
+                rank: season.standings.length + 1, memberId: entry.memberId,
+                owner: entry.ownerName, teamName: entry.teamName, bracketName: entry.teamName,
+                record: '', pointsFor: '', pointsAgainst: '', totalPoints: '', correctPicks: ''
+              });
+            } else {
+              exists.owner = entry.ownerName; exists.teamName = entry.teamName; exists.bracketName = entry.teamName;
+            }
+          });
+          var rosterIds = season.roster.map(function (e) { return e.memberId; });
+          season.standings = season.standings.filter(function (r) { return rosterIds.indexOf(r.memberId) !== -1; });
+          season.standings.forEach(function (r, i) { r.rank = i + 1; });
+        }
+
+        function autoSortStandings() {
+          if (!isMadness) return;
+          season.standings.sort(function (a, b) { return (parseFloat(b.totalPoints)||0) - (parseFloat(a.totalPoints)||0); });
+          season.standings.forEach(function (r, i) { r.rank = i + 1; });
+        }
+
+        function renderStandings() {
+          syncStandingsToRoster();
+          standingsContainer.innerHTML = '';
+          if (season.standings.length === 0) {
+            standingsContainer.innerHTML = '<p style="color:var(--accent-dim);font-size:0.8rem;padding:0.5rem 0;">Add members to Season Roster first.</p>';
+            return;
+          }
+          season.standings.forEach(function (row, rIdx) {
+            var isFirst = rIdx === 0, isLast = rIdx === season.standings.length - 1;
+            var card = document.createElement('div');
+            card.className = 'admin-card standings-row-card';
+            var fieldsHtml = isMadness
+              ? '<div class="standings-fields">' +
+                  '<div class="admin-field-group"><label>Points</label>' +
+                    '<input class="admin-input st-points" type="number" value="'+esc(row.totalPoints||'')+'" placeholder="142" /></div>' +
+                  '<div class="admin-field-group"><label>Picks</label>' +
+                    '<input class="admin-input st-picks" type="number" value="'+esc(row.correctPicks||'')+'" placeholder="38" /></div>' +
+                '</div>'
+              : '<div class="standings-fields">' +
+                  '<div class="admin-field-group"><label>Record</label>' +
+                    '<input class="admin-input st-record" type="text" value="'+esc(row.record||'')+'" placeholder="10-3" /></div>' +
+                  '<div class="admin-field-group"><label>PF</label>' +
+                    '<input class="admin-input st-pf" type="text" value="'+esc(row.pointsFor||'')+'" placeholder="1842.4" /></div>' +
+                  '<div class="admin-field-group"><label>PA</label>' +
+                    '<input class="admin-input st-pa" type="text" value="'+esc(row.pointsAgainst||'')+'" placeholder="1601.2" /></div>' +
+                '</div>';
+            card.innerHTML =
+              '<div class="admin-card-header">' +
+                '<span class="standings-rank">#'+(rIdx+1)+'</span>' +
+                '<span class="standings-team-name">'+esc(row.teamName||row.bracketName||'—')+'</span>' +
+                '<div class="admin-card-actions">' +
+                  '<button class="btn btn-sm btn-icon st-up"'+(isFirst?' disabled':'')+'>&#x2191;</button>' +
+                  '<button class="btn btn-sm btn-icon st-dn"'+(isLast?' disabled':'')+'>&#x2193;</button>' +
+                '</div>' +
+              '</div>' + fieldsHtml;
+            if (isMadness) {
+              card.querySelector('.st-points').addEventListener('input', function () {
+                row.totalPoints = this.value; autoSortStandings(); renderStandings(); deriveFromStandings(); markDirty();
+              });
+              card.querySelector('.st-picks').addEventListener('input', function () {
+                row.correctPicks = this.value; deriveFromStandings(); markDirty();
+              });
+            } else {
+              card.querySelector('.st-record').addEventListener('input', function () { row.record = this.value; deriveFromStandings(); markDirty(); });
+              card.querySelector('.st-pf').addEventListener('input', function () { row.pointsFor = this.value; markDirty(); });
+              card.querySelector('.st-pa').addEventListener('input', function () { row.pointsAgainst = this.value; markDirty(); });
+            }
+            card.querySelector('.st-up').addEventListener('click', function () {
+              if (rIdx > 0) {
+                var t = season.standings[rIdx-1]; season.standings[rIdx-1] = season.standings[rIdx]; season.standings[rIdx] = t;
+                season.standings.forEach(function (r, i) { r.rank = i+1; });
+                renderStandings(); deriveFromStandings(); markDirty();
+              }
+            });
+            card.querySelector('.st-dn').addEventListener('click', function () {
+              if (rIdx < season.standings.length-1) {
+                var t = season.standings[rIdx]; season.standings[rIdx] = season.standings[rIdx+1]; season.standings[rIdx+1] = t;
+                season.standings.forEach(function (r, i) { r.rank = i+1; });
+                renderStandings(); deriveFromStandings(); markDirty();
+              }
+            });
+            standingsContainer.appendChild(card);
+          });
+        }
+        renderStandings();
+      }));
+
+      /* ══════════════════════════════════════════════════════
+         3. PLAYOFF BRACKET
+      ══════════════════════════════════════════════════════ */
+      var rounds = window.PlayoffEngine.getRounds(league.sport, true);
+      if (rounds.length > 0) {
+        pbody.appendChild(buildNestedSection('Playoff Bracket', false, function (sec) {
+          if (!season.playoffs) season.playoffs = {};
+          sec.innerHTML = '<p class="field-hint" style="margin-bottom:1rem;">Championship score is derived from the Finals result.</p>';
+
+          rounds.forEach(function (round) {
+            if (!season.playoffs[round.key]) season.playoffs[round.key] = [window.PlayoffEngine.emptyMatchup()];
+            var roundEl = document.createElement('div');
+            roundEl.className = 'playoff-round';
+            roundEl.innerHTML = '<div class="admin-subsection-label playoff-round-label">'+esc(round.label)+'</div>';
+            var matchupsEl = document.createElement('div');
+            roundEl.appendChild(matchupsEl);
+
+            function renderMatchups() {
+              matchupsEl.innerHTML = '';
+              season.playoffs[round.key].forEach(function (mu, muIdx) {
+                var card  = document.createElement('div');
+                card.className = 'admin-card playoff-matchup-card';
+                var hopts = buildTeamDropdown(season.roster, mu.homeTeamName, true);
+                var aopts = buildTeamDropdown(season.roster, mu.awayTeamName, true);
+                card.innerHTML =
+                  '<div class="admin-card-header"><span class="admin-card-title">Game '+(muIdx+1)+'</span>' +
+                    '<button class="btn btn-sm btn-danger btn-icon mu-del">&#x2715;</button></div>' +
+                  '<div class="admin-card-fields">' +
+                    '<div class="admin-field-group"><label>Home Team</label><select class="admin-input mu-home">'+hopts+'</select></div>' +
+                    '<div class="admin-field-group"><label>Home Score</label><input class="admin-input mu-home-score" type="text" value="'+esc(mu.homeScore||'')+'" /></div>' +
+                    '<div class="admin-field-group"><label>Away Team</label><select class="admin-input mu-away">'+aopts+'</select></div>' +
+                    '<div class="admin-field-group"><label>Away Score</label><input class="admin-input mu-away-score" type="text" value="'+esc(mu.awayScore||'')+'" /></div>' +
+                  '</div>';
+
+                var homeSel = card.querySelector('.mu-home');
+                var awaySel = card.querySelector('.mu-away');
+                (function () {
+                  var hr = resolveTeamSelection(homeSel, season.roster);
+                  if (hr.teamName) { mu.homeMemberId=hr.memberId; mu.homeOwnerName=hr.ownerName; mu.homeTeamName=hr.teamName; }
+                  var ar = resolveTeamSelection(awaySel, season.roster);
+                  if (ar.teamName) { mu.awayMemberId=ar.memberId; mu.awayOwnerName=ar.ownerName; mu.awayTeamName=ar.teamName; }
+                })();
+                homeSel.addEventListener('change', function () {
+                  var r = resolveTeamSelection(this, season.roster);
+                  mu.homeMemberId=r.memberId; mu.homeOwnerName=r.ownerName; mu.homeTeamName=r.teamName;
+                  deriveFromStandings(); markDirty();
+                });
+                card.querySelector('.mu-home-score').addEventListener('input', function () {
+                  mu.homeScore = this.value; deriveFromStandings(); markDirty();
+                });
+                awaySel.addEventListener('change', function () {
+                  var r = resolveTeamSelection(this, season.roster);
+                  mu.awayMemberId=r.memberId; mu.awayOwnerName=r.ownerName; mu.awayTeamName=r.teamName;
+                  deriveFromStandings(); markDirty();
+                });
+                card.querySelector('.mu-away-score').addEventListener('input', function () {
+                  mu.awayScore = this.value; deriveFromStandings(); markDirty();
+                });
+                card.querySelector('.mu-del').addEventListener('click', function () {
+                  season.playoffs[round.key].splice(muIdx, 1); renderMatchups(); markDirty();
+                });
+                matchupsEl.appendChild(card);
+              });
+
+              var addMuBtn = document.createElement('button');
+              addMuBtn.className = 'btn btn-sm'; addMuBtn.style.marginTop = '0.5rem'; addMuBtn.textContent = '+ Add Game';
+              addMuBtn.addEventListener('click', function () {
+                season.playoffs[round.key].push(window.PlayoffEngine.emptyMatchup()); renderMatchups(); markDirty();
+              });
+              matchupsEl.appendChild(addMuBtn);
+            }
+            renderMatchups();
+            sec.appendChild(roundEl);
+          });
+        }));
+      }
+
+      /* ══════════════════════════════════════════════════════
+         4. SEASON AWARDS (Sport Stats + Custom Stats merged)
+      ══════════════════════════════════════════════════════ */
+      pbody.appendChild(buildNestedSection('Season Awards', false, function (sec) {
+        if (!season.stats)       season.stats       = {};
+        if (!season.customStats) season.customStats = [];
+        var awards    = league.awards || {};
+        var isMadness = league.sport === 'madness';
+
+        if (schema.stats && schema.stats.length > 0) {
+          schema.stats.forEach(function (statDef) {
+            if (!season.stats[statDef.key]) {
+              season.stats[statDef.key] = { memberId:'', ownerName:'', teamName:'' };
+              (statDef.subFields||[]).forEach(function (sf) {
+                season.stats[statDef.key][sf.key] = sf.type === 'number' ? 0 : '';
+              });
+            }
+            var stat = season.stats[statDef.key];
+            var awardLabel = awards[statDef.awardKey]
+              ? ' <em class="stat-award-tag">'+esc(awards[statDef.awardKey])+'</em>' : '';
+            var group = document.createElement('div');
+            group.className = 'stat-group';
+
+            /* Read-only derived display for madness fromStandings stats */
+            if (isMadness && statDef.fromStandings) {
+              var displayVal = '— not yet set —';
+              if (stat.ownerName) {
+                var dp = [stat.ownerName];
+                if (statDef.key === 'mostCorrectPicks' && stat.count)        dp.push('— '+stat.count+' picks');
+                if (statDef.key === 'winningBracket'   && stat.totalPoints)  dp.push('— '+stat.totalPoints+' pts');
+                if (statDef.key === 'lastPlace'        && stat.totalPoints)  dp.push('— '+stat.totalPoints+' pts');
+                displayVal = dp.join(' ');
+              }
+              group.innerHTML =
+                '<div class="stat-group-header"><span class="stat-group-label">'+esc(statDef.label)+awardLabel+'</span>' +
+                  '<span class="stat-derived-badge">Auto</span></div>' +
+                '<div class="admin-card-fields"><div class="admin-field-group full-width">' +
+                  '<div class="stat-derived-display" data-derived-stat="'+esc(statDef.key)+'">'+esc(displayVal)+'</div>' +
+                '</div></div>';
+              sec.appendChild(group);
+              return;
+            }
+
+            /* Editable stat */
+
+            /* Helper: build round dropdown HTML */
+            var ROUND_OPTIONS = ['Round of 64','Round of 32','Sweet 16','Elite 8','Final 4','Championship'];
+            function buildRoundDropdown(selectedVal) {
+              var opts = '<option value=""></option>';
+              ROUND_OPTIONS.forEach(function (r) {
+                opts += '<option value="'+r+'"'+(selectedVal===r?' selected':'')+'>'+r+'</option>';
+              });
+              return opts;
+            }
+
+            /* Helper: build subfield HTML for one winner entry */
+            function buildSubHtml(entry) {
+              return (statDef.subFields||[]).map(function (sf) {
+                if (sf.type === 'roundDropdown') {
+                  return '<div class="admin-field-group"><label>'+esc(sf.label)+'</label>' +
+                    '<select class="admin-input stat-sf-dropdown" data-sf="'+esc(sf.key)+'">'+buildRoundDropdown(entry[sf.key])+'</select></div>';
+                }
+                if (sf.dropdown) {
+                  return '<div class="admin-field-group"><label>'+esc(sf.label)+'</label>' +
+                    '<select class="admin-input stat-sf-dropdown" data-sf="'+esc(sf.key)+'">'+
+                    buildTeamDropdown(season.roster, entry[sf.key], true)+'</select></div>';
+                }
+                return '<div class="admin-field-group"><label>'+esc(sf.label)+'</label>' +
+                  '<input class="admin-input stat-sf" data-sf="'+esc(sf.key)+'" type="'+(sf.type==='number'?'number':'text')+'" value="'+esc(entry[sf.key]!==undefined?entry[sf.key]:'')+'" /></div>';
+              }).join('');
+            }
+
+            /* Helper: wire events for one winner entry element against a data object */
+            function wireEntryEvents(entryEl, entry) {
+              var teamSel = entryEl.querySelector('.stat-team');
+              if (teamSel) {
+                (function () {
+                  var r = resolveTeamSelection(teamSel, season.roster);
+                  if (r.teamName) { entry.memberId=r.memberId; entry.ownerName=r.ownerName; entry.teamName=r.teamName; entry.team=r.teamName; }
+                })();
+                teamSel.addEventListener('change', function () {
+                  var resolved = resolveTeamSelection(this, season.roster);
+                  entry.memberId=resolved.memberId; entry.ownerName=resolved.ownerName;
+                  entry.teamName=resolved.teamName; entry.team=resolved.teamName;
+                  markDirty();
+                });
+              }
+              entryEl.querySelectorAll('.stat-sf').forEach(function (sfEl) {
+                sfEl.addEventListener('input', function () {
+                  entry[sfEl.getAttribute('data-sf')] = sfEl.type==='number' ? parseFloat(sfEl.value)||0 : sfEl.value;
+                  markDirty();
+                });
+              });
+              entryEl.querySelectorAll('.stat-sf-dropdown').forEach(function (selEl) {
+                var sfKey = selEl.getAttribute('data-sf');
+                if (selEl.value) entry[sfKey] = selEl.value;
+                selEl.addEventListener('change', function () { entry[sfKey] = this.value; markDirty(); });
+              });
+            }
+
+            /* ── Multi-winner stat ── */
+            if (statDef.multiWinner) {
+              /* Ensure data is always an array */
+              if (!Array.isArray(season.stats[statDef.key])) {
+                var old = season.stats[statDef.key];
+                season.stats[statDef.key] = (old && old.memberId) ? [old] : [];
+              }
+              var winners = season.stats[statDef.key];
+
+              group.innerHTML = '<div class="stat-group-header"><span class="stat-group-label">'+esc(statDef.label)+awardLabel+'</span></div>';
+              var winnersContainer = document.createElement('div');
+              group.appendChild(winnersContainer);
+
+              function renderWinners() {
+                winnersContainer.innerHTML = '';
+                winners.forEach(function (entry, wIdx) {
+                  var entryEl = document.createElement('div');
+                  entryEl.className = 'admin-card-fields';
+                  entryEl.style.cssText = 'padding:0.5rem 0;border-bottom:1px solid rgba(232,232,232,0.05);';
+                  entryEl.innerHTML =
+                    '<div class="admin-field-group"><label>Winner</label>' +
+                      '<select class="admin-input stat-team">'+buildTeamDropdown(season.roster, entry.teamName, true)+'</select></div>' +
+                    buildSubHtml(entry) +
+                    '<div class="admin-field-group" style="align-self:flex-end;">' +
+                      '<button class="btn btn-sm btn-danger btn-icon mw-del">&#x2715;</button></div>';
+                  entryEl.querySelector('.mw-del').addEventListener('click', function () {
+                    winners.splice(wIdx, 1); renderWinners(); markDirty();
+                  });
+                  wireEntryEvents(entryEl, entry);
+                  winnersContainer.appendChild(entryEl);
+                });
+              }
+              renderWinners();
+
+              var addWinnerBtn = document.createElement('button');
+              addWinnerBtn.className = 'btn btn-sm';
+              addWinnerBtn.style.marginTop = '0.5rem';
+              addWinnerBtn.textContent = '+ Add Winner';
+              addWinnerBtn.addEventListener('click', function () {
+                var newEntry = { memberId:'', ownerName:'', teamName:'' };
+                (statDef.subFields||[]).forEach(function (sf) { newEntry[sf.key] = sf.type === 'number' ? 0 : ''; });
+                winners.push(newEntry); renderWinners(); markDirty();
+              });
+              group.appendChild(addWinnerBtn);
+              sec.appendChild(group);
+              return;
+            }
+
+            /* ── Single-winner stat ── */
+            var primaryControl = statDef.type === 'owner'
+              ? '<div class="admin-field-group"><label>Winner</label><select class="admin-input stat-team">'+buildTeamDropdown(season.roster, stat.teamName, true)+'</select></div>'
+              : '<div class="admin-field-group full-width"><label>Value</label><input class="admin-input stat-text-val" type="text" value="'+esc(season.stats[statDef.key+'_val']||stat.value||'')+'" /></div>';
+
+            group.innerHTML =
+              '<div class="stat-group-header"><span class="stat-group-label">'+esc(statDef.label)+awardLabel+'</span></div>' +
+              '<div class="admin-card-fields">'+primaryControl+buildSubHtml(stat)+'</div>';
+
+            if (statDef.type === 'owner') {
+              wireEntryEvents(group.querySelector('.admin-card-fields'), stat);
+            } else {
+              var tv = group.querySelector('.stat-text-val');
+              if (tv) tv.addEventListener('input', function () { season.stats[statDef.key+'_val']=this.value; markDirty(); });
+            }
+            sec.appendChild(group);
+          });
+
+          var divider = document.createElement('div');
+          divider.style.cssText = 'border-top:1px solid rgba(232,232,232,0.08);margin:1.2rem 0 0.8rem;';
+          sec.appendChild(divider);
+        }
+
+        /* Custom awards — unified 3-field for all sports */
+        var csLabel = document.createElement('div');
+        csLabel.className = 'admin-subsection-label';
+        csLabel.style.marginBottom = '0.5rem';
+        csLabel.textContent = 'Custom Awards';
+        sec.appendChild(csLabel);
+
+        var csContainer = document.createElement('div');
+        sec.appendChild(csContainer);
+
+        var csAddBtn = document.createElement('button');
+        csAddBtn.className = 'btn btn-sm';
+        csAddBtn.style.marginTop = '0.5rem';
+        csAddBtn.textContent = '+ Add';
+
+        function renderCustomStats() {
+          csContainer.innerHTML = '';
+          season.customStats.forEach(function (cs, cIdx) {
+            var row = document.createElement('div');
+            row.className = 'admin-card custom-stat-card';
+            var winnerOpts = buildTeamDropdown(season.roster, cs.teamName || cs.winner, true);
+            row.innerHTML =
+              '<div class="admin-card-fields">' +
+                '<div class="admin-field-group"><label>Award</label>' +
+                  '<input class="admin-input cs-label" type="text" value="'+esc(cs.label||'')+'" placeholder="Award name" /></div>' +
+                '<div class="admin-field-group"><label>Winner</label>' +
+                  '<select class="admin-input cs-winner">'+winnerOpts+'</select></div>' +
+                '<div class="admin-field-group"><label>Value <span style="opacity:.5;font-weight:400;">(optional)</span></label>' +
+                  '<input class="admin-input cs-value" type="text" value="'+esc(cs.value||'')+'" placeholder="e.g. 38 picks, Wk 7" /></div>' +
+                '<div class="admin-field-group" style="align-self:flex-end;">' +
+                  '<button class="btn btn-sm btn-danger btn-icon cs-del">&#x2715;</button></div>' +
+              '</div>';
+            row.querySelector('.cs-label').addEventListener('input', function () { cs.label=this.value; markDirty(); });
+            var csWinnerSel = row.querySelector('.cs-winner');
+            (function () {
+              var r = resolveTeamSelection(csWinnerSel, season.roster);
+              if (r.teamName) { cs.memberId=r.memberId; cs.ownerName=r.ownerName; cs.teamName=r.teamName; }
+            })();
+            csWinnerSel.addEventListener('change', function () {
+              var r = resolveTeamSelection(this, season.roster);
+              cs.memberId=r.memberId; cs.ownerName=r.ownerName; cs.teamName=r.teamName; markDirty();
+            });
+            row.querySelector('.cs-value').addEventListener('input', function () { cs.value=this.value; markDirty(); });
+            row.querySelector('.cs-del').addEventListener('click', function () { season.customStats.splice(cIdx,1); renderCustomStats(); markDirty(); });
+            csContainer.appendChild(row);
+          });
+        }
+        renderCustomStats();
+        sec.appendChild(csAddBtn);
+        csAddBtn.addEventListener('click', function () {
+          season.customStats.push({label:'', memberId:'', ownerName:'', teamName:'', value:''});
+          renderCustomStats(); markDirty();
+        });
+      }));
+
+      /* ══════════════════════════════════════════════════════
+         SEASON STORY — inline at bottom (not in subsection)
+      ══════════════════════════════════════════════════════ */
+      var storyRow = document.createElement('div');
+      storyRow.className = 'field-row season-story-row';
+      storyRow.style.cssText = 'align-items:flex-start;margin-top:0.8rem;';
+      storyRow.innerHTML =
+        '<div class="field-label">Season Story</div>' +
+        '<textarea class="admin-input s-story" rows="5" placeholder="Write the story of this season...">'+esc(season.story||'')+'</textarea>';
+      storyRow.querySelector('.s-story').addEventListener('input', function () { season.story=this.value; markDirty(); });
+      pbody.appendChild(storyRow);
+
+      /* ══════════════════════════════════════════════════════
+         SEASON PHOTO — inline at very bottom
+      ══════════════════════════════════════════════════════ */
+      var photoRow = document.createElement('div');
+      photoRow.className = 'field-row';
+      photoRow.style.marginTop = '0.5rem';
+      photoRow.innerHTML =
+        '<div class="field-label">Season Photo<span class="field-hint">Filepath to image</span></div>' +
+        '<input class="admin-input s-image" type="text" value="'+esc(season.image||'')+'" placeholder="assets/photos/2024.jpg" />';
+      photoRow.querySelector('.s-image').addEventListener('input', function () { season.image=this.value; markDirty(); });
+      pbody.appendChild(photoRow);
+
+      container.appendChild(panel);
+    }
+
+    function buildNestedSection(title, startOpen, builderFn) {
+      var section = document.createElement('section');
+      section.className = 'admin-section admin-nested-section is-collapsed admin-deep-section';
+      section.innerHTML =
+        '<div class="admin-section-header">' +
+          '<span class="admin-section-label">'+esc(title)+'</span>' +
+          '<span class="admin-section-toggle">&#x25BC;</span>' +
+        '</div>' +
+        '<div class="admin-section-body"></div>';
+      builderFn(section.querySelector('.admin-section-body'));
+      return section;
+    }
+
+    /* ══════════════════════════════════════════════════════
+       POPULATE ALL FIELDS
+    ══════════════════════════════════════════════════════ */
+    function populateAllFields() {
+      var L  = workingConfig.landing  || {};
+      var T  = workingConfig.theme    || {};
+      var SS = workingConfig.slideshow || {};
+      var FS = T.fontSizes || {};
+
+      setVal('f_logoMark',       L.logoMark);
+      setVal('f_eyebrow',        L.eyebrow);
+      setVal('f_title',          L.title);
+      setVal('f_subtitle',       L.subtitle);
+      setVal('f_tagline',        L.tagline);
+      setVal('f_footerText',     workingConfig.footer ? workingConfig.footer.text : '');
+      setVal('f_drawerFooter',   workingConfig.drawerFooter || '');
+      setVal('f_displayDuration',(SS.displayDuration || 4000) / 1000);
+      setVal('f_fadeDuration',   (SS.fadeDuration    || 2000) / 1000);
+      setVal('f_ssOverlay',       SS.overlay || 'rgba(0,0,0,0.55)');
+      setVal('f_sizeEyebrow',    parseFloat(FS.eyebrow    || '8pt'));
+      setVal('f_sizeTitle',      parseFloat(FS.title      || '72pt'));
+      setVal('f_sizeSubtitle',   parseFloat(FS.subtitle   || '10pt'));
+      setVal('f_sizeTagline',    parseFloat(FS.tagline    || '12pt'));
+      setVal('f_sizeNavItem',    parseFloat(FS.navItem    || '18pt'));
+      setVal('f_sizeNavFooter',  parseFloat(FS.navFooter  || '7pt'));
+      setVal('f_sizeCardSport',  parseFloat(FS.cardSport  || '7pt'));
+      setVal('f_sizeCardName',   parseFloat(FS.cardName   || '16pt'));
+      setVal('f_sizeCardCta',    parseFloat(FS.cardCta    || '8pt'));
+      setVal('f_sizeAdminLabel', parseFloat(FS.adminLabel || '9pt'));
+      setVal('f_sizeAdminHint',  parseFloat(FS.adminHint  || '8pt'));
+      setVal('f_accentColorHex', T.accentColor);
+      setVal('f_accentDimHex',   T.accentDim);
+      setVal('f_hintColorHex',   T.hintColor);
+      setVal('f_drawerBgHex',    T.drawerBackground);
+      setSwatch('f_accentColor', T.accentColor);
+      setSwatch('f_accentDim',   T.accentDim);
+      setSwatch('f_hintColor',   T.hintColor);
+      setSwatch('f_drawerBg',    T.drawerBackground);
+
+      initFontDropdowns();
+      renderSlideList('slideList', workingConfig.slideshow ? workingConfig.slideshow.slides || [] : [], markDirty);
+      renderMenuList();
+      renderRosterList();
+      renderLeagueDataList();
+    }
+
+    /* Bind simple input fields */
+    ['f_logoMark','f_eyebrow','f_title','f_subtitle','f_tagline','f_footerText',
+     'f_displayDuration','f_fadeDuration','f_ssOverlay'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('input', markDirty);
+    });
+    document.getElementById('f_drawerFooter').addEventListener('input', function () {
+      workingConfig.drawerFooter = this.value;
+      var el = document.querySelector('.drawer-footer'); if (el) el.textContent = this.value;
+      markDirty();
+    });
+
+    /* ══════════════════════════════════════════════════════
+       COLLECT FIELDS
+    ══════════════════════════════════════════════════════ */
+    function collectFields() {
+      if (!workingConfig.landing)   workingConfig.landing   = {};
+      if (!workingConfig.footer)    workingConfig.footer    = {};
+      if (!workingConfig.slideshow) workingConfig.slideshow = {};
+      if (!workingConfig.theme)     workingConfig.theme     = {};
+      if (!workingConfig.theme.fontSizes) workingConfig.theme.fontSizes = {};
+
+      workingConfig.landing.logoMark = getRawVal('f_logoMark');
+      workingConfig.landing.eyebrow  = getRawVal('f_eyebrow');
+      workingConfig.landing.title    = getRawVal('f_title');
+      workingConfig.landing.subtitle = getRawVal('f_subtitle');
+      workingConfig.landing.tagline  = getRawVal('f_tagline');
+      workingConfig.footer.text      = getRawVal('f_footerText');
+      workingConfig.drawerFooter     = getRawVal('f_drawerFooter');
+
+      workingConfig.slideshow.displayDuration = Math.round(parseFloat(getVal('f_displayDuration')||4)*1000);
+      workingConfig.slideshow.fadeDuration    = Math.round(parseFloat(getVal('f_fadeDuration')   ||2)*1000);
+      workingConfig.slideshow.overlay         = getVal('f_ssOverlay') || 'rgba(0,0,0,0.55)';
+
+      workingConfig.theme.fontSizes.eyebrow    = (getVal('f_sizeEyebrow')   ||'8') +'pt';
+      workingConfig.theme.fontSizes.title      = (getVal('f_sizeTitle')     ||'72')+'pt';
+      workingConfig.theme.fontSizes.subtitle   = (getVal('f_sizeSubtitle')  ||'10')+'pt';
+      workingConfig.theme.fontSizes.tagline    = (getVal('f_sizeTagline')   ||'12')+'pt';
+      workingConfig.theme.fontSizes.navItem    = (getVal('f_sizeNavItem')   ||'18')+'pt';
+      workingConfig.theme.fontSizes.navFooter  = (getVal('f_sizeNavFooter') ||'7') +'pt';
+      workingConfig.theme.fontSizes.cardSport  = (getVal('f_sizeCardSport') ||'7') +'pt';
+      workingConfig.theme.fontSizes.cardName   = (getVal('f_sizeCardName')  ||'16')+'pt';
+      workingConfig.theme.fontSizes.cardCta    = (getVal('f_sizeCardCta')   ||'8') +'pt';
+      workingConfig.theme.fontSizes.adminLabel = (getVal('f_sizeAdminLabel')||'9') +'pt';
+      workingConfig.theme.fontSizes.adminHint  = (getVal('f_sizeAdminHint') ||'8') +'pt';
+
+      workingConfig.theme.accentColor      = getVal('f_accentColorHex') || getVal('f_accentColor');
+      workingConfig.theme.accentDim        = getVal('f_accentDimHex')   || getVal('f_accentDim');
+      workingConfig.theme.hintColor        = getVal('f_hintColorHex')   || getVal('f_hintColor');
+      workingConfig.theme.drawerBackground = getVal('f_drawerBgHex')    || getVal('f_drawerBg');
+      workingConfig.theme.fontDisplay      = document.getElementById('f_fontDisplay').value;
+      workingConfig.theme.fontBody         = document.getElementById('f_fontBody').value;
+
+      var accent = workingConfig.theme.accentColor;
+      workingConfig.theme.accentGlow   = hexToRgba(accent, 0.08);
+      workingConfig.theme.drawerBorder  = hexToRgba(accent, 0.08);
+
+      // leagueData and masterRoster are live-bound — no extra collect needed
+    }
+
+    /* ══════════════════════════════════════════════════════
+       ADD LEAGUE BUTTON
+    ══════════════════════════════════════════════════════ */
+    document.getElementById('btnAddMember').addEventListener('click', function () {
+      try {
+        var m = window.MemberFactory.create('New Member');
+        if (!workingConfig.masterRoster) workingConfig.masterRoster = [];
+        workingConfig.masterRoster.push(m);
+        renderRosterList();
+        markDirty();
+        setTimeout(function () {
+          var cards = document.querySelectorAll('.admin-member-section');
+          var last  = cards[cards.length - 1];
+          if (last) last.scrollIntoView({ behavior:'smooth', block:'start' });
+        }, 150);
+      } catch (err) {
+        showToast('\u2717 Add Member error: ' + err.message, 6000);
+        console.error('btnAddMember error:', err);
+      }
+    });
+
+    document.getElementById('btnAddLeague').addEventListener('click', function () {
+      try {
+        var lg = window.LeagueFactory.create('football');
+        workingConfig.leagueData.push(lg);
+        renderLeagueDataList();
+        markDirty();
+        setTimeout(function () {
+          var panels = document.querySelectorAll('.admin-league-panel');
+          var last   = panels[panels.length - 1];
+          if (last) last.scrollIntoView({ behavior:'smooth', block:'start' });
+        }, 150);
+      } catch (err) {
+        showToast('\u2717 Add League error: ' + err.message, 6000);
+        console.error('btnAddLeague error:', err);
+      }
+    });
+
+    /* ══════════════════════════════════════════════════════
+       COMMISSIONER SETTINGS
+    ══════════════════════════════════════════════════════ */
+    document.getElementById('btnChangePin').addEventListener('click', function () {
+      var current = document.getElementById('f_pinCurrent').value.trim();
+      var newPin  = document.getElementById('f_pinNew').value.trim();
+      var conf    = document.getElementById('f_pinConfirm').value.trim();
+      if (current !== PIN)              { showToast('\u2717  Current PIN is incorrect', 3000); return; }
+      if (!/^[0-9]{4}$/.test(newPin))  { showToast('\u2717  New PIN must be exactly 4 digits', 3000); return; }
+      if (newPin !== conf)              { showToast('\u2717  PINs do not match', 3000); return; }
+      PIN = newPin; window.ADMIN_PIN = newPin;
+      document.getElementById('f_pinCurrent').value = '';
+      document.getElementById('f_pinNew').value = '';
+      document.getElementById('f_pinConfirm').value = '';
+      markDirty();
+      showToast('\u2713  PIN updated \u2014 download admin-config.js to make permanent');
+    });
+
+    /* ══════════════════════════════════════════════════════
+       IMPORT / EXPORT
+    ══════════════════════════════════════════════════════ */
+    document.getElementById('btnImport').addEventListener('click', doImport);
+    document.getElementById('btnExport').addEventListener('click',  doExport);
+
+    document.getElementById('importFileInput').addEventListener('change', function (e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        try {
+          var text   = ev.target.result;
+          var parsed = extractConfig(text);
+          if (!parsed) throw new Error('Could not find SITE_CONFIG_DEFAULTS in file.');
+          workingConfig = deepMergeLocal(JSON.parse(JSON.stringify(window.SITE_CONFIG_DEFAULTS)), parsed);
+          var pinMatch = text.match(/var\s+ADMIN_PIN\s*=\s*["']([0-9]{4})["']/);
+          if (pinMatch) { PIN = pinMatch[1]; window.ADMIN_PIN = PIN; }
+          localStorage.setItem('ofc_site_config', JSON.stringify(workingConfig));
+          window.SITE_CONFIG = JSON.parse(JSON.stringify(workingConfig));
+          populateAllFields(); markClean(); unlockVersion();
+          showToast('\u2713  Config imported and applied');
+        } catch (err) {
+          showToast('\u2717  Import failed: ' + err.message, 5000);
+        }
+        e.target.value = '';
+      };
+      reader.readAsText(file);
+    });
+
+    function extractConfig(text) {
+      var patterns = [
+        /var\s+SITE_CONFIG_DEFAULTS\s*=\s*(\{[\s\S]*?\});\s*$/m,
+        /var\s+SITE_CONFIG_DEFAULTS\s*=\s*(\{[\s\S]*\});/,
+      ];
+      for (var i = 0; i < patterns.length; i++) {
+        var m = text.match(patterns[i]);
+        if (m) { try { return JSON.parse(m[1]); } catch (e) { /* try next */ } }
+      }
+      try {
+        var fn = new Function(
+          'var SITE_CONFIG_DEFAULTS; var ADMIN_PIN; var KB_DIRECTIONS; ' + text +
+          '; return SITE_CONFIG_DEFAULTS;'
+        );
+        var r = fn();
+        if (r && typeof r === 'object') return r;
+      } catch (e2) { /* fall through */ }
+      return null;
+    }
+
+    function deepMergeLocal(base, override) {
+      var result = Object.assign({}, base);
+      Object.keys(override).forEach(function (key) {
+        if (override[key] !== null && typeof override[key] === 'object' &&
+            !Array.isArray(override[key]) && base[key] && typeof base[key] === 'object' &&
+            !Array.isArray(base[key])) {
+          result[key] = deepMergeLocal(base[key], override[key]);
+        } else {
+          result[key] = override[key];
+        }
+      });
+      return result;
+    }
+
+    /* ── Export modal close/copy/download ─────────────────── */
+    var exportModal = document.getElementById('exportModal');
+    document.getElementById('btnCloseModal').addEventListener('click', function () { exportModal.classList.remove('visible'); });
+    exportModal.addEventListener('click', function (e) { if (e.target === exportModal) exportModal.classList.remove('visible'); });
+    document.getElementById('btnCopyExport').addEventListener('click', function () {
+      var ta = document.getElementById('exportCode');
+      ta.select();
+      try { document.execCommand('copy'); showToast('\u2713  Copied to clipboard'); }
+      catch (e) { showToast('Copy manually (Ctrl/Cmd+C)', 4000); }
+    });
+    document.getElementById('btnDownloadExport').addEventListener('click', function () {
+      collectFields();
+      var blob = new Blob([buildConfigJs(workingConfig)], { type:'text/javascript;charset=utf-8' });
+      var url  = URL.createObjectURL(blob);
+      var a    = document.createElement('a');
+      a.href = url; a.download = 'admin-config.js';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+      showToast('\u2713  admin-config.js downloaded'); markClean(); exportModal.classList.remove('visible');
+    });
+
+    /* ── Confirm modal ────────────────────────────────────── */
+    var confirmModal     = document.getElementById('confirmModal');
+    var pendingConfirmFn = null;
+    function showConfirm(title, msg, onOk) {
+      document.getElementById('confirmModalTitle').textContent = title;
+      document.getElementById('confirmModalMsg').textContent   = msg;
+      pendingConfirmFn = onOk;
+      confirmModal.classList.add('visible');
+    }
+    document.getElementById('btnConfirmCancel').addEventListener('click', function () { confirmModal.classList.remove('visible'); pendingConfirmFn=null; });
+    document.getElementById('btnConfirmOk').addEventListener('click', function () {
+      confirmModal.classList.remove('visible');
+      if (pendingConfirmFn) { pendingConfirmFn(); pendingConfirmFn=null; }
+    });
+    confirmModal.addEventListener('click', function (e) { if (e.target===confirmModal){confirmModal.classList.remove('visible');pendingConfirmFn=null;} });
+
+    /* ── Danger zone ──────────────────────────────────────── */
+    document.getElementById('btnResetDefaults').addEventListener('click', function () {
+      showConfirm('Reset to Defaults', 'This will erase all browser-saved changes and restore the defaults baked into admin-config.js.', function () {
+        localStorage.removeItem('ofc_site_config');
+        workingConfig = JSON.parse(JSON.stringify(window.SITE_CONFIG_DEFAULTS));
+        window.SITE_CONFIG = JSON.parse(JSON.stringify(workingConfig));
+        populateAllFields(); markClean(); showToast('\u2713  Reset complete');
+      });
+    });
+    document.getElementById('btnLockAdmin').addEventListener('click', function () {
+      showConfirm('Lock Admin Panel', 'Your session will end. PIN required to re-enter.', function () {
+        sessionStorage.removeItem(SESSION_KEY); location.reload();
+      });
+    });
+
+    /* ── Build admin-config.js ────────────────────────────── */
+    function buildConfigJs(cfg) {
+      var pin  = PIN || window.ADMIN_PIN || '1234';
+      var date = new Date().toLocaleString();
+      return [
+        '/**',
+        ' * ============================================================',
+        ' *  ADMIN-CONFIG.JS \u2014 YOUR CONTENT & SETTINGS',
+        ' *  Generated by Admin Panel \u2014 ' + date,
+        ' *',
+        ' *  This is YOUR file. Claude never modifies this.',
+        ' *  Load order: admin-config.js FIRST, then admin.js',
+        ' * ============================================================',
+        ' */',
+        '',
+        'var ADMIN_PIN = "' + pin + '";',
+        '',
+        'var KB_DIRECTIONS = ' + JSON.stringify(window.KB_DIRECTIONS || [], null, 2) + ';',
+        '',
+        'var SITE_CONFIG_DEFAULTS = ' + JSON.stringify(cfg, null, 2) + ';',
+      ].join('\n');
+    }
+
+    /* ══════════════════════════════════════════════════════
+       BOOT
+    ══════════════════════════════════════════════════════ */
+    populateAllFields();
+    initCollapsible();
+    initFontSizeFields();
+    initColorFields();
+
+  } /* end initAdmin() */
+
+})();
+</script>
+
+</body>
+</html>

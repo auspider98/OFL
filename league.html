@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>League — OFC</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="admin-config.js"></script>
+  <script src="admin.js"></script>
+</head>
+<body>
+
+  <!-- ── TOP NAV ─────────────────────────────────────────── -->
+  <nav class="topnav" role="navigation" aria-label="Site navigation">
+    <a href="index.html" class="topnav-logo">OFC</a>
+    <button class="menu-trigger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="site-drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- ── DRAWER ──────────────────────────────────────────── -->
+  <div class="drawer-overlay" aria-hidden="true"></div>
+  <aside id="site-drawer" class="drawer" role="dialog" aria-modal="true" aria-label="Navigation">
+    <p class="drawer-label">Navigate</p>
+    <ul class="drawer-nav"></ul>
+    <div class="drawer-footer"></div>
+  </aside>
+
+  <!-- ── LEAGUE PAGE ─────────────────────────────────────── -->
+  <div class="league-page" id="leaguePage">
+
+    <!-- Hero -->
+    <header class="league-hero" id="leagueHero">
+      <div class="slide-layer" id="slideA" aria-hidden="true"></div>
+      <div class="slide-layer" id="slideB" aria-hidden="true"></div>
+      <div class="landing-overlay" id="heroOverlay" aria-hidden="true"></div>
+      <div class="landing-vignette" aria-hidden="true"></div>
+      <div class="landing-rule" aria-hidden="true"></div>
+      <div class="league-hero-content" id="leagueHeroContent">
+        <p class="league-hero-eyebrow" id="leagueEyebrow"></p>
+        <h1 class="league-hero-title" id="leagueTitle"></h1>
+        <p class="league-hero-subtitle" id="leagueSubtitle"></p>
+      </div>
+    </header>
+
+    <!-- Body content injected by JS -->
+    <div class="league-body" id="leagueBody"></div>
+
+  </div><!-- /leaguePage -->
+
+  <script src="menu.js"></script>
+
+  <script>
+  (function () {
+    'use strict';
+
+    // ── Helpers ──────────────────────────────────────────────
+    function esc(s) {
+      return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function getParam(key) {
+      var params = new URLSearchParams(window.location.search);
+      return params.get(key) || '';
+    }
+
+    function el(id) { return document.getElementById(id); }
+
+    // ── Get league from config ───────────────────────────────
+    function getLeague(slug) {
+      var config = window.SITE_CONFIG;
+      if (!config || !config.leagueData) return null;
+      return config.leagueData.find(function (lg) {
+        return lg.name && lg.name.toLowerCase() === slug.toLowerCase();
+      }) || null;
+    }
+
+    // ── Get current season ───────────────────────────────────
+    function getCurrentSeason(league) {
+      if (!league.seasons || !league.seasons.length) return null;
+      if (league.currentSeasonId) {
+        var found = league.seasons.find(function (s) { return s.id === league.currentSeasonId; });
+        if (found) return found;
+      }
+      return league.seasons[0];
+    }
+
+    // ── Get champion logo: team logo → mugshot fallback ──────
+    function getChampionImage(season, config) {
+      if (!season) return '';
+      // Find champion's roster entry for their team logo
+      var rosterEntry = (season.roster || []).find(function (r) {
+        return r.memberId === season.championMemberId;
+      });
+      if (rosterEntry && rosterEntry.logo) return rosterEntry.logo;
+      // Fallback: master roster mugshot
+      var member = (config.masterRoster || []).find(function (m) {
+        return m.id === season.championMemberId;
+      });
+      return member ? (member.mugshot || '') : '';
+    }
+
+    // ── Resolve stat display text ────────────────────────────
+    function statDisplay(stat) {
+      if (!stat) return '';
+      var parts = [];
+      if (stat.ownerName)    parts.push(stat.ownerName);
+      if (stat.bracketName && stat.bracketName !== stat.ownerName) parts.push('(' + stat.bracketName + ')');
+      if (stat.team)         parts.push(stat.team);
+      if (stat.score        !== undefined && stat.score !== '') parts.push(stat.score);
+      if (stat.points       !== undefined && stat.points !== '') parts.push(stat.points + ' pts');
+      if (stat.total        !== undefined && stat.total !== '')  parts.push(stat.total);
+      if (stat.count        !== undefined && stat.count !== '')  parts.push(stat.count);
+      if (stat.round)        parts.push('(' + stat.round + ')');
+      if (stat.week)         parts.push('Wk ' + stat.week);
+      return parts.join(' · ');
+    }
+
+    // ── Render hero ──────────────────────────────────────────
+    function renderHero(league, config) {
+      el('leagueEyebrow').textContent  = league.heroEyebrow  || config.landing.eyebrow || '';
+      el('leagueTitle').textContent    = league.heroTitle    || league.fullName || league.name || '';
+      el('leagueSubtitle').textContent = league.heroSubtitle || '';
+
+      // Apply league accent color
+      if (league.accentColor) {
+        document.documentElement.style.setProperty('--hint-color', league.accentColor);
+      }
+
+      // Overlay
+      var overlay = el('heroOverlay');
+      var ss = league.slideshow;
+      if (overlay && ss && ss.overlay) overlay.style.background = ss.overlay;
+
+      // Page title
+      document.title = (league.heroTitle || league.name || 'League') + ' — OFC';
+    }
+
+    // ── Render champion block ────────────────────────────────
+    function renderChampionBlock(season, league, config) {
+      var imgSrc     = getChampionImage(season, config);
+      var year       = season.year || '';
+      var team       = season.championTeamName || '';
+      var owner      = season.championName || '';
+      var record     = season.record || '';
+      var seed       = season.seed ? '#' + season.seed : '';
+      var score      = season.championshipScore || '';
+
+      var visualHtml = imgSrc
+        ? '<img src="' + esc(imgSrc) + '" alt="' + esc(team) + '" />'
+        : '<span class="champion-initials">' + esc((team||owner||'?').charAt(0)) + '</span>';
+
+      var statsHtml = '';
+      if (record) statsHtml += '<div class="champion-stat"><span class="champion-stat-label">Record</span><span class="champion-stat-value">' + esc(record) + '</span></div>';
+      if (seed)   statsHtml += '<div class="champion-stat"><span class="champion-stat-label">Seed</span><span class="champion-stat-value">' + esc(seed) + '</span></div>';
+      if (score)  statsHtml += '<div class="champion-stat"><span class="champion-stat-label">Championship</span><span class="champion-stat-value">' + esc(score) + '</span></div>';
+
+      return '<div class="champion-block">' +
+        '<div class="champion-block-visual">' + visualHtml + '</div>' +
+        '<div class="champion-block-info">' +
+          '<div class="champion-block-year">' + esc(year) + ' Champion</div>' +
+          '<div class="champion-block-team">' + esc(team || owner || '—') + '</div>' +
+          '<div class="champion-block-owner">' + esc(owner) + '</div>' +
+          (statsHtml ? '<div class="champion-block-stats">' + statsHtml + '</div>' : '') +
+        '</div>' +
+      '</div>';
+    }
+
+    // ── Render standings table ───────────────────────────────
+    function renderStandingsTable(season, league) {
+      var schema = window.SPORT_STAT_SCHEMAS[league.sport] || window.SPORT_STAT_SCHEMAS.other;
+      var cols   = (schema.standingsColumns || []).filter(function (c) { return c.key !== 'rank'; });
+      var rows   = season.standings || [];
+      if (!rows.length) return '<p style="color:var(--accent-dim);font-size:0.75rem;letter-spacing:0.15em;">No standings data yet.</p>';
+
+      var thead = '<tr><th class="standings-rank-cell">#</th>' +
+        cols.map(function (c) { return '<th>' + esc(c.label) + '</th>'; }).join('') + '</tr>';
+
+      var tbody = rows.map(function (row, i) {
+        return '<tr>' +
+          '<td class="standings-rank-cell">' + esc(row.rank || (i + 1)) + '</td>' +
+          cols.map(function (c) { return '<td>' + esc(row[c.key] || '') + '</td>'; }).join('') +
+        '</tr>';
+      }).join('');
+
+      return '<table class="league-standings-table"><thead>' + thead + '</thead><tbody>' + tbody + '</tbody></table>';
+    }
+
+    // ── Render awards grid ───────────────────────────────────
+    function renderAwardsGrid(season, league) {
+      var schema   = window.SPORT_STAT_SCHEMAS[league.sport] || window.SPORT_STAT_SCHEMAS.other;
+      var awardDefs = schema.awards || [];
+      var awards   = league.awards || {};
+      var stats    = season.stats  || {};
+      var html     = '';
+
+      // Champion always first
+      if (season.championName) {
+        html += '<div class="award-card">' +
+          '<div class="award-card-name">' + esc(awards['champion'] || 'Champion') + '</div>' +
+          '<div class="award-card-winner">' + esc(season.championTeamName || season.championName) + '</div>' +
+          '<div class="award-card-detail">' + esc(season.championName) + '</div>' +
+        '</div>';
+      }
+
+      // Stats-based awards
+      awardDefs.forEach(function (a) {
+        if (a.key === 'champion') return;
+        var stat = stats[a.key];
+        // Find the stat key in schema stats
+        var statDef = (schema.stats || []).find(function (s) { return s.awardKey === a.key; });
+        if (statDef) stat = stats[statDef.key];
+        if (!stat || (!stat.ownerName && !stat.bracketName)) return;
+        var detail = statDisplay(stat);
+        html += '<div class="award-card">' +
+          '<div class="award-card-name">' + esc(awards[a.key] || a.defaultLabel) + '</div>' +
+          '<div class="award-card-winner">' + esc(stat.ownerName || '') + '</div>' +
+          (detail ? '<div class="award-card-detail">' + esc(detail) + '</div>' : '') +
+        '</div>';
+      });
+
+      // Custom stats
+      (season.customStats || []).forEach(function (cs) {
+        if (!cs.value) return;
+        html += '<div class="award-card">' +
+          '<div class="award-card-name">' + esc(cs.label || 'Custom Award') + '</div>' +
+          '<div class="award-card-winner">' + esc(cs.value) + '</div>' +
+        '</div>';
+      });
+
+      return html || '<p style="color:var(--accent-dim);font-size:0.75rem;letter-spacing:0.15em;">No awards data yet.</p>';
+    }
+
+    // ── Build past season flip card ──────────────────────────
+    function buildPastSeasonCard(season, league, config) {
+      var imgSrc  = getChampionImage(season, config);
+      var year    = season.year || '????';
+      var team    = season.championTeamName || '—';
+      var owner   = season.championName || '';
+      var record  = season.record || '';
+      var seed    = season.seed ? '#' + season.seed : '';
+      var score   = season.championshipScore || '';
+
+      var logoHtml = imgSrc
+        ? '<img class="flip-card-logo" src="' + esc(imgSrc) + '" alt="' + esc(team) + '" />'
+        : '';
+
+      var metaHtml = '';
+      if (record) metaHtml += '<div class="flip-card-meta-item"><span class="flip-meta-label">Record</span><span class="flip-meta-value">' + esc(record) + '</span></div>';
+      if (seed)   metaHtml += '<div class="flip-card-meta-item"><span class="flip-meta-label">Seed</span><span class="flip-meta-value">' + esc(seed) + '</span></div>';
+      if (score)  metaHtml += '<div class="flip-card-meta-item"><span class="flip-meta-label">Final</span><span class="flip-meta-value">' + esc(score) + '</span></div>';
+
+      // Back: standings rows
+      var standingsRows = (season.standings || []).slice(0, 10).map(function (row, i) {
+        return '<div class="flip-back-row">' +
+          '<span class="flip-back-rank">' + esc(row.rank || (i+1)) + '</span>' +
+          '<span>' + esc(row.owner || row.ownerName || '') + (row.team || row.bracketName ? ' — ' + esc(row.team || row.bracketName) : '') + '</span>' +
+        '</div>';
+      }).join('');
+
+      var storyHtml = season.story
+        ? '<p class="flip-back-story">' + esc(season.story) + '</p>'
+        : '';
+
+      var frontHtml =
+        '<div class="season-flip-front">' +
+          '<div class="flip-card-year">' + esc(year) + '</div>' +
+          logoHtml +
+          '<div class="flip-card-team">' + esc(team) + '</div>' +
+          '<div class="flip-card-owner">' + esc(owner) + '</div>' +
+          (metaHtml ? '<div class="flip-card-meta">' + metaHtml + '</div>' : '') +
+          '<div class="flip-hint">Details →</div>' +
+        '</div>';
+
+      var backHtml =
+        '<div class="season-flip-back">' +
+          '<div class="flip-back-title">' +
+            '<span>' + esc(year) + ' Season</span>' +
+            '<span class="flip-back-close">&#x2715;</span>' +
+          '</div>' +
+          '<div class="flip-back-standings">' + standingsRows + '</div>' +
+          storyHtml +
+        '</div>';
+
+      var card = document.createElement('div');
+      card.className = 'season-flip-card';
+      card.innerHTML = '<div class="season-flip-inner">' + frontHtml + backHtml + '</div>';
+
+      card.addEventListener('click', function (e) {
+        if (e.target.classList.contains('flip-back-close')) {
+          card.classList.remove('is-flipped');
+        } else {
+          card.classList.toggle('is-flipped');
+        }
+      });
+
+      return card;
+    }
+
+    // ── Render page body ─────────────────────────────────────
+    function renderBody(league, config) {
+      var body       = el('leagueBody');
+      var pl         = league.pageLayout || {};
+      var current    = getCurrentSeason(league);
+      var pastSeasons = (league.seasons || []).filter(function (s) {
+        return s.id !== (current ? current.id : null);
+      });
+
+      body.innerHTML = '';
+
+      // ── Current Champion
+      if (pl.showChampion !== false && current && current.championName) {
+        var sec = document.createElement('div');
+        sec.className = 'league-section';
+        sec.innerHTML = '<div class="league-section-heading">Current Champion</div>' +
+          renderChampionBlock(current, league, config);
+        body.appendChild(sec);
+      }
+
+      // ── Final Standings
+      if (pl.showStandings !== false && current) {
+        var sec2 = document.createElement('div');
+        sec2.className = 'league-section';
+        sec2.innerHTML = '<div class="league-section-heading">Final Standings — ' + esc(current.year || '') + '</div>' +
+          renderStandingsTable(current, league);
+        body.appendChild(sec2);
+      }
+
+      // ── Season Awards
+      if (pl.showAwards !== false && current) {
+        var sec3 = document.createElement('div');
+        sec3.className = 'league-section';
+        sec3.innerHTML = '<div class="league-section-heading">Season Awards — ' + esc(current.year || '') + '</div>' +
+          '<div class="awards-grid" id="awardsGrid"></div>';
+        body.appendChild(sec3);
+        sec3.querySelector('#awardsGrid').innerHTML = renderAwardsGrid(current, league);
+      }
+
+      // ── Past Seasons
+      if (pl.showPastSeasons !== false && pastSeasons.length > 0) {
+        var sec4 = document.createElement('div');
+        sec4.className = 'league-section';
+        sec4.innerHTML = '<div class="league-section-heading">Past Seasons</div>';
+        var grid = document.createElement('div');
+        grid.className = 'past-seasons-grid';
+        pastSeasons.forEach(function (s) {
+          grid.appendChild(buildPastSeasonCard(s, league, config));
+        });
+        sec4.appendChild(grid);
+        body.appendChild(sec4);
+      }
+
+      // ── Footer
+      var footer = document.createElement('div');
+      footer.className = 'league-footer';
+      footer.textContent = (league.fullName || league.name || '') + (config.footer && config.footer.text ? ' · ' + config.footer.text : '');
+      body.appendChild(footer);
+    }
+
+    // ── Init slideshow for league ────────────────────────────
+    function initLeagueSlideshow(league, config) {
+      var ss = league.slideshow;
+      if (!ss || !ss.slides || !ss.slides.length) return;
+
+      // Borrow global slideshow timing settings if set
+      var displayMs = (config.slideshow && config.slideshow.displayDuration) || 8000;
+      var fadeMs    = (config.slideshow && config.slideshow.fadeDuration)    || 2000;
+      var cycleMs   = displayMs + fadeMs;
+      document.documentElement.style.setProperty('--slide-fade', (fadeMs / 1000) + 's');
+
+      var slideA     = el('slideA');
+      var slideB     = el('slideB');
+      if (!slideA || !slideB) return;
+
+      var slides     = ss.slides;
+      var total      = slides.length;
+      var currentIdx = 0;
+      var activLayer = slideA;
+      var inactLayer = slideB;
+
+      slides.forEach(function (s) { var img = new Image(); img.src = s.image; });
+
+      function applySlide(layer, slide) {
+        layer.style.backgroundImage    = 'url("' + slide.image + '")';
+        layer.style.animationName      = slide.direction || 'kb-zoom-in';
+        layer.style.animationDuration  = cycleMs + 'ms';
+        layer.style.animationDelay     = '0ms';
+        layer.style.animationPlayState = 'paused';
+        layer.classList.add('kb-active');
+      }
+
+      function resetLayer(layer) {
+        layer.classList.remove('kb-active');
+        layer.style.animation = 'none';
+        void layer.offsetWidth;
+        layer.style.animation = '';
+      }
+
+      function showSlide(idx) {
+        applySlide(inactLayer, slides[idx]);
+        activLayer.style.zIndex  = '1';
+        inactLayer.style.zIndex  = '2';
+        inactLayer.style.animationPlayState = 'running';
+        inactLayer.classList.add('is-active');
+        setTimeout(function () {
+          activLayer.classList.remove('is-active');
+          var out = activLayer; activLayer = inactLayer; inactLayer = out;
+          setTimeout(function () { resetLayer(inactLayer); }, 50);
+        }, fadeMs);
+      }
+
+      applySlide(slideA, slides[0]);
+      slideA.style.zIndex = '2';
+      slideB.style.zIndex = '1';
+      slideA.style.animationPlayState = 'running';
+      slideA.classList.add('is-active');
+      activLayer = slideA;
+      resetLayer(slideB);
+      inactLayer = slideB;
+
+      if (total === 1) return;
+
+      function cycle() {
+        currentIdx = (currentIdx + 1) % total;
+        showSlide(currentIdx);
+        setTimeout(cycle, cycleMs);
+      }
+      setTimeout(cycle, cycleMs);
+    }
+
+    // ── Main init ────────────────────────────────────────────
+    function init() {
+      var config = window.SITE_CONFIG;
+      if (!config) { console.warn('SITE_CONFIG not found'); return; }
+
+      var slug   = getParam('league');
+      var league = getLeague(slug);
+
+      if (!league) {
+        document.title = 'League Not Found — OFC';
+        el('leagueTitle').textContent    = slug ? slug.toUpperCase() : 'League';
+        el('leagueSubtitle').textContent = 'This league could not be found.';
+        return;
+      }
+
+      renderHero(league, config);
+      initLeagueSlideshow(league, config);
+      renderBody(league, config);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+
+  })();
+  </script>
+
+</body>
+</html>
