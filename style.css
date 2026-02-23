@@ -2197,8 +2197,8 @@ select.admin-input option {
 }
 
 .league-hero .slide-layer { position: absolute; inset: 0; }
-.league-hero .landing-overlay { position: absolute; inset: 0; z-index: 10; }
-.league-hero .landing-vignette { position: absolute; inset: 0; z-index: 11; }
+.league-hero .landing-overlay { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
+.league-hero .landing-vignette { position: absolute; inset: 0; z-index: 11; pointer-events: none; }
 
 .league-hero-content {
   position: relative;
