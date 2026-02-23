@@ -86,17 +86,33 @@
     }
 
     // ── Get champion logo: team logo → mugshot fallback ──────
-    function getChampionImage(season, config) {
+    function getChampionImage(season, config, league) {
       if (!season) return '';
-      // Find champion's roster entry for their team logo
+      var member = (config.masterRoster || []).find(function (m) {
+        return m.id === season.championMemberId;
+      });
+
+      // 1. Season roster logo override
       var rosterEntry = (season.roster || []).find(function (r) {
         return r.memberId === season.championMemberId;
       });
       if (rosterEntry && rosterEntry.logo) return rosterEntry.logo;
-      // Fallback: master roster mugshot
-      var member = (config.masterRoster || []).find(function (m) {
-        return m.id === season.championMemberId;
-      });
+
+      // 2. Master roster team logo for this league
+      if (member && member.leagues && league) {
+        var lgEntry = member.leagues.find(function (lg) {
+          return lg.leagueKey === league.name || lg.leagueName === league.name;
+        });
+        if (lgEntry && lgEntry.teams && lgEntry.teams.length) {
+          // Match by team name if possible, else take first team
+          var teamName = season.championTeamName;
+          var team = lgEntry.teams.find(function (t) { return t.name === teamName; })
+                  || lgEntry.teams[0];
+          if (team && team.logo) return team.logo;
+        }
+      }
+
+      // 3. Mugshot fallback
       return member ? (member.mugshot || '') : '';
     }
 
@@ -114,6 +130,24 @@
       if (stat.round)        parts.push('(' + stat.round + ')');
       if (stat.week)         parts.push('Wk ' + stat.week);
       return parts.join(' · ');
+    }
+
+    /* Returns an array of display strings for all subfields on a stat */
+    function statLines(stat) {
+      if (!stat) return [];
+      var lines = [];
+      if (stat.record)                                              lines.push(stat.record);
+      if (stat.playerName)                                          lines.push(stat.playerName);
+      if (stat.score     !== undefined && stat.score     !== '' && stat.score     !== 0) lines.push(stat.score);
+      if (stat.points    !== undefined && stat.points    !== '' && stat.points    !== 0) lines.push(stat.points + ' pts');
+      if (stat.total     !== undefined && stat.total     !== '' && stat.total     !== 0) lines.push(stat.total);
+      if (stat.count     !== undefined && stat.count     !== '' && stat.count     !== 0) lines.push(stat.count + ' picks');
+      if (stat.opponent)                                            lines.push('vs ' + stat.opponent);
+      if (stat.margin    !== undefined && stat.margin    !== '' && stat.margin    !== 0) lines.push('Margin: ' + stat.margin);
+      if (stat.week      !== undefined && stat.week      !== '' && stat.week      !== 0) lines.push('Week ' + stat.week);
+      if (stat.round)                                               lines.push(stat.round);
+      if (stat.totalPoints !== undefined && stat.totalPoints !== '' && stat.totalPoints !== 0) lines.push(stat.totalPoints + ' pts');
+      return lines;
     }
 
     // ── Render hero ──────────────────────────────────────────
@@ -138,22 +172,33 @@
 
     // ── Render champion block ────────────────────────────────
     function renderChampionBlock(season, league, config) {
-      var imgSrc     = getChampionImage(season, config);
-      var year       = season.year || '';
-      var team       = season.championTeamName || '';
-      var owner      = season.championName || '';
-      var record     = season.record || '';
-      var seed       = season.seed ? '#' + season.seed : '';
-      var score      = season.championshipScore || '';
+      var imgSrc  = getChampionImage(season, config, league);
+      var year    = season.year || '';
+      var team    = season.championTeamName || '';
+      var owner   = season.championName || '';
+
+      // Respect cardTemplate show flags
+      var template = league.cardTemplate || [];
+      function fieldVisible(key) {
+        if (!template.length) return true;
+        var f = template.find(function (t) { return t.key === key; });
+        return f ? f.show !== false : true;
+      }
 
       var visualHtml = imgSrc
         ? '<img src="' + esc(imgSrc) + '" alt="' + esc(team) + '" />'
         : '<span class="champion-initials">' + esc((team||owner||'?').charAt(0)) + '</span>';
 
       var statsHtml = '';
-      if (record) statsHtml += '<div class="champion-stat"><span class="champion-stat-label">Record</span><span class="champion-stat-value">' + esc(record) + '</span></div>';
-      if (seed)   statsHtml += '<div class="champion-stat"><span class="champion-stat-label">Seed</span><span class="champion-stat-value">' + esc(seed) + '</span></div>';
-      if (score)  statsHtml += '<div class="champion-stat"><span class="champion-stat-label">Championship</span><span class="champion-stat-value">' + esc(score) + '</span></div>';
+      if (fieldVisible('record') && season.record)
+        statsHtml += '<div class="champion-stat"><span class="champion-stat-label">Record</span><span class="champion-stat-value">' + esc(season.record) + '</span></div>';
+      if (fieldVisible('seed') && season.seed)
+        statsHtml += '<div class="champion-stat"><span class="champion-stat-label">Seed</span><span class="champion-stat-value">#' + esc(season.seed) + '</span></div>';
+      if (fieldVisible('championshipScore') && season.championshipScore)
+        statsHtml += '<div class="champion-stat"><span class="champion-stat-label">Championship</span><span class="champion-stat-value">' + esc(season.championshipScore) + '</span></div>';
+
+      // Champion award image — from league-level awardImages
+      var champAwardImg = (league.awardImages && league.awardImages['champion']) || '';
 
       return '<div class="champion-block">' +
         '<div class="champion-block-visual">' + visualHtml + '</div>' +
@@ -162,6 +207,7 @@
           '<div class="champion-block-team">' + esc(team || owner || '—') + '</div>' +
           '<div class="champion-block-owner">' + esc(owner) + '</div>' +
           (statsHtml ? '<div class="champion-block-stats">' + statsHtml + '</div>' : '') +
+          (champAwardImg ? '<div class="champion-award-img-wrap"><img class="champion-award-img" src="' + esc(champAwardImg) + '" alt="Championship award" /></div>' : '') +
         '</div>' +
       '</div>';
     }
@@ -173,13 +219,23 @@
       var rows   = season.standings || [];
       if (!rows.length) return '<p style="color:var(--accent-dim);font-size:0.75rem;letter-spacing:0.15em;">No standings data yet.</p>';
 
+      /* Some column keys in the schema differ from the actual stored key on the row */
+      var keyAliases = { team: ['teamName', 'bracketName', 'team'] };
+      function resolveCell(row, key) {
+        var aliases = keyAliases[key] || [key];
+        for (var i = 0; i < aliases.length; i++) {
+          if (row[aliases[i]]) return row[aliases[i]];
+        }
+        return '';
+      }
+
       var thead = '<tr><th class="standings-rank-cell">#</th>' +
         cols.map(function (c) { return '<th>' + esc(c.label) + '</th>'; }).join('') + '</tr>';
 
       var tbody = rows.map(function (row, i) {
         return '<tr>' +
           '<td class="standings-rank-cell">' + esc(row.rank || (i + 1)) + '</td>' +
-          cols.map(function (c) { return '<td>' + esc(row[c.key] || '') + '</td>'; }).join('') +
+          cols.map(function (c) { return '<td>' + esc(resolveCell(row, c.key)) + '</td>'; }).join('') +
         '</tr>';
       }).join('');
 
@@ -188,44 +244,82 @@
 
     // ── Render awards grid ───────────────────────────────────
     function renderAwardsGrid(season, league) {
-      var schema   = window.SPORT_STAT_SCHEMAS[league.sport] || window.SPORT_STAT_SCHEMAS.other;
-      var awardDefs = schema.awards || [];
-      var awards   = league.awards || {};
-      var stats    = season.stats  || {};
-      var html     = '';
+      var schema      = window.SPORT_STAT_SCHEMAS[league.sport] || window.SPORT_STAT_SCHEMAS.other;
+      var awardDefs   = schema.awards      || [];
+      var awards      = league.awards      || {};
+      var awardImages = league.awardImages  || {};
+      var stats       = season.stats        || {};
+      var html        = '';
 
-      // Champion always first
-      if (season.championName) {
-        html += '<div class="award-card">' +
-          '<div class="award-card-name">' + esc(awards['champion'] || 'Champion') + '</div>' +
-          '<div class="award-card-winner">' + esc(season.championTeamName || season.championName) + '</div>' +
-          '<div class="award-card-detail">' + esc(season.championName) + '</div>' +
+      function thumbHtml(imgSrc) {
+        return imgSrc
+          ? '<img class="award-card-thumb" src="' + esc(imgSrc) + '" alt="" />'
+          : '';
+      }
+
+      /* Build a stat/custom award card (not champion) */
+      function buildStatCard(name, hint, imgSrc, teamName, detailLines) {
+        var hasImg = !!imgSrc;
+        var imgCol = hasImg
+          ? '<div class="stat-award-img-col"><img src="' + esc(imgSrc) + '" alt="" /></div>'
+          : '';
+        var infoColClass = 'stat-award-info-col' + (hasImg ? '' : ' full-width');
+        var detailHtml = (detailLines || []).map(function (line) {
+          return '<div class="stat-award-detail">' + esc(line) + '</div>';
+        }).join('');
+        return '<div class="stat-award-card">' +
+          imgCol +
+          '<div class="' + infoColClass + '">' +
+            '<div class="stat-award-name">' + esc(name) + '</div>' +
+            (hint ? '<div class="stat-award-hint">' + esc(hint) + '</div>' : '') +
+            '<div class="stat-award-winner">' + esc(teamName) + '</div>' +
+            detailHtml +
+          '</div>' +
         '</div>';
+      }
+
+      // Champion always first — same layout as other awards
+      if (season.championName) {
+        var champLines = [];
+        if (season.championName && season.championName !== season.championTeamName) champLines.push(season.championName);
+        if (season.record)             champLines.push(season.record);
+        if (season.championshipScore)  champLines.push(season.championshipScore);
+        html += buildStatCard(
+          awards['champion'] || 'Champion',
+          'Season Champion',
+          awardImages['champion'] || '',
+          season.championTeamName || season.championName,
+          champLines
+        );
       }
 
       // Stats-based awards
       awardDefs.forEach(function (a) {
         if (a.key === 'champion') return;
         var stat = stats[a.key];
-        // Find the stat key in schema stats
         var statDef = (schema.stats || []).find(function (s) { return s.awardKey === a.key; });
         if (statDef) stat = stats[statDef.key];
         if (!stat || (!stat.ownerName && !stat.bracketName)) return;
-        var detail = statDisplay(stat);
-        html += '<div class="award-card">' +
-          '<div class="award-card-name">' + esc(awards[a.key] || a.defaultLabel) + '</div>' +
-          '<div class="award-card-winner">' + esc(stat.ownerName || '') + '</div>' +
-          (detail ? '<div class="award-card-detail">' + esc(detail) + '</div>' : '') +
-        '</div>';
+        html += buildStatCard(
+          awards[a.key] || a.defaultLabel,
+          a.hint || '',
+          awardImages[a.key] || '',
+          stat.teamName || stat.bracketName || stat.ownerName || '',
+          statLines(stat)
+        );
       });
 
-      // Custom stats
-      (season.customStats || []).forEach(function (cs) {
-        if (!cs.value) return;
-        html += '<div class="award-card">' +
-          '<div class="award-card-name">' + esc(cs.label || 'Custom Award') + '</div>' +
-          '<div class="award-card-winner">' + esc(cs.value) + '</div>' +
-        '</div>';
+      // Custom awards
+      (league.customAwards || []).forEach(function (ca) {
+        var entry = (season.customStats || []).find(function (cs) { return cs.customAwardId === ca.id; });
+        if (!entry || (!entry.ownerName && !entry.value)) return;
+        html += buildStatCard(
+          ca.label || 'Custom Award',
+          '',
+          ca.image || '',
+          entry.teamName || entry.ownerName || '',
+          entry.value ? [entry.value] : []
+        );
       });
 
       return html || '<p style="color:var(--accent-dim);font-size:0.75rem;letter-spacing:0.15em;">No awards data yet.</p>';
@@ -233,13 +327,22 @@
 
     // ── Build past season flip card ──────────────────────────
     function buildPastSeasonCard(season, league, config) {
-      var imgSrc  = getChampionImage(season, config);
+      var imgSrc  = getChampionImage(season, config, league);
       var year    = season.year || '????';
       var team    = season.championTeamName || '—';
       var owner   = season.championName || '';
-      var record  = season.record || '';
-      var seed    = season.seed ? '#' + season.seed : '';
-      var score   = season.championshipScore || '';
+
+      // Respect cardTemplate show flags
+      var template = league.cardTemplate || [];
+      function fieldVisible(key) {
+        if (!template.length) return true;
+        var f = template.find(function (t) { return t.key === key; });
+        return f ? f.show !== false : true;
+      }
+
+      var record  = fieldVisible('record')            ? (season.record || '')             : '';
+      var seed    = fieldVisible('seed')              ? (season.seed ? '#' + season.seed : '') : '';
+      var score   = fieldVisible('championshipScore') ? (season.championshipScore || '')   : '';
 
       var logoHtml = imgSrc
         ? '<img class="flip-card-logo" src="' + esc(imgSrc) + '" alt="' + esc(team) + '" />'
@@ -311,7 +414,7 @@
       // ── Current Champion
       if (pl.showChampion !== false && current && current.championName) {
         var sec = document.createElement('div');
-        sec.className = 'league-section';
+        sec.className = 'league-section league-section-first';
         sec.innerHTML = '<div class="league-section-heading">Current Champion</div>' +
           renderChampionBlock(current, league, config);
         body.appendChild(sec);

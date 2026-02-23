@@ -53,6 +53,19 @@
       if (fs.cardCta)    root.style.setProperty('--size-card-cta',   fs.cardCta);
       if (fs.adminLabel) root.style.setProperty('--size-admin-label',fs.adminLabel);
       if (fs.adminHint)  root.style.setProperty('--size-admin-hint', fs.adminHint);
+      if (fs.sectionHeading) root.style.setProperty('--size-section-heading', fs.sectionHeading);
+    }
+    if (t.fontBold) {
+      var fb = t.fontBold;
+      var boldVarMap = {
+        eyebrow: '--weight-eyebrow', title: '--weight-title', subtitle: '--weight-subtitle',
+        tagline: '--weight-tagline', navItem: '--weight-nav-item', navFooter: '--weight-nav-footer',
+        cardSport: '--weight-card-sport', cardName: '--weight-card-name', cardCta: '--weight-card-cta',
+        adminLabel: '--weight-admin-label', adminHint: '--weight-admin-hint', sectionHeading: '--weight-section-heading'
+      };
+      Object.keys(boldVarMap).forEach(function (key) {
+        root.style.setProperty(boldVarMap[key], fb[key] ? '700' : '');
+      });
     }
 
     // Pre-load active fonts

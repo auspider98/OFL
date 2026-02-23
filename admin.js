@@ -9,7 +9,7 @@
  * ============================================================
  */
 
-var ENGINE_VERSION = '2.3';
+var ENGINE_VERSION = '2.7';
 
 // ── FONT OPTIONS ──────────────────────────────────────────────
 var FONT_OPTIONS = {
@@ -68,7 +68,6 @@ var SPORT_STAT_SCHEMAS = {
         awardKey: "regularSeasonChamp",
         type: "owner",
         subFields: [
-          { key: "team", label: "Team Name", type: "text" },
           { key: "record", label: "Record", type: "text" }
         ]
       },
@@ -78,7 +77,6 @@ var SPORT_STAT_SCHEMAS = {
         awardKey: "highestTeamGameScore",
         type: "owner",
         subFields: [
-          { key: "team", label: "Team Name", type: "text" },
           { key: "score", label: "Score", type: "number" },
           { key: "week", label: "Week #", type: "number" }
         ]
@@ -89,7 +87,6 @@ var SPORT_STAT_SCHEMAS = {
         awardKey: "highestIndividualScore",
         type: "owner",
         subFields: [
-          { key: "team", label: "Team Name", type: "text" },
           { key: "playerName", label: "Player Name", type: "text" },
           { key: "points", label: "Points", type: "number" }
         ]
@@ -100,7 +97,6 @@ var SPORT_STAT_SCHEMAS = {
         awardKey: "seasonPointsLeader",
         type: "owner",
         subFields: [
-          { key: "team", label: "Team Name", type: "text" },
           { key: "playerName", label: "Player Name", type: "text" },
           { key: "total", label: "Season Total", type: "number" }
         ]
@@ -112,7 +108,6 @@ var SPORT_STAT_SCHEMAS = {
         type: "owner",
         fromStandings: true,
         subFields: [
-          { key: "team", label: "Team Name", type: "text" },
           { key: "total", label: "Points Against Total", type: "number" }
         ]
       },
@@ -123,7 +118,6 @@ var SPORT_STAT_SCHEMAS = {
         type: "owner",
         fromStandings: true,
         subFields: [
-          { key: "team", label: "Team Name", type: "text" },
           { key: "record", label: "Record", type: "text" }
         ]
       },
@@ -133,7 +127,6 @@ var SPORT_STAT_SCHEMAS = {
         awardKey: "closestWin",
         type: "owner",
         subFields: [
-          { key: "team", label: "Winning Team", type: "text" },
           { key: "opponent", label: "Opponent", type: "text", dropdown: true },
           { key: "margin", label: "Margin", type: "number" },
           { key: "week", label: "Week #", type: "number" }
@@ -716,7 +709,8 @@ var LeagueFactory = {
         slides:  [],
         overlay: 'rgba(0,0,0,0.55)'
       },
-      members:      [],
+      awardImages:  {},   // { awardKey: imagePath } — league-level award images
+      customAwards: [],   // [ { id, label, image } ] — league-level custom award definitions
       awards:       awards,
       cardTemplate: cardTemplate,
       seasons:      []
@@ -812,6 +806,41 @@ function deepMerge(base, override) {
   return result;
 }
 
+/**
+ * Migrate a league object from old schema to new.
+ * - Adds awardImages / customAwards if missing
+ * - Migrates season.customStats entries: preserves winner/value,
+ *   creates matching league.customAwards entries by label if not already present.
+ */
+function migrateLeague(league) {
+  if (!league.awardImages)  league.awardImages  = {};
+  if (!league.customAwards) league.customAwards = [];
+
+  // Migrate any existing season.customStats into league.customAwards
+  (league.seasons || []).forEach(function (season) {
+    if (!season.customStats || !season.customStats.length) return;
+    season.customStats.forEach(function (cs) {
+      if (!cs.label) return;
+      // Find or create matching league-level custom award by label
+      var existing = league.customAwards.find(function (ca) {
+        return ca.label === cs.label || ca.id === cs.customAwardId;
+      });
+      if (!existing) {
+        existing = {
+          id:    generateId('ca'),
+          label: cs.label  || '',
+          image: cs.image  || ''
+        };
+        league.customAwards.push(existing);
+      }
+      // Stamp the season entry with the stable id and remove redundant fields
+      cs.customAwardId = existing.id;
+      delete cs.label;
+      delete cs.image;
+    });
+  });
+}
+
 // ══════════════════════════════════════════════════════════════
 //  BOOT: merge localStorage over config defaults
 // ══════════════════════════════════════════════════════════════
@@ -835,4 +864,5 @@ function deepMerge(base, override) {
   window.LeagueFactory        = LeagueFactory;
   window.MemberFactory        = MemberFactory;
   window.generateId           = generateId;
+  window.migrateLeague        = migrateLeague;
 })();

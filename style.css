@@ -167,7 +167,7 @@ img {
 
 .landing-eyebrow {
   font-family: var(--font-body);
-  font-weight: 300;
+  font-weight: var(--weight-eyebrow, 300);
   font-size: var(--size-eyebrow, 8pt);
   letter-spacing: 0.45em;
   text-transform: uppercase;
@@ -180,7 +180,7 @@ img {
 
 .landing-title {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: var(--weight-title, 300);
   font-size: var(--size-title, 72pt);
   line-height: 0.92;
   letter-spacing: -0.02em;
@@ -193,7 +193,7 @@ img {
 
 .landing-subtitle {
   font-family: var(--font-body);
-  font-weight: 200;
+  font-weight: var(--weight-subtitle, 200);
   font-size: var(--size-subtitle, 10pt);
   letter-spacing: 0.35em;
   text-transform: uppercase;
@@ -216,7 +216,7 @@ img {
   position: relative;
   z-index: 13;
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: var(--weight-tagline, 300);
   font-style: italic;
   font-size: var(--size-tagline, 12pt);
   color: var(--accent-dim);
@@ -272,7 +272,7 @@ img {
 
 .league-card-sport {
   font-family: var(--font-body);
-  font-weight: 300;
+  font-weight: var(--weight-card-sport, 300);
   font-size: var(--size-card-sport, 7pt);
   letter-spacing: 0.45em;
   text-transform: uppercase;
@@ -282,7 +282,7 @@ img {
 
 .league-card-name {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--weight-card-name, 600);
   font-size: var(--size-card-name, 16pt);
   letter-spacing: 0.02em;
   color: var(--accent);
@@ -291,7 +291,7 @@ img {
 
 .league-card-cta {
   font-family: var(--font-body);
-  font-weight: 400;
+  font-weight: var(--weight-card-cta, 400);
   font-size: var(--size-card-cta, 8pt);
   letter-spacing: 0.35em;
   text-transform: uppercase;
@@ -438,7 +438,7 @@ img {
 .drawer-nav a {
   display: block;
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: var(--weight-nav-item, 300);
   font-size: var(--size-nav-item, 22pt);
   color: rgba(232,232,232,0.35);
   letter-spacing: 0.01em;
@@ -458,7 +458,7 @@ img {
   margin-top: auto;
   padding-top: 2rem;
   font-family: var(--font-body);
-  font-weight: 300;
+  font-weight: var(--weight-nav-footer, 300);
   font-size: var(--size-nav-footer, 7pt);
   letter-spacing: 0.3em;
   color: rgba(232,232,232,0.2);
@@ -1005,7 +1005,7 @@ img {
 
 .field-label {
   font-family: var(--font-body);
-  font-weight: 300;
+  font-weight: var(--weight-admin-label, 300);
   font-size: var(--size-admin-label, 7pt);
   letter-spacing: 0.35em;
   text-transform: uppercase;
@@ -1014,6 +1014,7 @@ img {
 
 .field-hint {
   font-family: var(--font-body);
+  font-weight: var(--weight-admin-hint, 300);
   font-size: var(--size-admin-hint, 6pt);
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -1604,6 +1605,40 @@ select.admin-input option {
   color: var(--accent-dim);
 }
 
+.bold-toggle {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.bold-toggle input[type="checkbox"] {
+  display: none;
+}
+
+.bold-toggle span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(232,232,232,0.15);
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  color: var(--accent-dim);
+  background: transparent;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.bold-toggle input:checked + span {
+  background: var(--accent-dim);
+  color: #0a0a0a;
+  border-color: var(--accent-dim);
+}
+
 /* ── League panel ─────────────────────────────────────────── */
 .admin-league-panel {
   border-color: rgba(232,232,232,0.1);
@@ -2187,18 +2222,18 @@ select.admin-input option {
 .league-hero {
   position: relative;
   width: 100%;
-  min-height: 60vh;
+  min-height: calc(35vh - 10px);
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  padding: 6rem 2rem 4rem;
+  justify-content: flex-start;
+  padding: 5rem 2rem 2rem;
 }
 
 .league-hero .slide-layer { position: absolute; inset: 0; }
 .league-hero .landing-overlay { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
 .league-hero .landing-vignette { position: absolute; inset: 0; z-index: 11; pointer-events: none; }
+.league-hero .landing-rule { bottom: 0; }
 
 .league-hero-content {
   position: relative;
@@ -2250,22 +2285,27 @@ select.admin-input option {
   background: #0a0a0a;
   flex: 1;
   padding: 0 0 4rem;
+  margin-top: 0;
 }
 
 .league-section {
   max-width: 960px;
   margin: 0 auto;
-  padding: 3rem 2rem 0;
+  padding: 1.5rem 2rem 0;
+}
+
+.league-section-first {
+  padding-top: 3rem;
 }
 
 .league-section-heading {
   font-family: var(--font-body);
-  font-weight: 300;
-  font-size: 0.65rem;
+  font-weight: var(--weight-section-heading, 300);
+  font-size: var(--size-section-heading, 7pt);
   letter-spacing: 0.4em;
   text-transform: uppercase;
   color: var(--hint-color, var(--accent-dim));
-  margin-bottom: 1.6rem;
+  margin-bottom: 0.8rem;
   padding-bottom: 0.6rem;
   border-bottom: 1px solid var(--drawer-border);
 }
@@ -2428,6 +2468,36 @@ select.admin-input option {
   margin-bottom: 0.5rem;
 }
 
+.award-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.award-card-header .award-card-name {
+  margin-bottom: 0;
+}
+
+.award-card-thumb {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.champion-award-img-wrap {
+  margin-top: 0.8rem;
+}
+
+.champion-award-img {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+  opacity: 0.85;
+}
+
 .award-card-winner {
   font-family: var(--font-display);
   font-weight: 300;
@@ -2442,6 +2512,81 @@ select.admin-input option {
   font-size: 0.68rem;
   letter-spacing: 0.1em;
   color: var(--accent-dim);
+}
+
+/* ── Stat Award Card (non-champion) layout ─────────────────── */
+.stat-award-card {
+  padding: 0;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--drawer-border);
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  min-height: 120px;
+}
+
+.stat-award-img-col {
+  width: 33.333%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: stretch;
+}
+
+.stat-award-img-col img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.85;
+  display: block;
+}
+
+.stat-award-info-col {
+  width: 66.666%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1.2rem;
+  text-align: center;
+  gap: 0.2rem;
+}
+
+.stat-award-info-col.full-width {
+  width: 100%;
+}
+
+.stat-award-name {
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--hint-color, var(--accent-dim));
+}
+
+.stat-award-hint {
+  font-family: var(--font-body);
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+  opacity: 0.6;
+}
+
+.stat-award-winner {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 1.2rem;
+  color: var(--accent);
+  line-height: 1.1;
+  margin-top: 0.2rem;
+}
+
+.stat-award-detail {
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  color: var(--accent-dim);
+  margin-top: 0.1rem;
 }
 
 /* ── Past Seasons — Flip Cards ─────────────────────────────── */
@@ -2689,6 +2834,27 @@ select.admin-input option {
     padding: 5rem 1.5rem 3rem;
   }
   .awards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Award Names row (name + image path side by side) ───────── */
+.award-name-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(232,232,232,0.05);
+}
+
+.award-name-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+@media (max-width: 600px) {
+  .award-name-fields {
     grid-template-columns: 1fr;
   }
 }
