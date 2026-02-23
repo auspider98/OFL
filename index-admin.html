@@ -64,6 +64,7 @@
       <li><a href="#" class="drawer-link" id="drawerSave">Save Changes</a></li>
       <li><a href="#" class="drawer-link" id="drawerImport">Import Config</a></li>
       <li><a href="#" class="drawer-link" id="drawerExport">Export Config</a></li>
+      <li><a href="#" class="drawer-link" id="drawerResetConfig">Reset to Config File</a></li>
     </ul>
     <div class="admin-drawer-footer">OFC Admin Panel</div>
   </aside>
@@ -79,6 +80,7 @@
       <button class="btn" id="btnImport">Import Config</button>
       <input type="file" id="importFileInput" accept=".js" style="display:none;" />
       <button class="btn" id="btnExport">Export Config</button>
+      <button class="btn" id="btnResetConfig">Reset to Config File</button>
     </div>
   </header>
 
@@ -543,13 +545,25 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('exportCode').value = buildConfigJs(workingConfig);
       document.getElementById('exportModal').classList.add('visible');
     }
+    function doResetConfig() {
+      showConfirm(
+        'Reset to Config File',
+        'This will clear all unsaved changes and local data, then reload the page from the deployed admin-config.js file. Any changes not exported will be lost.',
+        function () {
+          localStorage.removeItem('ofc_site_config');
+          localStorage.removeItem('ofc_engine_version');
+          window.location.reload();
+        }
+      );
+    }
 
     saveBtn.addEventListener('click', doSave);
 
     /* ── Admin drawer link wiring ─────────────────────────── */
-    document.getElementById('drawerSave').addEventListener('click',   function (e) { e.preventDefault(); doSave();   });
-    document.getElementById('drawerImport').addEventListener('click', function (e) { e.preventDefault(); doImport(); });
-    document.getElementById('drawerExport').addEventListener('click', function (e) { e.preventDefault(); doExport(); });
+    document.getElementById('drawerSave').addEventListener('click',        function (e) { e.preventDefault(); doSave();   });
+    document.getElementById('drawerImport').addEventListener('click',      function (e) { e.preventDefault(); doImport(); });
+    document.getElementById('drawerExport').addEventListener('click',      function (e) { e.preventDefault(); doExport(); });
+    document.getElementById('drawerResetConfig').addEventListener('click', function (e) { e.preventDefault(); doResetConfig(); });
 
     /* ── Helpers ──────────────────────────────────────────── */
     function esc(str) {
@@ -2211,6 +2225,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ══════════════════════════════════════════════════════ */
     document.getElementById('btnImport').addEventListener('click', doImport);
     document.getElementById('btnExport').addEventListener('click',  doExport);
+    document.getElementById('btnResetConfig').addEventListener('click', doResetConfig);
 
     document.getElementById('importFileInput').addEventListener('change', function (e) {
       var file = e.target.files[0];
