@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="OFC — The Playas. Meet the members of the Official Fantasy Commission." />
+  <title>OFL — Playas</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="admin-config.js"></script>
+  <script src="admin.js"></script>
+
+  <style>
+    /* ── Playas page layout ─────────────────────────────────── */
+    .playas-page {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Reuse league-page fixed slide/overlay layers */
+    .playas-page > .slide-layer      { position: fixed; inset: 0; z-index: 0; height: 100%; }
+    .playas-page > .landing-overlay  { position: fixed; inset: 0; z-index: 10; height: 100%; pointer-events: none; }
+    .playas-page > .landing-vignette { position: fixed; inset: 0; z-index: 11; height: 100%; pointer-events: none; }
+
+    /* ── Hero ─────────────────────────────────────────────── */
+    .playas-hero {
+      position: relative;
+      z-index: 20;
+      width: 100%;
+      min-height: calc(32vh - 10px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 5rem 2rem 2rem;
+    }
+
+    .playas-hero .landing-rule {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      z-index: 10;
+    }
+
+    .playas-hero-content {
+      position: relative;
+      z-index: 13;
+      text-align: center;
+      animation: heroReveal 1.4s ease forwards;
+      opacity: 0;
+    }
+
+    .playas-hero-eyebrow {
+      font-family: var(--font-body);
+      font-weight: 300;
+      font-size: var(--size-eyebrow, 8pt);
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+      margin-bottom: 1rem;
+      opacity: 0;
+      animation: heroReveal 1.2s 0.2s ease forwards;
+    }
+
+    .playas-hero-title {
+      font-family: var(--font-display);
+      font-weight: 300;
+      font-size: var(--size-title, 72pt);
+      line-height: 0.92;
+      letter-spacing: -0.02em;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      opacity: 0;
+      animation: heroReveal 1.2s 0.4s ease forwards;
+    }
+
+    .playas-hero-subtitle {
+      font-family: var(--font-body);
+      font-weight: 200;
+      font-size: var(--size-subtitle, 10pt);
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+      opacity: 0;
+      animation: heroReveal 1.2s 0.55s ease forwards;
+    }
+
+    /* ── Body ─────────────────────────────────────────────── */
+    .playas-body {
+      position: relative;
+      z-index: 20;
+      flex: 1;
+      padding: 0 0 5rem;
+    }
+
+    .playas-section {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem 0;
+    }
+
+    .playas-section-heading {
+      font-family: var(--font-body);
+      font-weight: var(--weight-section-heading, 300);
+      font-size: var(--size-section-heading, 7pt);
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--hint-color, var(--accent-dim));
+      margin-bottom: 1.4rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid var(--drawer-border);
+    }
+
+    /* ── Member Grid ──────────────────────────────────────── */
+    .playas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* ── Member Card ──────────────────────────────────────── */
+    .playa-card {
+      position: relative;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--drawer-border);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      overflow: hidden;
+      transition: border-color var(--transition), transform 0.3s ease;
+      cursor: default;
+    }
+
+    .playa-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--accent-glow);
+      opacity: 0;
+      transition: opacity var(--transition);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .playa-card:hover {
+      border-color: rgba(232,232,232,0.25);
+      transform: translateY(-2px);
+    }
+
+    .playa-card:hover::before {
+      opacity: 1;
+    }
+
+    /* Inactive members are visually dimmed */
+    .playa-card.is-inactive {
+      opacity: 0.45;
+    }
+
+    /* ── Card inner ─────────────────────────────────────── */
+    .playa-card-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Mugshot area ─────────────────────────────────────── */
+    .playa-mugshot-wrap {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      background: rgba(255,255,255,0.03);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .playa-mugshot-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+
+    .playa-card:hover .playa-mugshot-wrap img {
+      transform: scale(1.04);
+    }
+
+    /* Placeholder monogram when no mugshot */
+    .playa-mugshot-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .playa-monogram {
+      font-family: var(--font-display);
+      font-weight: 300;
+      font-size: 4rem;
+      color: var(--accent-dim);
+      letter-spacing: -0.02em;
+      line-height: 1;
+      opacity: 0.6;
+    }
+
+    /* Active status badge */
+    .playa-status-badge {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      font-family: var(--font-body);
+      font-size: 0.5rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.5rem;
+      border: 1px solid;
+      backdrop-filter: blur(4px);
+    }
+
+    .playa-status-badge.active {
+      color: var(--hint-color, var(--accent-dim));
+      border-color: var(--hint-color, var(--accent-dim));
+      background: rgba(0,0,0,0.4);
+    }
+
+    .playa-status-badge.inactive {
+      color: var(--accent-dim);
+      border-color: var(--drawer-border);
+      background: rgba(0,0,0,0.4);
+    }
+
+    /* ── Card text info ─────────────────────────────────────── */
+    .playa-info {
+      padding: 1rem 1.1rem 1.2rem;
+    }
+
+    .playa-name {
+      font-family: var(--font-display);
+      font-weight: 300;
+      font-size: 1.55rem;
+      line-height: 1;
+      letter-spacing: -0.01em;
+      color: var(--accent);
+      margin-bottom: 0.25rem;
+    }
+
+    .playa-nickname {
+      font-family: var(--font-body);
+      font-weight: 300;
+      font-size: 0.62rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--hint-color, var(--accent-dim));
+      margin-bottom: 0.9rem;
+    }
+
+    /* ── League entries ─────────────────────────────────────── */
+    .playa-leagues {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      border-top: 1px solid var(--drawer-border);
+      padding-top: 0.75rem;
+      margin-top: 0.1rem;
+    }
+
+    .playa-league-entry {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .playa-league-key {
+      font-family: var(--font-body);
+      font-weight: 300;
+      font-size: 0.55rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--hint-color, var(--accent-dim));
+    }
+
+    .playa-league-teams {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem 0.8rem;
+    }
+
+    .playa-team-item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .playa-team-logo {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .playa-team-name {
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      font-weight: 300;
+    }
+
+    /* ── Stats strip (championship count) ─────────────────── */
+    .playa-stats-strip {
+      display: flex;
+      gap: 1.5rem;
+      padding: 0.6rem 1.1rem 0.8rem;
+      border-top: 1px solid var(--drawer-border);
+    }
+
+    .playa-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+
+    .playa-stat-value {
+      font-family: var(--font-display);
+      font-weight: 300;
+      font-size: 1.4rem;
+      line-height: 1;
+      color: var(--accent);
+    }
+
+    .playa-stat-label {
+      font-family: var(--font-body);
+      font-size: 0.5rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+    }
+
+    /* ── Footer ─────────────────────────────────────────────── */
+    .playas-footer {
+      position: relative;
+      z-index: 20;
+      max-width: 1040px;
+      margin: 3rem auto 0;
+      padding: 1.5rem 2rem;
+      font-family: var(--font-body);
+      font-size: 0.55rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+      opacity: 0.5;
+      border-top: 1px solid var(--drawer-border);
+    }
+
+    /* ── Empty state ─────────────────────────────────────────── */
+    .playas-empty {
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      color: var(--accent-dim);
+      text-transform: uppercase;
+      padding: 2rem 0;
+    }
+
+    /* ── Responsive ─────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .playas-hero {
+        min-height: 0;
+        padding: 4.5rem 1.2rem 1.5rem;
+      }
+
+      .playas-section {
+        padding: 1.2rem 1rem 0;
+      }
+
+      .playas-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.8rem;
+      }
+
+      .playa-mugshot-wrap {
+        aspect-ratio: 3 / 3.5;
+      }
+
+      .playa-name {
+        font-size: 1.1rem;
+      }
+
+      .playas-footer {
+        padding: 1.2rem 1rem;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .playas-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── TOP NAV ─────────────────────────────────────────── -->
+  <nav class="topnav" role="navigation" aria-label="Site navigation">
+    <a href="index.html" class="topnav-logo">OFC</a>
+    <button class="menu-trigger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="site-drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- ── DRAWER ──────────────────────────────────────────── -->
+  <div class="drawer-overlay" aria-hidden="true"></div>
+  <aside id="site-drawer" class="drawer" role="dialog" aria-modal="true" aria-label="Navigation">
+    <p class="drawer-label">Navigate</p>
+    <ul class="drawer-nav"></ul>
+    <div class="drawer-footer"></div>
+  </aside>
+
+  <!-- ── PLAYAS PAGE ─────────────────────────────────────── -->
+  <div class="playas-page" id="playasPage">
+
+    <!-- Full-page slideshow layers (reuse global slideshow) -->
+    <div class="slide-layer" id="slideA" aria-hidden="true"></div>
+    <div class="slide-layer" id="slideB" aria-hidden="true"></div>
+    <div class="landing-overlay" id="playasOverlay" aria-hidden="true"></div>
+    <div class="landing-vignette" aria-hidden="true"></div>
+
+    <!-- Hero -->
+    <header class="playas-hero" id="playasHero">
+      <div class="landing-rule" aria-hidden="true"></div>
+      <div class="playas-hero-content">
+        <p class="playas-hero-eyebrow">Official Fantasy Commission</p>
+        <h1 class="playas-hero-title">The Playas</h1>
+        <p class="playas-hero-subtitle">The Roster</p>
+      </div>
+    </header>
+
+    <!-- Body injected by JS -->
+    <div class="playas-body" id="playasBody"></div>
+
+  </div>
+
+  <script src="menu.js"></script>
+
+  <script>
+  (function () {
+    'use strict';
+
+    function esc(s) {
+      return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── Count championships for a member across all leagues/seasons ──
+    function countChampionships(memberId, leagueData) {
+      var total = 0;
+      (leagueData || []).forEach(function (league) {
+        (league.seasons || []).forEach(function (season) {
+          if (season.championMemberId && season.championMemberId === memberId) total++;
+        });
+      });
+      return total;
+    }
+
+    // ── Count total seasons played ──
+    function countSeasons(memberId, leagueData) {
+      var total = 0;
+      (leagueData || []).forEach(function (league) {
+        (league.seasons || []).forEach(function (season) {
+          var inRoster  = (season.roster || []).some(function (r) { return r.memberId === memberId; });
+          var inStandings = (season.standings || []).some(function (r) { return r.memberId === memberId; });
+          if (inRoster || inStandings) total++;
+        });
+      });
+      return total;
+    }
+
+    // ── Build initials from name ──
+    function initials(name) {
+      return (name || '?').split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
+    }
+
+    // ── Get per-league display name ──
+    function leagueDisplayName(leagueKey, leagueData) {
+      var found = (leagueData || []).find(function (lg) {
+        return lg.name === leagueKey;
+      });
+      return found ? (found.name || leagueKey) : leagueKey;
+    }
+
+    // ── Build one playa card ──
+    function buildPlayaCard(member, leagueData, delay) {
+      var championships = countChampionships(member.id, leagueData);
+      var seasons       = countSeasons(member.id, leagueData);
+      var isActive      = member.active !== false;
+
+      // Mugshot or monogram
+      var mugshotHtml;
+      if (member.mugshot) {
+        mugshotHtml =
+          '<div class="playa-mugshot-wrap">' +
+            '<img src="' + esc(member.mugshot) + '" alt="' + esc(member.name) + '" loading="lazy" />' +
+            '<div class="playa-status-badge ' + (isActive ? 'active' : 'inactive') + '">' +
+              (isActive ? 'Active' : 'Alumni') +
+            '</div>' +
+          '</div>';
+      } else {
+        mugshotHtml =
+          '<div class="playa-mugshot-wrap">' +
+            '<div class="playa-mugshot-placeholder">' +
+              '<span class="playa-monogram">' + esc(initials(member.name)) + '</span>' +
+            '</div>' +
+            '<div class="playa-status-badge ' + (isActive ? 'active' : 'inactive') + '">' +
+              (isActive ? 'Active' : 'Alumni') +
+            '</div>' +
+          '</div>';
+      }
+
+      // League entries
+      var leagueHtml = '';
+      var memberLeagues = member.leagues || [];
+      if (memberLeagues.length) {
+        var entriesHtml = memberLeagues.map(function (lg) {
+          var displayKey = leagueDisplayName(lg.leagueKey, leagueData);
+          var teamsHtml = (lg.teams || []).map(function (t) {
+            var logoHtml = t.logo
+              ? '<img class="playa-team-logo" src="' + esc(t.logo) + '" alt="" loading="lazy" />'
+              : '';
+            return '<span class="playa-team-item">' + logoHtml +
+              '<span class="playa-team-name">' + esc(t.name || '—') + '</span>' +
+              '</span>';
+          }).join('');
+          return '<div class="playa-league-entry">' +
+            '<div class="playa-league-key">' + esc(displayKey) + '</div>' +
+            '<div class="playa-league-teams">' + (teamsHtml || '<span class="playa-team-name" style="opacity:0.4;">—</span>') + '</div>' +
+          '</div>';
+        }).join('');
+        leagueHtml = '<div class="playa-leagues">' + entriesHtml + '</div>';
+      }
+
+      // Stats strip
+      var statsHtml = '';
+      if (championships > 0 || seasons > 0) {
+        statsHtml = '<div class="playa-stats-strip">';
+        if (championships > 0) {
+          statsHtml +=
+            '<div class="playa-stat">' +
+              '<div class="playa-stat-value">' + championships + '</div>' +
+              '<div class="playa-stat-label">' + (championships === 1 ? 'Title' : 'Titles') + '</div>' +
+            '</div>';
+        }
+        if (seasons > 0) {
+          statsHtml +=
+            '<div class="playa-stat">' +
+              '<div class="playa-stat-value">' + seasons + '</div>' +
+              '<div class="playa-stat-label">' + (seasons === 1 ? 'Season' : 'Seasons') + '</div>' +
+            '</div>';
+        }
+        statsHtml += '</div>';
+      }
+
+      var card = document.createElement('div');
+      card.className = 'playa-card section-reveal' + (isActive ? '' : ' is-inactive');
+      card.style.animationDelay = delay + 's';
+      card.innerHTML =
+        '<div class="playa-card-inner">' +
+          mugshotHtml +
+          '<div class="playa-info">' +
+            '<div class="playa-name">' + esc(member.name || 'Unknown') + '</div>' +
+            (member.nickname ? '<div class="playa-nickname">&ldquo;' + esc(member.nickname) + '&rdquo;</div>' : '') +
+            leagueHtml +
+          '</div>' +
+          statsHtml +
+        '</div>';
+
+      return card;
+    }
+
+    // ── Render the page body ──
+    function renderBody(config) {
+      var body      = document.getElementById('playasBody');
+      var roster    = (config.masterRoster || []);
+      var leagues   = (config.leagueData || []);
+
+      if (!roster.length) {
+        body.innerHTML =
+          '<div class="playas-section"><p class="playas-empty">No members in the roster yet.</p></div>';
+        return;
+      }
+
+      // Active members first, then alumni
+      var active   = roster.filter(function (m) { return m.active !== false; });
+      var inactive = roster.filter(function (m) { return m.active === false; });
+
+      var revealDelay = 0.7;
+      var sec = document.createElement('div');
+      sec.className = 'playas-section section-reveal';
+      sec.style.animationDelay = '0.5s';
+
+      // Active roster heading
+      if (active.length) {
+        var heading = document.createElement('div');
+        heading.className = 'playas-section-heading';
+        heading.textContent = 'Active Roster — ' + active.length + ' Members';
+        sec.appendChild(heading);
+
+        var grid = document.createElement('div');
+        grid.className = 'playas-grid';
+        active.forEach(function (m) {
+          grid.appendChild(buildPlayaCard(m, leagues, revealDelay));
+          revealDelay += 0.08;
+        });
+        sec.appendChild(grid);
+      }
+
+      // Alumni section
+      if (inactive.length) {
+        var alumHeading = document.createElement('div');
+        alumHeading.className = 'playas-section-heading';
+        alumHeading.style.marginTop = '2.5rem';
+        alumHeading.textContent = 'Alumni — ' + inactive.length + ' Members';
+        sec.appendChild(alumHeading);
+
+        var alumGrid = document.createElement('div');
+        alumGrid.className = 'playas-grid';
+        inactive.forEach(function (m) {
+          alumGrid.appendChild(buildPlayaCard(m, leagues, revealDelay));
+          revealDelay += 0.08;
+        });
+        sec.appendChild(alumGrid);
+      }
+
+      body.appendChild(sec);
+
+      // Footer
+      var footer = document.createElement('div');
+      footer.className = 'playas-footer section-reveal';
+      footer.style.animationDelay = revealDelay + 's';
+      footer.textContent = 'OFC — Official Fantasy Commission' +
+        (config.footer && config.footer.text ? ' · ' + config.footer.text : '');
+      body.appendChild(footer);
+    }
+
+    // ── Init slideshow using global config (same as landing page) ──
+    function initPlayasSlideshow(config) {
+      var overlayEl = document.getElementById('playasOverlay');
+      if (overlayEl && config.slideshow && config.slideshow.overlay) {
+        overlayEl.style.background = config.slideshow.overlay;
+      }
+      // Delegate to menu.js initSlideshow via the standard slideA/slideB elements
+      // menu.js initSlideshow() handles this already via the global config.slideshow
+    }
+
+    // ── Main init ──
+    function init() {
+      var config = window.SITE_CONFIG;
+      if (!config) { console.warn('SITE_CONFIG not found'); return; }
+
+      // Page title
+      document.title = 'OFL \u2014 The Playas';
+
+      // Apply overlay
+      initPlayasSlideshow(config);
+
+      // Render members
+      renderBody(config);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+
+  })();
+  </script>
+
+</body>
+</html>

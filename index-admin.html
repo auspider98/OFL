@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OFC — Admin</title>
+  <title>OFL — Admin</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
   <link rel="stylesheet" href="style.css" />
   <script src="admin-config.js"></script>
   <script src="admin.js"></script>
@@ -1175,6 +1176,7 @@ document.addEventListener('DOMContentLoaded', function () {
             '<span class="league-sport-badge">'+esc((SCHEMAS[league.sport]||{}).label||league.sport||'')+'</span>' +
           '</div>' +
           '<div class="admin-card-actions">' +
+            '<a class="btn btn-sm league-preview" href="league.html?league='+encodeURIComponent(league.name||'')+'" target="_blank">Preview &#x2197;</a>' +
             '<button class="btn btn-sm btn-danger league-del">&#x2715; Remove</button>' +
           '</div>' +
           '<span class="admin-section-toggle">&#x25BC;</span>' +
@@ -1328,6 +1330,8 @@ document.addEventListener('DOMContentLoaded', function () {
         sec.querySelector('.lg-name').addEventListener('input', function () {
           league.name = this.value;
           leagueSection.querySelector('.admin-card-title').textContent = this.value || 'New League';
+          var previewBtn = leagueSection.querySelector('.league-preview');
+          if (previewBtn) previewBtn.href = 'league.html?league=' + encodeURIComponent(this.value || '');
           markDirty();
         });
         sec.querySelector('.lg-fullname').addEventListener('input', function () { league.fullName = this.value; markDirty(); });

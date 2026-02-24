@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>League — OFC</title>
+  <title>OFL</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
   <link rel="stylesheet" href="style.css" />
   <script src="admin-config.js"></script>
   <script src="admin.js"></script>
@@ -173,7 +174,7 @@
       if (to.drawerBorder)     root.style.setProperty('--drawer-border', to.drawerBorder);
 
       // Page title
-      document.title = (league.heroTitle || league.name || 'League') + ' — OFC';
+      document.title = 'OFL \u2014 ' + (league.heroTitle || league.name || 'League');
     }
 
     // ── Render champion display (centered, no box) ──────────
@@ -288,9 +289,10 @@
       // Stats-based awards
       awardDefs.forEach(function (a) {
         if (a.key === 'champion') return;
-        var stat = stats[a.key];
+        // Resolve the storage key via statDef FIRST, then look up stat
         var statDef = (schema.stats || []).find(function (s) { return s.awardKey === a.key; });
-        if (statDef) stat = stats[statDef.key];
+        var statKey = statDef ? statDef.key : a.key;
+        var stat = stats[statKey];
         if (!stat || (!stat.ownerName && !stat.bracketName)) return;
         html += buildStatCard(
           awards[a.key] || a.defaultLabel,
@@ -547,7 +549,7 @@
       var league = getLeague(slug);
 
       if (!league) {
-        document.title = 'League Not Found — OFC';
+        document.title = 'OFL \u2014 League Not Found';
         el('leagueTitle').textContent    = slug ? slug.toUpperCase() : 'League';
         el('leagueSubtitle').textContent = 'This league could not be found.';
         return;
