@@ -2310,7 +2310,7 @@ select.admin-input option {
   border-bottom: 1px solid var(--drawer-border);
 }
 
-/* ── Current Champion Block ────────────────────────────────── */
+/* ── Current Champion Block (legacy — used by awards grid only) */
 .champion-block {
   display: flex;
   align-items: center;
@@ -2403,6 +2403,71 @@ select.admin-input option {
   font-size: 0.8rem;
   letter-spacing: 0.1em;
   color: var(--accent);
+}
+
+/* ── New Centered Champion Display ────────────────────────── */
+.champ-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 3rem 2rem 2rem;
+}
+
+.champ-display-img-wrap {
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.6rem;
+}
+
+.champ-display-title {
+  font-family: var(--font-body);
+  font-weight: var(--weight-champ-title, 300);
+  font-size: var(--size-champ-title, 8pt);
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: var(--hint-color, var(--accent-dim));
+  margin-bottom: 0.8rem;
+}
+
+.champ-display-team {
+  font-family: var(--font-display);
+  font-weight: var(--weight-champ-team, 300);
+  font-size: var(--size-champ-team, 42pt);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.champ-display-owner {
+  font-family: var(--font-body);
+  font-weight: var(--weight-champ-owner, 300);
+  font-size: var(--size-champ-owner, 10pt);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+  margin-bottom: 0.5rem;
+}
+
+.champ-display-score {
+  font-family: var(--font-body);
+  font-weight: var(--weight-champ-score, 300);
+  font-size: var(--size-champ-score, 8pt);
+  letter-spacing: 0.25em;
+  color: var(--accent-dim);
+  opacity: 0.7;
+}
+
+@media (max-width: 600px) {
+  .champ-display {
+    padding: 2rem 1.2rem 1.5rem;
+  }
+  .champ-display-team {
+    font-size: clamp(1.6rem, 8vw, 2.6rem);
+  }
 }
 
 /* ── Standings Table ───────────────────────────────────────── */

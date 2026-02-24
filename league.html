@@ -170,45 +170,31 @@
       document.title = (league.heroTitle || league.name || 'League') + ' — OFC';
     }
 
-    // ── Render champion block ────────────────────────────────
+    // ── Render champion display (centered, no box) ──────────
     function renderChampionBlock(season, league, config) {
-      var imgSrc  = getChampionImage(season, config, league);
-      var year    = season.year || '';
-      var team    = season.championTeamName || '';
-      var owner   = season.championName || '';
+      var imgSrc   = getChampionImage(season, config, league);
+      var year     = season.year || '';
+      var team     = season.championTeamName || '';
+      var owner    = season.championName || '';
+      var score    = season.championshipScore || '';
+      var leagName = league.name || '';
 
-      // Respect cardTemplate show flags
-      var template = league.cardTemplate || [];
-      function fieldVisible(key) {
-        if (!template.length) return true;
-        var f = template.find(function (t) { return t.key === key; });
-        return f ? f.show !== false : true;
+      // Per-league champion image size (px), default 160
+      var imgSize  = (league.pageLayout && league.pageLayout.championImgSize) || 160;
+
+      var imgHtml = '';
+      if (imgSrc) {
+        imgHtml = '<div class="champ-display-img-wrap" style="width:' + esc(imgSize) + 'px;height:' + esc(imgSize) + 'px;">' +
+          '<img src="' + esc(imgSrc) + '" alt="' + esc(team || owner) + '" style="width:100%;height:100%;object-fit:contain;" />' +
+        '</div>';
       }
 
-      var visualHtml = imgSrc
-        ? '<img src="' + esc(imgSrc) + '" alt="' + esc(team) + '" />'
-        : '<span class="champion-initials">' + esc((team||owner||'?').charAt(0)) + '</span>';
-
-      var statsHtml = '';
-      if (fieldVisible('record') && season.record)
-        statsHtml += '<div class="champion-stat"><span class="champion-stat-label">Record</span><span class="champion-stat-value">' + esc(season.record) + '</span></div>';
-      if (fieldVisible('seed') && season.seed)
-        statsHtml += '<div class="champion-stat"><span class="champion-stat-label">Seed</span><span class="champion-stat-value">#' + esc(season.seed) + '</span></div>';
-      if (fieldVisible('championshipScore') && season.championshipScore)
-        statsHtml += '<div class="champion-stat"><span class="champion-stat-label">Championship</span><span class="champion-stat-value">' + esc(season.championshipScore) + '</span></div>';
-
-      // Champion award image — from league-level awardImages
-      var champAwardImg = (league.awardImages && league.awardImages['champion']) || '';
-
-      return '<div class="champion-block">' +
-        '<div class="champion-block-visual">' + visualHtml + '</div>' +
-        '<div class="champion-block-info">' +
-          '<div class="champion-block-year">' + esc(year) + ' Champion</div>' +
-          '<div class="champion-block-team">' + esc(team || owner || '—') + '</div>' +
-          '<div class="champion-block-owner">' + esc(owner) + '</div>' +
-          (statsHtml ? '<div class="champion-block-stats">' + statsHtml + '</div>' : '') +
-          (champAwardImg ? '<div class="champion-award-img-wrap"><img class="champion-award-img" src="' + esc(champAwardImg) + '" alt="Championship award" /></div>' : '') +
-        '</div>' +
+      return '<div class="champ-display">' +
+        imgHtml +
+        '<div class="champ-display-title">' + esc(year + (year && leagName ? ' ' : '') + leagName + ' Champion') + '</div>' +
+        (team  ? '<div class="champ-display-team">'  + esc(team)  + '</div>' : '') +
+        (owner ? '<div class="champ-display-owner">' + esc(owner) + '</div>' : '') +
+        (score ? '<div class="champ-display-score">' + esc(score) + '</div>' : '') +
       '</div>';
     }
 
@@ -415,8 +401,7 @@
       if (pl.showChampion !== false && current && current.championName) {
         var sec = document.createElement('div');
         sec.className = 'league-section league-section-first';
-        sec.innerHTML = '<div class="league-section-heading">Current Champion</div>' +
-          renderChampionBlock(current, league, config);
+        sec.innerHTML = renderChampionBlock(current, league, config);
         body.appendChild(sec);
       }
 

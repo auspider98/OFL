@@ -190,6 +190,11 @@
             <div class="field-row"><div class="field-label">Sport / Season Size<span class="field-hint">pt — e.g. 7</span></div><div style="display:flex;align-items:center;gap:0.5rem;"><input class="admin-input" type="number" id="f_sizeCardSport" min="4" max="36" step="0.5" style="max-width:100px;" /><span class="pt-label">PT</span><label class="bold-toggle"><input type="checkbox" id="f_boldCardSport" /><span>B</span></label></div></div>
             <div class="field-row"><div class="field-label">League Name Size<span class="field-hint">pt — e.g. 16</span></div><div style="display:flex;align-items:center;gap:0.5rem;"><input class="admin-input" type="number" id="f_sizeCardName" min="6" max="72" step="0.5" style="max-width:100px;" /><span class="pt-label">PT</span><label class="bold-toggle"><input type="checkbox" id="f_boldCardName" /><span>B</span></label></div></div>
             <div class="field-row"><div class="field-label">CTA Link Size<span class="field-hint">pt — e.g. 8</span></div><div style="display:flex;align-items:center;gap:0.5rem;"><input class="admin-input" type="number" id="f_sizeCardCta" min="4" max="36" step="0.5" style="max-width:100px;" /><span class="pt-label">PT</span><label class="bold-toggle"><input type="checkbox" id="f_boldCardCta" /><span>B</span></label></div></div>
+            <div class="admin-subsection-label">Champion Display</div>
+            <div class="field-row"><div class="field-label">Title Line Size<span class="field-hint">pt — e.g. 8 &mdash; &ldquo;2022 OFC Champion&rdquo;</span></div><div style="display:flex;align-items:center;gap:0.5rem;"><input class="admin-input" type="number" id="f_sizeChampTitle" min="4" max="72" step="0.5" style="max-width:100px;" /><span class="pt-label">PT</span><label class="bold-toggle"><input type="checkbox" id="f_boldChampTitle" /><span>B</span></label></div></div>
+            <div class="field-row"><div class="field-label">Team Name Size<span class="field-hint">pt — e.g. 42</span></div><div style="display:flex;align-items:center;gap:0.5rem;"><input class="admin-input" type="number" id="f_sizeChampTeam" min="6" max="200" step="1" style="max-width:100px;" /><span class="pt-label">PT</span><label class="bold-toggle"><input type="checkbox" id="f_boldChampTeam" /><span>B</span></label></div></div>
+            <div class="field-row"><div class="field-label">Owner Name Size<span class="field-hint">pt — e.g. 10</span></div><div style="display:flex;align-items:center;gap:0.5rem;"><input class="admin-input" type="number" id="f_sizeChampOwner" min="4" max="72" step="0.5" style="max-width:100px;" /><span class="pt-label">PT</span><label class="bold-toggle"><input type="checkbox" id="f_boldChampOwner" /><span>B</span></label></div></div>
+            <div class="field-row"><div class="field-label">Score Line Size<span class="field-hint">pt — e.g. 8</span></div><div style="display:flex;align-items:center;gap:0.5rem;"><input class="admin-input" type="number" id="f_sizeChampScore" min="4" max="72" step="0.5" style="max-width:100px;" /><span class="pt-label">PT</span><label class="bold-toggle"><input type="checkbox" id="f_boldChampScore" /><span>B</span></label></div></div>
             <div class="admin-subsection-label">Admin Panel UI</div>
             <div class="field-row"><div class="field-label">Field Label Size<span class="field-hint">pt — e.g. 9</span></div><div style="display:flex;align-items:center;gap:0.5rem;"><input class="admin-input" type="number" id="f_sizeAdminLabel" min="4" max="24" step="0.5" style="max-width:100px;" /><span class="pt-label">PT</span><label class="bold-toggle"><input type="checkbox" id="f_boldAdminLabel" /><span>B</span></label></div></div>
             <div class="field-row"><div class="field-label">Field Hint Size<span class="field-hint">pt — e.g. 8</span></div><div style="display:flex;align-items:center;gap:0.5rem;"><input class="admin-input" type="number" id="f_sizeAdminHint" min="4" max="18" step="0.5" style="max-width:100px;" /><span class="pt-label">PT</span><label class="bold-toggle"><input type="checkbox" id="f_boldAdminHint" /><span>B</span></label></div></div>
@@ -677,6 +682,10 @@ document.addEventListener('DOMContentLoaded', function () {
         { id:'f_boldAdminLabel',    cssVar:'--weight-admin-label'    },
         { id:'f_boldAdminHint',     cssVar:'--weight-admin-hint'     },
         { id:'f_boldSectionHeading',cssVar:'--weight-section-heading'},
+        { id:'f_boldChampTitle',    cssVar:'--weight-champ-title'    },
+        { id:'f_boldChampTeam',     cssVar:'--weight-champ-team'     },
+        { id:'f_boldChampOwner',    cssVar:'--weight-champ-owner'    },
+        { id:'f_boldChampScore',    cssVar:'--weight-champ-score'    },
       ];
       [
         { id:'f_sizeEyebrow',    cssVar:'--size-eyebrow'    },
@@ -691,6 +700,10 @@ document.addEventListener('DOMContentLoaded', function () {
         { id:'f_sizeAdminLabel', cssVar:'--size-admin-label'},
         { id:'f_sizeAdminHint',  cssVar:'--size-admin-hint' },
         { id:'f_sizeSectionHeading', cssVar:'--size-section-heading' },
+        { id:'f_sizeChampTitle',  cssVar:'--size-champ-title'  },
+        { id:'f_sizeChampTeam',   cssVar:'--size-champ-team'   },
+        { id:'f_sizeChampOwner',  cssVar:'--size-champ-owner'  },
+        { id:'f_sizeChampScore',  cssVar:'--size-champ-score'  },
       ].forEach(function (item) {
         var el = document.getElementById(item.id);
         if (!el) return;
@@ -1231,6 +1244,18 @@ document.addEventListener('DOMContentLoaded', function () {
           });
           sec.appendChild(row);
         });
+
+        /* Champion image size */
+        var imgSizeRow = document.createElement('div');
+        imgSizeRow.className = 'field-row';
+        imgSizeRow.style.marginTop = '0.5rem';
+        imgSizeRow.innerHTML =
+          '<div class="field-label">Champion Image Size<span class="field-hint">px — logo/mugshot diameter</span></div>' +
+          '<input class="admin-input pg-champ-img-size" type="number" min="40" max="600" step="4" value="'+ esc((pl.championImgSize||160)) +'" style="max-width:120px;" />';
+        imgSizeRow.querySelector('.pg-champ-img-size').addEventListener('input', function () {
+          pl.championImgSize = parseInt(this.value, 10) || 160; markDirty();
+        });
+        sec.appendChild(imgSizeRow);
       }));
 
       }); /* end Page Layout */
@@ -2178,13 +2203,19 @@ document.addEventListener('DOMContentLoaded', function () {
       setVal('f_sizeAdminLabel', parseFloat(FS.adminLabel || '9pt'));
       setVal('f_sizeAdminHint',  parseFloat(FS.adminHint  || '8pt'));
       setVal('f_sizeSectionHeading', parseFloat(FS.sectionHeading || '7pt'));
+      setVal('f_sizeChampTitle',  parseFloat(FS.champTitle  || '8pt'));
+      setVal('f_sizeChampTeam',   parseFloat(FS.champTeam   || '42pt'));
+      setVal('f_sizeChampOwner',  parseFloat(FS.champOwner  || '10pt'));
+      setVal('f_sizeChampScore',  parseFloat(FS.champScore  || '8pt'));
 
       var FB = T.fontBold || {};
       var boldMap = {
         f_boldEyebrow: 'eyebrow', f_boldTitle: 'title', f_boldSubtitle: 'subtitle',
         f_boldTagline: 'tagline', f_boldNavItem: 'navItem', f_boldNavFooter: 'navFooter',
         f_boldCardSport: 'cardSport', f_boldCardName: 'cardName', f_boldCardCta: 'cardCta',
-        f_boldAdminLabel: 'adminLabel', f_boldAdminHint: 'adminHint', f_boldSectionHeading: 'sectionHeading'
+        f_boldAdminLabel: 'adminLabel', f_boldAdminHint: 'adminHint', f_boldSectionHeading: 'sectionHeading',
+        f_boldChampTitle: 'champTitle', f_boldChampTeam: 'champTeam',
+        f_boldChampOwner: 'champOwner', f_boldChampScore: 'champScore'
       };
       Object.keys(boldMap).forEach(function (id) {
         var el = document.getElementById(id);
@@ -2252,13 +2283,19 @@ document.addEventListener('DOMContentLoaded', function () {
       workingConfig.theme.fontSizes.adminLabel = (getVal('f_sizeAdminLabel')||'9') +'pt';
       workingConfig.theme.fontSizes.adminHint  = (getVal('f_sizeAdminHint') ||'8') +'pt';
       workingConfig.theme.fontSizes.sectionHeading = (getVal('f_sizeSectionHeading')||'7') +'pt';
+      workingConfig.theme.fontSizes.champTitle  = (getVal('f_sizeChampTitle')  ||'8')  +'pt';
+      workingConfig.theme.fontSizes.champTeam   = (getVal('f_sizeChampTeam')   ||'42') +'pt';
+      workingConfig.theme.fontSizes.champOwner  = (getVal('f_sizeChampOwner')  ||'10') +'pt';
+      workingConfig.theme.fontSizes.champScore  = (getVal('f_sizeChampScore')  ||'8')  +'pt';
 
       if (!workingConfig.theme.fontBold) workingConfig.theme.fontBold = {};
       var boldMap2 = {
         f_boldEyebrow: 'eyebrow', f_boldTitle: 'title', f_boldSubtitle: 'subtitle',
         f_boldTagline: 'tagline', f_boldNavItem: 'navItem', f_boldNavFooter: 'navFooter',
         f_boldCardSport: 'cardSport', f_boldCardName: 'cardName', f_boldCardCta: 'cardCta',
-        f_boldAdminLabel: 'adminLabel', f_boldAdminHint: 'adminHint', f_boldSectionHeading: 'sectionHeading'
+        f_boldAdminLabel: 'adminLabel', f_boldAdminHint: 'adminHint', f_boldSectionHeading: 'sectionHeading',
+        f_boldChampTitle: 'champTitle', f_boldChampTeam: 'champTeam',
+        f_boldChampOwner: 'champOwner', f_boldChampScore: 'champScore'
       };
       Object.keys(boldMap2).forEach(function (id) {
         var el = document.getElementById(id);
