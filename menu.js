@@ -106,7 +106,7 @@
   function buildLanding(config) {
     var L = config.landing;
     var bgEl = document.querySelector('.landing-overlay');
-    if (bgEl && config.slideshow) bgEl.style.background = config.slideshow.overlay;
+    if (bgEl && config.slideshow && document.querySelector('.landing-page')) bgEl.style.background = config.slideshow.overlay;
 
     function setText(sel, val) {
       var el = document.querySelector(sel);

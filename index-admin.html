@@ -597,6 +597,11 @@ document.addEventListener('DOMContentLoaded', function () {
       if (isNaN(r)) r=232; if (isNaN(g)) g=232; if (isNaN(b)) b=232;
       return 'rgba('+r+','+g+','+b+','+alpha+')';
     }
+    function parseOverlayAlpha(rgba) {
+      if (!rgba) return 0.55;
+      var m = rgba.match(/rgba?\s*\([^,]+,[^,]+,[^,]+,\s*([\d.]+)/);
+      return m ? parseFloat(m[1]) : 0.55;
+    }
 
     /* ── Collapsible sections ─────────────────────────────── */
     /* ── Collapsible — single delegated listener ─────────────
@@ -1210,13 +1215,17 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!league.slideshow.slides) league.slideshow.slides = [];
 
         sec.innerHTML =
-          '<div class="field-row"><div class="field-label">Overlay<span class="field-hint">Darkness over images</span></div><input class="admin-input lg-ss-overlay" type="text" value="'+esc(league.slideshow.overlay||'rgba(0,0,0,0.55)')+'" /></div>' +
+          '<div class="field-row"><div class="field-label">Overlay Darkness<span class="field-hint">0 = none · 0.9 = very dark</span></div><input class="admin-input lg-ss-overlay" type="number" min="0" max="1" step="0.05" value="'+ esc(parseOverlayAlpha(league.slideshow.overlay)) +'" style="max-width:120px;" /></div>' +
           '<div class="card-list" id="lgSlides_'+league.id+'"></div>' +
           '<button class="btn btn-sm" style="margin-top:0.75rem;" id="lgAddSlide_'+league.id+'">+ Add Slide</button>';
 
         renderSlideList('lgSlides_'+league.id, league.slideshow.slides, markDirty);
 
-        sec.querySelector('.lg-ss-overlay').addEventListener('input', function () { league.slideshow.overlay = this.value; markDirty(); });
+        sec.querySelector('.lg-ss-overlay').addEventListener('input', function () {
+          var alpha = Math.min(1, Math.max(0, parseFloat(this.value) || 0));
+          league.slideshow.overlay = 'rgba(0,0,0,' + alpha + ')';
+          markDirty();
+        });
         sec.querySelector('#lgAddSlide_'+league.id).addEventListener('click', function () {
           league.slideshow.slides.push({ image:'', direction:'kb-zoom-in' });
           renderSlideList('lgSlides_'+league.id, league.slideshow.slides, markDirty); markDirty();
@@ -1356,12 +1365,15 @@ document.addEventListener('DOMContentLoaded', function () {
               '<div class="admin-card-fields">' +
                 '<div class="admin-field-group"><label>Award Name</label>' +
                   '<input class="admin-input ca-label" type="text" value="'+esc(ca.label||'')+'" placeholder="Award name" /></div>' +
+                '<div class="admin-field-group"><label>Award Description <span style="opacity:.5;font-weight:400;">(shown on card)</span></label>' +
+                  '<input class="admin-input ca-desc" type="text" value="'+esc(ca.description||'')+'" placeholder="e.g. Lowest scoring team" /></div>' +
                 '<div class="admin-field-group"><label>Award Image <span style="opacity:.5;font-weight:400;">(optional)</span></label>' +
                   '<input class="admin-input ca-image" type="text" value="'+esc(ca.image||'')+'" placeholder="assets/awards/trophy.jpg" /></div>' +
                 '<div class="admin-field-group" style="align-self:flex-end;">' +
                   '<button class="btn btn-sm btn-danger btn-icon ca-del">&#x2715;</button></div>' +
               '</div>';
             row.querySelector('.ca-label').addEventListener('input', function () { ca.label=this.value; markDirty(); });
+            row.querySelector('.ca-desc').addEventListener('input', function () { ca.description=this.value; markDirty(); });
             row.querySelector('.ca-image').addEventListener('input', function () { ca.image=this.value; markDirty(); });
             row.querySelector('.ca-del').addEventListener('click', function () {
               showConfirm('Remove Custom Award', 'Remove "'+esc(ca.label)+'"? Season winner data for this award will be orphaned.', function () {

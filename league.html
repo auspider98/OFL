@@ -29,12 +29,14 @@
   <!-- ── LEAGUE PAGE ─────────────────────────────────────── -->
   <div class="league-page" id="leaguePage">
 
+    <!-- Full-page slideshow layers -->
+    <div class="slide-layer" id="slideA" aria-hidden="true"></div>
+    <div class="slide-layer" id="slideB" aria-hidden="true"></div>
+    <div class="landing-overlay" id="heroOverlay" aria-hidden="true"></div>
+    <div class="landing-vignette" aria-hidden="true"></div>
+
     <!-- Hero -->
     <header class="league-hero" id="leagueHero">
-      <div class="slide-layer" id="slideA" aria-hidden="true"></div>
-      <div class="slide-layer" id="slideB" aria-hidden="true"></div>
-      <div class="landing-overlay" id="heroOverlay" aria-hidden="true"></div>
-      <div class="landing-vignette" aria-hidden="true"></div>
       <div class="landing-rule" aria-hidden="true"></div>
       <div class="league-hero-content" id="leagueHeroContent">
         <p class="league-hero-eyebrow" id="leagueEyebrow"></p>
@@ -161,11 +163,6 @@
         document.documentElement.style.setProperty('--hint-color', league.accentColor);
       }
 
-      // Overlay
-      var overlay = el('heroOverlay');
-      var ss = league.slideshow;
-      if (overlay && ss && ss.overlay) overlay.style.background = ss.overlay;
-
       // Page title
       document.title = (league.heroTitle || league.name || 'League') + ' — OFC';
     }
@@ -184,8 +181,8 @@
 
       var imgHtml = '';
       if (imgSrc) {
-        imgHtml = '<div class="champ-display-img-wrap" style="width:' + esc(imgSize) + 'px;height:' + esc(imgSize) + 'px;">' +
-          '<img src="' + esc(imgSrc) + '" alt="' + esc(team || owner) + '" style="width:100%;height:100%;object-fit:contain;" />' +
+        imgHtml = '<div class="champ-display-img-wrap">' +
+          '<img src="' + esc(imgSrc) + '" alt="' + esc(team || owner) + '" style="max-width:' + esc(imgSize) + 'px;max-height:' + esc(imgSize) + 'px;width:auto;height:auto;" />' +
         '</div>';
       }
 
@@ -201,7 +198,7 @@
     // ── Render standings table ───────────────────────────────
     function renderStandingsTable(season, league) {
       var schema = window.SPORT_STAT_SCHEMAS[league.sport] || window.SPORT_STAT_SCHEMAS.other;
-      var cols   = (schema.standingsColumns || []).filter(function (c) { return c.key !== 'rank'; });
+      var cols   = (schema.standingsColumns || []).filter(function (c) { return c.key !== 'rank' && c.key !== 'owner'; });
       var rows   = season.standings || [];
       if (!rows.length) return '<p style="color:var(--accent-dim);font-size:0.75rem;letter-spacing:0.15em;">No standings data yet.</p>';
 
@@ -301,7 +298,7 @@
         if (!entry || (!entry.ownerName && !entry.value)) return;
         html += buildStatCard(
           ca.label || 'Custom Award',
-          '',
+          ca.description || '',
           ca.image || '',
           entry.teamName || entry.ownerName || '',
           entry.value ? [entry.value] : []
@@ -410,7 +407,7 @@
         var sec2 = document.createElement('div');
         sec2.className = 'league-section';
         sec2.innerHTML = '<div class="league-section-heading">Final Standings — ' + esc(current.year || '') + '</div>' +
-          renderStandingsTable(current, league);
+          '<div class="league-standings-wrap">' + renderStandingsTable(current, league) + '</div>';
         body.appendChild(sec2);
       }
 
@@ -448,6 +445,12 @@
     // ── Init slideshow for league ────────────────────────────
     function initLeagueSlideshow(league, config) {
       var ss = league.slideshow;
+
+      // Apply league overlay directly as inline style (same mechanism as index page)
+      var overlayEl = el('heroOverlay');
+      var overlayVal = (ss && ss.overlay) ? ss.overlay : 'rgba(0,0,0,0.55)';
+      if (overlayEl) overlayEl.style.background = overlayVal;
+
       if (!ss || !ss.slides || !ss.slides.length) return;
 
       // Borrow global slideshow timing settings if set
