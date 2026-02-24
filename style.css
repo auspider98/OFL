@@ -2230,6 +2230,16 @@ select.admin-input option {
   padding: 5rem 2rem 2rem;
 }
 
+@media (max-width: 600px) {
+  .league-hero {
+    min-height: 0;
+    padding: 4.5rem 1.2rem 1.5rem;
+  }
+  .league-section-first {
+    padding-top: 1.5rem;
+  }
+}
+
 .league-hero .slide-layer { position: absolute; inset: 0; }
 .league-hero .landing-overlay { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
 .league-hero .landing-vignette { position: absolute; inset: 0; z-index: 11; pointer-events: none; }
