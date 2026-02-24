@@ -1232,6 +1232,46 @@ document.addEventListener('DOMContentLoaded', function () {
         });
       }));
 
+      /* ── League Theme & Color ─────────────────────────── */
+      wrap.appendChild(buildNestedSection('League Theme & Color', true, function (sec) {
+        if (!league.themeOverride) league.themeOverride = {};
+        var to = league.themeOverride;
+
+        function colorRow(label, hint, key, placeholder) {
+          var cur = to[key] || '';
+          var swVal = (cur && cur.charAt(0)==='#') ? cur : placeholder;
+          return '<div class="field-row">' +
+            '<div class="field-label">'+label+'<span class="field-hint">'+hint+'</span></div>' +
+            '<div class="color-field">' +
+              '<input class="color-swatch lg-to-sw" type="color" data-key="'+key+'" value="'+esc(swVal)+'" />' +
+              '<input class="admin-input lg-to-hex" type="text" data-key="'+key+'" value="'+esc(cur)+'" placeholder="'+placeholder+' or blank" />' +
+            '</div></div>';
+        }
+
+        sec.innerHTML =
+          '<p class="field-hint" style="margin-bottom:0.75rem;">Leave blank to use Site Settings values.</p>' +
+          colorRow('Accent Color',       'Main text/title color',     'accentColor',       '#e8e8e8') +
+          colorRow('Accent Dim',         'Secondary muted text',      'accentDim',         '#888888') +
+          colorRow('Hint / Label Color', 'Eyebrow, labels, hints',    'hintColor',         '#555555') +
+          colorRow('Drawer Background',  'Slide-out menu bg',         'drawerBackground',  '#0d0d0d') +
+          colorRow('Drawer Border',      'Menu divider lines',        'drawerBorder',      'rgba(232,232,232,0.08)');
+
+        sec.querySelectorAll('.lg-to-sw').forEach(function (sw) {
+          var key = sw.getAttribute('data-key');
+          var hx  = sec.querySelector('.lg-to-hex[data-key="'+key+'"]');
+          sw.addEventListener('input', function () {
+            hx.value = sw.value;
+            to[key] = sw.value;
+            markDirty();
+          });
+          hx.addEventListener('input', function () {
+            to[key] = hx.value;
+            if (/^#[0-9a-fA-F]{6}$/.test(hx.value)) sw.value = hx.value;
+            markDirty();
+          });
+        });
+      }));
+
       /* ── Page Sections toggles ────────────────────────── */
       wrap.appendChild(buildNestedSection('Page Sections', true, function (sec) {
         if (!league.pageLayout) league.pageLayout = { showChampion:true, showStandings:true, showAwards:true, showPastSeasons:true };

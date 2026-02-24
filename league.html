@@ -158,10 +158,19 @@
       el('leagueTitle').textContent    = league.heroTitle    || league.fullName || league.name || '';
       el('leagueSubtitle').textContent = league.heroSubtitle || '';
 
-      // Apply league accent color
+      // Apply league accent color (legacy field)
       if (league.accentColor) {
         document.documentElement.style.setProperty('--hint-color', league.accentColor);
       }
+
+      // Apply league theme overrides — these supersede Site Settings
+      var to = league.themeOverride || {};
+      var root = document.documentElement;
+      if (to.accentColor)      root.style.setProperty('--accent',        to.accentColor);
+      if (to.accentDim)        root.style.setProperty('--accent-dim',    to.accentDim);
+      if (to.hintColor)        root.style.setProperty('--hint-color',    to.hintColor);
+      if (to.drawerBackground) root.style.setProperty('--drawer-bg',     to.drawerBackground);
+      if (to.drawerBorder)     root.style.setProperty('--drawer-border', to.drawerBorder);
 
       // Page title
       document.title = (league.heroTitle || league.name || 'League') + ' — OFC';
