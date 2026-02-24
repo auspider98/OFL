@@ -2465,8 +2465,23 @@ select.admin-input option {
   .champ-display {
     padding: 2rem 1.2rem 1.5rem;
   }
+  .champ-display-img-wrap {
+    width: min(160px, 52vw) !important;
+    height: min(160px, 52vw) !important;
+  }
+  .champ-display-title {
+    font-size: clamp(0.55rem, 2.8vw, 0.75rem) !important;
+    letter-spacing: 0.3em;
+  }
   .champ-display-team {
-    font-size: clamp(1.6rem, 8vw, 2.6rem);
+    font-size: clamp(1.6rem, 9vw, 2.6rem) !important;
+  }
+  .champ-display-owner {
+    font-size: clamp(0.65rem, 3vw, 0.9rem) !important;
+    letter-spacing: 0.2em;
+  }
+  .champ-display-score {
+    font-size: clamp(0.6rem, 2.8vw, 0.8rem) !important;
   }
 }
 
