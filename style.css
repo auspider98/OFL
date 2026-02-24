@@ -2296,6 +2296,12 @@ select.admin-input option {
   animation: heroReveal 1.2s 0.55s ease forwards;
 }
 
+/* ── Section reveal animation ──────────────────────────────── */
+.section-reveal {
+  opacity: 0;
+  animation: heroReveal 1s ease forwards;
+}
+
 /* ── League Page Body ──────────────────────────────────────── */
 .league-body {
   position: relative;

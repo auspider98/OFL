@@ -393,11 +393,14 @@
       });
 
       body.innerHTML = '';
+      var revealDelay = 0.8; // start after hero animations
 
       // ── Current Champion
       if (pl.showChampion !== false && current && current.championName) {
         var sec = document.createElement('div');
-        sec.className = 'league-section league-section-first';
+        sec.className = 'league-section league-section-first section-reveal';
+        sec.style.animationDelay = revealDelay + 's';
+        revealDelay += 0.15;
         sec.innerHTML = renderChampionBlock(current, league, config);
         body.appendChild(sec);
       }
@@ -405,7 +408,9 @@
       // ── Final Standings
       if (pl.showStandings !== false && current) {
         var sec2 = document.createElement('div');
-        sec2.className = 'league-section';
+        sec2.className = 'league-section section-reveal';
+        sec2.style.animationDelay = revealDelay + 's';
+        revealDelay += 0.15;
         sec2.innerHTML = '<div class="league-section-heading">Final Standings — ' + esc(current.year || '') + '</div>' +
           '<div class="league-standings-wrap">' + renderStandingsTable(current, league) + '</div>';
         body.appendChild(sec2);
@@ -414,7 +419,9 @@
       // ── Season Awards
       if (pl.showAwards !== false && current) {
         var sec3 = document.createElement('div');
-        sec3.className = 'league-section';
+        sec3.className = 'league-section section-reveal';
+        sec3.style.animationDelay = revealDelay + 's';
+        revealDelay += 0.15;
         sec3.innerHTML = '<div class="league-section-heading">Season Awards — ' + esc(current.year || '') + '</div>' +
           '<div class="awards-grid" id="awardsGrid"></div>';
         body.appendChild(sec3);
@@ -424,7 +431,9 @@
       // ── Past Seasons
       if (pl.showPastSeasons !== false && pastSeasons.length > 0) {
         var sec4 = document.createElement('div');
-        sec4.className = 'league-section';
+        sec4.className = 'league-section section-reveal';
+        sec4.style.animationDelay = revealDelay + 's';
+        revealDelay += 0.15;
         sec4.innerHTML = '<div class="league-section-heading">Past Seasons</div>';
         var grid = document.createElement('div');
         grid.className = 'past-seasons-grid';
@@ -437,7 +446,8 @@
 
       // ── Footer
       var footer = document.createElement('div');
-      footer.className = 'league-footer';
+      footer.className = 'league-footer section-reveal';
+      footer.style.animationDelay = revealDelay + 's';
       footer.textContent = (league.fullName || league.name || '') + (config.footer && config.footer.text ? ' · ' + config.footer.text : '');
       body.appendChild(footer);
     }
