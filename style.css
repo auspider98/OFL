@@ -2476,7 +2476,7 @@ select.admin-input option {
 
 @media (max-width: 600px) {
   .champ-display {
-    padding: 1rem 1.2rem 1.5rem;
+    padding: 0.25rem 1.2rem 1.5rem;
   }
   .champ-display-img-wrap {
     width: min(160px, 52vw) !important;
