@@ -51,6 +51,10 @@
       if (fs.cardSport)  root.style.setProperty('--size-card-sport', fs.cardSport);
       if (fs.cardName)   root.style.setProperty('--size-card-name',  fs.cardName);
       if (fs.cardCta)    root.style.setProperty('--size-card-cta',   fs.cardCta);
+      if (fs.champTitle)  root.style.setProperty('--size-champ-title',  fs.champTitle);
+      if (fs.champTeam)   root.style.setProperty('--size-champ-team',   fs.champTeam);
+      if (fs.champOwner)  root.style.setProperty('--size-champ-owner',  fs.champOwner);
+      if (fs.champScore)  root.style.setProperty('--size-champ-score',  fs.champScore);
       if (fs.adminLabel) root.style.setProperty('--size-admin-label',fs.adminLabel);
       if (fs.adminHint)  root.style.setProperty('--size-admin-hint', fs.adminHint);
       if (fs.sectionHeading) root.style.setProperty('--size-section-heading', fs.sectionHeading);
@@ -61,7 +65,9 @@
         eyebrow: '--weight-eyebrow', title: '--weight-title', subtitle: '--weight-subtitle',
         tagline: '--weight-tagline', navItem: '--weight-nav-item', navFooter: '--weight-nav-footer',
         cardSport: '--weight-card-sport', cardName: '--weight-card-name', cardCta: '--weight-card-cta',
-        adminLabel: '--weight-admin-label', adminHint: '--weight-admin-hint', sectionHeading: '--weight-section-heading'
+        adminLabel: '--weight-admin-label', adminHint: '--weight-admin-hint', sectionHeading: '--weight-section-heading',
+        champTitle: '--weight-champ-title', champTeam: '--weight-champ-team',
+        champOwner: '--weight-champ-owner', champScore: '--weight-champ-score'
       };
       Object.keys(boldVarMap).forEach(function (key) {
         root.style.setProperty(boldVarMap[key], fb[key] ? '700' : '');
