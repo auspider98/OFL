@@ -289,10 +289,9 @@
       // Stats-based awards
       awardDefs.forEach(function (a) {
         if (a.key === 'champion') return;
-        // Resolve the storage key via statDef FIRST, then look up stat
+        var stat = stats[a.key];
         var statDef = (schema.stats || []).find(function (s) { return s.awardKey === a.key; });
-        var statKey = statDef ? statDef.key : a.key;
-        var stat = stats[statKey];
+        if (statDef) stat = stats[statDef.key];
         if (!stat || (!stat.ownerName && !stat.bracketName)) return;
         html += buildStatCard(
           awards[a.key] || a.defaultLabel,
@@ -459,7 +458,11 @@
       var footer = document.createElement('div');
       footer.className = 'league-footer section-reveal';
       footer.style.animationDelay = revealDelay + 's';
-      footer.textContent = (league.fullName || league.name || '') + (config.footer && config.footer.text ? ' · ' + config.footer.text : '');
+      if (config.footer && config.footer.show) {
+        footer.textContent = config.footer.text;
+      } else {
+        footer.style.display = 'none';
+      }
       body.appendChild(footer);
     }
 

@@ -965,6 +965,24 @@ document.addEventListener('DOMContentLoaded', function () {
       '</div>';
     }
 
+    /* Refresh only the leagues collapsible for one member, in-place.
+       Preserves the outer section open/closed state and the leagues
+       collapsible open/closed state. */
+    function refreshMemberLeagues(section, member) {
+      var collapsible = section.querySelector('.member-leagues-collapsible');
+      if (!collapsible) return;
+      var wasOpen = collapsible.style.display !== 'none';
+      collapsible.innerHTML = buildMemberLeaguesHtml(member);
+      collapsible.style.display = wasOpen ? 'block' : 'none';
+      var toggleRow = section.querySelector('.member-leagues-toggle-row');
+      if (toggleRow) {
+        toggleRow.setAttribute('aria-expanded', String(wasOpen));
+        var caret = toggleRow.querySelector('.member-leagues-caret');
+        if (caret) caret.style.transform = wasOpen ? 'rotate(180deg)' : '';
+      }
+      bindMemberLeagueEvents(section, member);
+    }
+
     function bindMemberLeagueEvents(section, member) {
       var leaguesSec = section.querySelector('.member-leagues-section');
       if (!leaguesSec) return;
@@ -978,7 +996,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (!key) return;
           if (!member.leagues) member.leagues = [];
           member.leagues.push(MemberFactory.createLeagueEntry(key, ''));
-          renderRosterList(); markDirty();
+          refreshMemberLeagues(section, member); markDirty();
         });
       }
 
@@ -992,7 +1010,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (lgNameField) {
           lgNameField.addEventListener('input', function () {
             lg.leagueName = this.value;
-            /* Update badge inline */
             var badge = block.querySelector('.member-league-key-badge');
             if (badge) badge.textContent = 'Other' + (this.value ? ' · ' + this.value : '');
             markDirty();
@@ -1003,7 +1020,7 @@ document.addEventListener('DOMContentLoaded', function () {
         block.querySelector('.league-block-del').addEventListener('click', function () {
           showConfirm('Remove League', 'Remove the '+esc(lg.leagueKey)+' league entry for this member? All team data will be lost.', function () {
             member.leagues.splice(lgIdx, 1);
-            renderRosterList(); markDirty();
+            refreshMemberLeagues(section, member); markDirty();
           });
         });
 
@@ -1013,7 +1030,7 @@ document.addEventListener('DOMContentLoaded', function () {
           var newTeam = { name: '' };
           if (lg.leagueKey === 'OFC') newTeam.logo = '';
           lg.teams.push(newTeam);
-          renderRosterList(); markDirty();
+          refreshMemberLeagues(section, member); markDirty();
         });
 
         /* Per-team events */
@@ -1026,7 +1043,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (logoField) logoField.addEventListener('input', function () { t.logo = this.value; markDirty(); });
           te.querySelector('.team-del-v2').addEventListener('click', function () {
             lg.teams.splice(tIdx, 1);
-            renderRosterList(); markDirty();
+            refreshMemberLeagues(section, member); markDirty();
           });
         });
       });
@@ -1691,6 +1708,13 @@ document.addEventListener('DOMContentLoaded', function () {
       yearRow.querySelector('.s-year').addEventListener('input', function () {
         season.year = this.value; updateSeasonTitle(); markDirty();
       });
+      yearRow.querySelector('.s-year').addEventListener('change', function () {
+        season.year = this.value;
+        league.seasons.sort(function (a, b) {
+          return (parseInt(b.year, 10) || 0) - (parseInt(a.year, 10) || 0);
+        });
+        onRerender(); markDirty();
+      });
       pbody.appendChild(yearRow);
 
       /* ══════════════════════════════════════════════════════
@@ -1860,6 +1884,9 @@ document.addEventListener('DOMContentLoaded', function () {
               '</div>' + fieldsHtml;
             if (isMadness) {
               card.querySelector('.st-points').addEventListener('input', function () {
+                row.totalPoints = this.value; deriveFromStandings(); markDirty();
+              });
+              card.querySelector('.st-points').addEventListener('change', function () {
                 row.totalPoints = this.value; autoSortStandings(); renderStandings(); deriveFromStandings(); markDirty();
               });
               card.querySelector('.st-picks').addEventListener('input', function () {

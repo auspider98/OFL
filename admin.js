@@ -393,21 +393,36 @@ var RosterEngine = {
    * sport: "football" | "madness" | "other"
    */
   buildSeasonRoster: function (config, league) {
-    var memberIds = league.members || [];
-    var sport     = league.sport || 'other';
-    return memberIds.map(function (mid) {
-      var member = RosterEngine.getMember(config, mid);
-      if (!member) return null;
-      var teamEntry = sport === 'football'
-        ? RosterEngine.getFixedTeam(member, league.name)
-        : RosterEngine.getLatestTeam(member, league.name);
-      return {
-        memberId: mid,
-        ownerName: member.name,
-        teamName: teamEntry ? teamEntry.name  : '',
-        logo:     teamEntry ? teamEntry.logo  : ''
-      };
-    }).filter(Boolean);
+    var sport = league.sport || 'other';
+    // Football: use curated league.members list
+    // Madness/other: derive from master roster — anyone active with a team entry for this league
+    if (sport === 'football') {
+      var memberIds = league.members || [];
+      return memberIds.map(function (mid) {
+        var member = RosterEngine.getMember(config, mid);
+        if (!member) return null;
+        var teamEntry = RosterEngine.getFixedTeam(member, league.name);
+        return {
+          memberId: mid,
+          ownerName: member.name,
+          teamName: teamEntry ? teamEntry.name : '',
+          logo:     teamEntry ? teamEntry.logo : ''
+        };
+      }).filter(Boolean);
+    } else {
+      return (config.masterRoster || []).filter(function (m) {
+        if (m.active === false) return false;
+        return RosterEngine.getTeamsForLeague(m, league.name).length > 0;
+      }).map(function (member) {
+        var teamEntry = RosterEngine.getLatestTeam(member, league.name);
+        return {
+          memberId: member.id,
+          ownerName: member.name,
+          teamName: teamEntry ? teamEntry.name : '',
+          logo:     teamEntry ? teamEntry.logo : ''
+        };
+      });
+    }
   },
 
   /**
