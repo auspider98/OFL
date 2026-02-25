@@ -278,8 +278,8 @@ var SPORT_STAT_SCHEMAS = {
       { key: "rank",         label: "#" },
       { key: "owner",        label: "Owner" },
       { key: "bracketName",  label: "Bracket Name" },
-      { key: "correctPicks", label: "Correct Picks" },
-      { key: "totalPoints",  label: "Total Points" }
+      { key: "totalPoints",  label: "Total Points" },
+      { key: "correctPicks", label: "Correct Picks" }
     ],
     playoffRounds: [],      // No bracket — single tournament
     hasConsolation: false,
