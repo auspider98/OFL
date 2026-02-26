@@ -664,6 +664,7 @@ var SeasonFactory = {
     return {
       id:                generateId('ssn'),
       year:              year || new Date().getFullYear().toString(),
+      isFinal:           false,
       championMemberId:  '',
       championName:      '',
       championTeamName:  '',
@@ -698,7 +699,8 @@ var LeagueFactory = {
     (schema.awards || []).forEach(function (a) {
       awards[a.key] = a.defaultLabel;
     });
-    var cardTemplate = CardTemplateEngine.getDefaults(sport);
+    var cardTemplate      = CardTemplateEngine.getDefaults(sport);
+    var standingsColumns  = StandingsColumnEngine.getDefaults(sport);
 
     return {
       id:           generateId('lg'),
@@ -715,20 +717,19 @@ var LeagueFactory = {
       heroSubtitle: '',
       currentSeasonId: '',
       pageLayout: {
-        showChampion:  true,
-        showStandings: true,
-        showAwards:    true,
-        showPastSeasons: true
+        sections:      PageLayoutEngine.getDefaults(),
+        championImgSize: 160
       },
       slideshow: {
         slides:  [],
         overlay: 'rgba(0,0,0,0.55)'
       },
-      awardImages:  {},   // { awardKey: imagePath } — league-level award images
-      customAwards: [],   // [ { id, label, image } ] — league-level custom award definitions
-      awards:       awards,
-      cardTemplate: cardTemplate,
-      seasons:      []
+      awardImages:      {},
+      customAwards:     [],
+      awards:           awards,
+      cardTemplate:     cardTemplate,
+      standingsColumns: standingsColumns,
+      seasons:          []
     };
   }
 };
@@ -801,6 +802,137 @@ var MemberFactory = {
   }
 };
 
+// ══════════════════════════════════════════════════════════════
+//  PAGE SECTION DEFINITIONS
+//  Canonical list of all possible league page sections.
+//  key      — stored in pageLayout.sections[].key
+//  label    — shown in admin UI
+//  default  — true = on by default for new leagues
+// ══════════════════════════════════════════════════════════════
+var PAGE_SECTION_DEFS = [
+  { key: 'champion',    label: 'Current Champion',  defaultOn: true  },
+  { key: 'story',       label: 'Season Story',       defaultOn: true  },
+  { key: 'standings',   label: 'Final Standings',    defaultOn: true  },
+  { key: 'bracket',     label: 'Playoff Bracket',    defaultOn: true  },
+  { key: 'roster',      label: 'Season Roster',      defaultOn: false },
+  { key: 'awards',      label: 'Season Awards',      defaultOn: true  },
+  { key: 'pastSeasons', label: 'Past Seasons',       defaultOn: true  }
+];
+
+// ══════════════════════════════════════════════════════════════
+//  PAGE LAYOUT ENGINE
+//  Manages the ordered sections array on league.pageLayout.
+// ══════════════════════════════════════════════════════════════
+var PageLayoutEngine = {
+
+  /**
+   * Return the default sections array (used for new leagues and as fallback).
+   */
+  getDefaults: function () {
+    return PAGE_SECTION_DEFS.map(function (d) {
+      return { key: d.key, enabled: d.defaultOn };
+    });
+  },
+
+  /**
+   * Migrate a league's legacy pageLayout (showChampion, showStandings, etc.)
+   * to the new sections array format. Safe to call on already-migrated leagues.
+   */
+  migrate: function (league) {
+    if (!league.pageLayout) league.pageLayout = {};
+    var pl = league.pageLayout;
+
+    // Already migrated
+    if (pl.sections && pl.sections.length) return;
+
+    // Build from legacy boolean flags, preserving intent
+    var legacyMap = {
+      champion:    pl.showChampion    !== false,
+      story:       true,
+      standings:   pl.showStandings   !== false,
+      bracket:     true,
+      roster:      false,
+      awards:      pl.showAwards      !== false,
+      pastSeasons: pl.showPastSeasons !== false
+    };
+
+    pl.sections = PAGE_SECTION_DEFS.map(function (d) {
+      return {
+        key:     d.key,
+        enabled: legacyMap.hasOwnProperty(d.key) ? legacyMap[d.key] : d.defaultOn
+      };
+    });
+  },
+
+  /**
+   * Merge saved sections with canonical defs — adds any new sections
+   * not yet in the saved array (appended at end, using defaultOn).
+   */
+  mergeWithDefaults: function (saved) {
+    if (!saved || !saved.length) return PageLayoutEngine.getDefaults();
+    var savedKeys = saved.map(function (s) { return s.key; });
+    var merged    = saved.slice();
+    PAGE_SECTION_DEFS.forEach(function (d) {
+      if (savedKeys.indexOf(d.key) === -1) {
+        merged.push({ key: d.key, enabled: d.defaultOn });
+      }
+    });
+    return merged;
+  },
+
+  /**
+   * Get label for a section key.
+   */
+  getLabel: function (key) {
+    var def = PAGE_SECTION_DEFS.find(function (d) { return d.key === key; });
+    return def ? def.label : key;
+  }
+};
+
+// ══════════════════════════════════════════════════════════════
+//  STANDINGS COLUMN ENGINE
+//  Manages per-league standings column configuration.
+//  Stored as league.standingsColumns[] — each entry:
+//    { key, label, show }
+//  Mirrors CardTemplateEngine pattern exactly.
+// ══════════════════════════════════════════════════════════════
+var StandingsColumnEngine = {
+
+  /**
+   * Get default standings columns for a sport from the schema.
+   * Returns array of { key, label, show } objects (all shown by default).
+   */
+  getDefaults: function (sport) {
+    var schema = SPORT_STAT_SCHEMAS[sport] || SPORT_STAT_SCHEMAS.other;
+    return (schema.standingsColumns || []).map(function (c) {
+      return { key: c.key, label: c.label, show: true };
+    });
+  },
+
+  /**
+   * Merge saved columns with schema defaults.
+   * Preserves saved order and show state; appends any new schema columns.
+   */
+  mergeWithDefaults: function (saved, sport) {
+    var defaults = StandingsColumnEngine.getDefaults(sport);
+    if (!saved || !saved.length) return defaults;
+    var savedKeys = saved.map(function (c) { return c.key; });
+    var merged    = saved.slice();
+    defaults.forEach(function (d) {
+      if (savedKeys.indexOf(d.key) === -1) merged.push(d);
+    });
+    return merged;
+  },
+
+  /**
+   * Get visible columns in order for rendering.
+   */
+  getVisibleColumns: function (league) {
+    var cols = league.standingsColumns || [];
+    return cols.filter(function (c) { return c.show !== false; });
+  }
+};
+
 // ── deepMerge ────────────────────────────────────────────────
 // Must be defined BEFORE the boot IIFE that calls it.
 function deepMerge(base, override) {
@@ -830,6 +962,17 @@ function deepMerge(base, override) {
 function migrateLeague(league) {
   if (!league.awardImages)  league.awardImages  = {};
   if (!league.customAwards) league.customAwards = [];
+
+  // Migrate legacy showX flags → sections array
+  PageLayoutEngine.migrate(league);
+
+  // Migrate/seed standingsColumns if missing
+  if (!league.standingsColumns || !league.standingsColumns.length) {
+    league.standingsColumns = StandingsColumnEngine.getDefaults(league.sport);
+  } else {
+    // Merge in any new columns added to the schema since last save
+    league.standingsColumns = StandingsColumnEngine.mergeWithDefaults(league.standingsColumns, league.sport);
+  }
 
   // Migrate any existing season.customStats into league.customAwards
   (league.seasons || []).forEach(function (season) {
@@ -872,7 +1015,10 @@ function migrateLeague(league) {
   window.FONT_OPTIONS         = FONT_OPTIONS;
   window.KB_DIRECTIONS        = KB_DIRECTIONS;
   window.SPORT_STAT_SCHEMAS   = SPORT_STAT_SCHEMAS;
-  window.RosterEngine         = RosterEngine;
+  window.PAGE_SECTION_DEFS       = PAGE_SECTION_DEFS;
+  window.PageLayoutEngine        = PageLayoutEngine;
+  window.StandingsColumnEngine   = StandingsColumnEngine;
+  window.RosterEngine            = RosterEngine;
   window.CardTemplateEngine   = CardTemplateEngine;
   window.PlayoffEngine        = PlayoffEngine;
   window.SeasonFactory        = SeasonFactory;

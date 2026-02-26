@@ -206,10 +206,20 @@
     }
 
     // ── Render standings table ───────────────────────────────
-    function renderStandingsTable(season, league) {
-      var schema = window.SPORT_STAT_SCHEMAS[league.sport] || window.SPORT_STAT_SCHEMAS.other;
-      var cols   = (schema.standingsColumns || []).filter(function (c) { return c.key !== 'rank' && c.key !== 'owner'; });
-      var rows   = season.standings || [];
+    function renderStandingsTable(season, league, config) {
+      var schema     = window.SPORT_STAT_SCHEMAS[league.sport] || window.SPORT_STAT_SCHEMAS.other;
+      var isFootball = league.sport === 'football';
+
+      // Use league-level column config if saved, else fall back to schema defaults (all visible)
+      var allCols = (league.standingsColumns && league.standingsColumns.length)
+        ? league.standingsColumns.filter(function (c) { return c.show !== false; })
+        : (schema.standingsColumns || []).map(function (c) { return { key: c.key, label: c.label, show: true }; });
+
+      // Separate rank (always first, fixed) from the rest
+      var rankCol = allCols.find(function (c) { return c.key === 'rank'; });
+      var cols    = allCols.filter(function (c) { return c.key !== 'rank'; });
+
+      var rows = season.standings || [];
       if (!rows.length) return '<p style="color:var(--accent-dim);font-size:0.75rem;letter-spacing:0.15em;">No standings data yet.</p>';
 
       /* Some column keys in the schema differ from the actual stored key on the row */
@@ -222,13 +232,36 @@
         return '';
       }
 
-      var thead = '<tr><th class="standings-rank-cell">#</th>' +
-        cols.map(function (c) { return '<th>' + esc(c.label) + '</th>'; }).join('') + '</tr>';
+      /* Build a roster-entry-like object from a standings row for logo lookup */
+      function logoForRow(row) {
+        if (!isFootball) return '';
+        var entry = { memberId: row.memberId || '', teamName: row.teamName || row.team || '' };
+        return resolveRosterLogo(entry, league, config);
+      }
+
+      function teamCellHtml(row) {
+        var teamName = resolveCell(row, 'team');
+        if (!isFootball) return esc(teamName);
+        var logo    = logoForRow(row);
+        var initial = teamName ? teamName.charAt(0).toUpperCase() : '?';
+        var imgHtml = logo
+          ? '<img class="standings-team-logo" src="' + esc(logo) + '" alt="' + esc(teamName) + '" />'
+          : '<span class="standings-team-initial">' + esc(initial) + '</span>';
+        return '<span class="standings-team-cell">' + imgHtml + esc(teamName) + '</span>';
+      }
+
+      var thead = '<tr>' +
+        (rankCol ? '<th class="standings-rank-cell">' + esc(rankCol.label) + '</th>' : '') +
+        cols.map(function (c) { return '<th>' + esc(c.label) + '</th>'; }).join('') +
+      '</tr>';
 
       var tbody = rows.map(function (row, i) {
         return '<tr>' +
-          '<td class="standings-rank-cell">' + esc(row.rank || (i + 1)) + '</td>' +
-          cols.map(function (c) { return '<td>' + esc(resolveCell(row, c.key)) + '</td>'; }).join('') +
+          (rankCol ? '<td class="standings-rank-cell">' + esc(row.rank || (i + 1)) + '</td>' : '') +
+          cols.map(function (c) {
+            if (c.key === 'team') return '<td>' + teamCellHtml(row) + '</td>';
+            return '<td>' + esc(resolveCell(row, c.key)) + '</td>';
+          }).join('') +
         '</tr>';
       }).join('');
 
@@ -377,6 +410,188 @@
       return card;
     }
 
+    // ── Is a season final/complete? ──────────────────────────
+    // Past seasons (not current) are always treated as final.
+    // Current season requires isFinal: true.
+    function isSeasonFinal(season, league, isArchive) {
+      if (isArchive) return true;
+      var isCurrent = league.currentSeasonId
+        ? season.id === league.currentSeasonId
+        : season === getCurrentSeason(league);
+      if (!isCurrent) return true;
+      return season.isFinal === true;
+    }
+
+    // ── Migrate legacy pageLayout to sections array ──────────
+    function migratePageLayout(league) {
+      if (!league.pageLayout) league.pageLayout = {};
+      var pl = league.pageLayout;
+      if (pl.sections && pl.sections.length) return;
+
+      var legacyMap = {
+        champion:    pl.showChampion    !== false,
+        story:       true,
+        standings:   pl.showStandings   !== false,
+        bracket:     true,
+        roster:      false,
+        awards:      pl.showAwards      !== false,
+        pastSeasons: pl.showPastSeasons !== false
+      };
+      var defaultOrder = ['champion','story','standings','bracket','roster','awards','pastSeasons'];
+      pl.sections = defaultOrder.map(function (key) {
+        return { key: key, enabled: legacyMap.hasOwnProperty(key) ? legacyMap[key] : true };
+      });
+    }
+
+    // ── Get resolved sections list (merge saved + any new keys) ─
+    function getResolvedSections(league) {
+      migratePageLayout(league);
+      var pl = league.pageLayout;
+      var defaultOrder = ['champion','story','standings','bracket','roster','awards','pastSeasons'];
+      var savedKeys = (pl.sections || []).map(function (s) { return s.key; });
+      var merged = (pl.sections || []).slice();
+      defaultOrder.forEach(function (key) {
+        if (savedKeys.indexOf(key) === -1) {
+          merged.push({ key: key, enabled: key !== 'roster' });
+        }
+      });
+      return merged;
+    }
+
+    // ── Render playoff bracket ───────────────────────────────
+    function renderBracket(season, league, config) {
+      var playoffs = season.playoffs;
+      if (!playoffs || !Object.keys(playoffs).length) return '';
+
+      var schema     = window.SPORT_STAT_SCHEMAS[league.sport] || window.SPORT_STAT_SCHEMAS.other;
+      var roundDefs  = (schema.playoffRounds || []);
+      if (!roundDefs.length) return '';
+
+      // Build ordered round list including consolation if present
+      var rounds = roundDefs.map(function (r) {
+        var labels = { wildcard: 'Wild Card', semis: 'Semifinals', finals: 'Championship' };
+        return { key: r, label: labels[r] || r };
+      });
+      if (playoffs.consolation) rounds.push({ key: 'consolation', label: 'Consolation / Toilet Bowl' });
+
+      // Check if any round has at least one matchup with real data
+      var hasData = rounds.some(function (r) {
+        var games = playoffs[r.key] || [];
+        return games.some(function (g) {
+          return g.homeOwnerName || g.awayOwnerName || g.homeTeamName || g.awayTeamName;
+        });
+      });
+      if (!hasData) return '';
+
+      var html = '';
+      rounds.forEach(function (round) {
+        var games = playoffs[round.key];
+        if (!games || !games.length) return;
+        var hasRoundData = games.some(function (g) {
+          return g.homeOwnerName || g.awayOwnerName || g.homeTeamName || g.awayTeamName;
+        });
+        if (!hasRoundData) return;
+
+        html += '<div class="bracket-round">';
+        html += '<div class="bracket-round-label">' + esc(round.label) + '</div>';
+        html += '<div class="bracket-matchups">';
+
+        games.forEach(function (g) {
+          var homeScore = (g.homeScore !== '' && g.homeScore !== undefined) ? g.homeScore : '';
+          var awayScore = (g.awayScore !== '' && g.awayScore !== undefined) ? g.awayScore : '';
+          var homeWon = homeScore !== '' && awayScore !== '' && parseFloat(homeScore) > parseFloat(awayScore);
+          var awayWon = homeScore !== '' && awayScore !== '' && parseFloat(awayScore) > parseFloat(homeScore);
+
+          function teamHtml(memberId, teamName, ownerName, score, won) {
+            var logo    = resolveRosterLogo({ memberId: memberId || '', teamName: teamName || '' }, league, config);
+            var display = teamName || ownerName || '—';
+            var initial = display !== '—' ? display.charAt(0).toUpperCase() : '?';
+            var imgHtml = logo
+              ? '<img class="standings-team-logo" src="' + esc(logo) + '" alt="' + esc(display) + '" />'
+              : '<span class="standings-team-initial">' + esc(initial) + '</span>';
+            return '<div class="bracket-team' + (won ? ' bracket-team--winner' : '') + '">' +
+              '<span class="standings-team-cell">' + imgHtml + esc(display) + '</span>' +
+              (score !== '' ? '<span class="bracket-team-score">' + esc(score) + '</span>' : '') +
+            '</div>';
+          }
+
+          html += '<div class="bracket-matchup">' +
+            teamHtml(g.homeMemberId, g.homeTeamName, g.homeOwnerName, homeScore, homeWon) +
+            '<div class="bracket-vs">vs</div>' +
+            teamHtml(g.awayMemberId, g.awayTeamName, g.awayOwnerName, awayScore, awayWon) +
+          '</div>';
+        });
+
+        html += '</div></div>';
+      });
+
+      return html
+        ? '<div class="bracket-grid">' + html + '</div>'
+        : '';
+    }
+
+    // ── Resolve logo for a roster entry ─────────────────────
+    // Priority: season.roster[].logo → master roster team logo → ''
+    function resolveRosterLogo(entry, league, config) {
+      // 1. Logo stored directly on the season roster entry (snapshot at creation)
+      if (entry.logo) return entry.logo;
+
+      // 2. Look up current logo from master roster
+      var member = (config.masterRoster || []).find(function (m) {
+        return m.id === entry.memberId;
+      });
+      if (!member) return '';
+
+      // 3. Find the member's league entry
+      var lgEntry = (member.leagues || []).find(function (lg) {
+        return lg.leagueKey === league.name || lg.leagueName === league.name;
+      });
+      if (!lgEntry || !lgEntry.teams || !lgEntry.teams.length) return '';
+
+      // 4. Match by team name first, then fall back to first team
+      var teamName = entry.teamName || '';
+      var team = (teamName
+        ? lgEntry.teams.find(function (t) { return t.name === teamName; })
+        : null) || lgEntry.teams[0];
+
+      return (team && team.logo) ? team.logo : '';
+    }
+
+    // ── Render season roster grid ────────────────────────────
+    function renderRoster(season, league, config) {
+      var roster = season.roster || [];
+      if (!roster.length) return '';
+
+      // Sort roster to match standings order; unsorted members go to the end
+      var standings = season.standings || [];
+      var rankMap   = {};
+      standings.forEach(function (row, i) {
+        if (row.memberId) rankMap[row.memberId] = i;
+      });
+      var sorted = roster.slice().sort(function (a, b) {
+        var ra = rankMap.hasOwnProperty(a.memberId) ? rankMap[a.memberId] : 9999;
+        var rb = rankMap.hasOwnProperty(b.memberId) ? rankMap[b.memberId] : 9999;
+        return ra - rb;
+      });
+
+      var html = sorted.map(function (entry) {
+        var name    = entry.teamName || '';
+        var logo    = resolveRosterLogo(entry, league, config);
+        var initial = name ? name.charAt(0).toUpperCase() : '?';
+
+        var imgHtml = logo
+          ? '<img class="roster-card-logo" src="' + esc(logo) + '" alt="' + esc(name) + '" />'
+          : '<div class="roster-card-initial">' + esc(initial) + '</div>';
+
+        return '<div class="roster-card">' +
+          imgHtml +
+          '<div class="roster-card-name">' + esc(name || entry.ownerName || '—') + '</div>' +
+        '</div>';
+      }).join('');
+
+      return '<div class="roster-grid">' + html + '</div>';
+    }
+
     // ── Find a season by id or year string ──────────────────
     function findSeason(league, param) {
       if (!param) return null;
@@ -393,15 +608,16 @@
       var archived    = seasonParam ? findSeason(league, seasonParam) : null;
       var current     = archived || getCurrentSeason(league);
       var isArchive   = !!archived;
+      var isFinal     = isSeasonFinal(current, league, isArchive);
 
       var pastSeasons = isArchive ? [] : (league.seasons || []).filter(function (s) {
         return s.id !== (current ? current.id : null);
       });
 
       body.innerHTML = '';
-      var revealDelay = 0.8; // start after hero animations
+      var revealDelay = 0.8;
 
-      // ── Archive breadcrumb
+      // ── Archive breadcrumb (always shown when in archive view)
       if (isArchive) {
         var backUrl = 'league.html?league=' + encodeURIComponent(league.name || '');
         var bread = document.createElement('div');
@@ -417,72 +633,107 @@
         body.appendChild(bread);
       }
 
-      // ── Current / Archived Champion
-      if (pl.showChampion !== false && current && current.championName) {
-        var sec = document.createElement('div');
-        sec.className = 'league-section' + (isArchive ? '' : ' league-section-first') + ' section-reveal';
-        sec.style.animationDelay = revealDelay + 's';
-        revealDelay += 0.15;
-        sec.innerHTML = renderChampionBlock(current, league, config);
-        body.appendChild(sec);
-      }
+      // ── Resolve ordered sections
+      var sections = getResolvedSections(league);
+      var isFirst  = !isArchive; // first content section gets league-section-first
 
-      // ── Final Standings
-      if (pl.showStandings !== false && current) {
-        var sec2 = document.createElement('div');
-        sec2.className = 'league-section section-reveal';
-        sec2.style.animationDelay = revealDelay + 's';
-        revealDelay += 0.15;
-        sec2.innerHTML = '<div class="league-section-heading">Final Standings — ' + esc(current.year || '') + '</div>' +
-          '<div class="league-standings-wrap">' + renderStandingsTable(current, league) + '</div>';
-        body.appendChild(sec2);
-      }
+      sections.forEach(function (sec) {
+        if (!sec.enabled) return;
 
-      // ── Season Awards
-      if (pl.showAwards !== false && current) {
-        var sec3 = document.createElement('div');
-        sec3.className = 'league-section section-reveal';
-        sec3.style.animationDelay = revealDelay + 's';
-        revealDelay += 0.15;
-        sec3.innerHTML = '<div class="league-section-heading">Season Awards — ' + esc(current.year || '') + '</div>' +
-          '<div class="awards-grid" id="awardsGrid"></div>';
-        body.appendChild(sec3);
-        sec3.querySelector('#awardsGrid').innerHTML = renderAwardsGrid(current, league);
-      }
+        var key = sec.key;
+        var sectionEl = null;
 
-      // ── Season Story (archive only, if present)
-      if (isArchive && current && current.story) {
-        var secStory = document.createElement('div');
-        secStory.className = 'league-section section-reveal';
-        secStory.style.animationDelay = revealDelay + 's';
-        revealDelay += 0.15;
-        secStory.innerHTML =
-          '<div class="league-section-heading">Season Story</div>' +
-          '<p class="season-story-text">' + esc(current.story) + '</p>';
-        body.appendChild(secStory);
-      }
+        // ── Champion ──────────────────────────────────────
+        if (key === 'champion') {
+          if (!current || !current.championName || !isFinal) return;
+          sectionEl = document.createElement('div');
+          sectionEl.innerHTML = renderChampionBlock(current, league, config);
+        }
 
-      // ── Past Seasons (only on main league view)
-      if (!isArchive && pl.showPastSeasons !== false && pastSeasons.length > 0) {
-        var sec4 = document.createElement('div');
-        sec4.className = 'league-section section-reveal';
-        sec4.style.animationDelay = revealDelay + 's';
-        revealDelay += 0.15;
-        sec4.innerHTML = '<div class="league-section-heading">Past Seasons</div>';
-        var grid = document.createElement('div');
-        grid.className = 'past-seasons-grid';
-        pastSeasons.forEach(function (s) {
-          grid.appendChild(buildPastSeasonCard(s, league, config));
-        });
-        sec4.appendChild(grid);
-        body.appendChild(sec4);
-      }
+        // ── Season Story ──────────────────────────────────
+        else if (key === 'story') {
+          if (!current || !current.story || !isFinal) return;
+          sectionEl = document.createElement('div');
+          sectionEl.innerHTML =
+            '<div class="league-section-heading">Season Story</div>' +
+            '<p class="season-story-text">' + esc(current.story) + '</p>';
+        }
 
-      // ── Footer
+        // ── Final Standings ───────────────────────────────
+        else if (key === 'standings') {
+          if (!current) return;
+          sectionEl = document.createElement('div');
+          sectionEl.innerHTML =
+            '<div class="league-section-heading">' + (isFinal ? 'Final Standings' : 'Standings') +
+              (current.year ? ' \u2014 ' + esc(current.year) : '') +
+            '</div>' +
+            '<div class="league-standings-wrap">' + renderStandingsTable(current, league, config) + '</div>';
+        }
+
+        // ── Playoff Bracket ───────────────────────────────
+        else if (key === 'bracket') {
+          if (!current) return;
+          var bracketHtml = renderBracket(current, league, config);
+          if (!bracketHtml) return;
+          sectionEl = document.createElement('div');
+          sectionEl.innerHTML =
+            '<div class="league-section-heading">Playoff Bracket' +
+              (current.year ? ' \u2014 ' + esc(current.year) : '') +
+            '</div>' + bracketHtml;
+        }
+
+        // ── Season Roster ─────────────────────────────────
+        else if (key === 'roster') {
+          if (!current) return;
+          var rosterHtml = renderRoster(current, league, config);
+          if (!rosterHtml) return;
+          sectionEl = document.createElement('div');
+          sectionEl.innerHTML =
+            '<div class="league-section-heading">Roster' +
+              (current.year ? ' \u2014 ' + esc(current.year) : '') +
+            '</div>' + rosterHtml;
+        }
+
+        // ── Season Awards ─────────────────────────────────
+        else if (key === 'awards') {
+          if (!current || !isFinal) return;
+          sectionEl = document.createElement('div');
+          sectionEl.innerHTML =
+            '<div class="league-section-heading">Awards' +
+              (current.year ? ' \u2014 ' + esc(current.year) : '') +
+            '</div>' +
+            '<div class="awards-grid">' + renderAwardsGrid(current, league) + '</div>';
+        }
+
+        // ── Past Seasons ──────────────────────────────────
+        else if (key === 'pastSeasons') {
+          if (isArchive || !pastSeasons.length) return;
+          sectionEl = document.createElement('div');
+          sectionEl.innerHTML = '<div class="league-section-heading">Past Seasons</div>';
+          var grid = document.createElement('div');
+          grid.className = 'past-seasons-grid';
+          pastSeasons.forEach(function (s) {
+            grid.appendChild(buildPastSeasonCard(s, league, config));
+          });
+          sectionEl.appendChild(grid);
+        }
+
+        if (!sectionEl) return;
+
+        sectionEl.className = 'league-section section-reveal' +
+          (isFirst ? ' league-section-first' : '');
+        sectionEl.style.animationDelay = revealDelay + 's';
+        revealDelay += 0.15;
+        isFirst = false;
+        body.appendChild(sectionEl);
+      });
+
+      // ── Footer (always)
       var footer = document.createElement('div');
       footer.className = 'league-footer section-reveal';
       footer.style.animationDelay = revealDelay + 's';
-      footer.textContent = (league.fullName || league.name || '') + (config.footer && config.footer.text ? ' · ' + config.footer.text : '');
+      footer.textContent = (league.fullName || league.name || '') +
+        (config.footer && config.footer.text ? ' \u00B7 ' + config.footer.text : '');
       body.appendChild(footer);
     }
 

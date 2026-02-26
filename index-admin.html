@@ -1291,35 +1291,74 @@ document.addEventListener('DOMContentLoaded', function () {
         });
       }));
 
-      /* ── Page Sections toggles ────────────────────────── */
-      wrap.appendChild(buildNestedSection('Page Sections', true, function (sec) {
-        if (!league.pageLayout) league.pageLayout = { showChampion:true, showStandings:true, showAwards:true, showPastSeasons:true };
-        var pl = league.pageLayout;
-        var toggles = [
-          { key:'showChampion',    label:'Current Champion Block' },
-          { key:'showStandings',   label:'Final Standings' },
-          { key:'showAwards',      label:'Season Awards' },
-          { key:'showPastSeasons', label:'Past Seasons' }
-        ];
-        sec.innerHTML = '<p class="field-hint" style="margin-bottom:0.75rem;">Toggle which sections appear on the public league page.</p>';
-        toggles.forEach(function (t) {
-          var row = document.createElement('div');
-          row.className = 'field-row';
-          row.innerHTML = '<div class="field-label">'+esc(t.label)+'</div>' +
-            '<label class="toggle-switch"><input type="checkbox" class="pg-toggle" data-key="'+t.key+'"'+(pl[t.key]!==false?' checked':'')+' /><span class="toggle-track"></span></label>';
-          row.querySelector('.pg-toggle').addEventListener('change', function () {
-            pl[this.getAttribute('data-key')] = this.checked; markDirty();
-          });
-          sec.appendChild(row);
-        });
+      /* ── League Page Layout — drag-to-reorder sections ──── */
+      wrap.appendChild(buildNestedSection('League Page Layout', true, function (sec) {
 
-        /* Champion image size */
+        // Migrate legacy layout on first open
+        window.PageLayoutEngine.migrate(league);
+        if (!league.pageLayout) league.pageLayout = {};
+        var pl = league.pageLayout;
+
+        // Merge in any new sections added since last save
+        pl.sections = window.PageLayoutEngine.mergeWithDefaults(pl.sections);
+
+        sec.innerHTML =
+          '<p class="field-hint" style="margin-bottom:1rem;">Drag to reorder. Toggle to show/hide each section on the public league page. Bracket and Story only appear if data exists for that season.</p>';
+
+        var plList = document.createElement('div');
+        plList.className = 'card-template-list';
+        sec.appendChild(plList);
+
+        function renderPageSections() {
+          plList.innerHTML = '';
+          pl.sections.forEach(function (section, sIdx) {
+            var item = document.createElement('div');
+            item.className = 'card-template-item' + (section.enabled ? '' : ' ct-hidden');
+            item.setAttribute('draggable', 'true');
+            item.innerHTML =
+              '<span class="ct-drag-handle" title="Drag to reorder">&#x2630;</span>' +
+              '<span class="ct-label">' + esc(window.PageLayoutEngine.getLabel(section.key)) + '</span>' +
+              '<label class="ct-toggle-label">' +
+                '<input type="checkbox" class="ct-toggle"' + (section.enabled ? ' checked' : '') + ' />' +
+                '<span class="ct-toggle-track"></span>' +
+              '</label>';
+
+            item.querySelector('.ct-toggle').addEventListener('change', function () {
+              pl.sections[sIdx].enabled = this.checked;
+              item.classList.toggle('ct-hidden', !this.checked);
+              markDirty();
+            });
+
+            item.addEventListener('dragstart', function (e) {
+              e.dataTransfer.setData('text/plain', sIdx);
+              item.classList.add('ct-dragging');
+            });
+            item.addEventListener('dragend', function () { item.classList.remove('ct-dragging'); });
+            item.addEventListener('dragover', function (e) { e.preventDefault(); item.classList.add('ct-drag-over'); });
+            item.addEventListener('dragleave', function () { item.classList.remove('ct-drag-over'); });
+            item.addEventListener('drop', function (e) {
+              e.preventDefault();
+              item.classList.remove('ct-drag-over');
+              var fromIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
+              if (fromIdx === sIdx) return;
+              var moved = pl.sections.splice(fromIdx, 1)[0];
+              pl.sections.splice(sIdx, 0, moved);
+              renderPageSections();
+              markDirty();
+            });
+
+            plList.appendChild(item);
+          });
+        }
+        renderPageSections();
+
+        /* Champion image size — keep below the list */
         var imgSizeRow = document.createElement('div');
         imgSizeRow.className = 'field-row';
-        imgSizeRow.style.marginTop = '0.5rem';
+        imgSizeRow.style.marginTop = '1rem';
         imgSizeRow.innerHTML =
           '<div class="field-label">Champion Image Size<span class="field-hint">px — logo/mugshot diameter</span></div>' +
-          '<input class="admin-input pg-champ-img-size" type="number" min="40" max="600" step="4" value="'+ esc((pl.championImgSize||160)) +'" style="max-width:120px;" />';
+          '<input class="admin-input pg-champ-img-size" type="number" min="40" max="600" step="4" value="' + esc(pl.championImgSize || 160) + '" style="max-width:120px;" />';
         imgSizeRow.querySelector('.pg-champ-img-size').addEventListener('input', function () {
           pl.championImgSize = parseInt(this.value, 10) || 160; markDirty();
         });
@@ -1507,6 +1546,64 @@ document.addEventListener('DOMContentLoaded', function () {
           });
         }
         renderCardTemplate();
+      }));
+
+      /* ── Standings Columns ────────────────────────────── */
+      wrap.appendChild(buildNestedSection('Standings Columns', true, function (sec) {
+        // Migrate/seed on first open
+        if (!league.standingsColumns || !league.standingsColumns.length) {
+          league.standingsColumns = window.StandingsColumnEngine.getDefaults(league.sport);
+        } else {
+          league.standingsColumns = window.StandingsColumnEngine.mergeWithDefaults(league.standingsColumns, league.sport);
+        }
+
+        sec.innerHTML = '<p class="field-hint" style="margin-bottom:1rem;">Drag to reorder. Toggle to show/hide columns in the Final Standings table.</p>';
+        var scList = document.createElement('div');
+        scList.className = 'card-template-list';
+        sec.appendChild(scList);
+
+        function renderStandingsCols() {
+          scList.innerHTML = '';
+          league.standingsColumns.forEach(function (col, cIdx) {
+            var item = document.createElement('div');
+            item.className = 'card-template-item' + (col.show !== false ? '' : ' ct-hidden');
+            item.setAttribute('draggable', 'true');
+            item.innerHTML =
+              '<span class="ct-drag-handle" title="Drag to reorder">&#x2630;</span>' +
+              '<span class="ct-label">' + esc(col.label) + '</span>' +
+              '<label class="ct-toggle-label">' +
+                '<input type="checkbox" class="ct-toggle"' + (col.show !== false ? ' checked' : '') + ' />' +
+                '<span class="ct-toggle-track"></span>' +
+              '</label>';
+
+            item.querySelector('.ct-toggle').addEventListener('change', function () {
+              league.standingsColumns[cIdx].show = this.checked;
+              item.classList.toggle('ct-hidden', !this.checked);
+              markDirty();
+            });
+
+            item.addEventListener('dragstart', function (e) {
+              e.dataTransfer.setData('text/plain', cIdx);
+              item.classList.add('ct-dragging');
+            });
+            item.addEventListener('dragend', function () { item.classList.remove('ct-dragging'); });
+            item.addEventListener('dragover', function (e) { e.preventDefault(); item.classList.add('ct-drag-over'); });
+            item.addEventListener('dragleave', function () { item.classList.remove('ct-drag-over'); });
+            item.addEventListener('drop', function (e) {
+              e.preventDefault();
+              item.classList.remove('ct-drag-over');
+              var fromIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
+              if (fromIdx === cIdx) return;
+              var moved = league.standingsColumns.splice(fromIdx, 1)[0];
+              league.standingsColumns.splice(cIdx, 0, moved);
+              renderStandingsCols();
+              markDirty();
+            });
+
+            scList.appendChild(item);
+          });
+        }
+        renderStandingsCols();
       }));
 
 
@@ -1716,6 +1813,26 @@ document.addEventListener('DOMContentLoaded', function () {
         onRerender(); markDirty();
       });
       pbody.appendChild(yearRow);
+
+      /* ── Season Complete toggle (current season only) ──── */
+      if (isCurrent) {
+        if (season.isFinal === undefined) season.isFinal = false;
+        var finalRow = document.createElement('div');
+        finalRow.className = 'field-row season-final-row';
+        finalRow.innerHTML =
+          '<div class="field-label">Season Complete' +
+            '<span class="field-hint">Unlocks Champion, Awards &amp; Story on the league page</span>' +
+          '</div>' +
+          '<label class="toggle-switch">' +
+            '<input type="checkbox" class="s-is-final"' + (season.isFinal ? ' checked' : '') + ' />' +
+            '<span class="toggle-track"></span>' +
+          '</label>';
+        finalRow.querySelector('.s-is-final').addEventListener('change', function () {
+          season.isFinal = this.checked;
+          markDirty();
+        });
+        pbody.appendChild(finalRow);
+      }
 
       /* ══════════════════════════════════════════════════════
          1. SEASON ROSTER

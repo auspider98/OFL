@@ -768,43 +768,54 @@
       return card;
     }
 
-    // ── Sort: title count desc → most recent title year desc → award count desc → season count desc → alpha ──
+    // ── Sort ──
+    function mostRecentSeasonYear(memberId, leagueData) {
+      var best = 0;
+      (leagueData || []).forEach(function (league) {
+        (league.seasons || []).forEach(function (season) {
+          var inRoster    = (season.roster    || []).some(function (r) { return r.memberId === memberId; });
+          var inStandings = (season.standings || []).some(function (r) { return r.memberId === memberId; });
+          if (inRoster || inStandings) best = Math.max(best, parseInt(season.year, 10) || 0);
+        });
+      });
+      return best;
+    }
+
+    function mostRecentAwardYear(memberId, leagueData) {
+      var awards = getAwardsWon(memberId, leagueData); // already sorted desc
+      return awards.length ? (parseInt(awards[0].year, 10) || 0) : 0;
+    }
+
     function sortMembers(members, leagueData, mode) {
       return members.slice().sort(function (a, b) {
         if (mode === 'titles') {
-          var aC = getChampionships(a.id, leagueData).length;
-          var bC = getChampionships(b.id, leagueData).length;
-          if (bC !== aC) return bC - aC;
+          var aC = getChampionships(a.id, leagueData);
+          var bC = getChampionships(b.id, leagueData);
+          if (bC.length !== aC.length) return bC.length - aC.length;
+          var aYear = aC.length ? (parseInt(aC[0].year, 10) || 0) : 0;
+          var bYear = bC.length ? (parseInt(bC[0].year, 10) || 0) : 0;
+          if (bYear !== aYear) return bYear - aYear;
           return (a.name || '').localeCompare(b.name || '');
         }
         if (mode === 'awards') {
           var aA = getAwardsWon(a.id, leagueData).length;
           var bA = getAwardsWon(b.id, leagueData).length;
           if (bA !== aA) return bA - aA;
+          var aAY = mostRecentAwardYear(a.id, leagueData);
+          var bAY = mostRecentAwardYear(b.id, leagueData);
+          if (bAY !== aAY) return bAY - aAY;
           return (a.name || '').localeCompare(b.name || '');
         }
         if (mode === 'seasons') {
           var aS = countSeasons(a.id, leagueData);
           var bS = countSeasons(b.id, leagueData);
           if (bS !== aS) return bS - aS;
+          var aSY = mostRecentSeasonYear(a.id, leagueData);
+          var bSY = mostRecentSeasonYear(b.id, leagueData);
+          if (bSY !== aSY) return bSY - aSY;
           return (a.name || '').localeCompare(b.name || '');
         }
-        if (mode === 'az') {
-          return (a.name || '').localeCompare(b.name || '');
-        }
-        // Default: Titles → most recent title → Awards → Seasons → A-Z
-        var aCh = getChampionships(a.id, leagueData);
-        var bCh = getChampionships(b.id, leagueData);
-        if (bCh.length !== aCh.length) return bCh.length - aCh.length;
-        var aYear = aCh.length ? (parseInt(aCh[0].year, 10) || 0) : 0;
-        var bYear = bCh.length ? (parseInt(bCh[0].year, 10) || 0) : 0;
-        if (bYear !== aYear) return bYear - aYear;
-        var aAw = getAwardsWon(a.id, leagueData).length;
-        var bAw = getAwardsWon(b.id, leagueData).length;
-        if (bAw !== aAw) return bAw - aAw;
-        var aSe = countSeasons(a.id, leagueData);
-        var bSe = countSeasons(b.id, leagueData);
-        if (bSe !== aSe) return bSe - aSe;
+        // A-Z
         return (a.name || '').localeCompare(b.name || '');
       });
     }
