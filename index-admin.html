@@ -1219,13 +1219,38 @@ document.addEventListener('DOMContentLoaded', function () {
           league.heroTitle    = league.heroTitle    || '';
           league.heroSubtitle = league.heroSubtitle || '';
         }
+        if (!league.pageLayout) league.pageLayout = {};
+        var pl = league.pageLayout;
+        if (pl.showEyebrow  === undefined) pl.showEyebrow  = true;
+        if (pl.showTitle    === undefined) pl.showTitle    = true;
+        if (pl.showSubtitle === undefined) pl.showSubtitle = true;
+
+        function heroRow(label, hint, inputClass, value, placeholder, showKey) {
+          return '<div class="field-row">' +
+            '<div class="field-label">' + label + '<span class="field-hint">' + hint + '</span></div>' +
+            '<div style="display:flex;align-items:center;gap:0.75rem;flex:1;">' +
+              '<input class="admin-input ' + inputClass + '" type="text" value="' + esc(value) + '" placeholder="' + esc(placeholder) + '" style="flex:1;" />' +
+              '<label class="toggle-switch" title="Show on page">' +
+                '<input type="checkbox" class="hero-show-toggle" data-key="' + showKey + '"' + (pl[showKey] !== false ? ' checked' : '') + ' />' +
+                '<span class="toggle-track"></span>' +
+              '</label>' +
+            '</div>' +
+          '</div>';
+        }
+
         sec.innerHTML =
-          '<div class="field-row"><div class="field-label">Eyebrow<span class="field-hint">Small text above title</span></div><input class="admin-input lg-hero-eyebrow" type="text" value="'+esc(league.heroEyebrow||'')+'" placeholder="e.g. Osborne Fantasy Commission" /></div>' +
-          '<div class="field-row"><div class="field-label">Title<span class="field-hint">Large hero title</span></div><input class="admin-input lg-hero-title" type="text" value="'+esc(league.heroTitle||'')+'" placeholder="e.g. OFC" /></div>' +
-          '<div class="field-row"><div class="field-label">Subtitle<span class="field-hint">Below the title</span></div><input class="admin-input lg-hero-subtitle" type="text" value="'+esc(league.heroSubtitle||'')+'" placeholder="e.g. Football League" /></div>';
-        sec.querySelector('.lg-hero-eyebrow').addEventListener('input', function () { league.heroEyebrow  = this.value; markDirty(); });
-        sec.querySelector('.lg-hero-title').addEventListener('input',   function () { league.heroTitle    = this.value; markDirty(); });
-        sec.querySelector('.lg-hero-subtitle').addEventListener('input',function () { league.heroSubtitle = this.value; markDirty(); });
+          heroRow('Eyebrow',  'Small text above title', 'lg-hero-eyebrow',  league.heroEyebrow  || '', 'e.g. Osborne Fantasy Commission', 'showEyebrow')  +
+          heroRow('Title',    'Large hero title',       'lg-hero-title',    league.heroTitle    || '', 'e.g. OFC',                        'showTitle')    +
+          heroRow('Subtitle', 'Below the title',        'lg-hero-subtitle', league.heroSubtitle || '', 'e.g. Football League',             'showSubtitle');
+
+        sec.querySelector('.lg-hero-eyebrow').addEventListener('input',  function () { league.heroEyebrow  = this.value; markDirty(); });
+        sec.querySelector('.lg-hero-title').addEventListener('input',    function () { league.heroTitle    = this.value; markDirty(); });
+        sec.querySelector('.lg-hero-subtitle').addEventListener('input', function () { league.heroSubtitle = this.value; markDirty(); });
+        sec.querySelectorAll('.hero-show-toggle').forEach(function (cb) {
+          cb.addEventListener('change', function () {
+            pl[this.getAttribute('data-key')] = this.checked; markDirty();
+          });
+        });
       }));
 
       /* ── Slideshow ────────────────────────────────────── */

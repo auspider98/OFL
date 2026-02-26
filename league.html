@@ -155,9 +155,23 @@
 
     // ── Render hero ──────────────────────────────────────────
     function renderHero(league, config) {
-      el('leagueEyebrow').textContent  = league.heroEyebrow  || config.landing.eyebrow || '';
-      el('leagueTitle').textContent    = league.heroTitle    || league.fullName || league.name || '';
-      el('leagueSubtitle').textContent = league.heroSubtitle || '';
+      var pl = league.pageLayout || {};
+      var showEyebrow  = pl.showEyebrow  !== false;
+      var showTitle    = pl.showTitle    !== false;
+      var showSubtitle = pl.showSubtitle !== false;
+
+      el('leagueEyebrow').textContent  = showEyebrow  ? (league.heroEyebrow  || config.landing.eyebrow || '') : '';
+      el('leagueTitle').textContent    = showTitle    ? (league.heroTitle    || league.fullName || league.name || '') : '';
+      el('leagueSubtitle').textContent = showSubtitle ? (league.heroSubtitle || '') : '';
+
+      // Adjust hero size based on visible fields
+      var hero        = el('leagueHero');
+      var visibleCount = (showEyebrow ? 1 : 0) + (showTitle ? 1 : 0) + (showSubtitle ? 1 : 0);
+      hero.classList.toggle('hero--no-eyebrow',  !showEyebrow);
+      hero.classList.toggle('hero--no-title',    !showTitle);
+      hero.classList.toggle('hero--no-subtitle', !showSubtitle);
+      hero.classList.toggle('hero--minimal',     visibleCount <= 1);
+      hero.classList.toggle('hero--empty',       visibleCount === 0);
 
       // Apply league accent color (legacy field)
       if (league.accentColor) {

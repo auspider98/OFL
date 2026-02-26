@@ -2233,7 +2233,19 @@ select.admin-input option {
   align-items: center;
   justify-content: flex-start;
   padding: 5rem 2rem 2rem;
+  transition: min-height 0.4s ease, padding 0.4s ease;
 }
+
+/* Progressively shrink hero as fields are hidden */
+.league-hero.hero--no-eyebrow  { padding-top: 4.5rem; }
+.league-hero.hero--no-subtitle { padding-bottom: 1.5rem; }
+.league-hero.hero--minimal     { min-height: calc(20vh - 10px); padding: 4rem 2rem 1.5rem; }
+.league-hero.hero--empty       { min-height: 0; padding: 3rem 2rem 1rem; }
+
+/* Hide empty elements so they don't take up line-height space */
+.league-hero-eyebrow:empty,
+.league-hero-title:empty,
+.league-hero-subtitle:empty    { display: none; }
 
 @media (max-width: 600px) {
   .league-hero {
