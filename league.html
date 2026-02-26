@@ -346,17 +346,10 @@
       if (seed)   metaHtml += '<div class="flip-card-meta-item"><span class="flip-meta-label">Seed</span><span class="flip-meta-value">' + esc(seed) + '</span></div>';
       if (score)  metaHtml += '<div class="flip-card-meta-item"><span class="flip-meta-label">Final</span><span class="flip-meta-value">' + esc(score) + '</span></div>';
 
-      // Back: standings rows
-      var standingsRows = (season.standings || []).slice(0, 10).map(function (row, i) {
-        return '<div class="flip-back-row">' +
-          '<span class="flip-back-rank">' + esc(row.rank || (i+1)) + '</span>' +
-          '<span>' + esc(row.owner || row.ownerName || '') + (row.team || row.bracketName ? ' — ' + esc(row.team || row.bracketName) : '') + '</span>' +
-        '</div>';
-      }).join('');
-
-      var storyHtml = season.story
-        ? '<p class="flip-back-story">' + esc(season.story) + '</p>'
-        : '';
+      // Build season URL for deep-link
+      var seasonParam = encodeURIComponent(season.id || season.year || '');
+      var leagueParam = encodeURIComponent(league.name || '');
+      var seasonUrl   = 'league.html?league=' + leagueParam + '&season=' + seasonParam;
 
       var frontHtml =
         '<div class="season-flip-front">' +
@@ -365,50 +358,69 @@
           '<div class="flip-card-team">' + esc(team) + '</div>' +
           '<div class="flip-card-owner">' + esc(owner) + '</div>' +
           (metaHtml ? '<div class="flip-card-meta">' + metaHtml + '</div>' : '') +
-          '<div class="flip-hint">Details →</div>' +
-        '</div>';
-
-      var backHtml =
-        '<div class="season-flip-back">' +
-          '<div class="flip-back-title">' +
-            '<span>' + esc(year) + ' Season</span>' +
-            '<span class="flip-back-close">&#x2715;</span>' +
-          '</div>' +
-          '<div class="flip-back-standings">' + standingsRows + '</div>' +
-          storyHtml +
+          '<div class="flip-hint">View Season →</div>' +
         '</div>';
 
       var card = document.createElement('div');
-      card.className = 'season-flip-card';
-      card.innerHTML = '<div class="season-flip-inner">' + frontHtml + backHtml + '</div>';
+      card.className = 'season-flip-card season-flip-card--link';
+      card.setAttribute('role', 'link');
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('aria-label', esc(year) + ' season details');
+      card.innerHTML = '<div class="season-flip-inner">' + frontHtml + '</div>';
 
-      card.addEventListener('click', function (e) {
-        if (e.target.classList.contains('flip-back-close')) {
-          card.classList.remove('is-flipped');
-        } else {
-          card.classList.toggle('is-flipped');
-        }
+      function navigate() { window.location.href = seasonUrl; }
+      card.addEventListener('click', navigate);
+      card.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(); }
       });
 
       return card;
     }
 
+    // ── Find a season by id or year string ──────────────────
+    function findSeason(league, param) {
+      if (!param) return null;
+      return (league.seasons || []).find(function (s) {
+        return String(s.id) === param || String(s.year) === param;
+      }) || null;
+    }
+
     // ── Render page body ─────────────────────────────────────
     function renderBody(league, config) {
-      var body       = el('leagueBody');
-      var pl         = league.pageLayout || {};
-      var current    = getCurrentSeason(league);
-      var pastSeasons = (league.seasons || []).filter(function (s) {
+      var body        = el('leagueBody');
+      var pl          = league.pageLayout || {};
+      var seasonParam = getParam('season');
+      var archived    = seasonParam ? findSeason(league, seasonParam) : null;
+      var current     = archived || getCurrentSeason(league);
+      var isArchive   = !!archived;
+
+      var pastSeasons = isArchive ? [] : (league.seasons || []).filter(function (s) {
         return s.id !== (current ? current.id : null);
       });
 
       body.innerHTML = '';
       var revealDelay = 0.8; // start after hero animations
 
-      // ── Current Champion
+      // ── Archive breadcrumb
+      if (isArchive) {
+        var backUrl = 'league.html?league=' + encodeURIComponent(league.name || '');
+        var bread = document.createElement('div');
+        bread.className = 'league-section league-section-first league-breadcrumb section-reveal';
+        bread.style.animationDelay = revealDelay + 's';
+        revealDelay += 0.1;
+        bread.innerHTML =
+          '<a class="breadcrumb-link" href="' + backUrl + '">' +
+            '&#8592; ' + esc(league.fullName || league.name || 'League') +
+          '</a>' +
+          '<span class="breadcrumb-sep">/</span>' +
+          '<span class="breadcrumb-current">' + esc(current ? (current.year || seasonParam) : seasonParam) + ' Season</span>';
+        body.appendChild(bread);
+      }
+
+      // ── Current / Archived Champion
       if (pl.showChampion !== false && current && current.championName) {
         var sec = document.createElement('div');
-        sec.className = 'league-section league-section-first section-reveal';
+        sec.className = 'league-section' + (isArchive ? '' : ' league-section-first') + ' section-reveal';
         sec.style.animationDelay = revealDelay + 's';
         revealDelay += 0.15;
         sec.innerHTML = renderChampionBlock(current, league, config);
@@ -438,8 +450,20 @@
         sec3.querySelector('#awardsGrid').innerHTML = renderAwardsGrid(current, league);
       }
 
-      // ── Past Seasons
-      if (pl.showPastSeasons !== false && pastSeasons.length > 0) {
+      // ── Season Story (archive only, if present)
+      if (isArchive && current && current.story) {
+        var secStory = document.createElement('div');
+        secStory.className = 'league-section section-reveal';
+        secStory.style.animationDelay = revealDelay + 's';
+        revealDelay += 0.15;
+        secStory.innerHTML =
+          '<div class="league-section-heading">Season Story</div>' +
+          '<p class="season-story-text">' + esc(current.story) + '</p>';
+        body.appendChild(secStory);
+      }
+
+      // ── Past Seasons (only on main league view)
+      if (!isArchive && pl.showPastSeasons !== false && pastSeasons.length > 0) {
         var sec4 = document.createElement('div');
         sec4.className = 'league-section section-reveal';
         sec4.style.animationDelay = revealDelay + 's';
@@ -458,11 +482,7 @@
       var footer = document.createElement('div');
       footer.className = 'league-footer section-reveal';
       footer.style.animationDelay = revealDelay + 's';
-      if (config.footer && config.footer.show) {
-        footer.textContent = config.footer.text;
-      } else {
-        footer.style.display = 'none';
-      }
+      footer.textContent = (league.fullName || league.name || '') + (config.footer && config.footer.text ? ' · ' + config.footer.text : '');
       body.appendChild(footer);
     }
 
@@ -560,6 +580,17 @@
 
       renderHero(league, config);
       initLeagueSlideshow(league, config);
+
+      // Update page title for archived season view
+      var seasonParam = getParam('season');
+      if (seasonParam) {
+        var archivedSeason = (league.seasons || []).find(function (s) {
+          return String(s.id) === seasonParam || String(s.year) === seasonParam;
+        });
+        var yearLabel = archivedSeason ? (archivedSeason.year || seasonParam) : seasonParam;
+        document.title = 'OFL \u2014 ' + (league.heroTitle || league.name || 'League') + ' ' + yearLabel;
+      }
+
       renderBody(league, config);
     }
 
