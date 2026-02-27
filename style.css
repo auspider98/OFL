@@ -1916,12 +1916,28 @@ select.admin-input option {
   border-bottom: 1px solid rgba(232,232,232,0.05);
 }
 
+.stat-group-hint {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+}
+
 .stat-group-label {
   font-family: var(--font-body);
   font-size: 0.6rem;
   letter-spacing: 0.35em;
   text-transform: uppercase;
   color: var(--accent-dim);
+}
+
+.stat-group-label--tag {
+  font-size: 0.52rem;
+  letter-spacing: 0.3em;
+  color: rgba(232,232,232,0.4);
+  border: 1px solid rgba(232,232,232,0.1);
+  padding: 0.1rem 0.5rem;
 }
 
 .stat-award-tag {
@@ -2795,8 +2811,6 @@ select.admin-input option {
 }
 
 .season-flip-card {
-  perspective: 1000px;
-  height: 260px;
   cursor: pointer;
 }
 
@@ -2804,136 +2818,13 @@ select.admin-input option {
   position: relative;
   width: 100%;
   height: 100%;
-  transition: transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  transform-style: preserve-3d;
 }
 
-.season-flip-card.is-flipped .season-flip-inner {
-  transform: rotateY(180deg);
-}
-
-.season-flip-front,
+/* Back face styles kept for any legacy references */
 .season-flip-back {
-  position: absolute;
-  inset: 0;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  padding: 1.4rem;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid var(--drawer-border);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  transition: border-color var(--transition);
-}
-
-.season-flip-front::before,
-.season-flip-back::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--accent-glow);
-  opacity: 0;
-  transition: opacity var(--transition);
-}
-
-.season-flip-front:hover,
-.season-flip-back:hover {
-  border-color: rgba(232,232,232,0.3);
-}
-
-.season-flip-front:hover::before,
-.season-flip-back:hover::before {
-  opacity: 1;
-}
-
-.season-flip-back {
-  transform: rotateY(180deg);
   overflow-y: auto;
 }
 
-
-
-.flip-card-year {
-  font-family: var(--font-body);
-  font-size: 0.58rem;
-  letter-spacing: 0.42em;
-  text-transform: uppercase;
-  color: var(--hint-color, var(--accent-dim));
-  margin-bottom: 0.6rem;
-}
-
-.flip-card-team {
-  font-family: var(--font-display);
-  font-weight: 300;
-  font-size: 1.6rem;
-  line-height: 1;
-  color: var(--accent);
-  margin-bottom: 0.3rem;
-  flex: 1;
-}
-
-.flip-card-owner {
-  font-family: var(--font-body);
-  font-size: 0.65rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--accent-dim);
-  margin-bottom: 0.75rem;
-}
-
-.flip-card-meta {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin-bottom: 0.75rem;
-}
-
-.flip-card-meta-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-}
-
-.flip-meta-label {
-  font-size: 0.5rem;
-  letter-spacing: 0.35em;
-  text-transform: uppercase;
-  color: var(--accent-dim);
-  opacity: 0.55;
-  font-family: var(--font-body);
-}
-
-.flip-meta-value {
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  color: var(--accent);
-  font-family: var(--font-body);
-}
-
-.flip-card-logo {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
-  margin-bottom: 0.5rem;
-  align-self: flex-end;
-  opacity: 0.85;
-}
-
-.flip-hint {
-  font-family: var(--font-body);
-  font-size: 0.5rem;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: var(--accent-dim);
-  opacity: 0.4;
-  text-align: right;
-  margin-top: auto;
-}
-
-/* Back face */
 .flip-back-title {
   font-family: var(--font-body);
   font-size: 0.58rem;
@@ -2986,6 +2877,81 @@ select.admin-input option {
   letter-spacing: 0.04em;
   margin-top: 0.6rem;
   font-style: italic;
+}
+
+/* ── Past Season Card — reuses .stat-award-card layout ──────── */
+
+/* OFC logos use contain so transparent PNGs aren't cropped */
+.psc-img-contain {
+  width: 42%;
+  padding: 0.6rem;
+}
+
+.psc-img-contain img {
+  object-fit: contain;
+  background: rgba(255,255,255,0.02);
+}
+
+/* Initial letter fallback when no image */
+.psc-initial-col {
+  background: rgba(255,255,255,0.04);
+  align-items: center;
+  justify-content: center;
+}
+
+.psc-initial {
+  font-family: var(--font-display);
+  font-size: 2.8rem;
+  font-weight: 300;
+  color: var(--accent-dim);
+  opacity: 0.7;
+}
+
+/* Stat detail row: label above value */
+.psc-detail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.05rem;
+  margin-top: 0.25rem;
+}
+
+.psc-detail-label {
+  font-size: 0.46rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+  opacity: 0.5;
+  font-family: var(--font-body);
+}
+
+/* View Season hint */
+.psc-view-hint {
+  font-family: var(--font-body);
+  font-size: 0.48rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+  opacity: 0.4;
+  margin-top: 0.6rem;
+  transition: opacity var(--transition);
+}
+
+.season-flip-card--link:hover .psc-view-hint {
+  opacity: 1;
+  color: var(--hint-color, var(--accent-dim));
+}
+
+/* View Season hint — bottom right */
+.flip-hint {
+  font-family: var(--font-body);
+  font-size: 0.5rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+  opacity: 0.4;
+  text-align: right;
+  margin-top: auto;
 }
 
 /* ── Playoff Bracket ─────────────────────────────────────── */
@@ -3245,30 +3211,6 @@ select.admin-input option {
   }
   .season-flip-card {
     height: auto;
-    perspective: none;
-  }
-  .season-flip-inner {
-    transform: none !important;
-    transition: none;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .season-flip-front,
-  .season-flip-back {
-    position: static;
-    backface-visibility: visible;
-    -webkit-backface-visibility: visible;
-    transform: none !important;
-  }
-  .season-flip-back {
-    display: none;
-  }
-  .season-flip-card.is-flipped .season-flip-back {
-    display: flex;
-  }
-  .season-flip-card.is-flipped .season-flip-front {
-    display: none;
   }
   .league-hero {
     min-height: 0;

@@ -2334,7 +2334,10 @@ document.addEventListener('DOMContentLoaded', function () {
             row.className = 'admin-card custom-stat-card';
             var winnerOpts = buildTeamDropdown(season.roster, entry.teamName, true);
             row.innerHTML =
-              '<div class="stat-group-header"><span class="stat-group-label">'+esc(ca.label||'Custom Award')+'</span></div>' +
+              '<div class="stat-group-header">' +
+                (ca.description ? '<span class="stat-group-hint">'+esc(ca.description)+'</span>' : '') +
+                '<span class="stat-group-label stat-group-label--tag">'+esc(ca.label||'Custom Award')+'</span>' +
+              '</div>' +
               '<div class="admin-card-fields">' +
                 '<div class="admin-field-group"><label>Winner</label>' +
                   '<select class="admin-input cs-winner">'+winnerOpts+'</select></div>' +

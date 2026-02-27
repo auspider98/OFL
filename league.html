@@ -310,8 +310,8 @@
         return '<div class="stat-award-card">' +
           imgCol +
           '<div class="' + infoColClass + '">' +
-            '<div class="stat-award-name">' + esc(name) + '</div>' +
             (hint ? '<div class="stat-award-hint">' + esc(hint) + '</div>' : '') +
+            '<div class="stat-award-name">' + esc(name) + '</div>' +
             '<div class="stat-award-winner">' + esc(teamName) + '</div>' +
             detailHtml +
           '</div>' +
@@ -367,53 +367,60 @@
 
     // ── Build past season flip card ──────────────────────────
     function buildPastSeasonCard(season, league, config) {
-      var imgSrc  = getChampionImage(season, config, league);
-      var year    = season.year || '????';
-      var team    = season.championTeamName || '—';
-      var owner   = season.championName || '';
+      var isFootball = league.sport === 'football';
+      var isMadness  = league.sport === 'madness';
+      var year       = season.year || '????';
+      var displayName = season.championTeamName || '—';
+      var owner       = season.championName || '';
 
-      // Respect cardTemplate show flags
-      var template = league.cardTemplate || [];
-      function fieldVisible(key) {
-        if (!template.length) return true;
-        var f = template.find(function (t) { return t.key === key; });
-        return f ? f.show !== false : true;
+      // ── Image
+      var imgSrc  = getChampionImage(season, config, league);
+      var initial = displayName !== '—' ? displayName.charAt(0).toUpperCase()
+                  : (owner ? owner.charAt(0).toUpperCase() : '?');
+
+      var imgColHtml = imgSrc
+        ? '<div class="stat-award-img-col' + (isFootball ? ' psc-img-contain' : '') + '"><img src="' + esc(imgSrc) + '" alt="' + esc(displayName) + '" /></div>'
+        : '<div class="stat-award-img-col psc-initial-col"><span class="psc-initial">' + esc(initial) + '</span></div>';
+
+      // ── Right column items
+      var detailLines = [];
+
+      if (isFootball) {
+        var record = season.record || '';
+        if (record) detailLines.push({ label: 'Record', value: record });
+      } else if (isMadness) {
+        var wb = (season.stats && season.stats.winningBracket) || {};
+        var tp = (wb.totalPoints !== undefined && wb.totalPoints !== '' && wb.totalPoints !== 0) ? wb.totalPoints : '';
+        if (tp) detailLines.push({ label: 'Total Points', value: tp });
       }
 
-      var record  = fieldVisible('record')            ? (season.record || '')             : '';
-      var seed    = fieldVisible('seed')              ? (season.seed ? '#' + season.seed : '') : '';
-      var score   = fieldVisible('championshipScore') ? (season.championshipScore || '')   : '';
+      var detailHtml = detailLines.map(function (d) {
+        return '<div class="stat-award-detail psc-detail">' +
+          '<span class="psc-detail-label">' + esc(d.label) + '</span>' +
+          '<span>' + esc(d.value) + '</span>' +
+        '</div>';
+      }).join('');
 
-      var logoHtml = imgSrc
-        ? '<img class="flip-card-logo" src="' + esc(imgSrc) + '" alt="' + esc(team) + '" />'
-        : '';
+      var infoHtml =
+        '<div class="stat-award-info-col">' +
+          '<div class="stat-award-name">' + esc(year) + '</div>' +
+          '<div class="stat-award-winner">' + esc(displayName) + '</div>' +
+          (owner ? '<div class="stat-award-hint">' + esc(owner) + '</div>' : '') +
+          detailHtml +
+          '<div class="psc-view-hint">View Season →</div>' +
+        '</div>';
 
-      var metaHtml = '';
-      if (record) metaHtml += '<div class="flip-card-meta-item"><span class="flip-meta-label">Record</span><span class="flip-meta-value">' + esc(record) + '</span></div>';
-      if (seed)   metaHtml += '<div class="flip-card-meta-item"><span class="flip-meta-label">Seed</span><span class="flip-meta-value">' + esc(seed) + '</span></div>';
-      if (score)  metaHtml += '<div class="flip-card-meta-item"><span class="flip-meta-label">Final</span><span class="flip-meta-value">' + esc(score) + '</span></div>';
-
-      // Build season URL for deep-link
+      // ── Season URL
       var seasonParam = encodeURIComponent(season.id || season.year || '');
       var leagueParam = encodeURIComponent(league.name || '');
       var seasonUrl   = 'league.html?league=' + leagueParam + '&season=' + seasonParam;
 
-      var frontHtml =
-        '<div class="season-flip-front">' +
-          '<div class="flip-card-year">' + esc(year) + '</div>' +
-          logoHtml +
-          '<div class="flip-card-team">' + esc(team) + '</div>' +
-          '<div class="flip-card-owner">' + esc(owner) + '</div>' +
-          (metaHtml ? '<div class="flip-card-meta">' + metaHtml + '</div>' : '') +
-          '<div class="flip-hint">View Season →</div>' +
-        '</div>';
-
       var card = document.createElement('div');
-      card.className = 'season-flip-card season-flip-card--link';
+      card.className = 'stat-award-card season-flip-card season-flip-card--link';
       card.setAttribute('role', 'link');
       card.setAttribute('tabindex', '0');
       card.setAttribute('aria-label', esc(year) + ' season details');
-      card.innerHTML = '<div class="season-flip-inner">' + frontHtml + '</div>';
+      card.innerHTML = imgColHtml + infoHtml;
 
       function navigate() { window.location.href = seasonUrl; }
       card.addEventListener('click', navigate);
