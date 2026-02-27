@@ -113,9 +113,41 @@
       if (el && val !== undefined) el.textContent = val;
     }
     setText('#landing-eyebrow',  L.eyebrow);
-    setText('.landing-title',    L.title);
+    (function () {
+      var el = document.querySelector('#landing-eyebrow');
+      if (el) el.style.display = L.showEyebrow === false ? 'none' : '';
+    })();
+
+    /* Title — text or image */
+    (function () {
+      var titleEl = document.querySelector('.landing-title');
+      if (!titleEl) return;
+      if (L.titleType === 'image' && L.titleImage) {
+        var img = document.createElement('img');
+        img.src       = L.titleImage;
+        img.alt       = L.title || '';
+        img.className = 'landing-title-img';
+        if (L.titleImageMaxWidth) img.style.maxWidth = L.titleImageMaxWidth;
+        img.onerror = function () {
+          /* Graceful fallback: swap the img out for the text title */
+          if (titleEl) titleEl.textContent = L.title || '';
+        };
+        titleEl.innerHTML = '';
+        titleEl.appendChild(img);
+      } else {
+        titleEl.textContent = L.title || '';
+      }
+    })();
     setText('.landing-subtitle', L.subtitle);
+    (function () {
+      var el = document.querySelector('.landing-subtitle');
+      if (el) el.style.display = L.showSubtitle === false ? 'none' : '';
+    })();
     setText('.landing-tagline',  L.tagline);
+    (function () {
+      var el = document.querySelector('.landing-tagline');
+      if (el) el.style.display = L.showTagline === false ? 'none' : '';
+    })();
     setText('.topnav-logo',      L.logoMark || L.title);
 
     // League cards

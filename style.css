@@ -191,6 +191,13 @@ img {
   animation: heroReveal 1.2s 0.4s ease forwards;
 }
 
+.landing-title-img {
+  display: block;
+  height: auto;
+  max-width: 300px; /* overridden by inline style when admin sets a value */
+  margin: 0 auto;
+}
+
 .landing-subtitle {
   font-family: var(--font-body);
   font-weight: var(--weight-subtitle, 200);

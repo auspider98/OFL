@@ -109,7 +109,7 @@
               <input class="admin-input" type="text" id="f_logoMark" placeholder="OFC" />
             </div>
             <div class="field-row">
-              <div class="field-label">Eyebrow Line<span class="field-hint">Small caps above the title</span></div>
+              <div class="field-label">Eyebrow Line<span class="field-hint">Small caps above the title</span><label class="toggle-switch" style="margin-left:auto;" title="Show/hide on landing page"><input type="checkbox" id="f_showEyebrow" /><span class="toggle-track"></span></label></div>
               <input class="admin-input" type="text" id="f_eyebrow" placeholder="Official Fantasy Commission" />
             </div>
             <div class="field-row">
@@ -117,11 +117,26 @@
               <input class="admin-input" type="text" id="f_title" />
             </div>
             <div class="field-row">
-              <div class="field-label">Subtitle<span class="field-hint">Below the title</span></div>
+              <div class="field-label">Title Display<span class="field-hint">Show title as text or an image</span></div>
+              <select class="admin-input" id="f_titleType" style="max-width:160px;">
+                <option value="text">Text</option>
+                <option value="image">Image</option>
+              </select>
+            </div>
+            <div class="field-row" id="row_titleImage" style="display:none;">
+              <div class="field-label">Title Image URL<span class="field-hint">Replaces the text title in the hero</span></div>
+              <input class="admin-input" type="text" id="f_titleImage" placeholder="assets/ofc-logo.png" />
+            </div>
+            <div class="field-row" id="row_titleImageSize" style="display:none;">
+              <div class="field-label">Title Image Max Width<span class="field-hint">e.g. 300px or 40%</span></div>
+              <input class="admin-input" type="text" id="f_titleImageMaxWidth" placeholder="300px" style="max-width:160px;" />
+            </div>
+            <div class="field-row">
+              <div class="field-label">Subtitle<span class="field-hint">Below the title</span><label class="toggle-switch" style="margin-left:auto;" title="Show/hide on landing page"><input type="checkbox" id="f_showSubtitle" /><span class="toggle-track"></span></label></div>
               <input class="admin-input" type="text" id="f_subtitle" />
             </div>
             <div class="field-row">
-              <div class="field-label">Tagline<span class="field-hint">Italic line beneath the cards</span></div>
+              <div class="field-label">Tagline<span class="field-hint">Italic line beneath the cards</span><label class="toggle-switch" style="margin-left:auto;" title="Show/hide on landing page"><input type="checkbox" id="f_showTagline" /><span class="toggle-track"></span></label></div>
               <input class="admin-input" type="text" id="f_tagline" />
             </div>
             <div class="field-row">
@@ -2414,6 +2429,26 @@ document.addEventListener('DOMContentLoaded', function () {
       setVal('f_title',          L.title);
       setVal('f_subtitle',       L.subtitle);
       setVal('f_tagline',        L.tagline);
+      /* Visibility toggles — default ON */
+      var chkEyebrow  = document.getElementById('f_showEyebrow');
+      var chkSubtitle = document.getElementById('f_showSubtitle');
+      var chkTagline  = document.getElementById('f_showTagline');
+      if (chkEyebrow)  chkEyebrow.checked  = L.showEyebrow  !== false;
+      if (chkSubtitle) chkSubtitle.checked = L.showSubtitle !== false;
+      if (chkTagline)  chkTagline.checked  = L.showTagline  !== false;
+      /* Title image fields */
+      var ttEl = document.getElementById('f_titleType');
+      if (ttEl) ttEl.value = L.titleType || 'text';
+      setVal('f_titleImage',         L.titleImage        || '');
+      setVal('f_titleImageMaxWidth', L.titleImageMaxWidth || '');
+      /* Sync show/hide after populating */
+      (function () {
+        var isImg = (L.titleType === 'image');
+        var ri = document.getElementById('row_titleImage');
+        var rs = document.getElementById('row_titleImageSize');
+        if (ri) ri.style.display = isImg ? '' : 'none';
+        if (rs) rs.style.display = isImg ? '' : 'none';
+      })();
       setVal('f_footerText',     workingConfig.footer ? workingConfig.footer.text : '');
       setVal('f_drawerFooter',   workingConfig.drawerFooter || '');
       setVal('f_displayDuration',(SS.displayDuration || 4000) / 1000);
@@ -2465,11 +2500,28 @@ document.addEventListener('DOMContentLoaded', function () {
       renderLeagueDataList();
     }
 
+    /* Title type toggle — show/hide image fields */
+    (function () {
+      function syncTitleTypeUI() {
+        var isImg = document.getElementById('f_titleType').value === 'image';
+        document.getElementById('row_titleImage').style.display     = isImg ? '' : 'none';
+        document.getElementById('row_titleImageSize').style.display = isImg ? '' : 'none';
+      }
+      var ttEl = document.getElementById('f_titleType');
+      if (ttEl) { ttEl.addEventListener('change', function () { syncTitleTypeUI(); markDirty(); }); }
+      syncTitleTypeUI();
+    })();
+
     /* Bind simple input fields */
     ['f_logoMark','f_eyebrow','f_title','f_subtitle','f_tagline','f_footerText',
+     'f_titleImage','f_titleImageMaxWidth',
      'f_displayDuration','f_fadeDuration','f_ssOverlay'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.addEventListener('input', markDirty);
+    });
+    ['f_showEyebrow','f_showSubtitle','f_showTagline'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('change', markDirty);
     });
     document.getElementById('f_drawerFooter').addEventListener('input', function () {
       workingConfig.drawerFooter = this.value;
@@ -2487,10 +2539,17 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!workingConfig.theme)     workingConfig.theme     = {};
       if (!workingConfig.theme.fontSizes) workingConfig.theme.fontSizes = {};
 
-      workingConfig.landing.logoMark = getRawVal('f_logoMark');
-      workingConfig.landing.eyebrow  = getRawVal('f_eyebrow');
-      workingConfig.landing.title    = getRawVal('f_title');
-      workingConfig.landing.subtitle = getRawVal('f_subtitle');
+      workingConfig.landing.logoMark            = getRawVal('f_logoMark');
+      workingConfig.landing.eyebrow             = getRawVal('f_eyebrow');
+      workingConfig.landing.showEyebrow         = document.getElementById('f_showEyebrow')  ? document.getElementById('f_showEyebrow').checked  : true;
+      workingConfig.landing.title               = getRawVal('f_title');
+      workingConfig.landing.titleType           = getRawVal('f_titleType') || 'text';
+      workingConfig.landing.titleImage          = getRawVal('f_titleImage');
+      workingConfig.landing.titleImageMaxWidth  = getRawVal('f_titleImageMaxWidth');
+      workingConfig.landing.subtitle            = getRawVal('f_subtitle');
+      workingConfig.landing.showSubtitle        = document.getElementById('f_showSubtitle') ? document.getElementById('f_showSubtitle').checked : true;
+      workingConfig.landing.tagline             = getRawVal('f_tagline');
+      workingConfig.landing.showTagline         = document.getElementById('f_showTagline')  ? document.getElementById('f_showTagline').checked  : true;
       workingConfig.landing.tagline  = getRawVal('f_tagline');
       workingConfig.footer.text      = getRawVal('f_footerText');
       workingConfig.drawerFooter     = getRawVal('f_drawerFooter');
