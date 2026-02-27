@@ -531,7 +531,7 @@
               ? '<img class="standings-team-logo" src="' + esc(logo) + '" alt="' + esc(display) + '" />'
               : '<span class="standings-team-initial">' + esc(initial) + '</span>';
             return '<div class="bracket-team' + (won ? ' bracket-team--winner' : '') + '">' +
-              '<span class="standings-team-cell">' + imgHtml + esc(display) + '</span>' +
+              '<span class="standings-team-cell bracket-team-name">' + imgHtml + esc(display) + '</span>' +
               (score !== '' ? '<span class="bracket-team-score">' + esc(score) + '</span>' : '') +
             '</div>';
           }
@@ -552,7 +552,7 @@
     }
 
     // ── Resolve logo for a roster entry ─────────────────────
-    // Priority: season.roster[].logo → master roster team logo → ''
+    // Priority: season.roster[].logo → master roster team logo → mugshot → ''
     function resolveRosterLogo(entry, league, config) {
       // 1. Logo stored directly on the season roster entry (snapshot at creation)
       if (entry.logo) return entry.logo;
@@ -567,15 +567,19 @@
       var lgEntry = (member.leagues || []).find(function (lg) {
         return lg.leagueKey === league.name || lg.leagueName === league.name;
       });
-      if (!lgEntry || !lgEntry.teams || !lgEntry.teams.length) return '';
 
-      // 4. Match by team name first, then fall back to first team
-      var teamName = entry.teamName || '';
-      var team = (teamName
-        ? lgEntry.teams.find(function (t) { return t.name === teamName; })
-        : null) || lgEntry.teams[0];
+      if (lgEntry && lgEntry.teams && lgEntry.teams.length) {
+        // 4. Match by team name first, then fall back to first team
+        var teamName = entry.teamName || '';
+        var team = (teamName
+          ? lgEntry.teams.find(function (t) { return t.name === teamName; })
+          : null) || lgEntry.teams[0];
 
-      return (team && team.logo) ? team.logo : '';
+        if (team && team.logo) return team.logo;
+      }
+
+      // 5. Mugshot fallback
+      return member.mugshot || '';
     }
 
     // ── Render season roster grid ────────────────────────────

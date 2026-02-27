@@ -3013,7 +3013,7 @@ select.admin-input option {
 }
 
 .bracket-team--winner .bracket-team-name {
-  color: var(--accent);
+  color: var(--hint-color, var(--accent));
   font-weight: 500;
 }
 
@@ -3034,7 +3034,7 @@ select.admin-input option {
   font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.04em;
-  color: var(--accent);
+  color: var(--accent-dim);
   margin-left: 0.75rem;
   flex-shrink: 0;
 }
