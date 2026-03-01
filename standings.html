@@ -254,19 +254,6 @@
     }
 
     /* Inline expanded row */
-    .std-expand-row td {
-      padding: 0; border-bottom: 1px solid rgba(232,232,232,0.08);
-    }
-    .std-expand-panel {
-      display: flex; gap: 1.5rem; align-items: flex-start;
-      padding: 1.2rem 1.2rem 1.2rem 3.5rem;
-      background: rgba(232,232,232,0.025);
-      animation: expandReveal 0.22s ease;
-    }
-    @keyframes expandReveal {
-      from { opacity: 0; transform: translateY(-6px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
     .std-expand-mugshot {
       width: 72px; height: 72px; border-radius: 50%; overflow: hidden; flex-shrink: 0;
       background: rgba(232,232,232,0.05); border: 1px solid var(--drawer-border);
@@ -299,9 +286,42 @@
     .std-expand-divider {
       width: 1px; background: var(--drawer-border); align-self: stretch; margin: 0 0.4rem; flex-shrink: 0;
     }
+    /* Rich expand layout */
+    .std-expand-sections { display: flex; flex-direction: column; gap: 1rem; flex: 1; min-width: 0; }
+    .std-expand-header { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.25rem; }
+    .std-expand-league-label {
+      font-family: var(--font-body); font-size: 0.55rem; font-weight: 600;
+      letter-spacing: 0.3em; text-transform: uppercase; color: var(--hint-color);
+      border-bottom: 1px solid rgba(184,151,42,0.3); padding-bottom: 0.3rem; margin-bottom: 0.5rem;
+    }
+    .std-expand-section { display: flex; flex-direction: column; gap: 0.4rem; }
+    .std-expand-row-stats { display: flex; flex-wrap: wrap; gap: 0.4rem 1.5rem; align-items: flex-end; }
+    .std-expand-award-list { display: flex; flex-direction: column; gap: 0.2rem; margin-top: 0.2rem; }
+    .std-expand-award-item {
+      font-family: var(--font-body); font-size: 0.68rem; color: var(--accent-dim);
+      display: flex; align-items: baseline; gap: 0.4rem;
+    }
+    .std-expand-award-name { color: var(--accent); }
+    .std-expand-award-years { color: var(--accent-dim); font-size: 0.6rem; }
+    /* Per-season breakdown rows */
+    .std-expand-season-rows { display: flex; flex-direction: column; gap: 0.15rem; margin-top: 0.35rem; }
+    .std-expand-season-row {
+      display: flex; align-items: center; gap: 1rem;
+      font-family: var(--font-body); font-size: 0.7rem;
+      color: var(--accent-dim); padding: 0.1rem 0;
+      border-bottom: 1px solid rgba(232,232,232,0.04);
+    }
+    .std-expand-season-year {
+      font-family: var(--font-body); font-size: 0.65rem; font-weight: 600;
+      color: var(--hint-color); min-width: 2.8rem; letter-spacing: 0.05em;
+    }
+    .std-expand-season-stat { color: var(--accent); min-width: 4rem; }
+    .std-expand-overall {
+      display: flex; gap: 1.5rem; flex-wrap: wrap;
+      padding-bottom: 0.75rem; margin-bottom: 0.25rem;
+      border-bottom: 1px solid rgba(232,232,232,0.06);
+    }
     .std-data-row { cursor: pointer; }
-    .std-data-row.is-expanded { background: rgba(232,232,232,0.04); }
-    .std-data-row.is-expanded td { border-bottom: none; }
 
     /* Card grid mode */
     .standings-cards {
@@ -394,6 +414,69 @@
       color: rgba(232,232,232,0.2);
       padding: 1.5rem 2rem 2rem;
     }
+
+    /* Modal overlay */
+    .std-modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 2rem;
+      animation: modalFadeIn 0.2s ease;
+    }
+    @keyframes modalFadeIn { from { opacity:0; } to { opacity:1; } }
+    .std-modal {
+      position: relative;
+      background: #0d0d0d;
+      border: 1px solid rgba(232,232,232,0.15);
+      max-width: 560px; width: 100%;
+      max-height: 85vh; overflow-y: auto;
+      animation: modalSlideIn 0.22s ease;
+    }
+    @keyframes modalSlideIn {
+      from { opacity:0; transform: translateY(16px) scale(0.98); }
+      to   { opacity:1; transform: translateY(0) scale(1); }
+    }
+    .std-modal-close {
+      position: absolute; top:0.7rem; right:0.8rem;
+      background:none; border:none; cursor:pointer;
+      color: var(--accent-dim); font-size:1.1rem; line-height:1;
+      padding:0.25rem 0.4rem; transition:color 0.15s; z-index:1;
+    }
+    .std-modal-close:hover { color: var(--accent); }
+    .std-modal-header {
+      display:flex; gap:1.1rem; align-items:flex-start;
+      padding:1.4rem 1.4rem 1rem;
+      border-bottom: 1px solid rgba(232,232,232,0.07);
+    }
+    .std-modal-mugshot {
+      width:68px; height:68px; border-radius:50%; overflow:hidden; flex-shrink:0;
+      background:rgba(232,232,232,0.05); border:1px solid var(--drawer-border);
+      display:flex; align-items:center; justify-content:center;
+    }
+    .std-modal-mugshot img { width:100%;height:100%;object-fit:cover;object-position:top center;display:block; }
+    .std-modal-mugshot-initial {
+      font-family:var(--font-display); font-size:1.5rem; font-weight:300;
+      color:var(--accent-dim); letter-spacing:-0.02em; line-height:1;
+    }
+    .std-modal-title { flex:1; min-width:0; padding-right:1.5rem; }
+    .std-modal-name {
+      font-family:var(--font-display); font-size:1.2rem; font-weight:300;
+      color:var(--accent); letter-spacing:0.02em; line-height:1.2;
+    }
+    .std-modal-nickname {
+      font-family:var(--font-body); font-size:0.65rem; font-style:italic;
+      color:var(--accent-dim); letter-spacing:0.05em; margin-top:0.2rem;
+    }
+    .std-modal-rank {
+      font-family:var(--font-body); font-size:0.55rem; font-weight:600;
+      letter-spacing:0.2em; text-transform:uppercase;
+      color:var(--accent-dim); margin-top:0.35rem;
+    }
+    .std-modal-rank.rank-1 { color:#FFD700; }
+    .std-modal-rank.rank-2 { color:#C0C0C0; }
+    .std-modal-rank.rank-3 { color:#CD7F32; }
+    .std-modal-body { padding:1.2rem 1.4rem 1.4rem; }
 
     /* ── Responsive ──────────────────────────────────────── */
     @media (max-width: 600px) {
@@ -575,10 +658,13 @@
             var ms = memberStats[mid];
             if (!ms.leagues[lgKey]) {
               ms.leagues[lgKey] = {
-                sport:    sport,
-                wins:     0, losses: 0, ties: 0, games: 0,
-                points:   0, maxPoints: 0, seasons: 0,
-                titles:   0, awards:  0
+                sport:       sport,
+                wins:        0, losses: 0, ties: 0, games: 0,
+                points:      0, maxPoints: 0, seasons: 0,
+                titles:      0, awards: 0,
+                titleYears:  [],   // [year]
+                awardDetail: [],   // [{name, year}]
+                seasonRows:  []    // [{year, rec, pts, maxPts}]
               };
             }
             var bucket = ms.leagues[lgKey];
@@ -591,18 +677,22 @@
                 bucket.losses += rec.l;
                 bucket.ties   += rec.t;
                 bucket.games  += rec.w + rec.l + rec.t;
+                bucket.seasonRows.push({ year: season.year || '?', rec: rec, games: rec.w + rec.l + rec.t });
               }
             } else if (sport === 'madness') {
               var pts = parseFloat(row.totalPoints) || 0;
               bucket.points    += pts;
               bucket.maxPoints += seasonMaxPts;
+              bucket.seasonRows.push({ year: season.year || '?', pts: pts, maxPts: seasonMaxPts });
             }
           });
 
           // Championships
           var champId = season.championMemberId;
           if (champId && memberStats[champId] && memberStats[champId].leagues[lgKey]) {
-            memberStats[champId].leagues[lgKey].titles++;
+            var cb = memberStats[champId].leagues[lgKey];
+            cb.titles++;
+            cb.titleYears.push(season.year || '?');
           }
 
           // Stat awards (non-champion)
@@ -612,10 +702,13 @@
             if (!statDef) return;
             var stat = stats[statDef.key];
             if (!stat) return;
+            var awardName = (lg.awards && lg.awards[a.key]) || a.defaultLabel || a.key;
             var winners = Array.isArray(stat) ? stat : [stat];
             winners.forEach(function (w) {
               if (w.memberId && memberStats[w.memberId] && memberStats[w.memberId].leagues[lgKey]) {
-                memberStats[w.memberId].leagues[lgKey].awards++;
+                var ab = memberStats[w.memberId].leagues[lgKey];
+                ab.awards++;
+                ab.awardDetail.push({ name: awardName, year: season.year || '?' });
               }
             });
           });
@@ -624,7 +717,9 @@
           customStats.forEach(function (ca) {
             if (!ca.winnerId) return;
             if (memberStats[ca.winnerId] && memberStats[ca.winnerId].leagues[lgKey]) {
-              memberStats[ca.winnerId].leagues[lgKey].awards++;
+              var ab = memberStats[ca.winnerId].leagues[lgKey];
+              ab.awards++;
+              ab.awardDetail.push({ name: ca.label || 'Award', year: season.year || '?' });
             }
           });
         });
@@ -769,30 +864,42 @@
       return (name||'').split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();
     }
 
-    // Build full stat rows for a member across all leagues (for expand + cards)
-    function buildAllStats(ms, leagueKeys) {
+    // Build stat rows for a member using the active cols (respects filter + mode)
+    function buildFilteredStats(ms, cols) {
       var stats = [];
-      if (ms.overallPct !== null && ms.overallPct !== undefined) {
-        stats.push({ val: ms.overallPct.toFixed(1) + '%', label: 'Overall %' });
-      }
-      leagueKeys.forEach(function (lgKey) {
-        var b = ms.leagues[lgKey];
-        if (!b) return;
-        if (b.sport === 'football') {
-          if (b.games > 0) {
-            var rec = b.wins + '-' + b.losses + (b.ties > 0 ? '-' + b.ties : '');
-            stats.push({ val: rec, label: lgKey + ' Record' });
-            if (b.winPct !== undefined) stats.push({ val: b.winPct.toFixed(1) + '%', label: lgKey + ' Win %' });
+      cols.forEach(function (col) {
+        if (col.key === 'rank' || col.key === 'name') return;
+        var val, label;
+        if (col.key === 'overallPct') {
+          val = ms.overallPct !== null && ms.overallPct !== undefined
+            ? ms.overallPct.toFixed(1) + '%' : null;
+          label = 'Overall %';
+        } else if (col.key === 'totalTitles') {
+          val = ms.totalTitles || null; label = 'Titles';
+        } else if (col.key === 'totalAwards') {
+          val = ms.totalAwards || null; label = 'Awards';
+        } else if (col.lgKey && col.sub) {
+          var b = ms.leagues[col.lgKey];
+          if (!b) return;
+          label = col.label;
+          if (col.sub === 'record') {
+            val = b.games > 0 ? (b.wins + '-' + b.losses + (b.ties > 0 ? '-' + b.ties : '')) : null;
+          } else if (col.sub === 'winPct') {
+            val = b.winPct !== undefined ? b.winPct.toFixed(1) + '%' : null;
+          } else if (col.sub === 'points') {
+            val = b.points ? b.points.toFixed(1) : null;
+          } else if (col.sub === 'pointsPct') {
+            val = b.pointsPct !== undefined ? b.pointsPct.toFixed(1) + '%' : null;
+          } else if (col.sub === 'titles') {
+            val = b.titles || null;
+          } else if (col.sub === 'awards') {
+            val = b.awards || null;
           }
-        } else if (b.sport === 'madness') {
-          if (b.points) stats.push({ val: b.points.toFixed(1), label: lgKey + ' Pts' });
-          if (b.pointsPct !== undefined) stats.push({ val: b.pointsPct.toFixed(1) + '%', label: lgKey + ' Pts %' });
         }
-        if (b.titles) stats.push({ val: b.titles, label: lgKey + ' Titles' });
-        if (b.awards) stats.push({ val: b.awards, label: lgKey + ' Awards' });
+        if (val !== null && val !== undefined) {
+          stats.push({ val: val, label: label || col.label });
+        }
       });
-      if (ms.totalTitles) stats.push({ val: ms.totalTitles, label: 'Total Titles' });
-      if (ms.totalAwards) stats.push({ val: ms.totalAwards, label: 'Total Awards' });
       return stats;
     }
 
@@ -881,29 +988,76 @@
       var tableWrap = document.querySelector('.standings-table-wrap');
       var cardsEl   = document.getElementById('standingsCards');
 
+      // ── Modal (shared by table + card views) ──────────────
+      function openCardModal(ms, rank) {
+          var existing = document.getElementById('stdCardModal');
+          if (existing) existing.remove();
+          var rankCls  = rank <= 3 ? ' rank-' + rank : '';
+          var inits    = initials(ms.name);
+          var mugHtml  = ms.mugshot
+            ? '<img src="' + esc(ms.mugshot) + '" alt="" loading="lazy" />'
+            : '<span class="std-modal-mugshot-initial">' + esc(inits) + '</span>';
+          var overlay  = document.createElement('div');
+          overlay.className = 'std-modal-overlay';
+          overlay.id = 'stdCardModal';
+          overlay.innerHTML =
+            '<div class="std-modal" role="dialog" aria-modal="true">' +
+              '<button class="std-modal-close" aria-label="Close">&times;</button>' +
+              '<div class="std-modal-header">' +
+                '<div class="std-modal-mugshot">' + mugHtml + '</div>' +
+                '<div class="std-modal-title">' +
+                  '<div class="std-modal-name">' + esc(ms.name) + '</div>' +
+                  (ms.nickname ? '<div class="std-modal-nickname">&ldquo;' + esc(ms.nickname) + '&rdquo;</div>' : '') +
+                  '<div class="std-modal-rank' + rankCls + '"># ' + rank + '</div>' +
+                '</div>' +
+              '</div>' +
+              '<div class="std-modal-body">' +
+                '<div class="std-expand-sections">' + buildExpandContent(ms) + '</div>' +
+              '</div>' +
+            '</div>';
+          // Close on overlay click
+          overlay.addEventListener('click', function (e) {
+            if (e.target === overlay) overlay.remove();
+          });
+          // Close button
+          overlay.querySelector('.std-modal-close').addEventListener('click', function () {
+            overlay.remove();
+          });
+          // Escape key
+          function onKey(e) {
+            if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', onKey); }
+          }
+          document.addEventListener('keydown', onKey);
+        document.body.appendChild(overlay);
+      }
+
       if (state.viewMode === 'cards') {
         tableWrap.style.display = 'none';
         cardsEl.style.display   = '';
-        // Render cards
         if (members.length === 0) {
           cardsEl.innerHTML = '<p class="std-empty">No members match this filter.</p>';
           return;
         }
-        cardsEl.innerHTML = members.map(function (ms, idx) {
-          var rank    = idx + 1;
-          var rankCls = rank <= 3 ? ' rank-' + rank : '';
+        // ── Render cards ───────────────────────────────────
+        cardsEl.innerHTML = '';
+        members.forEach(function (ms, idx) {
+          var rank        = idx + 1;
+          var rankCls     = rank <= 3 ? ' rank-' + rank : '';
           var inactiveCls = !ms.active ? ' is-inactive' : '';
           var mugshotHtml = ms.mugshot
             ? '<img src="' + esc(ms.mugshot) + '" alt="" loading="lazy" />'
             : '<span class="std-card-mugshot-initial">' + esc(initials(ms.name)) + '</span>';
-          var allStats = buildAllStats(ms, leagueKeys);
-          var statsHtml = allStats.map(function (s) {
+          var filteredStats = buildFilteredStats(ms, cols);
+          var statsHtml = filteredStats.map(function (s) {
             return '<div class="std-card-stat">' +
               '<div class="std-card-stat-val">' + esc(String(s.val)) + '</div>' +
               '<div class="std-card-stat-label">' + esc(s.label) + '</div>' +
             '</div>';
           }).join('');
-          return '<div class="std-card' + inactiveCls + '">' +
+          var card = document.createElement('div');
+          card.className = 'std-card' + inactiveCls;
+          card.setAttribute('data-mid', ms.id);
+          card.innerHTML =
             '<div class="std-card-mugshot">' +
               '<span class="std-card-rank' + rankCls + '">' + rank + '</span>' +
               mugshotHtml +
@@ -912,9 +1066,11 @@
               '<div class="std-card-name">' + esc(ms.name) + '</div>' +
               (ms.nickname ? '<div class="std-card-nickname">&ldquo;' + esc(ms.nickname) + '&rdquo;</div>' : '') +
               '<div class="std-card-stats">' + statsHtml + '</div>' +
-            '</div>' +
-          '</div>';
-        }).join('');
+            '</div>';
+          card.style.cursor = 'pointer';
+          card.addEventListener('click', function () { openCardModal(ms, rank); });
+          cardsEl.appendChild(card);
+        });
         return;
       }
 
@@ -929,66 +1085,147 @@
       }
 
       // Track expanded row
-      var expandedId = null;
+      // ── Build rich expand content HTML (shared by table + card) ──
+      function buildExpandContent(ms) {
+        var isOverall   = (filter === 'overall' || filter === 'historical');
+        var lgFilter    = !isOverall ? filter.toUpperCase() : null;
+        var isPerf      = (mode === 'performance');
+        var sections    = '';
 
-      function buildExpandPanel(ms, colSpan) {
-        var inits = initials(ms.name);
-        var mugHtml = ms.mugshot
-          ? '<img src="' + esc(ms.mugshot) + '" alt="" loading="lazy" />'
-          : '<span class="std-expand-mugshot-initial">' + esc(inits) + '</span>';
-        var allStats = buildAllStats(ms, leagueKeys);
-        var statsHtml = allStats.map(function (s) {
-          return '<div class="std-expand-stat">' +
-            '<div class="std-expand-stat-val">' + esc(String(s.val)) + '</div>' +
-            '<div class="std-expand-stat-label">' + esc(s.label) + '</div>' +
-          '</div>';
-        }).join('<div class="std-expand-divider"></div>');
-        return '<tr class="std-expand-row">' +
-          '<td colspan="' + colSpan + '">' +
-            '<div class="std-expand-panel">' +
-              '<div class="std-expand-mugshot">' + mugHtml + '</div>' +
-              '<div class="std-expand-info">' +
-                '<div class="std-expand-name">' + esc(ms.name) + '</div>' +
-                (ms.nickname ? '<div class="std-expand-nickname">&ldquo;' + esc(ms.nickname) + '&rdquo;</div>' : '') +
-                '<div class="std-expand-stats">' + statsHtml + '</div>' +
-              '</div>' +
+        // Overall % headline (overall/historical + performance only)
+        if (isOverall && isPerf && ms.overallPct !== null && ms.overallPct !== undefined) {
+          sections += '<div class="std-expand-overall">' +
+            '<div class="std-expand-stat">' +
+              '<div class="std-expand-stat-val">' + esc(ms.overallPct.toFixed(1)) + '%</div>' +
+              '<div class="std-expand-stat-label">Overall %</div>' +
             '</div>' +
-          '</td>' +
-        '</tr>';
+          '</div>';
+        }
+
+        // Overall awards headline (overall/historical + awards only)
+        if (isOverall && !isPerf) {
+          sections += '<div class="std-expand-overall">' +
+            (ms.totalTitles ? '<div class="std-expand-stat"><div class="std-expand-stat-val">' + ms.totalTitles + '</div><div class="std-expand-stat-label">Total Titles</div></div>' : '') +
+            (ms.totalAwards ? '<div class="std-expand-stat"><div class="std-expand-stat-val">' + ms.totalAwards + '</div><div class="std-expand-stat-label">Total Awards</div></div>' : '') +
+          '</div>';
+        }
+
+        // Per-league sections
+        var lgKeys = lgFilter ? [lgFilter] : leagueKeys;
+        lgKeys.forEach(function (lgKey) {
+          var b = ms.leagues[lgKey];
+          if (!b) return;
+          var sectionHtml = '<div class="std-expand-section">';
+
+          // League label + seasons count on same line
+          sectionHtml += '<div class="std-expand-league-label">' +
+            esc(lgKey) +
+            '<span style="font-weight:300;opacity:0.6;margin-left:0.6em;">' +
+              esc(b.seasons) + ' ' + (b.seasons === 1 ? 'Season' : 'Seasons') +
+            '</span>' +
+          '</div>';
+
+          if (isPerf) {
+            // Summary stats row (totals)
+            var statsRow = '<div class="std-expand-row-stats">';
+            if (b.sport === 'football') {
+              if (b.games > 0) {
+                var totRec = b.wins + '-' + b.losses + (b.ties > 0 ? '-' + b.ties : '');
+                statsRow += '<div class="std-expand-stat"><div class="std-expand-stat-val">' + esc(totRec) + '</div><div class="std-expand-stat-label">Record</div></div>';
+                if (b.winPct !== undefined) statsRow += '<div class="std-expand-stat"><div class="std-expand-stat-val">' + b.winPct.toFixed(1) + '%</div><div class="std-expand-stat-label">Win %</div></div>';
+              }
+            } else if (b.sport === 'madness') {
+              if (b.points) statsRow += '<div class="std-expand-stat"><div class="std-expand-stat-val">' + b.points.toFixed(1) + '</div><div class="std-expand-stat-label">Points</div></div>';
+              if (b.pointsPct !== undefined) statsRow += '<div class="std-expand-stat"><div class="std-expand-stat-val">' + b.pointsPct.toFixed(1) + '%</div><div class="std-expand-stat-label">Points %</div></div>';
+            }
+            statsRow += '</div>';
+            sectionHtml += statsRow;
+
+            // Per-season breakdown rows (oldest to newest)
+            var sortedSeasons = (b.seasonRows || []).slice().sort(function (a, z) {
+              return (parseInt(z.year, 10) || 0) - (parseInt(a.year, 10) || 0);
+            });
+            if (sortedSeasons.length > 0) {
+              sectionHtml += '<div class="std-expand-season-rows">';
+              sortedSeasons.forEach(function (sr) {
+                sectionHtml += '<div class="std-expand-season-row">';
+                sectionHtml += '<span class="std-expand-season-year">' + esc(sr.year) + '</span>';
+                if (b.sport === 'football' && sr.rec) {
+                  var sRec = sr.rec.w + '-' + sr.rec.l + (sr.rec.t > 0 ? '-' + sr.rec.t : '');
+                  var sWpct = sr.games > 0 ? ((sr.rec.w / sr.games) * 100).toFixed(1) + '%' : '—';
+                  sectionHtml += '<span class="std-expand-season-stat">' + esc(sRec) + '</span>';
+                  sectionHtml += '<span class="std-expand-season-stat">' + sWpct + '</span>';
+                } else if (b.sport === 'madness' && sr.pts !== undefined) {
+                  var sPpct = sr.maxPts > 0 ? ((sr.pts / sr.maxPts) * 100).toFixed(1) + '%' : '—';
+                  sectionHtml += '<span class="std-expand-season-stat">' + sr.pts.toFixed(1) + ' pts</span>';
+                  sectionHtml += '<span class="std-expand-season-stat">' + sPpct + '</span>';
+                }
+                sectionHtml += '</div>';
+              });
+              sectionHtml += '</div>';
+            }
+          } else {
+            // Awards breakdown — summary counts
+            var awardsRow = '<div class="std-expand-row-stats">';
+            if (b.titles) awardsRow += '<div class="std-expand-stat"><div class="std-expand-stat-val">' + b.titles + '</div><div class="std-expand-stat-label">' + (b.titles === 1 ? 'Title' : 'Titles') + '</div></div>';
+            if (b.awards) awardsRow += '<div class="std-expand-stat"><div class="std-expand-stat-val">' + b.awards + '</div><div class="std-expand-stat-label">' + (b.awards === 1 ? 'Award' : 'Awards') + '</div></div>';
+            awardsRow += '</div>';
+            sectionHtml += awardsRow;
+
+            // Championship years
+            if (b.titleYears && b.titleYears.length) {
+              sectionHtml += '<div class="std-expand-award-list">' +
+                '<div class="std-expand-award-item">' +
+                  '<span class="std-expand-award-name">&#9733; Champion &mdash; ' + esc(b.titleYears.slice().sort().join(', ')) + '</span>' +
+                '</div>' +
+              '</div>';
+            }
+
+            // Individual awards — compiled by name, years left-justified
+            if (b.awardDetail && b.awardDetail.length) {
+              var compiled = [];
+              var compKeys = [];
+              b.awardDetail.forEach(function (ad) {
+                var idx = compKeys.indexOf(ad.name);
+                if (idx === -1) { compKeys.push(ad.name); compiled.push({ name: ad.name, years: [ad.year] }); }
+                else { if (compiled[idx].years.indexOf(ad.year) === -1) compiled[idx].years.push(ad.year); }
+              });
+              sectionHtml += '<div class="std-expand-award-list">' +
+                compiled.map(function (a) {
+                  return '<div class="std-expand-award-item">' +
+                    '<span class="std-expand-award-name">' + esc(a.name) + ' &mdash; ' + esc(a.years.slice().sort().join(', ')) + '</span>' +
+                  '</div>';
+                }).join('') +
+              '</div>';
+            }
+          }
+
+          sectionHtml += '</div>';
+          sections += sectionHtml;
+        });
+
+        return sections || '<span style="color:var(--accent-dim);font-size:0.75rem;">No data available.</span>';
       }
 
-      // Build rows HTML + attach listeners after insert
-      var rowsData = members.map(function (ms, idx) {
+      // Build rows + attach modal-on-click listeners
+      tbody.innerHTML = members.map(function (ms, idx) {
         var rank    = idx + 1;
         var rankCls = rank <= 3 ? ' rank-' + rank : '';
         var rowCls  = 'std-data-row' + (!ms.active ? ' is-inactive' : '');
-        return { ms: ms, rank: rank, rankCls: rankCls, rowCls: rowCls };
-      });
+        return '<tr class="' + rowCls + '" data-mid="' + esc(ms.id) + '" data-rank="' + rank + '">' +
+          '<td><span class="std-rank' + rankCls + '">' + rank + '</span></td>' +
+          cols.slice(1).map(function (col) { return getCellHtml(ms, col, sortCol); }).join('') +
+        '</tr>';
+      }).join('');
 
-      function renderRows() {
-        tbody.innerHTML = rowsData.map(function (d) {
-          var expandedCls = (expandedId === d.ms.id) ? ' is-expanded' : '';
-          var html = '<tr class="' + d.rowCls + expandedCls + '" data-mid="' + esc(d.ms.id) + '">' +
-            '<td><span class="std-rank' + d.rankCls + '">' + d.rank + '</span></td>' +
-            cols.slice(1).map(function (col) { return getCellHtml(d.ms, col, sortCol); }).join('') +
-          '</tr>';
-          if (expandedId === d.ms.id) {
-            html += buildExpandPanel(d.ms, cols.length);
-          }
-          return html;
-        }).join('');
-
-        // Attach click listeners
-        tbody.querySelectorAll('tr.std-data-row').forEach(function (tr) {
-          tr.addEventListener('click', function () {
-            var mid = tr.getAttribute('data-mid');
-            expandedId = (expandedId === mid) ? null : mid;
-            renderRows();
-          });
+      tbody.querySelectorAll('tr.std-data-row').forEach(function (tr) {
+        tr.addEventListener('click', function () {
+          var mid  = tr.getAttribute('data-mid');
+          var rank = parseInt(tr.getAttribute('data-rank'), 10) || 0;
+          var ms   = members.find(function (m) { return m.id === mid; });
+          if (ms) openCardModal(ms, rank);
         });
-      }
-
-      renderRows();
+      });
     }
 
     // ── Build league filter pills ──────────────────────────
