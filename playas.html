@@ -83,7 +83,7 @@
     .playa-card {
       perspective: 1000px;
       cursor: pointer;
-      height: 440px;
+      height: 340px;
     }
     .playa-card.is-inactive { opacity: 0.45; }
     .playa-card-inner {
@@ -119,7 +119,7 @@
 
     /* ── Mugshot ──────────────────────────────────────────── */
     .playa-mugshot-wrap {
-      width: 100%; aspect-ratio: 4 / 3; overflow: hidden;
+      width: 100%; aspect-ratio: 3 / 2; overflow: hidden;
       background: rgba(255,255,255,0.03); flex-shrink: 0; position: relative;
     }
     .playa-mugshot-wrap img {
@@ -434,15 +434,17 @@
       .playas-hero { min-height: 0; padding: 4.5rem 1.2rem 1.5rem; }
       .playas-section { padding: 1.2rem 1rem 0; }
       .playas-grid { grid-template-columns: 1fr 1fr; gap: 0.8rem; }
-      .playa-card { height: 400px; }
-      .playa-card-inner { height: 400px; }
+      .playa-card { height: 320px; }
+      .playa-card-inner { height: 320px; }
+      .playa-mugshot-wrap { max-height: 160px; }
       .playa-name { font-size: 1.05rem; }
       .playas-footer { padding: 1.2rem 1rem; }
     }
     @media (max-width: 380px) {
       .playas-grid { grid-template-columns: 1fr; }
-      .playa-card { height: 420px; }
-      .playa-card-inner { height: 420px; }
+      .playa-card { height: 340px; }
+      .playa-card-inner { height: 340px; }
+      .playa-mugshot-wrap { max-height: 180px; }
     }
   </style>
 </head>
@@ -626,24 +628,7 @@
       var badgesHtml = '<div class="playa-league-badges">' + buildLeagueBadges(member, leagueData) + '</div>';
 
       // League entries for front
-      var frontLeaguesHtml = (member.leagues || []).length
-        ? '<div class="playa-leagues">' +
-            (member.leagues || []).map(function (lg) {
-              var keyText   = lg.leagueKey || lg.leagueName || '?';
-              var labelText = (lg.leagueName && lg.leagueName !== lg.leagueKey) ? lg.leagueName : keyText;
-              var teamsHtml = (lg.teams || []).map(function (t) {
-                return '<span class="playa-team-item">' +
-                  (t.logo ? '<img class="playa-team-logo" src="' + esc(t.logo) + '" alt="" loading="lazy" />' : '') +
-                  '<span class="playa-team-name">' + esc(t.name || '—') + '</span>' +
-                '</span>';
-              }).join('');
-              return '<div class="playa-league-entry">' +
-                '<div class="playa-league-key">' + esc(labelText) + '</div>' +
-                '<div class="playa-league-teams">' + (teamsHtml || '<span class="playa-team-name" style="opacity:0.4;">—</span>') + '</div>' +
-              '</div>';
-            }).join('') +
-          '</div>'
-        : '';
+
 
 
       var recentAwardsHtml = recentAwards.length
@@ -657,11 +642,10 @@
           '</div>'
         : '';
 
-      var statsHtml = (champCount > 0 || awardCount > 0 || seasons > 0)
+      var statsHtml = (champCount > 0 || seasons > 0)
         ? '<div class="playa-stats-strip">' +
-            (champCount > 0 ? '<div class="playa-stat"><div class="playa-stat-value">' + champCount + '</div><div class="playa-stat-label">' + (champCount === 1 ? 'Title' : 'Titles') + '</div></div>' : '') +
-            (awardCount > 0 ? '<div class="playa-stat"><div class="playa-stat-value">' + awardCount + '</div><div class="playa-stat-label">' + (awardCount === 1 ? 'Award' : 'Awards') + '</div></div>' : '') +
             (seasons    > 0 ? '<div class="playa-stat"><div class="playa-stat-value">' + seasons    + '</div><div class="playa-stat-label">' + (seasons    === 1 ? 'Season' : 'Seasons') + '</div></div>' : '') +
+            (champCount > 0 ? '<div class="playa-stat"><div class="playa-stat-value">' + champCount + '</div><div class="playa-stat-label">' + (champCount === 1 ? 'Title' : 'Titles') + '</div></div>' : '') +
           '</div>'
         : '';
 
@@ -674,7 +658,6 @@
               badgesHtml +
             '</div>' +
             (member.nickname ? '<div class="playa-nickname">&ldquo;' + esc(member.nickname) + '&rdquo;</div>' : '') +
-            frontLeaguesHtml +
           '</div>' +
           statsHtml +
           '<div class="playa-flip-hint">Details &rarr;</div>' +
@@ -684,51 +667,26 @@
 
 
 
-      // Championships
-      var backChampsHtml = champCount > 0
-        ? '<div>' +
-            '<div class="playa-back-section-label">Championships (' + champCount + ')</div>' +
-            '<div class="playa-back-champ-years">' +
-            championships.map(function (c) {
-              return '<span class="playa-back-champ-year">' + esc(c.year) + (c.leagueName ? ' ' + esc(c.leagueName) : '') + '</span>';
-            }).join('') +
-            '</div></div>'
-        : '';
-
-      // All awards — compiled: one row per unique award, years listed oldest→newest
-      var compiledAwards = (function () {
-        var map = [], keys = [];
-        allAwards.forEach(function (a) {
-          var key = a.awardName + '||' + a.awardImage;
-          var idx = keys.indexOf(key);
-          if (idx === -1) {
-            keys.push(key);
-            map.push({ awardName: a.awardName, awardImage: a.awardImage, years: [a.year] });
-          } else {
-            if (map[idx].years.indexOf(a.year) === -1) map[idx].years.push(a.year);
-          }
-        });
-        // Sort each award's years oldest→newest
-        map.forEach(function (entry) {
-          entry.years.sort(function (a, b) { return (parseInt(a, 10) || 0) - (parseInt(b, 10) || 0); });
-        });
-        return map;
+      // Teams per league
+      var backTeamsHtml = (function () {
+        var leagues = member.leagues || [];
+        if (!leagues.length) return '';
+        return leagues.map(function (lg) {
+          var teams = lg.teams || [];
+          if (!teams.length) return '';
+          var lgLabel = (lg.leagueName && lg.leagueName !== lg.leagueKey) ? lg.leagueName : (lg.leagueKey || '?');
+          var teamsHtml = teams.map(function (t) {
+            return '<div class="playa-back-team-item">' +
+              (t.logo ? '<img class="playa-back-team-logo" src="' + esc(t.logo) + '" alt="" loading="lazy" />' : '') +
+              '<span class="playa-back-team-name">' + esc(t.name || '—') + '</span>' +
+            '</div>';
+          }).join('');
+          return '<div class="playa-back-league-entry">' +
+            '<div class="playa-back-league-key">' + esc(lgLabel) + '</div>' +
+            '<div class="playa-back-teams">' + teamsHtml + '</div>' +
+          '</div>';
+        }).join('');
       })();
-      var backAwardsHtml = compiledAwards.length
-        ? '<div>' +
-            '<div class="playa-back-section-label">Awards (' + compiledAwards.length + ')</div>' +
-            '<div class="playa-back-awards">' +
-            compiledAwards.map(function (a) {
-              return '<div class="playa-back-award-row">' +
-                awardThumbBack(a.awardImage) +
-                '<div class="playa-back-award-info">' +
-                  '<div class="playa-back-award-name">' + esc(a.awardName) + '</div>' +
-                  '<div class="playa-back-award-detail">' + a.years.map(function (y) { return esc(y); }).join(', ') + '</div>' +
-                '</div>' +
-              '</div>';
-            }).join('') +
-            '</div></div>'
-        : '';
 
       var backHtml =
         '<div class="playa-back">' +
@@ -741,10 +699,9 @@
               '<span class="playa-back-close">&#x2715;</span>' +
             '</div>' +
             '<div class="playa-back-scroll">' +
-              backChampsHtml +
-              backAwardsHtml +
-              (!backChampsHtml && !backAwardsHtml
-                ? '<p style="font-size:0.62rem;color:var(--accent-dim);opacity:0.5;">No data yet.</p>' : '') +
+              (backTeamsHtml
+                ? '<div class="playa-back-leagues">' + backTeamsHtml + '</div>'
+                : '<p style="font-size:0.62rem;color:var(--accent-dim);opacity:0.5;">No teams yet.</p>') +
             '</div>' +
           '</div>' +
         '</div>';
@@ -846,7 +803,7 @@
           '<div class="playas-control-group">' +
             '<label class="playas-control-label">Filter</label>' +
             '<select class="playas-select" id="playasFilter">' +
-              '<option value="career">Career</option>' +
+              '<option value="career">Active</option>' +
               '<option value="ofc">OFC</option>' +
               '<option value="brc">BRC</option>' +
               '<option value="retired">Retired</option>' +
@@ -857,7 +814,6 @@
             '<select class="playas-select" id="playasSort">' +
               '<option value="az">A–Z</option>' +
               '<option value="seasons">Seasons</option>' +
-              '<option value="awards">Awards</option>' +
               '<option value="titles">Titles</option>' +
             '</select>' +
           '</div>' +
@@ -904,7 +860,7 @@
 
         var members;
         if (filterVal === 'career') {
-          heading.textContent = 'Career';
+          heading.textContent = 'Active';
           members = roster.slice();
         } else if (filterVal === 'ofc') {
           heading.textContent = 'OFC';
