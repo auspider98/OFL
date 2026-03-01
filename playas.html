@@ -645,6 +645,7 @@
           '</div>'
         : '';
 
+
       var recentAwardsHtml = recentAwards.length
         ? '<div class="playa-recent-awards">' +
             recentAwards.map(function (a) {
@@ -681,27 +682,7 @@
 
       // ── BACK ───────────────────────────────────────────
 
-      // League entries
-      var backLeaguesHtml = (member.leagues || []).length
-        ? '<div>' +
-            '<div class="playa-back-section-label">Leagues &amp; Teams</div>' +
-            '<div class="playa-back-leagues">' +
-            (member.leagues || []).map(function (lg) {
-              var keyText    = lg.leagueKey || lg.leagueName || '?';
-              var labelText  = (lg.leagueName && lg.leagueName !== lg.leagueKey) ? lg.leagueName : keyText;
-              var teamsHtml  = (lg.teams || []).map(function (t) {
-                return '<span class="playa-back-team-item">' +
-                  (t.logo ? '<img class="playa-back-team-logo" src="' + esc(t.logo) + '" alt="" loading="lazy" />' : '') +
-                  '<span class="playa-back-team-name">' + esc(t.name || '—') + '</span>' +
-                '</span>';
-              }).join('');
-              return '<div class="playa-back-league-entry">' +
-                '<div class="playa-back-league-key">' + esc(labelText) + '</div>' +
-                '<div class="playa-back-teams">' + (teamsHtml || '<span class="playa-back-team-name" style="opacity:0.4;">—</span>') + '</div>' +
-              '</div>';
-            }).join('') +
-            '</div></div>'
-        : '';
+
 
       // Championships
       var backChampsHtml = champCount > 0
@@ -714,17 +695,35 @@
             '</div></div>'
         : '';
 
-      // All awards
-      var backAwardsHtml = allAwards.length
+      // All awards — compiled: one row per unique award, years listed oldest→newest
+      var compiledAwards = (function () {
+        var map = [], keys = [];
+        allAwards.forEach(function (a) {
+          var key = a.awardName + '||' + a.awardImage;
+          var idx = keys.indexOf(key);
+          if (idx === -1) {
+            keys.push(key);
+            map.push({ awardName: a.awardName, awardImage: a.awardImage, years: [a.year] });
+          } else {
+            if (map[idx].years.indexOf(a.year) === -1) map[idx].years.push(a.year);
+          }
+        });
+        // Sort each award's years oldest→newest
+        map.forEach(function (entry) {
+          entry.years.sort(function (a, b) { return (parseInt(a, 10) || 0) - (parseInt(b, 10) || 0); });
+        });
+        return map;
+      })();
+      var backAwardsHtml = compiledAwards.length
         ? '<div>' +
-            '<div class="playa-back-section-label">Awards (' + allAwards.length + ')</div>' +
+            '<div class="playa-back-section-label">Awards (' + compiledAwards.length + ')</div>' +
             '<div class="playa-back-awards">' +
-            allAwards.map(function (a) {
+            compiledAwards.map(function (a) {
               return '<div class="playa-back-award-row">' +
                 awardThumbBack(a.awardImage) +
                 '<div class="playa-back-award-info">' +
                   '<div class="playa-back-award-name">' + esc(a.awardName) + '</div>' +
-                  '<div class="playa-back-award-detail">' + esc(a.year) + (a.leagueName ? ' · ' + esc(a.leagueName) : '') + '</div>' +
+                  '<div class="playa-back-award-detail">' + a.years.map(function (y) { return esc(y); }).join(', ') + '</div>' +
                 '</div>' +
               '</div>';
             }).join('') +
@@ -742,10 +741,9 @@
               '<span class="playa-back-close">&#x2715;</span>' +
             '</div>' +
             '<div class="playa-back-scroll">' +
-              backLeaguesHtml +
               backChampsHtml +
               backAwardsHtml +
-              (!backLeaguesHtml && !backChampsHtml && !backAwardsHtml
+              (!backChampsHtml && !backAwardsHtml
                 ? '<p style="font-size:0.62rem;color:var(--accent-dim);opacity:0.5;">No data yet.</p>' : '') +
             '</div>' +
           '</div>' +

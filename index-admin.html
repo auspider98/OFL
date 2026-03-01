@@ -251,6 +251,31 @@
           </div>
         </section>
 
+        <!-- Teaser Page -->
+        <section class="admin-section admin-nested-section is-collapsed">
+          <div class="admin-section-header">
+            <span class="admin-section-label">Teaser Page</span>
+            <span class="admin-section-toggle">&#x25BC;</span>
+          </div>
+          <div class="admin-section-body">
+            <div class="section-desc-row" style="margin-bottom:0.5rem;">
+              <p class="admin-section-desc">Settings for <code>teaser.html</code> — the pre-launch hype page you can share with league members.</p>
+            </div>
+            <div class="field-row">
+              <div class="field-label">Launch Date &amp; Time<span class="field-hint">Countdown target — leave blank for "Coming Soon"</span></div>
+              <input class="admin-input" type="datetime-local" id="f_teaserLaunchDate" style="max-width:260px;" />
+            </div>
+            <div class="field-row">
+              <div class="field-label">Teaser Headline<span class="field-hint">Large text below the logo</span></div>
+              <input class="admin-input" type="text" id="f_teaserHeadline" placeholder="The Commission Returns." />
+            </div>
+            <div class="field-row">
+              <div class="field-label">Teaser Subtext<span class="field-hint">Smaller line below the headline</span></div>
+              <input class="admin-input" type="text" id="f_teaserSubtext" placeholder="Something legendary is coming." />
+            </div>
+          </div>
+        </section>
+
         <!-- Commissioner Settings -->
         <section class="admin-section admin-nested-section is-collapsed">
           <div class="admin-section-header">
@@ -1854,6 +1879,24 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       pbody.appendChild(yearRow);
 
+      /* ── Max Points per Season (madness only) ────────────── */
+      if (league.sport === 'madness') {
+        if (season.maxPoints === undefined) season.maxPoints = '';
+        var maxPtsRow = document.createElement('div');
+        maxPtsRow.className = 'field-row';
+        maxPtsRow.innerHTML =
+          '<div class="field-label">Max Points Possible' +
+            '<span class="field-hint">Per-season scoring ceiling for standings % (default: 192)</span>' +
+          '</div>' +
+          '<input class="admin-input s-maxpoints" type="number" min="1" step="1" ' +
+            'value="'+esc(season.maxPoints||'')+'" placeholder="192" style="max-width:160px;" />';
+        maxPtsRow.querySelector('.s-maxpoints').addEventListener('input', function () {
+          season.maxPoints = this.value !== '' ? parseFloat(this.value) || '' : '';
+          markDirty();
+        });
+        pbody.appendChild(maxPtsRow);
+      }
+
       /* ── Season Complete toggle (current season only) ──── */
       if (isCurrent) {
         if (season.isFinal === undefined) season.isFinal = false;
@@ -2451,6 +2494,10 @@ document.addEventListener('DOMContentLoaded', function () {
       })();
       setVal('f_footerText',     workingConfig.footer ? workingConfig.footer.text : '');
       setVal('f_drawerFooter',   workingConfig.drawerFooter || '');
+      /* Teaser page */
+      setVal('f_teaserLaunchDate', workingConfig.teaserLaunchDate || '');
+      setVal('f_teaserHeadline',   workingConfig.teaserHeadline   || '');
+      setVal('f_teaserSubtext',    workingConfig.teaserSubtext    || '');
       setVal('f_displayDuration',(SS.displayDuration || 4000) / 1000);
       setVal('f_fadeDuration',   (SS.fadeDuration    || 2000) / 1000);
       setVal('f_ssOverlay',       SS.overlay || 'rgba(0,0,0,0.55)');
@@ -2515,6 +2562,7 @@ document.addEventListener('DOMContentLoaded', function () {
     /* Bind simple input fields */
     ['f_logoMark','f_eyebrow','f_title','f_subtitle','f_tagline','f_footerText',
      'f_titleImage','f_titleImageMaxWidth',
+     'f_teaserLaunchDate','f_teaserHeadline','f_teaserSubtext',
      'f_displayDuration','f_fadeDuration','f_ssOverlay'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.addEventListener('input', markDirty);
@@ -2553,6 +2601,10 @@ document.addEventListener('DOMContentLoaded', function () {
       workingConfig.landing.tagline  = getRawVal('f_tagline');
       workingConfig.footer.text      = getRawVal('f_footerText');
       workingConfig.drawerFooter     = getRawVal('f_drawerFooter');
+      /* Teaser page */
+      workingConfig.teaserLaunchDate = getRawVal('f_teaserLaunchDate');
+      workingConfig.teaserHeadline   = getRawVal('f_teaserHeadline');
+      workingConfig.teaserSubtext    = getRawVal('f_teaserSubtext');
 
       workingConfig.slideshow.displayDuration = Math.round(parseFloat(getVal('f_displayDuration')||4)*1000);
       workingConfig.slideshow.fadeDuration    = Math.round(parseFloat(getVal('f_fadeDuration')   ||2)*1000);

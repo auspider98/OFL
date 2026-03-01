@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Something legendary is coming." />
+  <title>Coming Soon</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <script src="admin-config.js"></script>
+  <script src="admin.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --accent:      #e8e8e8;
+      --accent-dim:  rgba(232,232,232,0.45);
+      --accent-glow: rgba(232,232,232,0.08);
+      --hint-color:  #b8972a;
+      --font-display: 'Georgia', serif;
+      --font-body:    'Helvetica Neue', sans-serif;
+    }
+
+    /* ── Animated background ─────────────────────────────── */
+    html, body {
+      width: 100%; height: 100%;
+      background: #000;
+      color: var(--accent);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+    }
+
+    .bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    /* Slow radial pulse layers */
+    .bg-canvas::before,
+    .bg-canvas::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0;
+      animation: bgPulse 12s ease-in-out infinite;
+    }
+    .bg-canvas::before {
+      width: 70vmax; height: 70vmax;
+      top: -20vmax; left: -20vmax;
+      background: radial-gradient(circle, rgba(184,151,42,0.18) 0%, transparent 70%);
+      animation-delay: 0s;
+    }
+    .bg-canvas::after {
+      width: 60vmax; height: 60vmax;
+      bottom: -15vmax; right: -15vmax;
+      background: radial-gradient(circle, rgba(232,232,232,0.07) 0%, transparent 70%);
+      animation-delay: 6s;
+    }
+
+    /* Drifting particle dots */
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: var(--hint-color);
+      opacity: 0;
+      animation: particleDrift linear infinite;
+    }
+
+    @keyframes bgPulse {
+      0%   { opacity: 0;    transform: scale(0.85); }
+      40%  { opacity: 1;    transform: scale(1.05); }
+      70%  { opacity: 0.6;  transform: scale(1);    }
+      100% { opacity: 0;    transform: scale(0.85); }
+    }
+
+    @keyframes particleDrift {
+      0%   { opacity: 0;   transform: translateY(0)   scale(1); }
+      15%  { opacity: 0.6; }
+      85%  { opacity: 0.3; }
+      100% { opacity: 0;   transform: translateY(-80vh) scale(0.4); }
+    }
+
+    /* Vignette */
+    .vignette {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.75) 100%);
+      pointer-events: none;
+    }
+
+    /* ── Page layout ─────────────────────────────────────── */
+    .teaser-page {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 5rem 2rem 4rem;
+      text-align: center;
+    }
+
+    /* ── Logo mark (top-left) ────────────────────────────── */
+    .teaser-logomark {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.6rem 2.4rem;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 100%);
+      pointer-events: none;
+    }
+    .teaser-logomark-text {
+      font-family: var(--font-body);
+      font-weight: 300;
+      font-size: 0.65rem;
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+    }
+    .teaser-badge {
+      font-family: var(--font-body);
+      font-size: 0.6rem;
+      font-weight: 400;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--hint-color);
+      border: 1px solid rgba(184,151,42,0.35);
+      padding: 0.3em 0.8em;
+      border-radius: 2px;
+      opacity: 0.85;
+    }
+
+    /* ── Hero section ────────────────────────────────────── */
+    .teaser-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      animation: fadeUp 1.2s 0.2s ease both;
+    }
+
+    .teaser-logo-img {
+      display: block;
+      max-width: 340px;
+      width: 100%;
+      height: auto;
+      margin: 0 auto 1.8rem;
+      filter: drop-shadow(0 0 40px rgba(184,151,42,0.25));
+    }
+
+    .teaser-logo-text {
+      font-family: var(--font-display);
+      font-size: clamp(4rem, 14vw, 8rem);
+      font-weight: 300;
+      line-height: 0.92;
+      letter-spacing: -0.02em;
+      color: var(--accent);
+      margin-bottom: 1.6rem;
+    }
+
+    .teaser-headline {
+      font-family: var(--font-display);
+      font-size: clamp(1.4rem, 4vw, 2.4rem);
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+      margin-bottom: 0.8rem;
+      animation: fadeUp 1.2s 0.45s ease both;
+    }
+
+    .teaser-subtext {
+      font-family: var(--font-body);
+      font-size: clamp(0.7rem, 2vw, 0.85rem);
+      font-weight: 300;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+      margin-bottom: 3rem;
+      animation: fadeUp 1.2s 0.6s ease both;
+    }
+
+    /* ── Countdown ───────────────────────────────────────── */
+    .countdown-wrap {
+      display: flex;
+      gap: clamp(1rem, 4vw, 2.5rem);
+      align-items: flex-start;
+      justify-content: center;
+      margin-bottom: 3.5rem;
+      animation: fadeUp 1.2s 0.75s ease both;
+    }
+
+    .countdown-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      min-width: 64px;
+    }
+
+    .countdown-num {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 8vw, 4.5rem);
+      font-weight: 300;
+      line-height: 1;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+      position: relative;
+    }
+
+    .countdown-num::after {
+      content: '';
+      display: block;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--accent-dim), transparent);
+      margin-top: 0.3rem;
+    }
+
+    .countdown-label {
+      font-family: var(--font-body);
+      font-size: 0.55rem;
+      font-weight: 400;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+    }
+
+    .countdown-sep {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      color: var(--accent-dim);
+      line-height: 1;
+      padding-top: 0.1em;
+      opacity: 0.4;
+    }
+
+    .coming-soon-text {
+      font-family: var(--font-display);
+      font-size: clamp(1.2rem, 4vw, 2rem);
+      letter-spacing: 0.25em;
+      color: var(--accent-dim);
+      margin-bottom: 3.5rem;
+      animation: fadeUp 1.2s 0.75s ease both;
+    }
+
+    /* ── Email notify ────────────────────────────────────── */
+    .notify-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.8rem;
+      animation: fadeUp 1.2s 1.05s ease both;
+      margin-bottom: 3rem;
+    }
+
+    .notify-label {
+      font-family: var(--font-body);
+      font-size: 0.65rem;
+      font-weight: 400;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+    }
+
+    .notify-row {
+      display: flex;
+      gap: 0;
+      max-width: 380px;
+      width: 100%;
+    }
+
+    .notify-input {
+      flex: 1;
+      background: rgba(232,232,232,0.05);
+      border: 1px solid rgba(232,232,232,0.15);
+      border-right: none;
+      color: var(--accent);
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      padding: 0.75rem 1rem;
+      outline: none;
+      transition: border-color 0.25s;
+      border-radius: 0;
+      -webkit-appearance: none;
+    }
+    .notify-input::placeholder { color: rgba(232,232,232,0.25); }
+    .notify-input:focus { border-color: rgba(232,232,232,0.4); }
+
+    .notify-btn {
+      background: rgba(232,232,232,0.1);
+      border: 1px solid rgba(232,232,232,0.2);
+      color: var(--accent);
+      font-family: var(--font-body);
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.75rem 1.2rem;
+      cursor: pointer;
+      transition: background 0.25s, border-color 0.25s;
+      white-space: nowrap;
+    }
+    .notify-btn:hover { background: rgba(232,232,232,0.18); border-color: rgba(232,232,232,0.4); }
+
+    .notify-confirm {
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--hint-color);
+      height: 1.2em;
+      transition: opacity 0.4s;
+      opacity: 0;
+    }
+    .notify-confirm.is-visible { opacity: 1; }
+
+    /* ── Footer ──────────────────────────────────────────── */
+    .teaser-footer {
+      font-family: var(--font-body);
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(232,232,232,0.2);
+      animation: fadeUp 1.2s 1.2s ease both;
+    }
+
+    /* ── Animations ──────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Responsive ──────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .teaser-logomark { padding: 1.2rem 1.4rem; }
+      .teaser-cards { flex-direction: column; align-items: center; }
+      .teaser-card { width: 100%; max-width: 280px; }
+      .countdown-wrap { gap: 0.8rem; }
+      .countdown-unit { min-width: 48px; }
+      .teaser-logo-img { max-width: 220px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-canvas" id="bgCanvas"></div>
+  <div class="vignette"></div>
+
+  <!-- Top bar -->
+  <div class="teaser-logomark">
+    <span class="teaser-logomark-text" id="t-logomark">OFC</span>
+    <span class="teaser-badge">Coming Soon</span>
+  </div>
+
+  <main class="teaser-page">
+
+    <!-- Hero -->
+    <div class="teaser-hero">
+      <img class="teaser-logo-img" id="t-logo-img" src="" alt="" style="display:none;" />
+      <div class="teaser-logo-text" id="t-logo-text" style="display:none;"></div>
+    </div>
+
+    <div class="teaser-headline" id="t-headline">The Commission Returns.</div>
+    <div class="teaser-subtext"  id="t-subtext">Something legendary is coming.</div>
+
+    <!-- Countdown -->
+    <div class="countdown-wrap" id="countdownWrap" style="display:none;">
+      <div class="countdown-unit">
+        <div class="countdown-num" id="cd-days">00</div>
+        <div class="countdown-label">Days</div>
+      </div>
+      <div class="countdown-sep">:</div>
+      <div class="countdown-unit">
+        <div class="countdown-num" id="cd-hours">00</div>
+        <div class="countdown-label">Hours</div>
+      </div>
+      <div class="countdown-sep">:</div>
+      <div class="countdown-unit">
+        <div class="countdown-num" id="cd-mins">00</div>
+        <div class="countdown-label">Minutes</div>
+      </div>
+      <div class="countdown-sep">:</div>
+      <div class="countdown-unit">
+        <div class="countdown-num" id="cd-secs">00</div>
+        <div class="countdown-label">Seconds</div>
+      </div>
+    </div>
+    <div class="coming-soon-text" id="comingSoonText" style="display:none;">Coming Soon</div>
+
+    <!-- Email notify -->
+    <div class="notify-wrap">
+      <div class="notify-label">Get notified when we launch</div>
+      <div class="notify-row">
+        <input class="notify-input" type="email" id="notifyEmail" placeholder="your@email.com" />
+        <button class="notify-btn" id="notifyBtn">Notify Me</button>
+      </div>
+      <div class="notify-confirm" id="notifyConfirm">&#10003; Email copied — we'll be in touch.</div>
+    </div>
+
+    <!-- Footer -->
+    <div class="teaser-footer" id="t-footer"></div>
+
+  </main>
+
+  <script>
+  (function () {
+    'use strict';
+
+    // ── Load config ───────────────────────────────────────
+    var raw    = localStorage.getItem('ofc_site_config');
+    var config = raw ? JSON.parse(raw) : (window.SITE_CONFIG || {});
+    var L      = config.landing    || {};
+    var T      = config.theme      || {};
+
+    // ── Apply theme CSS vars ──────────────────────────────
+    var root = document.documentElement;
+    if (T.accentColor)       root.style.setProperty('--accent',       T.accentColor);
+    if (T.accentDim)         root.style.setProperty('--accent-dim',   T.accentDim);
+    if (T.hintColor)         root.style.setProperty('--hint-color',   T.hintColor);
+    if (T.fontDisplay)       root.style.setProperty('--font-display', T.fontDisplay);
+    if (T.fontBody)          root.style.setProperty('--font-body',    T.fontBody);
+
+    // Load Google fonts if needed
+    function loadFont(family) {
+      if (!family) return;
+      var name = family.replace(/'/g,'').split(',')[0].trim();
+      if (!name || name === 'Georgia' || name === 'Helvetica Neue') return;
+      var link = document.createElement('link');
+      link.rel  = 'stylesheet';
+      link.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(name) + '&display=swap';
+      document.head.appendChild(link);
+    }
+    loadFont(T.fontDisplay);
+    loadFont(T.fontBody);
+
+    // ── Logo mark ─────────────────────────────────────────
+    var lm = document.getElementById('t-logomark');
+    if (lm) lm.textContent = L.logoMark || L.title || 'OFC';
+
+    // ── Hero logo — image or text ─────────────────────────
+    var logoImg  = document.getElementById('t-logo-img');
+    var logoText = document.getElementById('t-logo-text');
+    if (L.titleType === 'image' && L.titleImage) {
+      logoImg.src   = L.titleImage;
+      logoImg.alt   = L.title || '';
+      if (L.titleImageMaxWidth) logoImg.style.maxWidth = L.titleImageMaxWidth;
+      logoImg.style.display = '';
+      logoImg.onerror = function () {
+        logoImg.style.display  = 'none';
+        logoText.textContent   = L.title || '';
+        logoText.style.display = '';
+      };
+    } else if (L.title) {
+      logoText.textContent   = L.title;
+      logoText.style.display = '';
+    }
+
+    // ── Headline & subtext ────────────────────────────────
+    var headlineEl = document.getElementById('t-headline');
+    var subtextEl  = document.getElementById('t-subtext');
+    if (headlineEl && config.teaserHeadline) headlineEl.textContent = config.teaserHeadline;
+    if (subtextEl  && config.teaserSubtext)  subtextEl.textContent  = config.teaserSubtext;
+
+    // ── Countdown ─────────────────────────────────────────
+    var targetDate = config.teaserLaunchDate ? new Date(config.teaserLaunchDate) : null;
+    var cdWrap     = document.getElementById('countdownWrap');
+    var csText     = document.getElementById('comingSoonText');
+
+    if (targetDate && !isNaN(targetDate.getTime())) {
+      cdWrap.style.display = '';
+      var cdDays  = document.getElementById('cd-days');
+      var cdHours = document.getElementById('cd-hours');
+      var cdMins  = document.getElementById('cd-mins');
+      var cdSecs  = document.getElementById('cd-secs');
+
+      function pad(n) { return String(Math.max(0, Math.floor(n))).padStart(2, '0'); }
+
+      function tick() {
+        var diff = targetDate - Date.now();
+        if (diff <= 0) {
+          cdDays.textContent = cdHours.textContent = cdMins.textContent = cdSecs.textContent = '00';
+          return;
+        }
+        var s = diff / 1000;
+        cdDays.textContent  = pad(s / 86400);
+        cdHours.textContent = pad((s % 86400) / 3600);
+        cdMins.textContent  = pad((s % 3600)  / 60);
+        cdSecs.textContent  = pad(s % 60);
+      }
+      tick();
+      setInterval(tick, 1000);
+    } else {
+      csText.style.display = '';
+    }
+
+    // ── Email notify — copy to clipboard ──────────────────
+    var notifyBtn     = document.getElementById('notifyBtn');
+    var notifyEmail   = document.getElementById('notifyEmail');
+    var notifyConfirm = document.getElementById('notifyConfirm');
+
+    notifyBtn.addEventListener('click', function () {
+      var email = notifyEmail.value.trim();
+      if (!email || !email.includes('@')) {
+        notifyEmail.focus();
+        notifyEmail.style.borderColor = 'rgba(220,60,60,0.6)';
+        setTimeout(function () { notifyEmail.style.borderColor = ''; }, 1200);
+        return;
+      }
+      navigator.clipboard.writeText(email).then(function () {
+        notifyConfirm.classList.add('is-visible');
+        notifyBtn.textContent = '✓ Done';
+        setTimeout(function () {
+          notifyConfirm.classList.remove('is-visible');
+          notifyBtn.textContent = 'Notify Me';
+        }, 4000);
+      }).catch(function () {
+        /* Fallback for browsers that block clipboard without interaction */
+        notifyConfirm.textContent = '\u2713 Got it \u2014 check back soon.';
+        notifyConfirm.classList.add('is-visible');
+        setTimeout(function () { notifyConfirm.classList.remove('is-visible'); }, 4000);
+      });
+    });
+
+    // Allow Enter key in email field
+    notifyEmail.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') notifyBtn.click();
+    });
+
+    // ── Footer ────────────────────────────────────────────
+    var footerEl = document.getElementById('t-footer');
+    if (footerEl && config.footer && config.footer.show && config.footer.text) {
+      footerEl.textContent = config.footer.text;
+    }
+
+    // ── Particle background ───────────────────────────────
+    var canvas = document.getElementById('bgCanvas');
+    var PARTICLE_COUNT = 28;
+
+    for (var i = 0; i < PARTICLE_COUNT; i++) {
+      (function () {
+        var p    = document.createElement('div');
+        p.className = 'particle';
+        var size = (Math.random() * 3 + 1).toFixed(1);
+        var x    = (Math.random() * 100).toFixed(1);
+        var dur  = (Math.random() * 18 + 12).toFixed(1);
+        var del  = (Math.random() * 20).toFixed(1);
+        p.style.cssText =
+          'width:' + size + 'px;height:' + size + 'px;' +
+          'left:' + x + '%;bottom:-40px;' +
+          'animation-duration:' + dur + 's;' +
+          'animation-delay:-' + del + 's;';
+        canvas.appendChild(p);
+      })();
+    }
+
+  })();
+  </script>
+</body>
+</html>
