@@ -8,6 +8,29 @@
   <link rel="stylesheet" href="style.css" />
   <script src="admin-config.js"></script>
   <script src="admin.js"></script>
+  <style>
+    .yahoo-link-wrap {
+      text-align: center;
+      padding: 0.75rem 1rem 1.25rem;
+    }
+    .yahoo-link-btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: var(--font-body, sans-serif);
+      font-size: 0.68rem; font-weight: 600;
+      letter-spacing: 0.25em; text-transform: uppercase;
+      color: #7B00D4;
+      border: 1px solid rgba(123,0,212,0.4);
+      padding: 0.55em 1.4em;
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .yahoo-link-btn:hover {
+      background: rgba(123,0,212,0.1);
+      border-color: rgba(123,0,212,0.7);
+      color: #9B30FF;
+    }
+    .yahoo-link-btn svg { flex-shrink: 0; }
+  </style>
 </head>
 <body>
 
@@ -458,7 +481,7 @@
         awards:      pl.showAwards      !== false,
         pastSeasons: pl.showPastSeasons !== false
       };
-      var defaultOrder = ['champion','story','standings','bracket','roster','awards','pastSeasons'];
+      var defaultOrder = ['champion','story','standings','bracket','yahoo','roster','awards','pastSeasons'];
       pl.sections = defaultOrder.map(function (key) {
         return { key: key, enabled: legacyMap.hasOwnProperty(key) ? legacyMap[key] : true };
       });
@@ -468,12 +491,35 @@
     function getResolvedSections(league) {
       migratePageLayout(league);
       var pl = league.pageLayout;
-      var defaultOrder = ['champion','story','standings','bracket','roster','awards','pastSeasons'];
+      var defaultOrder = ['champion','story','standings','bracket','yahoo','roster','awards','pastSeasons'];
       var savedKeys = (pl.sections || []).map(function (s) { return s.key; });
       var merged = (pl.sections || []).slice();
       defaultOrder.forEach(function (key) {
         if (savedKeys.indexOf(key) === -1) {
-          merged.push({ key: key, enabled: key !== 'roster' });
+          var newEntry = { key: key, enabled: key !== 'roster' };
+          // For yahoo specifically: always insert directly before roster
+          if (key === 'yahoo') {
+            var rosterIdx = merged.findIndex(function (s) { return s.key === 'roster'; });
+            if (rosterIdx !== -1) {
+              merged.splice(rosterIdx, 0, newEntry);
+            } else {
+              merged.push(newEntry);
+            }
+            return;
+          }
+          // For other new keys: insert at correct position relative to defaultOrder neighbors
+          var defaultIdx = defaultOrder.indexOf(key);
+          var insertAfter = -1;
+          for (var i = defaultIdx - 1; i >= 0; i--) {
+            var prevKey = defaultOrder[i];
+            var mergedIdx = merged.findIndex(function (s) { return s.key === prevKey; });
+            if (mergedIdx !== -1) { insertAfter = mergedIdx; break; }
+          }
+          if (insertAfter === -1) {
+            merged.unshift(newEntry);
+          } else {
+            merged.splice(insertAfter + 1, 0, newEntry);
+          }
         }
       });
       return merged;
@@ -673,6 +719,19 @@
           if (!current || !current.championName || !isFinal) return;
           sectionEl = document.createElement('div');
           sectionEl.innerHTML = renderChampionBlock(current, league, config);
+        }
+
+        // ── Yahoo! League Link ─────────────────────────────
+        else if (key === 'yahoo') {
+          if (!current || !current.yahooUrl || !current.showYahooLink) return;
+          sectionEl = document.createElement('div');
+          sectionEl.innerHTML =
+            '<div class="yahoo-link-wrap">' +
+              '<a class="yahoo-link-btn" href="' + esc(current.yahooUrl) + '" target="_blank" rel="noopener">' +
+                '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>' +
+                'View on Yahoo!' +
+              '</a>' +
+            '</div>';
         }
 
         // ── Season Story ──────────────────────────────────

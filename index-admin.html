@@ -1921,6 +1921,36 @@ document.addEventListener('DOMContentLoaded', function () {
         pbody.appendChild(finalRow);
       }
 
+      /* ── Yahoo! League Link ───────────────────────────── */
+      if (season.yahooUrl === undefined) season.yahooUrl = '';
+      if (season.showYahooLink === undefined) season.showYahooLink = false;
+      var yahooRow = document.createElement('div');
+      yahooRow.className = 'field-row';
+      yahooRow.innerHTML =
+        '<div class="field-label">Yahoo! League URL' +
+          '<span class="field-hint">Link to the Yahoo! league page for this season</span>' +
+        '</div>' +
+        '<input class="admin-input s-yahoo-url" type="url" value="'+esc(season.yahooUrl||'')+'" placeholder="https://football.yahoo.com/leagues/..." />';
+      yahooRow.querySelector('.s-yahoo-url').addEventListener('input', function () {
+        season.yahooUrl = this.value.trim(); markDirty();
+      });
+      pbody.appendChild(yahooRow);
+
+      var yahooToggleRow = document.createElement('div');
+      yahooToggleRow.className = 'field-row';
+      yahooToggleRow.innerHTML =
+        '<div class="field-label">Show Yahoo! Link' +
+          '<span class="field-hint">Display the link on the league page</span>' +
+        '</div>' +
+        '<label class="toggle-switch">' +
+          '<input type="checkbox" class="s-show-yahoo"' + (season.showYahooLink ? ' checked' : '') + ' />' +
+          '<span class="toggle-track"></span>' +
+        '</label>';
+      yahooToggleRow.querySelector('.s-show-yahoo').addEventListener('change', function () {
+        season.showYahooLink = this.checked; markDirty();
+      });
+      pbody.appendChild(yahooToggleRow);
+
       /* ══════════════════════════════════════════════════════
          1. SEASON ROSTER
       ══════════════════════════════════════════════════════ */
@@ -2064,10 +2094,10 @@ document.addEventListener('DOMContentLoaded', function () {
             card.className = 'admin-card standings-row-card';
             var fieldsHtml = isMadness
               ? '<div class="standings-fields">' +
-                  '<div class="admin-field-group"><label>Points</label>' +
-                    '<input class="admin-input st-points" type="number" value="'+esc(row.totalPoints||'')+'" placeholder="142" /></div>' +
                   '<div class="admin-field-group"><label>Picks</label>' +
                     '<input class="admin-input st-picks" type="number" value="'+esc(row.correctPicks||'')+'" placeholder="38" /></div>' +
+                  '<div class="admin-field-group"><label>Points</label>' +
+                    '<input class="admin-input st-points" type="number" value="'+esc(row.totalPoints||'')+'" placeholder="142" /></div>' +
                 '</div>'
               : '<div class="standings-fields">' +
                   '<div class="admin-field-group"><label>Record</label>' +
