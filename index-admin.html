@@ -273,6 +273,10 @@
               <div class="field-label">Teaser Subtext<span class="field-hint">Smaller line below the headline</span></div>
               <input class="admin-input" type="text" id="f_teaserSubtext" placeholder="Something legendary is coming." />
             </div>
+            <div class="field-row">
+              <div class="field-label">VIP Message<span class="field-hint">Commissioner message shown on the inner-circle page</span></div>
+              <textarea class="admin-input" id="f_teaserVipMessage" rows="4" placeholder="Gentlemen. You know who you are. The Commission is back..." style="resize:vertical;font-family:inherit;"></textarea>
+            </div>
           </div>
         </section>
 
@@ -2498,6 +2502,7 @@ document.addEventListener('DOMContentLoaded', function () {
       setVal('f_teaserLaunchDate', workingConfig.teaserLaunchDate || '');
       setVal('f_teaserHeadline',   workingConfig.teaserHeadline   || '');
       setVal('f_teaserSubtext',    workingConfig.teaserSubtext    || '');
+      setVal('f_teaserVipMessage', workingConfig.teaserVipMessage || '');
       setVal('f_displayDuration',(SS.displayDuration || 4000) / 1000);
       setVal('f_fadeDuration',   (SS.fadeDuration    || 2000) / 1000);
       setVal('f_ssOverlay',       SS.overlay || 'rgba(0,0,0,0.55)');
@@ -2562,7 +2567,7 @@ document.addEventListener('DOMContentLoaded', function () {
     /* Bind simple input fields */
     ['f_logoMark','f_eyebrow','f_title','f_subtitle','f_tagline','f_footerText',
      'f_titleImage','f_titleImageMaxWidth',
-     'f_teaserLaunchDate','f_teaserHeadline','f_teaserSubtext',
+     'f_teaserLaunchDate','f_teaserHeadline','f_teaserSubtext','f_teaserVipMessage',
      'f_displayDuration','f_fadeDuration','f_ssOverlay'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.addEventListener('input', markDirty);
@@ -2605,6 +2610,7 @@ document.addEventListener('DOMContentLoaded', function () {
       workingConfig.teaserLaunchDate = getRawVal('f_teaserLaunchDate');
       workingConfig.teaserHeadline   = getRawVal('f_teaserHeadline');
       workingConfig.teaserSubtext    = getRawVal('f_teaserSubtext');
+      workingConfig.teaserVipMessage = getRawVal('f_teaserVipMessage');
 
       workingConfig.slideshow.displayDuration = Math.round(parseFloat(getVal('f_displayDuration')||4)*1000);
       workingConfig.slideshow.fadeDuration    = Math.round(parseFloat(getVal('f_fadeDuration')   ||2)*1000);

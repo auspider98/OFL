@@ -513,18 +513,17 @@
         setTimeout(function () { notifyEmail.style.borderColor = ''; }, 1200);
         return;
       }
+      function doRedirect() {
+        setTimeout(function () { window.location.href = 'teaser-vip.html'; }, 1500);
+      }
       navigator.clipboard.writeText(email).then(function () {
         notifyConfirm.classList.add('is-visible');
         notifyBtn.textContent = '✓ Done';
-        setTimeout(function () {
-          notifyConfirm.classList.remove('is-visible');
-          notifyBtn.textContent = 'Notify Me';
-        }, 4000);
+        doRedirect();
       }).catch(function () {
-        /* Fallback for browsers that block clipboard without interaction */
-        notifyConfirm.textContent = '\u2713 Got it \u2014 check back soon.';
+        notifyConfirm.textContent = '\u2713 Got it \u2014 see you on the inside.';
         notifyConfirm.classList.add('is-visible');
-        setTimeout(function () { notifyConfirm.classList.remove('is-visible'); }, 4000);
+        doRedirect();
       });
     });
 

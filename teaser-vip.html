@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="description" content="Inner Circle." />
+  <title>Inner Circle</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <script src="admin-config.js"></script>
+  <script src="admin.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --accent:      #e8e8e8;
+      --accent-dim:  rgba(232,232,232,0.45);
+      --accent-glow: rgba(232,232,232,0.08);
+      --hint-color:  #b8972a;
+      --font-display: 'Georgia', serif;
+      --font-body:    'Helvetica Neue', sans-serif;
+    }
+
+    html, body {
+      width: 100%; min-height: 100%;
+      background: #000;
+      color: var(--accent);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+    }
+
+    /* ── Cinematic background ────────────────────────────── */
+    .bg-canvas { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
+
+    /* Deep gold core pulse — more dramatic than teaser */
+    .bg-canvas::before {
+      content: '';
+      position: absolute;
+      width: 90vmax; height: 90vmax;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(184,151,42,0.22) 0%, rgba(184,151,42,0.06) 40%, transparent 70%);
+      filter: blur(80px);
+      animation: corePulse 8s ease-in-out infinite;
+    }
+
+    /* Outer silver ring */
+    .bg-canvas::after {
+      content: '';
+      position: absolute;
+      width: 120vmax; height: 120vmax;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: radial-gradient(circle, transparent 30%, rgba(232,232,232,0.04) 60%, transparent 80%);
+      filter: blur(60px);
+      animation: corePulse 12s ease-in-out infinite reverse;
+    }
+
+    @keyframes corePulse {
+      0%   { opacity: 0.4; transform: translate(-50%, -50%) scale(0.9);  }
+      50%  { opacity: 1;   transform: translate(-50%, -50%) scale(1.08); }
+      100% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.9);  }
+    }
+
+    /* Heavy vignette for cinematic feel */
+    .vignette {
+      position: fixed; inset: 0; z-index: 1;
+      background: radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,0.85) 100%);
+      pointer-events: none;
+    }
+
+    /* Scan line texture */
+    .scanlines {
+      position: fixed; inset: 0; z-index: 2; pointer-events: none; opacity: 0.025;
+      background: repeating-linear-gradient(
+        to bottom, transparent 0px, transparent 2px, rgba(255,255,255,1) 2px, rgba(255,255,255,1) 3px
+      );
+    }
+
+    /* Floating particles */
+    .particle {
+      position: absolute; border-radius: 50%;
+      background: var(--hint-color); opacity: 0;
+      animation: particleDrift linear infinite;
+    }
+    @keyframes particleDrift {
+      0%   { opacity: 0;   transform: translateY(0)    scale(1);   }
+      15%  { opacity: 0.7; }
+      85%  { opacity: 0.3; }
+      100% { opacity: 0;   transform: translateY(-80vh) scale(0.3); }
+    }
+
+    /* ── Page ────────────────────────────────────────────── */
+    .vip-page {
+      position: relative; z-index: 10;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 5rem 2rem 4rem;
+      text-align: center;
+    }
+
+    /* ── Top bar ─────────────────────────────────────────── */
+    .vip-topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.6rem 2.4rem;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%);
+      pointer-events: none;
+    }
+    .vip-logomark {
+      font-family: var(--font-body); font-weight: 300;
+      font-size: 0.65rem; letter-spacing: 0.45em; text-transform: uppercase;
+      color: var(--accent-dim);
+    }
+    .vip-access-badge {
+      font-family: var(--font-body); font-size: 0.55rem; font-weight: 700;
+      letter-spacing: 0.35em; text-transform: uppercase;
+      color: var(--hint-color);
+      border: 1px solid var(--hint-color);
+      padding: 0.3em 0.9em;
+      position: relative; overflow: hidden;
+    }
+    .vip-access-badge::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(184,151,42,0.15), transparent);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0%   { transform: translateX(-100%); }
+      100% { transform: translateX(100%);  }
+    }
+
+    /* ── Reveal animation ────────────────────────────────── */
+    .reveal { opacity: 0; animation: cinReveal 1.6s ease forwards; }
+    .reveal-1 { animation-delay: 0.1s; }
+    .reveal-2 { animation-delay: 0.5s; }
+    .reveal-3 { animation-delay: 0.9s; }
+    .reveal-4 { animation-delay: 1.2s; }
+    .reveal-5 { animation-delay: 1.5s; }
+    .reveal-6 { animation-delay: 1.8s; }
+
+    @keyframes cinReveal {
+      from { opacity: 0; transform: translateY(28px) scale(0.98); filter: blur(4px); }
+      to   { opacity: 1; transform: translateY(0)    scale(1);    filter: blur(0);   }
+    }
+
+    /* ── Classified stamp ────────────────────────────────── */
+    .vip-stamp {
+      display: inline-block;
+      font-family: var(--font-body); font-size: 0.55rem; font-weight: 700;
+      letter-spacing: 0.5em; text-transform: uppercase;
+      color: var(--hint-color); border: 2px solid var(--hint-color);
+      padding: 0.35em 1.2em; margin-bottom: 2.5rem;
+      opacity: 0.85;
+      transform: rotate(-1.5deg);
+      display: inline-block;
+    }
+
+    /* ── Logo ────────────────────────────────────────────── */
+    .vip-logo-img {
+      display: block; max-width: 280px; width: 100%; height: auto;
+      margin: 0 auto 1.5rem;
+      filter: drop-shadow(0 0 60px rgba(184,151,42,0.4));
+    }
+    .vip-logo-text {
+      font-family: var(--font-display); font-weight: 300;
+      font-size: clamp(3.5rem, 12vw, 7rem);
+      line-height: 0.92; letter-spacing: -0.02em;
+      color: var(--accent); margin-bottom: 1.5rem;
+      text-shadow: 0 0 80px rgba(184,151,42,0.3);
+    }
+
+    /* ── Commissioner message ────────────────────────────── */
+    .vip-message-wrap { max-width: 560px; margin: 0 auto 3rem; }
+    .vip-message-rule {
+      width: 40px; height: 1px;
+      background: linear-gradient(to right, transparent, var(--hint-color), transparent);
+      margin: 0 auto 1.4rem;
+    }
+    .vip-message {
+      font-family: var(--font-display); font-weight: 300;
+      font-size: clamp(1rem, 3vw, 1.35rem);
+      line-height: 1.6; letter-spacing: 0.02em;
+      color: rgba(232,232,232,0.75);
+      font-style: italic;
+    }
+    .vip-message-rule-bottom {
+      width: 40px; height: 1px;
+      background: linear-gradient(to right, transparent, var(--hint-color), transparent);
+      margin: 1.4rem auto 0;
+    }
+
+    /* ── Countdown ───────────────────────────────────────── */
+    .vip-countdown {
+      display: flex; gap: clamp(1rem, 4vw, 2.5rem);
+      align-items: flex-start; justify-content: center;
+      margin-bottom: 3.5rem;
+    }
+    .vip-cd-unit {
+      display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+      min-width: 64px;
+    }
+    .vip-cd-num {
+      font-family: var(--font-display); font-size: clamp(2.4rem, 8vw, 4.5rem);
+      font-weight: 300; line-height: 1; color: var(--accent);
+      letter-spacing: -0.02em;
+      text-shadow: 0 0 40px rgba(184,151,42,0.25);
+    }
+    .vip-cd-num::after {
+      content: '';
+      display: block; width: 100%; height: 1px;
+      background: linear-gradient(to right, transparent, var(--hint-color), transparent);
+      margin-top: 0.3rem;
+    }
+    .vip-cd-label {
+      font-family: var(--font-body); font-size: 0.55rem; font-weight: 400;
+      letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent-dim);
+    }
+    .vip-cd-sep {
+      font-family: var(--font-display); font-size: clamp(2rem, 6vw, 3.5rem);
+      color: var(--hint-color); line-height: 1; padding-top: 0.1em; opacity: 0.5;
+    }
+    .vip-coming-soon {
+      font-family: var(--font-display); font-size: clamp(1.2rem, 4vw, 2rem);
+      letter-spacing: 0.25em; color: var(--accent-dim); margin-bottom: 3.5rem;
+    }
+
+    /* ── Member cards ────────────────────────────────────── */
+    .vip-roster-label {
+      font-family: var(--font-body); font-size: 0.55rem; font-weight: 400;
+      letter-spacing: 0.45em; text-transform: uppercase;
+      color: var(--hint-color); margin-bottom: 1.4rem;
+      opacity: 0.8;
+    }
+    .vip-cards {
+      display: flex; flex-wrap: wrap; gap: 1rem;
+      justify-content: center; margin-bottom: 3rem;
+      max-width: 900px;
+    }
+    .vip-card {
+      width: 160px;
+      border: 1px solid rgba(184,151,42,0.2);
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(8px);
+      overflow: hidden;
+      position: relative;
+      transition: border-color 0.3s, transform 0.3s;
+      animation: cardReveal 0.8s ease both;
+    }
+    .vip-card:hover {
+      border-color: rgba(184,151,42,0.5);
+      transform: translateY(-3px);
+    }
+    @keyframes cardReveal {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .vip-card-mugshot {
+      width: 100%; aspect-ratio: 4/3; overflow: hidden;
+      background: rgba(184,151,42,0.04);
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .vip-card-mugshot img {
+      width: 100%; height: 100%; object-fit: cover;
+      object-position: top center; display: block;
+      filter: sepia(0.3) brightness(0.85);
+      transition: filter 0.4s;
+    }
+    .vip-card:hover .vip-card-mugshot img { filter: sepia(0) brightness(1); }
+    .vip-card-initial {
+      font-family: var(--font-display); font-size: 2.5rem; font-weight: 300;
+      color: var(--hint-color); letter-spacing: -0.02em; line-height: 1; opacity: 0.5;
+    }
+
+    /* Gold shimmer overlay on mugshot */
+    .vip-card-mugshot::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(184,151,42,0.12) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* Classification bar across bottom of mugshot */
+    .vip-card-classified {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 0.2rem 0.4rem;
+      background: rgba(0,0,0,0.65);
+      font-family: var(--font-body); font-size: 0.42rem; font-weight: 700;
+      letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--hint-color); text-align: center;
+    }
+
+    .vip-card-body {
+      padding: 0.65rem 0.7rem 0.7rem;
+      border-top: 1px solid rgba(184,151,42,0.15);
+    }
+    .vip-card-name {
+      font-family: var(--font-body); font-size: 0.78rem; font-weight: 600;
+      color: var(--accent); letter-spacing: 0.04em; line-height: 1.2;
+      margin-bottom: 0.18rem;
+    }
+    .vip-card-nickname {
+      font-family: var(--font-body); font-size: 0.58rem; font-style: italic;
+      color: var(--accent-dim); letter-spacing: 0.04em;
+    }
+
+    /* ── Confirmed line ──────────────────────────────────── */
+    .vip-confirmed {
+      font-family: var(--font-body); font-size: 0.62rem; font-weight: 400;
+      letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--hint-color); margin-bottom: 1rem;
+    }
+    .vip-confirmed::before { content: '✓  '; }
+
+    /* ── Footer ──────────────────────────────────────────── */
+    .vip-footer {
+      font-family: var(--font-body); font-size: 0.6rem;
+      letter-spacing: 0.3em; text-transform: uppercase;
+      color: rgba(232,232,232,0.15);
+    }
+
+    /* ── Responsive ──────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .vip-topbar { padding: 1.2rem 1.4rem; }
+      .vip-cards  { gap: 0.7rem; }
+      .vip-card   { width: 140px; }
+      .vip-countdown { gap: 0.8rem; }
+      .vip-cd-unit { min-width: 48px; }
+      .vip-logo-img { max-width: 200px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-canvas" id="bgCanvas"></div>
+  <div class="vignette"></div>
+  <div class="scanlines"></div>
+
+  <!-- Top bar -->
+  <div class="vip-topbar">
+    <span class="vip-logomark" id="v-logomark">OFC</span>
+    <span class="vip-access-badge">Inner Circle</span>
+  </div>
+
+  <main class="vip-page">
+
+    <!-- Classified stamp -->
+    <div class="vip-stamp reveal reveal-1">Classified</div>
+
+    <!-- Logo -->
+    <div class="reveal reveal-2">
+      <img class="vip-logo-img" id="v-logo-img" src="" alt="" style="display:none;" />
+      <div class="vip-logo-text" id="v-logo-text" style="display:none;"></div>
+    </div>
+
+    <!-- Commissioner message -->
+    <div class="vip-message-wrap reveal reveal-3" id="v-message-wrap" style="display:none;">
+      <div class="vip-message-rule"></div>
+      <p class="vip-message" id="v-message"></p>
+      <div class="vip-message-rule-bottom"></div>
+    </div>
+
+    <!-- Countdown -->
+    <div class="reveal reveal-4">
+      <div class="vip-countdown" id="vipCountdown" style="display:none;">
+        <div class="vip-cd-unit">
+          <div class="vip-cd-num" id="vcd-days">00</div>
+          <div class="vip-cd-label">Days</div>
+        </div>
+        <div class="vip-cd-sep">:</div>
+        <div class="vip-cd-unit">
+          <div class="vip-cd-num" id="vcd-hours">00</div>
+          <div class="vip-cd-label">Hours</div>
+        </div>
+        <div class="vip-cd-sep">:</div>
+        <div class="vip-cd-unit">
+          <div class="vip-cd-num" id="vcd-mins">00</div>
+          <div class="vip-cd-label">Minutes</div>
+        </div>
+        <div class="vip-cd-sep">:</div>
+        <div class="vip-cd-unit">
+          <div class="vip-cd-num" id="vcd-secs">00</div>
+          <div class="vip-cd-label">Seconds</div>
+        </div>
+      </div>
+      <div class="vip-coming-soon" id="vipComingSoon" style="display:none;">Coming Soon</div>
+    </div>
+
+    <!-- Member cards -->
+    <div class="reveal reveal-5" style="width:100%;display:flex;flex-direction:column;align-items:center;">
+      <div class="vip-roster-label" id="v-roster-label" style="display:none;">The Commission</div>
+      <div class="vip-cards" id="vipCards"></div>
+    </div>
+
+    <!-- Confirmed + footer -->
+    <div class="reveal reveal-6" style="display:flex;flex-direction:column;align-items:center;gap:1rem;">
+      <div class="vip-confirmed">You&rsquo;re on the list</div>
+      <div class="vip-footer" id="v-footer"></div>
+    </div>
+
+  </main>
+
+  <script>
+  (function () {
+    'use strict';
+
+    // ── Load config ───────────────────────────────────────
+    var raw    = localStorage.getItem('ofc_site_config');
+    var config = raw ? JSON.parse(raw) : (window.SITE_CONFIG || {});
+    var L = config.landing || {};
+    var T = config.theme   || {};
+
+    // ── Apply theme CSS vars ──────────────────────────────
+    var root = document.documentElement;
+    if (T.accentColor) root.style.setProperty('--accent',       T.accentColor);
+    if (T.accentDim)   root.style.setProperty('--accent-dim',   T.accentDim);
+    if (T.hintColor)   root.style.setProperty('--hint-color',   T.hintColor);
+    if (T.fontDisplay) root.style.setProperty('--font-display', T.fontDisplay);
+    if (T.fontBody)    root.style.setProperty('--font-body',    T.fontBody);
+
+    function loadFont(family) {
+      if (!family) return;
+      var name = family.replace(/'/g,'').split(',')[0].trim();
+      if (!name || name === 'Georgia' || name === 'Helvetica Neue') return;
+      var link = document.createElement('link');
+      link.rel  = 'stylesheet';
+      link.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(name) + '&display=swap';
+      document.head.appendChild(link);
+    }
+    loadFont(T.fontDisplay);
+    loadFont(T.fontBody);
+
+    function esc(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    function initials(name) {
+      return (name || '').split(' ').map(function (w) { return w[0] || ''; }).join('').slice(0, 2).toUpperCase();
+    }
+
+    // ── Logo mark ─────────────────────────────────────────
+    var lm = document.getElementById('v-logomark');
+    if (lm) lm.textContent = L.logoMark || L.title || 'OFC';
+
+    // ── Hero logo ─────────────────────────────────────────
+    var logoImg  = document.getElementById('v-logo-img');
+    var logoText = document.getElementById('v-logo-text');
+    if (L.titleType === 'image' && L.titleImage) {
+      logoImg.src   = L.titleImage;
+      logoImg.alt   = L.title || '';
+      if (L.titleImageMaxWidth) logoImg.style.maxWidth = L.titleImageMaxWidth;
+      logoImg.style.display = '';
+      logoImg.onerror = function () {
+        logoImg.style.display  = 'none';
+        logoText.textContent   = L.title || '';
+        logoText.style.display = '';
+      };
+    } else if (L.title) {
+      logoText.textContent   = L.title;
+      logoText.style.display = '';
+    }
+
+    // ── Commissioner message ──────────────────────────────
+    var msgWrap = document.getElementById('v-message-wrap');
+    var msgEl   = document.getElementById('v-message');
+    var vipMsg  = config.teaserVipMessage || 'Gentlemen. You know who you are.\nThe Commission is back — and this time, we\u2019re keeping score.';
+    if (msgWrap && msgEl && vipMsg) {
+      // Preserve line breaks from textarea
+      msgEl.innerHTML = vipMsg.split('\n').map(function (line) {
+        return esc(line);
+      }).join('<br />');
+      msgWrap.style.display = '';
+    }
+
+    // ── Countdown ─────────────────────────────────────────
+    var targetDate  = config.teaserLaunchDate ? new Date(config.teaserLaunchDate) : null;
+    var cdWrap      = document.getElementById('vipCountdown');
+    var csText      = document.getElementById('vipComingSoon');
+
+    if (targetDate && !isNaN(targetDate.getTime())) {
+      cdWrap.style.display = '';
+      var vcdDays  = document.getElementById('vcd-days');
+      var vcdHours = document.getElementById('vcd-hours');
+      var vcdMins  = document.getElementById('vcd-mins');
+      var vcdSecs  = document.getElementById('vcd-secs');
+
+      function pad(n) { return String(Math.max(0, Math.floor(n))).padStart(2, '0'); }
+      function tick() {
+        var diff = targetDate - Date.now();
+        if (diff <= 0) {
+          vcdDays.textContent = vcdHours.textContent = vcdMins.textContent = vcdSecs.textContent = '00';
+          return;
+        }
+        var s = diff / 1000;
+        vcdDays.textContent  = pad(s / 86400);
+        vcdHours.textContent = pad((s % 86400) / 3600);
+        vcdMins.textContent  = pad((s % 3600)  / 60);
+        vcdSecs.textContent  = pad(s % 60);
+      }
+      tick();
+      setInterval(tick, 1000);
+    } else {
+      csText.style.display = '';
+    }
+
+    // ── Member cards ──────────────────────────────────────
+    var cardsEl    = document.getElementById('vipCards');
+    var rosterLabel = document.getElementById('v-roster-label');
+    var roster     = (config.masterRoster || []).filter(function (m) { return m.active !== false; });
+
+    if (roster.length > 0) {
+      rosterLabel.style.display = '';
+      cardsEl.innerHTML = roster.map(function (m, idx) {
+        var mugshotHtml = m.mugshot
+          ? '<img src="' + esc(m.mugshot) + '" alt="' + esc(m.name) + '" loading="lazy" />'
+          : '<span class="vip-card-initial">' + esc(initials(m.name)) + '</span>';
+        return '<div class="vip-card" style="animation-delay:' + (idx * 0.08) + 's;">' +
+          '<div class="vip-card-mugshot">' +
+            mugshotHtml +
+            '<div class="vip-card-classified">Confirmed</div>' +
+          '</div>' +
+          '<div class="vip-card-body">' +
+            '<div class="vip-card-name">' + esc(m.name) + '</div>' +
+            (m.nickname ? '<div class="vip-card-nickname">&ldquo;' + esc(m.nickname) + '&rdquo;</div>' : '') +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    // ── Footer ────────────────────────────────────────────
+    var footerEl = document.getElementById('v-footer');
+    if (footerEl && config.footer && config.footer.show && config.footer.text) {
+      footerEl.textContent = config.footer.text;
+    }
+
+    // ── Particles ─────────────────────────────────────────
+    var canvas = document.getElementById('bgCanvas');
+    for (var i = 0; i < 35; i++) {
+      (function () {
+        var p    = document.createElement('div');
+        p.className = 'particle';
+        var size = (Math.random() * 2.5 + 0.8).toFixed(1);
+        var x    = (Math.random() * 100).toFixed(1);
+        var dur  = (Math.random() * 16 + 10).toFixed(1);
+        var del  = (Math.random() * 20).toFixed(1);
+        p.style.cssText =
+          'width:' + size + 'px;height:' + size + 'px;' +
+          'left:' + x + '%;bottom:-40px;' +
+          'animation-duration:' + dur + 's;' +
+          'animation-delay:-' + del + 's;';
+        canvas.appendChild(p);
+      })();
+    }
+
+  })();
+  </script>
+</body>
+</html>
