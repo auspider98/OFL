@@ -849,8 +849,8 @@
         wrap.innerHTML = '';
 
         // Determine member set based on filter
-        var active   = roster.filter(function (m) { return m.active !== false; });
-        var inactive = roster.filter(function (m) { return m.active === false; });
+        var active   = roster.filter(function (m) { return m.active !== false && m.active !== 'false'; });
+        var inactive = roster.filter(function (m) { return m.active === false || m.active === 'false'; });
 
         function inLeague(member, key) {
           return (member.leagues || []).some(function (lg) {
@@ -861,7 +861,7 @@
         var members;
         if (filterVal === 'career') {
           heading.textContent = 'Active';
-          members = roster.slice();
+          members = active.slice();
         } else if (filterVal === 'ofc') {
           heading.textContent = 'OFC';
           members = roster.filter(function (m) { return inLeague(m, 'OFC'); });
