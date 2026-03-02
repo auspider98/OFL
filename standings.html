@@ -59,15 +59,15 @@
 
     /* ── Body ────────────────────────────────────────────── */
     .standings-body { position: relative; z-index: 20; flex: 1; padding: 0 0 5rem; }
-    .standings-section { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem 0; }
+    .standings-section { max-width: 500px; margin: 0 auto; padding: 1.5rem 2rem 0; }
+    .standings-section.is-cards { max-width: 1100px; }
 
     /* ── Controls bar ────────────────────────────────────── */
     .standings-controls {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1rem;
+      gap: 0.75rem;
       margin-bottom: 1.4rem;
       padding-bottom: 0.9rem;
       border-bottom: 1px solid var(--drawer-border);
@@ -77,6 +77,7 @@
     .standings-filters {
       display: flex;
       flex-wrap: wrap;
+      justify-content: center;
       gap: 0.4rem;
     }
     .standings-filter-pill {
@@ -425,11 +426,24 @@
       animation: modalFadeIn 0.2s ease;
     }
     @keyframes modalFadeIn { from { opacity:0; } to { opacity:1; } }
+    @keyframes contentReveal {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .standings-table-wrap { animation: none; }
+    .standings-table-wrap.is-revealing {
+      animation: contentReveal 1.2s 0.6s ease forwards;
+      opacity: 0;
+    }
+    #standingsCards.is-revealing {
+      animation: contentReveal 1.2s 0.6s ease forwards;
+      opacity: 0;
+    }
     .std-modal {
       position: relative;
       background: #0d0d0d;
       border: 1px solid rgba(232,232,232,0.15);
-      max-width: 560px; width: 100%;
+      max-width: 400px; width: 100%;
       max-height: 85vh; overflow-y: auto;
       animation: modalSlideIn 0.22s ease;
     }
@@ -450,7 +464,7 @@
       border-bottom: 1px solid rgba(232,232,232,0.07);
     }
     .std-modal-mugshot {
-      width:68px; height:68px; border-radius:50%; overflow:hidden; flex-shrink:0;
+      width:96px; height:96px; border-radius:50%; overflow:hidden; flex-shrink:0;
       background:rgba(232,232,232,0.05); border:1px solid var(--drawer-border);
       display:flex; align-items:center; justify-content:center;
     }
@@ -480,8 +494,9 @@
 
     /* ── Responsive ──────────────────────────────────────── */
     @media (max-width: 600px) {
-      .standings-controls { flex-direction: column; align-items: flex-start; }
+      .standings-controls { align-items: center; }
       .standings-table th, .standings-table td { padding: 0.6rem 0.5rem; font-size: 0.72rem; }
+      .standings-section, .standings-section.is-cards { max-width: 100%; padding-left: 1rem; padding-right: 1rem; }
     }
   </style>
 </head>
@@ -529,17 +544,17 @@
         <!-- Controls -->
         <div class="standings-controls">
           <div class="standings-filters" id="standingsFilters"></div>
-          <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
-            <div class="view-toggle-wrap">
-              <button class="view-toggle-btn is-active" id="btnViewTable" title="Table view">&#9776;</button>
-              <button class="view-toggle-btn" id="btnViewCards" title="Card view">&#9783;</button>
-            </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:1rem;">
             <div class="standings-mode-wrap">
               <span class="standings-mode-label">View</span>
               <select class="standings-mode-select" id="standingsMode">
                 <option value="performance">Performance</option>
                 <option value="awards">Awards</option>
               </select>
+            </div>
+            <div class="view-toggle-wrap">
+              <button class="view-toggle-btn is-active" id="btnViewTable" title="Table view">&#9776;</button>
+              <button class="view-toggle-btn" id="btnViewCards" title="Card view">&#9783;</button>
             </div>
           </div>
         </div>
@@ -1034,6 +1049,10 @@
       if (state.viewMode === 'cards') {
         tableWrap.style.display = 'none';
         cardsEl.style.display   = '';
+        // Trigger reveal animation
+        cardsEl.classList.remove('is-revealing');
+        void cardsEl.offsetWidth;
+        cardsEl.classList.add('is-revealing');
         if (members.length === 0) {
           cardsEl.innerHTML = '<p class="std-empty">No members match this filter.</p>';
           return;
@@ -1077,6 +1096,10 @@
       // ── Table view ─────────────────────────────────────────
       tableWrap.style.display = '';
       cardsEl.style.display   = 'none';
+      // Trigger reveal animation
+      tableWrap.classList.remove('is-revealing');
+      void tableWrap.offsetWidth; // force reflow
+      tableWrap.classList.add('is-revealing');
 
       var tbody = document.getElementById('standingsBody');
       if (members.length === 0) {
@@ -1346,16 +1369,19 @@
       // View mode toggle
       var btnTable = document.getElementById('btnViewTable');
       var btnCards = document.getElementById('btnViewCards');
+      var standingsSection = document.querySelector('.standings-section');
       btnTable.addEventListener('click', function () {
         state.viewMode = 'table';
         btnTable.classList.add('is-active');
         btnCards.classList.remove('is-active');
+        standingsSection.classList.remove('is-cards');
         doRender();
       });
       btnCards.addEventListener('click', function () {
         state.viewMode = 'cards';
         btnCards.classList.add('is-active');
         btnTable.classList.remove('is-active');
+        standingsSection.classList.add('is-cards');
         doRender();
       });
 
