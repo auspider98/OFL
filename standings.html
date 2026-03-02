@@ -492,6 +492,42 @@
     .std-modal-rank.rank-3 { color:#CD7F32; }
     .std-modal-body { padding:1.2rem 1.4rem 1.4rem; }
 
+    /* Rank-change delta indicators */
+    @keyframes rankDeltaIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes rankDeltaOut {
+      from { opacity: 1; }
+      to   { opacity: 0; }
+    }
+    .rank-delta {
+      display: inline-block;
+      font-family: var(--font-body);
+      font-size: 0.52rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      margin-left: 0.3em;
+      vertical-align: middle;
+      animation: rankDeltaIn 0.25s ease forwards;
+    }
+    .rank-delta.is-up   { color: #6dbf7f; }
+    .rank-delta.is-down { color: #c0675a; }
+    .rank-delta.is-same { color: var(--accent-dim); opacity: 0.5; }
+    .rank-delta.is-fading { animation: rankDeltaOut 0.5s ease forwards; }
+
+    /* Card-view rank delta badge */
+    .std-card-rank-delta {
+      position: absolute; top: 0.55rem; right: 0.6rem;
+      font-family: var(--font-body); font-size: 0.5rem; font-weight: 700;
+      letter-spacing: 0.05em; padding: 0.15rem 0.35rem;
+      border: 1px solid; backdrop-filter: blur(4px); background: rgba(0,0,0,0.55);
+      animation: rankDeltaIn 0.25s ease forwards;
+    }
+    .std-card-rank-delta.is-up   { color: #6dbf7f; border-color: #6dbf7f; }
+    .std-card-rank-delta.is-down { color: #c0675a; border-color: #c0675a; }
+    .std-card-rank-delta.is-fading { animation: rankDeltaOut 0.5s ease forwards; }
+
     /* ── Responsive ──────────────────────────────────────── */
     @media (max-width: 600px) {
       .standings-controls { align-items: center; }
@@ -583,11 +619,14 @@
 
     // ── State ──────────────────────────────────────────────
     var state = {
-      filter:      'overall',   // overall | ofc | brc | ... | historical
-      mode:        'performance', // performance | awards
-      sortCol:     'overallPct',
-      sortDir:     -1,          // -1 = desc, 1 = asc
-      viewMode:    'table'      // table | cards
+      filter:        'overall',
+      mode:          'performance',
+      sortCol:       'overallPct',
+      sortDir:       -1,
+      viewMode:      'table',
+      prevRanks:     null,
+      showDeltas:    true,    // overridden from config on init
+      deltaDuration: 2500     // ms — overridden from config on init
     };
 
     // ── Helpers ────────────────────────────────────────────
@@ -989,6 +1028,7 @@
           var key = th.getAttribute('data-col');
           var col = cols.find(function (c) { return c.key === key; });
           if (!col || !col.sortable) return;
+          state.prevRanks = null; // no deltas on manual sort
           if (state.sortCol === key) {
             state.sortDir = -state.sortDir;
           } else {
@@ -1088,6 +1128,25 @@
             '</div>';
           card.style.cursor = 'pointer';
           card.addEventListener('click', function () { openCardModal(ms, rank); });
+
+          // Rank-change delta badge on card
+          if (state.prevRanks && state.showDeltas) {
+            var oldRank = state.prevRanks[ms.id];
+            if (oldRank != null) {
+              var delta = oldRank - rank;
+              if (delta !== 0) {
+                var cardBadge = document.createElement('span');
+                cardBadge.className = 'std-card-rank-delta ' + (delta > 0 ? 'is-up' : 'is-down');
+                cardBadge.textContent = (delta > 0 ? '▲' : '▼') + Math.abs(delta);
+                card.querySelector('.std-card-mugshot').appendChild(cardBadge);
+                setTimeout(function () {
+                  cardBadge.classList.add('is-fading');
+                  setTimeout(function () { if (cardBadge.parentNode) cardBadge.parentNode.removeChild(cardBadge); }, 500);
+                }, state.deltaDuration);
+              }
+            }
+          }
+
           cardsEl.appendChild(card);
         });
         return;
@@ -1241,6 +1300,27 @@
         '</tr>';
       }).join('');
 
+      // Inject rank-change deltas into table rank cells
+      if (state.prevRanks && state.showDeltas) {
+        tbody.querySelectorAll('tr.std-data-row').forEach(function (tr) {
+          var mid     = tr.getAttribute('data-mid');
+          var newRank = parseInt(tr.getAttribute('data-rank'), 10);
+          var oldRank = state.prevRanks[mid];
+          if (oldRank == null) return;
+          var delta = oldRank - newRank;
+          if (delta === 0) return;
+          var badge = document.createElement('span');
+          badge.className = 'rank-delta ' + (delta > 0 ? 'is-up' : 'is-down');
+          badge.textContent = (delta > 0 ? '▲' : '▼') + Math.abs(delta);
+          var rankCell = tr.querySelector('.std-rank');
+          if (rankCell) rankCell.appendChild(badge);
+          setTimeout(function () {
+            badge.classList.add('is-fading');
+            setTimeout(function () { if (badge.parentNode) badge.parentNode.removeChild(badge); }, 500);
+          }, state.deltaDuration);
+        });
+      }
+
       tbody.querySelectorAll('tr.std-data-row').forEach(function (tr) {
         tr.addEventListener('click', function () {
           var mid  = tr.getAttribute('data-mid');
@@ -1249,6 +1329,27 @@
           if (ms) openCardModal(ms, rank);
         });
       });
+    }
+
+    // ── Snapshot current rendered ranks for delta indicators ──
+    function snapshotRanks() {
+      var rows = document.querySelectorAll('#standingsBody tr.std-data-row');
+      var cards = document.querySelectorAll('#standingsCards .std-card[data-mid]');
+      var snap = {};
+      rows.forEach(function (tr) {
+        var mid  = tr.getAttribute('data-mid');
+        var rank = parseInt(tr.getAttribute('data-rank'), 10);
+        if (mid && rank) snap[mid] = rank;
+      });
+      cards.forEach(function (card) {
+        var mid = card.getAttribute('data-mid');
+        var rankEl = card.querySelector('.std-card-rank');
+        if (mid && rankEl) {
+          var rank = parseInt(rankEl.textContent, 10);
+          if (rank) snap[mid] = rank;
+        }
+      });
+      return Object.keys(snap).length > 0 ? snap : null;
     }
 
     // ── Build league filter pills ──────────────────────────
@@ -1265,6 +1366,7 @@
         btn.className = 'standings-filter-pill' + (p.historical ? ' is-historical' : '') + (p.key === state.filter ? ' is-active' : '');
         btn.textContent = p.label;
         btn.addEventListener('click', function () {
+          state.prevRanks = snapshotRanks();
           state.filter  = p.key;
           // Reset sort to appropriate default for new filter+mode
           state.sortDir = -1;
@@ -1362,6 +1464,13 @@
       var footerEl = document.getElementById('standingsFooter');
       if (footerEl && config.footer && config.footer.show) footerEl.textContent = config.footer.text || '';
 
+      var defaultView = (config.standingsDefaultView === 'cards') ? 'cards' : 'table';
+      state.viewMode     = defaultView;
+      state.showDeltas   = (config.standingsShowDeltas !== false);
+      state.deltaDuration = (config.standingsDeltaDuration != null)
+        ? Math.round(parseFloat(config.standingsDeltaDuration) * 1000)
+        : 2500;
+
       function doRender() { render(allMembers, leagueKeys); }
 
       buildFilters(leagueKeys, allMembers, doRender);
@@ -1370,7 +1479,20 @@
       var btnTable = document.getElementById('btnViewTable');
       var btnCards = document.getElementById('btnViewCards');
       var standingsSection = document.querySelector('.standings-section');
+
+      // Apply initial view toggle button state from config default
+      if (defaultView === 'cards') {
+        btnCards.classList.add('is-active');
+        btnTable.classList.remove('is-active');
+        standingsSection.classList.add('is-cards');
+      } else {
+        btnTable.classList.add('is-active');
+        btnCards.classList.remove('is-active');
+        standingsSection.classList.remove('is-cards');
+      }
+
       btnTable.addEventListener('click', function () {
+        state.prevRanks = null;
         state.viewMode = 'table';
         btnTable.classList.add('is-active');
         btnCards.classList.remove('is-active');
@@ -1378,6 +1500,7 @@
         doRender();
       });
       btnCards.addEventListener('click', function () {
+        state.prevRanks = null;
         state.viewMode = 'cards';
         btnCards.classList.add('is-active');
         btnTable.classList.remove('is-active');
@@ -1388,6 +1511,7 @@
       // Mode dropdown
       var modeEl = document.getElementById('standingsMode');
       modeEl.addEventListener('change', function () {
+        state.prevRanks = snapshotRanks();
         state.mode    = this.value;
         state.sortDir = -1;
         var _f = state.filter;

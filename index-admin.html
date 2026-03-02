@@ -280,6 +280,36 @@
           </div>
         </section>
 
+        <!-- Standings Page -->
+        <section class="admin-section admin-nested-section is-collapsed">
+          <div class="admin-section-header">
+            <span class="admin-section-label">Standings Page</span>
+            <span class="admin-section-toggle">&#x25BC;</span>
+          </div>
+          <div class="admin-section-body">
+            <div class="section-desc-row" style="margin-bottom:0.5rem;">
+              <p class="admin-section-desc">Default display settings for <code>standings.html</code>.</p>
+            </div>
+            <div class="field-row">
+              <div class="field-label">Default View<span class="field-hint">Which view visitors see when they first load the standings</span></div>
+              <select class="admin-input" id="f_standingsDefaultView" style="max-width:160px;">
+                <option value="table">Table</option>
+                <option value="cards">Cards</option>
+              </select>
+            </div>
+            <div class="field-row">
+              <div class="field-label">Rank-Change Arrows<span class="field-hint">Show ▲▼ indicators when switching filters or modes</span><label class="toggle-switch" style="margin-left:auto;" title="Enable/disable rank-change arrows"><input type="checkbox" id="f_standingsShowDeltas" /><span class="toggle-track"></span></label></div>
+            </div>
+            <div class="field-row">
+              <div class="field-label">Arrow Visible Duration<span class="field-hint">Seconds the arrows stay on screen (e.g. 2.5)</span></div>
+              <div style="display:flex;align-items:center;gap:0.5rem;">
+                <input class="admin-input" type="number" id="f_standingsDeltaDuration" min="0.5" max="30" step="0.5" placeholder="2.5" style="max-width:100px;" />
+                <span class="pt-label">SEC</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- Commissioner Settings -->
         <section class="admin-section admin-nested-section is-collapsed">
           <div class="admin-section-header">
@@ -2527,6 +2557,10 @@ document.addEventListener('DOMContentLoaded', function () {
         if (rs) rs.style.display = isImg ? '' : 'none';
       })();
       setVal('f_footerText',     workingConfig.footer ? workingConfig.footer.text : '');
+      setVal('f_standingsDefaultView', workingConfig.standingsDefaultView || 'table');
+      var sdd = document.getElementById('f_standingsShowDeltas');
+      if (sdd) sdd.checked = (workingConfig.standingsShowDeltas !== false);
+      setVal('f_standingsDeltaDuration', workingConfig.standingsDeltaDuration != null ? workingConfig.standingsDeltaDuration : 2.5);
       setVal('f_drawerFooter',   workingConfig.drawerFooter || '');
       /* Teaser page */
       setVal('f_teaserLaunchDate', workingConfig.teaserLaunchDate || '');
@@ -2635,6 +2669,11 @@ document.addEventListener('DOMContentLoaded', function () {
       workingConfig.landing.showTagline         = document.getElementById('f_showTagline')  ? document.getElementById('f_showTagline').checked  : true;
       workingConfig.landing.tagline  = getRawVal('f_tagline');
       workingConfig.footer.text      = getRawVal('f_footerText');
+      workingConfig.standingsDefaultView = getRawVal('f_standingsDefaultView') || 'table';
+      var sddEl = document.getElementById('f_standingsShowDeltas');
+      workingConfig.standingsShowDeltas = sddEl ? sddEl.checked : true;
+      var durVal = parseFloat(getRawVal('f_standingsDeltaDuration'));
+      workingConfig.standingsDeltaDuration = isNaN(durVal) ? 2.5 : Math.max(0.5, durVal);
       workingConfig.drawerFooter     = getRawVal('f_drawerFooter');
       /* Teaser page */
       workingConfig.teaserLaunchDate = getRawVal('f_teaserLaunchDate');
