@@ -322,6 +322,10 @@
     buildLanding(config);
     initSlideshow(config);
     initDrawer();
+    // Sound engine — init after DOM is ready so the nav toggle can be injected
+    if (window.OFL && window.OFL.sound) {
+      window.OFL.sound.init(config);
+    }
   }
 
   if (document.readyState === 'loading') {

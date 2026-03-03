@@ -74,6 +74,7 @@
 
   </div><!-- /leaguePage -->
 
+  <script src="sound.js"></script>
   <script src="menu.js"></script>
 
   <script>
@@ -719,6 +720,11 @@
           if (!current || !current.championName || !isFinal) return;
           sectionEl = document.createElement('div');
           sectionEl.innerHTML = renderChampionBlock(current, league, config);
+          // Fire champion reveal sound when the section animates in
+          sectionEl.addEventListener('animationend', function onChampReveal() {
+            sectionEl.removeEventListener('animationend', onChampReveal);
+            if (window.OFL && window.OFL.sound) window.OFL.sound.play('championReveal');
+          });
         }
 
         // ── Yahoo! League Link ─────────────────────────────

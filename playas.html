@@ -487,6 +487,7 @@
 
   </div>
 
+  <script src="sound.js"></script>
   <script src="menu.js"></script>
 
   <script>
@@ -715,8 +716,11 @@
       card.addEventListener('click', function (e) {
         if (e.target.classList.contains('playa-back-close')) {
           card.classList.remove('is-flipped');
+          if (window.OFL && window.OFL.sound) window.OFL.sound.play('cardFlip');
         } else {
+          var wasFlipped = card.classList.contains('is-flipped');
           card.classList.toggle('is-flipped');
+          if (window.OFL && window.OFL.sound) window.OFL.sound.play('cardFlip');
         }
       });
 

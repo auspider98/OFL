@@ -612,6 +612,7 @@
 
   </div><!-- /standings-page -->
 
+  <script src="sound.js"></script>
   <script src="menu.js"></script>
   <script>
   (function () {
@@ -1083,6 +1084,7 @@
             if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', onKey); }
           }
           document.addEventListener('keydown', onKey);
+          if (window.OFL && window.OFL.sound) window.OFL.sound.play('modalOpen');
         document.body.appendChild(overlay);
       }
 
@@ -1366,6 +1368,7 @@
         btn.className = 'standings-filter-pill' + (p.historical ? ' is-historical' : '') + (p.key === state.filter ? ' is-active' : '');
         btn.textContent = p.label;
         btn.addEventListener('click', function () {
+          if (window.OFL && window.OFL.sound) window.OFL.sound.play('filterSwitch');
           state.prevRanks = snapshotRanks();
           state.filter  = p.key;
           // Reset sort to appropriate default for new filter+mode
@@ -1492,6 +1495,7 @@
       }
 
       btnTable.addEventListener('click', function () {
+        if (window.OFL && window.OFL.sound) window.OFL.sound.play('filterSwitch');
         state.prevRanks = null;
         state.viewMode = 'table';
         btnTable.classList.add('is-active');
@@ -1500,6 +1504,7 @@
         doRender();
       });
       btnCards.addEventListener('click', function () {
+        if (window.OFL && window.OFL.sound) window.OFL.sound.play('filterSwitch');
         state.prevRanks = null;
         state.viewMode = 'cards';
         btnCards.classList.add('is-active');
@@ -1511,6 +1516,7 @@
       // Mode dropdown
       var modeEl = document.getElementById('standingsMode');
       modeEl.addEventListener('change', function () {
+        if (window.OFL && window.OFL.sound) window.OFL.sound.play('filterSwitch');
         state.prevRanks = snapshotRanks();
         state.mode    = this.value;
         state.sortDir = -1;

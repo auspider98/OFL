@@ -51,6 +51,31 @@ img {
   max-width: 100%;
 }
 
+/* ── CUSTOM SCROLLBARS ────────────────────────────────────── */
+/* Webkit: Chrome, Safari, Edge */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(184, 151, 42, 0.35);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(184, 151, 42, 0.65);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(184, 151, 42, 0.35) transparent;
+}
+
 /* ── LANDING PAGE ─────────────────────────────────────────── */
 .landing-page {
   position: relative;
@@ -380,6 +405,40 @@ img {
 .menu-trigger.is-active span:nth-child(3) {
   width: 24px;
   transform: translateY(-6px) rotate(-45deg);
+}
+
+/* ── SOUND TOGGLE BUTTON ──────────────────────────────────── */
+.sound-toggle-btn {
+  pointer-events: all;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--accent-dim);
+  opacity: 0;
+  animation: heroReveal 1s 1.2s ease forwards;
+  transition: color 0.25s ease;
+  flex-shrink: 0;
+}
+.sound-toggle-btn:hover { color: var(--accent); }
+
+/* Show the right icon based on mute state */
+.sound-toggle-btn .sound-icon-off { display: none; }
+.sound-toggle-btn.is-muted .sound-icon-on  { display: none; }
+.sound-toggle-btn.is-muted .sound-icon-off { display: block; }
+.sound-toggle-btn.is-muted { color: rgba(232,232,232,0.25); }
+.sound-toggle-btn.is-muted:hover { color: var(--accent-dim); }
+
+/* Admin page override — solid colour, no animation delay */
+.admin-page .sound-toggle-btn {
+  opacity: 1;
+  animation: none;
+  color: var(--accent-dim);
 }
 
 /* ── DRAWER MENU ──────────────────────────────────────────── */
