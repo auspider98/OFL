@@ -2579,6 +2579,22 @@ select.admin-input option {
   opacity: 0.7;
 }
 
+.champ-share-btn {
+  margin-top: 1.6rem;
+  font-family: var(--font-body);
+  font-size: 0.52rem;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid var(--hint-color, #b8972a);
+  color: var(--hint-color, #b8972a);
+  padding: 0.38rem 1rem;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.champ-share-btn:hover { background: rgba(184,151,42,0.1); }
+
 @media (max-width: 600px) {
   .champ-display {
     padding: 0.5rem 1.2rem 1.5rem;
@@ -3306,4 +3322,103 @@ select.admin-input option {
   .award-name-fields {
     grid-template-columns: 1fr;
   }
+}
+
+/* ── SHARE CARD UI ────────────────────────────────────────── */
+.ofl-sc-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,0.82);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 1.5rem;
+  animation: modalFadeIn 0.2s ease;
+}
+.ofl-sc-panel {
+  background: #0d0d0d;
+  border: 1px solid rgba(232,232,232,0.15);
+  width: 100%; max-width: 420px;
+  max-height: 90vh; overflow-y: auto;
+  display: flex; flex-direction: column;
+  animation: modalSlideIn 0.22s ease;
+}
+.ofl-sc-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.2rem 0.85rem;
+  border-bottom: 1px solid rgba(232,232,232,0.07);
+  flex-shrink: 0;
+}
+.ofl-sc-title {
+  font-family: var(--font-body);
+  font-size: 0.52rem; font-weight: 600;
+  letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--accent-dim);
+}
+.ofl-sc-close {
+  background: none; border: none; cursor: pointer;
+  color: var(--accent-dim); font-size: 1.1rem; line-height: 1;
+  padding: 0.2rem 0.4rem; transition: color 0.15s;
+}
+.ofl-sc-close:hover { color: var(--accent); }
+.ofl-sc-size-row {
+  display: flex; flex-wrap: wrap; gap: 0.35rem;
+  padding: 0.85rem 1.2rem 0.6rem;
+  flex-shrink: 0;
+}
+.ofl-sc-size-btn {
+  font-family: var(--font-body);
+  font-size: 0.5rem; font-weight: 400;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--accent-dim);
+  background: transparent;
+  border: 1px solid var(--drawer-border);
+  padding: 0.26rem 0.6rem;
+  cursor: pointer;
+  transition: color 0.18s, border-color 0.18s, background 0.18s;
+  white-space: nowrap;
+}
+.ofl-sc-size-btn:hover { color: var(--accent); border-color: rgba(232,232,232,0.25); }
+.ofl-sc-size-btn.is-active {
+  color: var(--hint-color, #b8972a);
+  border-color: var(--hint-color, #b8972a);
+  background: rgba(184,151,42,0.06);
+}
+.ofl-sc-preview-wrap {
+  padding: 0.9rem 1.2rem;
+  display: flex; justify-content: center; align-items: center;
+  background: rgba(0,0,0,0.3);
+  border-top: 1px solid rgba(232,232,232,0.05);
+  border-bottom: 1px solid rgba(232,232,232,0.05);
+  flex-shrink: 0;
+}
+.ofl-sc-canvas {
+  display: block; max-width: 100%;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.55);
+}
+.ofl-sc-actions {
+  display: flex; gap: 0.6rem; flex-wrap: wrap;
+  padding: 0.85rem 1.2rem 1rem;
+  flex-shrink: 0;
+}
+.ofl-sc-btn {
+  font-family: var(--font-body);
+  font-size: 0.55rem; font-weight: 500;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  background: transparent;
+  border: 1px solid var(--drawer-border);
+  color: var(--accent-dim);
+  padding: 0.42rem 0.9rem;
+  cursor: pointer;
+  transition: color 0.18s, border-color 0.18s, background 0.18s;
+  flex: 1; min-width: 110px; text-align: center;
+}
+.ofl-sc-btn:hover { color: var(--accent); border-color: rgba(232,232,232,0.3); }
+.ofl-sc-btn-primary {
+  color: var(--hint-color, #b8972a);
+  border-color: var(--hint-color, #b8972a);
+  background: rgba(184,151,42,0.06);
+}
+.ofl-sc-btn-primary:hover {
+  background: rgba(184,151,42,0.13);
+  color: var(--hint-color, #b8972a);
+  border-color: var(--hint-color, #b8972a);
 }

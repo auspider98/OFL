@@ -528,6 +528,28 @@
     .std-card-rank-delta.is-down { color: #c0675a; border-color: #c0675a; }
     .std-card-rank-delta.is-fading { animation: rankDeltaOut 0.5s ease forwards; }
 
+    /* Share button row */
+    .std-modal-share-row {
+      padding: 0.65rem 1.4rem 0.9rem;
+      border-top: 1px solid rgba(232,232,232,0.06);
+      display: flex;
+      justify-content: flex-end;
+    }
+    .std-modal-share-btn {
+      font-family: var(--font-body);
+      font-size: 0.52rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      background: transparent;
+      border: 1px solid var(--hint-color, #b8972a);
+      color: var(--hint-color, #b8972a);
+      padding: 0.32rem 0.85rem;
+      cursor: pointer;
+      transition: background 0.18s;
+    }
+    .std-modal-share-btn:hover { background: rgba(184,151,42,0.1); }
+
     /* ── Responsive ──────────────────────────────────────── */
     @media (max-width: 600px) {
       .standings-controls { align-items: center; }
@@ -613,6 +635,7 @@
   </div><!-- /standings-page -->
 
   <script src="sound.js"></script>
+  <script src="sharecard.js"></script>
   <script src="menu.js"></script>
   <script>
   (function () {
@@ -958,6 +981,64 @@
       return stats;
     }
 
+    // ── Assemble share card data from active filter/mode ───
+    function buildShareData(ms, rank, leagueKeys) {
+      var filter = state.filter;
+      var mode   = state.mode;
+      var cols   = mode === 'awards'
+        ? awardsCols(leagueKeys, filter)
+        : performanceCols(leagueKeys, filter);
+
+      var shareStats = [];
+      cols.forEach(function (col) {
+        if (col.key === 'rank' || col.key === 'name' || col.key === 'totalTitles') return;
+        var val = null, label = '';
+        if (col.key === 'overallPct') {
+          val   = ms.overallPct != null ? ms.overallPct.toFixed(1) + '%' : null;
+          label = 'Overall %';
+        } else if (col.key === 'totalAwards') {
+          val   = ms.totalAwards || null;
+          label = 'Awards';
+        } else if (col.lgKey && col.sub) {
+          var b = ms.leagues[col.lgKey];
+          if (!b) return;
+          if (col.sub === 'record') {
+            val   = b.games > 0 ? b.wins + '-' + b.losses + (b.ties > 0 ? '-' + b.ties : '') : null;
+            label = 'Record';
+          } else if (col.sub === 'winPct') {
+            val   = b.winPct  != null ? b.winPct.toFixed(1)  + '%' : null;
+            label = 'Win %';
+          } else if (col.sub === 'pointsPct') {
+            val   = b.pointsPct != null ? b.pointsPct.toFixed(1) + '%' : null;
+            label = 'Points %';
+          } else if (col.sub === 'points') {
+            val   = b.points ? b.points.toFixed(1) : null;
+            label = 'Points';
+          } else if (col.sub === 'awards') {
+            val   = b.awards || null;
+            label = 'Awards';
+          } else if (col.sub === 'titles') {
+            return; // titles not shown on share card
+          }
+        }
+        if (val != null) shareStats.push({ label: label, value: String(val) });
+      });
+
+      var filterLabel = filter === 'overall'    ? 'Overall'
+                      : filter === 'historical' ? 'Historical'
+                      : filter.toUpperCase();
+      var config    = window.SITE_CONFIG;
+      var commName  = (config && config.landing && config.landing.eyebrow) || 'OFL';
+      return {
+        name:        ms.name,
+        nickname:    ms.nickname || '',
+        mugshot:     ms.mugshot  || '',
+        rank:        rank,
+        stats:       shareStats,
+        leagueLabel: commName + ' \u00b7 ' + filterLabel
+      };
+    }
+
     // ── Render ─────────────────────────────────────────────
     function render(allMembers, leagueKeys) {
       var filter   = state.filter;
@@ -1045,7 +1126,7 @@
       var cardsEl   = document.getElementById('standingsCards');
 
       // ── Modal (shared by table + card views) ──────────────
-      function openCardModal(ms, rank) {
+      function openCardModal(ms, rank, leagueKeys) {
           var existing = document.getElementById('stdCardModal');
           if (existing) existing.remove();
           var rankCls  = rank <= 3 ? ' rank-' + rank : '';
@@ -1070,16 +1151,21 @@
               '<div class="std-modal-body">' +
                 '<div class="std-expand-sections">' + buildExpandContent(ms) + '</div>' +
               '</div>' +
+              '<div class="std-modal-share-row">' +
+                '<button class="std-modal-share-btn">&#8679; Share Card</button>' +
+              '</div>' +
             '</div>';
-          // Close on overlay click
           overlay.addEventListener('click', function (e) {
             if (e.target === overlay) overlay.remove();
           });
-          // Close button
           overlay.querySelector('.std-modal-close').addEventListener('click', function () {
             overlay.remove();
           });
-          // Escape key
+          overlay.querySelector('.std-modal-share-btn').addEventListener('click', function () {
+            if (window.OFL && window.OFL.shareCard) {
+              window.OFL.shareCard.open(buildShareData(ms, rank, leagueKeys));
+            }
+          });
           function onKey(e) {
             if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', onKey); }
           }
@@ -1129,7 +1215,7 @@
               '<div class="std-card-stats">' + statsHtml + '</div>' +
             '</div>';
           card.style.cursor = 'pointer';
-          card.addEventListener('click', function () { openCardModal(ms, rank); });
+          card.addEventListener('click', function () { openCardModal(ms, rank, leagueKeys); });
 
           // Rank-change delta badge on card
           if (state.prevRanks && state.showDeltas) {
@@ -1328,7 +1414,7 @@
           var mid  = tr.getAttribute('data-mid');
           var rank = parseInt(tr.getAttribute('data-rank'), 10) || 0;
           var ms   = members.find(function (m) { return m.id === mid; });
-          if (ms) openCardModal(ms, rank);
+          if (ms) openCardModal(ms, rank, leagueKeys);
         });
       });
     }
