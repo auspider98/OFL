@@ -75,7 +75,6 @@
   </div><!-- /leaguePage -->
 
   <script src="sound.js"></script>
-  <script src="sharecard.js"></script>
   <script src="menu.js"></script>
 
   <script>
@@ -241,7 +240,6 @@
         (team  ? '<div class="champ-display-team">'  + esc(team)  + '</div>' : '') +
         (owner ? '<div class="champ-display-owner">' + esc(owner) + '</div>' : '') +
         (score ? '<div class="champ-display-score">' + esc(score) + '</div>' : '') +
-        '<button class="champ-share-btn">&#8679; Share Card</button>' +
       '</div>';
     }
 
@@ -722,60 +720,6 @@
           if (!current || !current.championName || !isFinal) return;
           sectionEl = document.createElement('div');
           sectionEl.innerHTML = renderChampionBlock(current, league, config);
-          // Fire champion reveal sound when the section animates in
-          sectionEl.addEventListener('animationend', function onChampReveal() {
-            sectionEl.removeEventListener('animationend', onChampReveal);
-            if (window.OFL && window.OFL.sound) window.OFL.sound.play('championReveal');
-          });
-          // Share button
-          var champShareBtn = sectionEl.querySelector('.champ-share-btn');
-          if (champShareBtn) {
-            champShareBtn.addEventListener('click', function () {
-              if (!window.OFL || !window.OFL.shareCard) return;
-              var champMember = (config.masterRoster || []).find(function (m) {
-                return m.id === current.championMemberId;
-              });
-              // Build stats from standings row for this champion
-              var shareStats = [];
-              var row = (current.standings || []).find(function (r) {
-                return r.memberId === current.championMemberId;
-              });
-              if (league.sport === 'football' && row) {
-                if (row.record) {
-                  shareStats.push({ label: 'Record', value: String(row.record) });
-                  var parts = String(row.record).split('-').map(Number);
-                  var games = parts.reduce(function (a, b) { return a + b; }, 0);
-                  if (games > 0) shareStats.push({ label: 'Win %', value: ((parts[0] || 0) / games * 100).toFixed(1) + '%' });
-                }
-              } else if (row && (row.totalPoints || row.points)) {
-                var pts = row.totalPoints || row.points;
-                shareStats.push({ label: 'Points', value: String(pts) });
-              }
-              // Awards for this member this season
-              var awardCount = 0;
-              Object.keys(current.stats || {}).forEach(function (k) {
-                var s = current.stats[k];
-                var arr = Array.isArray(s) ? s : [s];
-                arr.forEach(function (a) { if (a && a.memberId === current.championMemberId) awardCount++; });
-              });
-              (current.customStats || []).forEach(function (c) {
-                if (c.winnerId === current.championMemberId) awardCount++;
-              });
-              if (awardCount > 0) shareStats.push({ label: 'Awards', value: String(awardCount) });
-
-              var commName    = (config.landing && config.landing.eyebrow) || 'OFL';
-              var leagueLabel = [(current.year || ''), (league.name || ''), 'Champion \u00b7 ' + commName]
-                                  .filter(Boolean).join(' ');
-              window.OFL.shareCard.open({
-                name:        current.championName || (champMember && champMember.name) || 'Champion',
-                nickname:    champMember ? (champMember.nickname || '') : '',
-                mugshot:     champMember ? (champMember.mugshot  || '') : '',
-                rank:        null,
-                stats:       shareStats,
-                leagueLabel: leagueLabel
-              });
-            });
-          }
         }
 
         // ── Yahoo! League Link ─────────────────────────────

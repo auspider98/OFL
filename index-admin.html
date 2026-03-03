@@ -327,76 +327,18 @@
             </div>
             <div class="field-row">
               <div class="field-label">Master Volume<span class="field-hint">0 – 100</span></div>
-              <div style="display:flex;align-items:center;gap:0.75rem;">
-                <input type="range" id="f_soundVolume" min="0" max="100" step="1" style="width:120px;accent-color:var(--hint-color);" />
-                <span id="f_soundVolumeDisplay" style="font-family:var(--font-body);font-size:0.7rem;color:var(--accent-dim);min-width:2.5rem;">70</span>
-              </div>
+              <input type="number" class="admin-input" id="f_soundVolume" min="0" max="100" step="1" style="width:72px;" value="70" />
             </div>
 
             <div style="border-top:1px solid var(--drawer-border);margin:0.75rem 0 0.5rem;"></div>
-            <p style="font-family:var(--font-body);font-size:0.55rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--accent-dim);margin-bottom:0.6rem;">Per-Event Sounds</p>
+            <p style="font-family:var(--font-body);font-size:0.55rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--accent-dim);margin-bottom:0.6rem;">Click Sound</p>
 
-            <!-- Card Flip -->
+            <!-- Single sound style -->
             <div class="field-row" style="align-items:flex-start;flex-wrap:wrap;gap:0.4rem;">
-              <div class="field-label" style="min-width:140px;">Card Flip<span class="field-hint">playas.html — when a member card flips</span><label class="toggle-switch" style="margin-left:auto;" title="Enable/disable this sound"><input type="checkbox" id="f_soundCardFlipEnabled" /><span class="toggle-track"></span></label></div>
+              <div class="field-label" style="min-width:140px;">Style<span class="field-hint">Plays on every click across the site</span></div>
               <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
-                <select class="admin-input" id="f_soundCardFlipStyle" style="max-width:140px;">
-                  <option value="whoosh">Whoosh</option>
-                  <option value="swoosh">Swoosh</option>
-                  <option value="click">Click</option>
-                  <option value="chime">Chime</option>
-                  <option value="thud">Thud</option>
-                  <option value="shimmer">Shimmer</option>
-                </select>
-                <button class="btn btn-sm" data-preview="cardFlip">▶ Preview</button>
-              </div>
-            </div>
-
-            <!-- Modal Open -->
-            <div class="field-row" style="align-items:flex-start;flex-wrap:wrap;gap:0.4rem;">
-              <div class="field-label" style="min-width:140px;">Modal Open<span class="field-hint">standings — player detail panel opens</span><label class="toggle-switch" style="margin-left:auto;" title="Enable/disable this sound"><input type="checkbox" id="f_soundModalOpenEnabled" /><span class="toggle-track"></span></label></div>
-              <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
-                <select class="admin-input" id="f_soundModalOpenStyle" style="max-width:140px;">
-                  <option value="whoosh">Whoosh</option>
-                  <option value="swoosh">Swoosh</option>
-                  <option value="click">Click</option>
-                  <option value="chime">Chime</option>
-                  <option value="thud">Thud</option>
-                  <option value="shimmer">Shimmer</option>
-                </select>
-                <button class="btn btn-sm" data-preview="modalOpen">▶ Preview</button>
-              </div>
-            </div>
-
-            <!-- Filter Switch -->
-            <div class="field-row" style="align-items:flex-start;flex-wrap:wrap;gap:0.4rem;">
-              <div class="field-label" style="min-width:140px;">Filter / View Switch<span class="field-hint">standings — filter pills, mode & view toggles</span><label class="toggle-switch" style="margin-left:auto;" title="Enable/disable this sound"><input type="checkbox" id="f_soundFilterSwitchEnabled" /><span class="toggle-track"></span></label></div>
-              <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
-                <select class="admin-input" id="f_soundFilterSwitchStyle" style="max-width:140px;">
-                  <option value="whoosh">Whoosh</option>
-                  <option value="swoosh">Swoosh</option>
-                  <option value="click">Click</option>
-                  <option value="chime">Chime</option>
-                  <option value="thud">Thud</option>
-                  <option value="shimmer">Shimmer</option>
-                </select>
-                <button class="btn btn-sm" data-preview="filterSwitch">▶ Preview</button>
-              </div>
-            </div>
-
-            <!-- Champion Reveal -->
-            <div class="field-row" style="align-items:flex-start;flex-wrap:wrap;gap:0.4rem;">
-              <div class="field-label" style="min-width:140px;">Champion Reveal<span class="field-hint">league.html — when the champion section animates in</span><label class="toggle-switch" style="margin-left:auto;" title="Enable/disable this sound"><input type="checkbox" id="f_soundChampionRevealEnabled" /><span class="toggle-track"></span></label></div>
-              <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
-                <select class="admin-input" id="f_soundChampionRevealStyle" style="max-width:140px;">
-                  <option value="whoosh">Whoosh</option>
-                  <option value="swoosh">Swoosh</option>
-                  <option value="click">Click</option>
-                  <option value="chime">Chime</option>
-                  <option value="thud">Thud</option>
-                  <option value="shimmer">Shimmer</option>
-                </select>
-                <button class="btn btn-sm" data-preview="championReveal">▶ Preview</button>
+                <select class="admin-input" id="f_soundStyle" style="max-width:140px;"><option value="whoosh">Whoosh</option><option value="swoosh">Swoosh</option><option value="click">Click</option><option value="chime">Chime</option><option value="thud">Thud</option><option value="shimmer">Shimmer</option></select>
+                <button class="btn btn-sm" data-preview="main">&#9658; Preview</button>
               </div>
             </div>
 
@@ -2660,23 +2602,11 @@ document.addEventListener('DOMContentLoaded', function () {
       var SC = workingConfig.sound || {};
       var chkSoundEnabled = document.getElementById('f_soundEnabled');
       if (chkSoundEnabled) chkSoundEnabled.checked = (SC.enabled !== false);
-      var volSlider = document.getElementById('f_soundVolume');
-      var volDisplay = document.getElementById('f_soundVolumeDisplay');
-      var volVal = Math.round((SC.volume != null ? SC.volume : 0.7) * 100);
-      if (volSlider)  { volSlider.value = volVal; }
-      if (volDisplay) { volDisplay.textContent = volVal; }
-      // Per-slot
-      var soundSlots = ['cardFlip', 'modalOpen', 'filterSwitch', 'championReveal'];
-      var soundDefaults = { cardFlip: { enabled: true, style: 'whoosh' }, modalOpen: { enabled: true, style: 'chime' }, filterSwitch: { enabled: true, style: 'click' }, championReveal: { enabled: true, style: 'shimmer' } };
-      soundSlots.forEach(function (slot) {
-        var slotKey = slot.replace(/([A-Z])/g, function (m) { return m; }); // keep camelCase
-        var adminId = 'f_sound' + slot.charAt(0).toUpperCase() + slot.slice(1);
-        var slotCfg = SC[slot] || soundDefaults[slot] || {};
-        var chkEl = document.getElementById(adminId + 'Enabled');
-        var selEl = document.getElementById(adminId + 'Style');
-        if (chkEl) chkEl.checked = (slotCfg.enabled !== false);
-        if (selEl) selEl.value   = slotCfg.style || soundDefaults[slot].style;
-      });
+      var volInput = document.getElementById('f_soundVolume');
+      var volVal = SC.volume != null ? SC.volume : 70;
+      if (volInput) volInput.value = Math.round(volVal);
+      var selSoundStyle = document.getElementById('f_soundStyle');
+      if (selSoundStyle) selSoundStyle.value = SC.style || 'click';
       setVal('f_drawerFooter',   workingConfig.drawerFooter || '');
       /* Teaser page */
       setVal('f_teaserLaunchDate', workingConfig.teaserLaunchDate || '');
@@ -2795,17 +2725,10 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!workingConfig.sound) workingConfig.sound = {};
       var chkSoundEnabledEl = document.getElementById('f_soundEnabled');
       workingConfig.sound.enabled = chkSoundEnabledEl ? chkSoundEnabledEl.checked : true;
-      var volSliderEl = document.getElementById('f_soundVolume');
-      workingConfig.sound.volume  = volSliderEl ? (parseInt(volSliderEl.value, 10) / 100) : 0.7;
-      var soundSlots2 = ['cardFlip', 'modalOpen', 'filterSwitch', 'championReveal'];
-      soundSlots2.forEach(function (slot) {
-        var adminId = 'f_sound' + slot.charAt(0).toUpperCase() + slot.slice(1);
-        var chkEl = document.getElementById(adminId + 'Enabled');
-        var selEl = document.getElementById(adminId + 'Style');
-        if (!workingConfig.sound[slot]) workingConfig.sound[slot] = {};
-        workingConfig.sound[slot].enabled = chkEl ? chkEl.checked : true;
-        workingConfig.sound[slot].style   = selEl ? selEl.value : 'click';
-      });
+      var volInputEl = document.getElementById('f_soundVolume');
+      workingConfig.sound.volume = volInputEl ? Math.max(0, Math.min(100, parseInt(volInputEl.value, 10) || 70)) : 70;
+      var selSoundStyleEl = document.getElementById('f_soundStyle');
+      workingConfig.sound.style = selSoundStyleEl ? selSoundStyleEl.value : 'click';
       workingConfig.drawerFooter     = getRawVal('f_drawerFooter');
       /* Teaser page */
       workingConfig.teaserLaunchDate = getRawVal('f_teaserLaunchDate');
@@ -2901,50 +2824,32 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     /* ══════════════════════════════════════════════════════
-       SOUND DESIGN — live preview & volume slider
+       SOUND DESIGN — live preview
     ══════════════════════════════════════════════════════ */
     (function () {
-      // Volume slider — update display live
-      var volSlider  = document.getElementById('f_soundVolume');
-      var volDisplay = document.getElementById('f_soundVolumeDisplay');
-      if (volSlider && volDisplay) {
-        volSlider.addEventListener('input', function () {
-          volDisplay.textContent = volSlider.value;
-          // Live-update the sound engine if loaded
-          if (window.OFL && window.OFL.sound && window.SITE_CONFIG) {
-            if (!window.SITE_CONFIG.sound) window.SITE_CONFIG.sound = {};
-            window.SITE_CONFIG.sound.volume = parseInt(volSlider.value, 10) / 100;
-          }
-        });
-      }
-
-      // Preview buttons — play the currently-selected style for that slot
+      // Preview button — play the currently-selected style at the current volume
       document.querySelectorAll('[data-preview]').forEach(function (btn) {
         btn.addEventListener('click', function () {
-          var slot    = btn.getAttribute('data-preview');
-          var adminId = 'f_sound' + slot.charAt(0).toUpperCase() + slot.slice(1);
-          var selEl   = document.getElementById(adminId + 'Style');
-          var style   = selEl ? selEl.value : 'click';
-          var volEl   = document.getElementById('f_soundVolume');
-          var vol     = volEl ? (parseInt(volEl.value, 10) / 100) : 0.7;
+          var selEl = document.getElementById('f_soundStyle');
+          var style = selEl ? selEl.value : 'click';
+          var volEl = document.getElementById('f_soundVolume');
+          var vol   = volEl ? Math.max(0, Math.min(100, parseInt(volEl.value, 10) || 70)) : 70;
 
-          // Temporarily override config for the preview
           if (window.OFL && window.OFL.sound && window.SITE_CONFIG) {
-            var sc = window.SITE_CONFIG.sound || {};
+            var sc        = window.SITE_CONFIG.sound || (window.SITE_CONFIG.sound = {});
             var prevEnabled = sc.enabled;
             var prevMuted   = window.OFL.sound.isMuted();
-            var prevSlot    = sc[slot] ? sc[slot].style : null;
+            var prevStyle   = sc.style;
+            var prevVol     = sc.volume;
             sc.enabled = true;
+            sc.style   = style;
             sc.volume  = vol;
-            if (!sc[slot]) sc[slot] = {};
-            sc[slot].enabled = true;
-            sc[slot].style   = style;
             window.OFL.sound.setMuted(false);
-            window.OFL.sound.play(slot);
-            // Restore after brief delay
+            window.OFL.sound.play();
             setTimeout(function () {
               sc.enabled = prevEnabled;
-              if (prevSlot !== null && sc[slot]) sc[slot].style = prevSlot;
+              sc.style   = prevStyle;
+              sc.volume  = prevVol;
               if (prevMuted) window.OFL.sound.setMuted(true);
             }, 500);
           }
