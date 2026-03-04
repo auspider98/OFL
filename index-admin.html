@@ -2003,6 +2003,23 @@ document.addEventListener('DOMContentLoaded', function () {
           markDirty();
         });
         pbody.appendChild(preseasonRow);
+
+        /* ── Pre-Season message ────────────────────────────── */
+        if (season.preseasonMessage === undefined) season.preseasonMessage = '';
+        var preseasonMsgRow = document.createElement('div');
+        preseasonMsgRow.className = 'field-row';
+        preseasonMsgRow.innerHTML =
+          '<div class="field-label">Pre-Season Message' +
+            '<span class="field-hint">Shown at the top of the league page when Pre-Season is on</span>' +
+          '</div>' +
+          '<textarea class="admin-input s-preseason-message" rows="3" style="resize:vertical;width:100%;" placeholder="e.g. Sign-ups are open! Click the Yahoo link below to join.">' +
+            esc(season.preseasonMessage) +
+          '</textarea>';
+        preseasonMsgRow.querySelector('.s-preseason-message').addEventListener('input', function () {
+          season.preseasonMessage = this.value;
+          markDirty();
+        });
+        pbody.appendChild(preseasonMsgRow);
       }
 
       /* ── Yahoo! League Link ───────────────────────────── */
