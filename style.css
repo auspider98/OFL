@@ -61,11 +61,11 @@ img {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(184, 151, 42, 0.35);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(184, 151, 42, 0.65);
+  background: rgba(255, 255, 255, 0.4);
 }
 ::-webkit-scrollbar-corner {
   background: transparent;
@@ -73,7 +73,7 @@ img {
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(184, 151, 42, 0.35) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
 /* ── LANDING PAGE ─────────────────────────────────────────── */
