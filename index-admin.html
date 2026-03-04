@@ -1985,6 +1985,24 @@ document.addEventListener('DOMContentLoaded', function () {
           markDirty();
         });
         pbody.appendChild(finalRow);
+
+        /* ── Pre-Season toggle (current season only) ──────── */
+        if (season.preseason === undefined) season.preseason = false;
+        var preseasonRow = document.createElement('div');
+        preseasonRow.className = 'field-row';
+        preseasonRow.innerHTML =
+          '<div class="field-label">Pre-Season' +
+            '<span class="field-hint">Hides standings, bracket, awards &amp; story — shows only Yahoo link, roster &amp; past seasons</span>' +
+          '</div>' +
+          '<label class="toggle-switch">' +
+            '<input type="checkbox" class="s-preseason"' + (season.preseason ? ' checked' : '') + ' />' +
+            '<span class="toggle-track"></span>' +
+          '</label>';
+        preseasonRow.querySelector('.s-preseason').addEventListener('change', function () {
+          season.preseason = this.checked;
+          markDirty();
+        });
+        pbody.appendChild(preseasonRow);
       }
 
       /* ── Yahoo! League Link ───────────────────────────── */

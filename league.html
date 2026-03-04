@@ -681,6 +681,9 @@
       var current     = archived || getCurrentSeason(league);
       var isArchive   = !!archived;
       var isFinal     = isSeasonFinal(current, league, isArchive);
+      // Preseason mode: current season is active, not yet final, and has preseason flag.
+      // Only applies to the live (non-archive) view.
+      var isPreseason = !isArchive && !isFinal && !!(current && current.preseason);
 
       var pastSeasons = isArchive ? [] : (league.seasons || []).filter(function (s) {
         return s.id !== (current ? current.id : null);
@@ -709,10 +712,17 @@
       var sections = getResolvedSections(league);
       var isFirst  = !isArchive; // first content section gets league-section-first
 
+      // Sections permitted during preseason (current season not yet started)
+      var PRESEASON_ALLOWED = { yahoo: true, roster: true, pastSeasons: true };
+
       sections.forEach(function (sec) {
         if (!sec.enabled) return;
 
         var key = sec.key;
+
+        // In preseason mode, only show whitelisted sections for the current season
+        if (isPreseason && !PRESEASON_ALLOWED[key]) return;
+
         var sectionEl = null;
 
         // ── Champion ──────────────────────────────────────
