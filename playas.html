@@ -8,6 +8,7 @@
   <link rel="icon" type="image/png" href="assets/favicon.png" />
   <link rel="stylesheet" href="style.css" />
   <script src="admin-config.js"></script>
+  <script src="ofl-data.js"></script>
   <script src="admin.js"></script>
 
   <style>
@@ -778,10 +779,10 @@
     }
 
     // ── Render body ──
-    function renderBody(config) {
+    function renderBody(config, data) {
       var body    = document.getElementById('playasBody');
-      var roster  = config.masterRoster || [];
-      var leagues = config.leagueData   || [];
+      var roster  = data.masterRoster || [];
+      var leagues = data.leagueData   || [];
 
       if (!roster.length) {
         body.innerHTML = '<div class="playas-section"><p class="playas-empty">No members in the roster yet.</p></div>';
@@ -911,10 +912,12 @@
 
     function init() {
       var config = window.SITE_CONFIG;
+      var data   = window.OFL_DATA;
       if (!config) { console.warn('SITE_CONFIG not found'); return; }
+      if (!data)   { console.warn('OFL_DATA not found'); return; }
       document.title = 'OFL \u2014 The Playas';
       initPlayasSlideshow(config);
-      renderBody(config);
+      renderBody(config, data);
     }
 
     if (document.readyState === 'loading') {

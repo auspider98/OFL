@@ -7,6 +7,7 @@
   <link rel="icon" type="image/png" href="assets/favicon.png" />
   <link rel="stylesheet" href="style.css" />
   <script src="admin-config.js"></script>
+  <script src="ofl-data.js"></script>
   <script src="admin.js"></script>
   <style>
     .yahoo-link-wrap {
@@ -38,6 +39,12 @@
       color: var(--accent-dim);
       padding: 1.5rem 1.5rem 0.5rem;
       white-space: pre-line;
+    }
+    .stat-award-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 1.2em;
     }
   </style>
 </head>
@@ -102,11 +109,11 @@
 
     function el(id) { return document.getElementById(id); }
 
-    // ── Get league from config ───────────────────────────────
+    // ── Get league from OFL_DATA ─────────────────────────────
     function getLeague(slug) {
-      var config = window.SITE_CONFIG;
-      if (!config || !config.leagueData) return null;
-      return config.leagueData.find(function (lg) {
+      var data = window.OFL_DATA;
+      if (!data || !data.leagueData) return null;
+      return data.leagueData.find(function (lg) {
         return lg.name && lg.name.toLowerCase() === slug.toLowerCase();
       }) || null;
     }
@@ -122,9 +129,10 @@
     }
 
     // ── Get champion logo: team logo → mugshot fallback ──────
-    function getChampionImage(season, config, league) {
+    function getChampionImage(season, league) {
       if (!season) return '';
-      var member = (config.masterRoster || []).find(function (m) {
+      var masterRoster = (window.OFL_DATA && window.OFL_DATA.masterRoster) || [];
+      var member = masterRoster.find(function (m) {
         return m.id === season.championMemberId;
       });
 
@@ -226,7 +234,7 @@
 
     // ── Render champion display (centered, no box) ──────────
     function renderChampionBlock(season, league, config) {
-      var imgSrc   = getChampionImage(season, config, league);
+      var imgSrc   = getChampionImage(season, league);
       var year     = season.year || '';
       var team     = season.championTeamName || '';
       var owner    = season.championName || '';
@@ -283,7 +291,7 @@
       function logoForRow(row) {
         if (!isFootball) return '';
         var entry = { memberId: row.memberId || '', teamName: row.teamName || row.team || '' };
-        return resolveRosterLogo(entry, league, config);
+        return resolveRosterLogo(entry, league);
       }
 
       function teamCellHtml(row) {
@@ -315,23 +323,222 @@
       return '<table class="league-standings-table"><thead>' + thead + '</thead><tbody>' + tbody + '</tbody></table>';
     }
 
+    // ── Auto-compute stats from weeks + standings data ───────
+    // Returns a stats object with derived values for any key that
+    // is empty/zero in the stored season.stats. Stored values win.
+    function computeStatsFromData(season) {
+      var weeks     = season.weeks     || [];
+      var standings = season.standings || [];
+      var stored    = season.stats     || {};
+      var computed  = {};
+
+      // Helper: is a stored stat entry populated?
+      function hasStored(key) {
+        var s = stored[key];
+        return s && (s.ownerName || s.memberId);
+      }
+
+      // Helper: find roster entry for a memberId
+      function rosterEntry(memberId) {
+        return (season.roster || []).find(function (r) { return r.memberId === memberId; }) || null;
+      }
+
+      // ── From weeks[] ──────────────────────────────────────
+
+      // Collect all games across all weeks with week number attached
+      var allGames = [];
+      weeks.forEach(function (w) {
+        (w.games || []).forEach(function (g) {
+          allGames.push({ game: g, weekNumber: w.weekNumber });
+        });
+      });
+
+      // regularSeasonChamp — best W-L from weekly games; tiebreak by PF
+      if (!hasStored('regularSeasonChamp')) {
+        var winMap = {}; // memberId → { wins, losses, pf }
+        allGames.forEach(function (item) {
+          var g = item.game;
+          var hScore = parseFloat(g.home && g.home.score) || 0;
+          var aScore = parseFloat(g.away && g.away.score) || 0;
+          var hId = g.home && g.home.memberId;
+          var aId = g.away && g.away.memberId;
+          if (!hId || !aId || (!hScore && !aScore)) return;
+          if (!winMap[hId]) winMap[hId] = { memberId: hId, wins: 0, losses: 0, pf: 0, home: g.home };
+          if (!winMap[aId]) winMap[aId] = { memberId: aId, wins: 0, losses: 0, pf: 0, home: g.away };
+          winMap[hId].pf += hScore;
+          winMap[aId].pf += aScore;
+          if (hScore > aScore) { winMap[hId].wins++; winMap[aId].losses++; }
+          else if (aScore > hScore) { winMap[aId].wins++; winMap[hId].losses++; }
+        });
+        var best = null;
+        Object.keys(winMap).forEach(function (id) {
+          var m = winMap[id];
+          if (!best) { best = m; return; }
+          if (m.wins > best.wins) { best = m; return; }
+          if (m.wins === best.wins && m.pf > best.pf) { best = m; }
+        });
+        if (best) {
+          var re = rosterEntry(best.memberId);
+          computed['regularSeasonChamp'] = {
+            memberId:  best.memberId,
+            ownerName: (re && re.ownerName) || best.home.ownerName || '',
+            teamName:  (re && re.teamName)  || best.home.teamName  || '',
+            record:    best.wins + '-' + best.losses
+          };
+        }
+      }
+
+      // highestTeamGameScore — highest single team score across all games
+      if (!hasStored('highestTeamGameScore')) {
+        var bestScore = null;
+        allGames.forEach(function (item) {
+          var g = item.game;
+          [{ side: g.home }, { side: g.away }].forEach(function (s) {
+            if (!s.side || !s.side.memberId) return;
+            var sc = parseFloat(s.side.score) || 0;
+            if (!bestScore || sc > bestScore.score) {
+              bestScore = { memberId: s.side.memberId, ownerName: s.side.ownerName || '', teamName: s.side.teamName || '', score: sc, week: item.weekNumber };
+            }
+          });
+        });
+        if (bestScore && bestScore.score > 0) {
+          var re = rosterEntry(bestScore.memberId);
+          computed['highestTeamGameScore'] = {
+            memberId:  bestScore.memberId,
+            ownerName: (re && re.ownerName) || bestScore.ownerName,
+            teamName:  (re && re.teamName)  || bestScore.teamName,
+            score:     bestScore.score,
+            week:      bestScore.week
+          };
+        }
+      }
+
+      // closestWin — smallest winning margin across all games
+      if (!hasStored('closestWin')) {
+        var closest = null;
+        allGames.forEach(function (item) {
+          var g = item.game;
+          var hScore = parseFloat(g.home && g.home.score) || 0;
+          var aScore = parseFloat(g.away && g.away.score) || 0;
+          if (!hScore || !aScore || hScore === aScore) return;
+          var margin = Math.abs(hScore - aScore);
+          var winner = hScore > aScore ? g.home : g.away;
+          var loser  = hScore > aScore ? g.away : g.home;
+          if (!closest || margin < closest.margin) {
+            closest = { winner: winner, loser: loser, margin: margin, week: item.weekNumber };
+          }
+        });
+        if (closest) {
+          var re = rosterEntry(closest.winner.memberId);
+          computed['closestWin'] = {
+            memberId:  closest.winner.memberId,
+            ownerName: (re && re.ownerName) || closest.winner.ownerName || '',
+            teamName:  (re && re.teamName)  || closest.winner.teamName  || '',
+            opponent:  closest.loser.teamName || closest.loser.ownerName || '',
+            margin:    Math.round(closest.margin * 100) / 100,
+            week:      closest.week
+          };
+        }
+      }
+
+      // highestIndividualScore — highest highScorer.points across all weeks
+      if (!hasStored('highestIndividualScore')) {
+        var bestHigh = null;
+        weeks.forEach(function (w) {
+          var hs = w.highScorer;
+          if (!hs || !hs.memberId) return;
+          var pts = parseFloat(hs.points) || 0;
+          if (!bestHigh || pts > bestHigh.points) {
+            bestHigh = { memberId: hs.memberId, ownerName: hs.ownerName || '', teamName: hs.teamName || '', playerName: hs.playerName || '', points: pts, week: w.weekNumber };
+          }
+        });
+        if (bestHigh && bestHigh.points > 0) {
+          var re = rosterEntry(bestHigh.memberId);
+          computed['highestIndividualScore'] = {
+            memberId:   bestHigh.memberId,
+            ownerName:  (re && re.ownerName) || bestHigh.ownerName,
+            teamName:   (re && re.teamName)  || bestHigh.teamName,
+            playerName: bestHigh.playerName,
+            points:     bestHigh.points
+          };
+        }
+      }
+
+      // ── From standings[] ──────────────────────────────────
+
+      if (standings.length) {
+        // seasonPointsLeader — highest pointsFor
+        if (!hasStored('seasonPointsLeader')) {
+          var leader = standings.reduce(function (best, row) {
+            return parseFloat(row.pointsFor) > parseFloat(best.pointsFor) ? row : best;
+          }, standings[0]);
+          if (leader && leader.memberId) {
+            computed['seasonPointsLeader'] = {
+              memberId:  leader.memberId,
+              ownerName: leader.owner || leader.ownerName || '',
+              teamName:  leader.teamName || leader.team || '',
+              total:     parseFloat(leader.pointsFor)
+            };
+          }
+        }
+
+        // mostPointsAgainst — highest pointsAgainst
+        if (!hasStored('mostPointsAgainst')) {
+          var unlucky = standings.reduce(function (best, row) {
+            return parseFloat(row.pointsAgainst) > parseFloat(best.pointsAgainst) ? row : best;
+          }, standings[0]);
+          if (unlucky && unlucky.memberId) {
+            computed['mostPointsAgainst'] = {
+              memberId:  unlucky.memberId,
+              ownerName: unlucky.owner || unlucky.ownerName || '',
+              teamName:  unlucky.teamName || unlucky.team || '',
+              total:     parseFloat(unlucky.pointsAgainst)
+            };
+          }
+        }
+
+        // lastPlace — last rank in standings
+        if (!hasStored('lastPlace')) {
+          var last = standings[standings.length - 1];
+          if (last && last.memberId) {
+            computed['lastPlace'] = {
+              memberId:  last.memberId,
+              ownerName: last.owner || last.ownerName || '',
+              teamName:  last.teamName || last.team || '',
+              record:    last.record || ''
+            };
+          }
+        }
+      }
+
+      // Merge: stored values take priority, computed fill in the blanks
+      var merged = {};
+      Object.keys(stored).forEach(function (k) { merged[k] = stored[k]; });
+      Object.keys(computed).forEach(function (k) {
+        if (!hasStored(k)) merged[k] = computed[k];
+      });
+
+      return { merged: merged, autoKeys: Object.keys(computed) };
+    }
+
     // ── Render awards grid ───────────────────────────────────
     function renderAwardsGrid(season, league) {
       var schema      = window.SPORT_STAT_SCHEMAS[league.sport] || window.SPORT_STAT_SCHEMAS.other;
       var awardDefs   = schema.awards      || [];
       var awards      = league.awards      || {};
       var awardImages = league.awardImages  || {};
-      var stats       = season.stats        || {};
+
+      // Compute stats from weeks/standings, merging over stored stats
+      var computeResult = (league.sport === 'football')
+        ? computeStatsFromData(season)
+        : { merged: season.stats || {}, autoKeys: [] };
+      var stats    = computeResult.merged;
+      var autoKeys = computeResult.autoKeys;
+
       var html        = '';
 
-      function thumbHtml(imgSrc) {
-        return imgSrc
-          ? '<img class="award-card-thumb" src="' + esc(imgSrc) + '" alt="" />'
-          : '';
-      }
-
-      /* Build a stat/custom award card (not champion) */
-      function buildStatCard(name, hint, imgSrc, teamName, detailLines) {
+      /* Build a stat/custom award card */
+      function buildStatCard(name, hint, imgSrc, teamName, detailLines, isAuto) {
         var hasImg = !!imgSrc;
         var imgCol = hasImg
           ? '<div class="stat-award-img-col"><img src="' + esc(imgSrc) + '" alt="" /></div>'
@@ -351,7 +558,7 @@
         '</div>';
       }
 
-      // Champion always first — same layout as other awards
+      // Champion always first — always AUTO (from season universal fields)
       if (season.championName) {
         var champLines = [];
         if (season.championName && season.championName !== season.championTeamName) champLines.push(season.championName);
@@ -362,7 +569,22 @@
           'Season Champion',
           awardImages['champion'] || '',
           season.championTeamName || season.championName,
-          champLines
+          champLines,
+          true
+        );
+      }
+
+      // Runner-up — only shown for madness leagues
+      if (league.sport === 'madness' && season.runnerUpName) {
+        var ruLines = [];
+        if (season.runnerUpName && season.runnerUpName !== season.runnerUpTeamName) ruLines.push(season.runnerUpName);
+        html += buildStatCard(
+          awards['runnerUp'] || 'Runner-Up',
+          'Season Runner-Up',
+          awardImages['runnerUp'] || '',
+          season.runnerUpTeamName || season.runnerUpName,
+          ruLines,
+          true
         );
       }
 
@@ -373,16 +595,18 @@
         var statDef = (schema.stats || []).find(function (s) { return s.awardKey === a.key; });
         if (statDef) stat = stats[statDef.key];
         if (!stat || (!stat.ownerName && !stat.bracketName)) return;
+        var isAuto = autoKeys.indexOf(a.key) !== -1 || autoKeys.indexOf(statDef && statDef.key) !== -1;
         html += buildStatCard(
           awards[a.key] || a.defaultLabel,
           a.hint || '',
           awardImages[a.key] || '',
           stat.teamName || stat.bracketName || stat.ownerName || '',
-          statLines(stat)
+          statLines(stat),
+          isAuto
         );
       });
 
-      // Custom awards
+      // Custom awards — never AUTO
       (league.customAwards || []).forEach(function (ca) {
         var entry = (season.customStats || []).find(function (cs) { return cs.customAwardId === ca.id; });
         if (!entry || (!entry.ownerName && !entry.value)) return;
@@ -391,7 +615,8 @@
           ca.description || '',
           ca.image || '',
           entry.teamName || entry.ownerName || '',
-          entry.value ? [entry.value] : []
+          entry.value ? [entry.value] : [],
+          false
         );
       });
 
@@ -407,7 +632,7 @@
       var owner       = season.championName || '';
 
       // ── Image
-      var imgSrc  = getChampionImage(season, config, league);
+      var imgSrc  = getChampionImage(season, league);
       var initial = displayName !== '—' ? displayName.charAt(0).toUpperCase()
                   : (owner ? owner.charAt(0).toUpperCase() : '?');
 
@@ -446,7 +671,8 @@
       // ── Season URL
       var seasonParam = encodeURIComponent(season.id || season.year || '');
       var leagueParam = encodeURIComponent(league.name || '');
-      var seasonUrl   = 'league.html?league=' + leagueParam + '&season=' + seasonParam;
+      var thisPage    = window.location.pathname.split('/').pop() || 'league.html';
+      var seasonUrl   = thisPage + '?league=' + leagueParam + '&season=' + seasonParam;
 
       var card = document.createElement('div');
       card.className = 'stat-award-card season-flip-card season-flip-card--link';
@@ -580,7 +806,7 @@
           var awayWon = homeScore !== '' && awayScore !== '' && parseFloat(awayScore) > parseFloat(homeScore);
 
           function teamHtml(memberId, teamName, ownerName, score, won) {
-            var logo    = resolveRosterLogo({ memberId: memberId || '', teamName: teamName || '' }, league, config);
+            var logo    = resolveRosterLogo({ memberId: memberId || '', teamName: teamName || '' }, league);
             var display = teamName || ownerName || '—';
             var initial = display !== '—' ? display.charAt(0).toUpperCase() : '?';
             var imgHtml = logo
@@ -609,12 +835,13 @@
 
     // ── Resolve logo for a roster entry ─────────────────────
     // Priority: season.roster[].logo → master roster team logo → mugshot → ''
-    function resolveRosterLogo(entry, league, config) {
+    function resolveRosterLogo(entry, league) {
       // 1. Logo stored directly on the season roster entry (snapshot at creation)
       if (entry.logo) return entry.logo;
 
       // 2. Look up current logo from master roster
-      var member = (config.masterRoster || []).find(function (m) {
+      var masterRoster = (window.OFL_DATA && window.OFL_DATA.masterRoster) || [];
+      var member = masterRoster.find(function (m) {
         return m.id === entry.memberId;
       });
       if (!member) return '';
@@ -657,7 +884,7 @@
 
       var html = sorted.map(function (entry) {
         var name    = entry.teamName || '';
-        var logo    = resolveRosterLogo(entry, league, config);
+        var logo    = resolveRosterLogo(entry, league);
         var initial = name ? name.charAt(0).toUpperCase() : '?';
 
         var imgHtml = logo
@@ -703,7 +930,7 @@
 
       // ── Archive breadcrumb (always shown when in archive view)
       if (isArchive) {
-        var backUrl = 'league.html?league=' + encodeURIComponent(league.name || '');
+        var backUrl = (window.location.pathname.split('/').pop() || 'league.html') + '?league=' + encodeURIComponent(league.name || '');
         var bread = document.createElement('div');
         bread.className = 'league-section league-section-first league-breadcrumb section-reveal';
         bread.style.animationDelay = revealDelay + 's';
@@ -713,7 +940,7 @@
             '&#8592; ' + esc(league.fullName || league.name || 'League') +
           '</a>' +
           '<span class="breadcrumb-sep">/</span>' +
-          '<span class="breadcrumb-current">' + esc(current ? (current.year || seasonParam) : seasonParam) + ' Season</span>';
+          '<span class="breadcrumb-current">' + esc(current ? (current.year || 'Season') : 'Season') + '</span>';
         body.appendChild(bread);
       }
 
@@ -933,7 +1160,8 @@
     // ── Main init ────────────────────────────────────────────
     function init() {
       var config = window.SITE_CONFIG;
-      if (!config) { console.warn('SITE_CONFIG not found'); return; }
+      var data   = window.OFL_DATA;
+      if (!data) { console.warn('OFL_DATA not found'); return; }
 
       var slug   = getParam('league');
       var league = getLeague(slug);
@@ -954,8 +1182,9 @@
         var archivedSeason = (league.seasons || []).find(function (s) {
           return String(s.id) === seasonParam || String(s.year) === seasonParam;
         });
-        var yearLabel = archivedSeason ? (archivedSeason.year || seasonParam) : seasonParam;
-        document.title = 'OFL \u2014 ' + (league.heroTitle || league.name || 'League') + ' ' + yearLabel;
+        var yearLabel = archivedSeason ? (archivedSeason.year || '') : '';
+        document.title = 'OFL \u2014 ' + (league.heroTitle || league.name || 'League') +
+          (yearLabel ? ' ' + yearLabel : ' Season');
       }
 
       renderBody(league, config);

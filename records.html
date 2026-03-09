@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OFL — Records</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="admin-config.js"></script>
+  <script src="ofl-data.js"></script>
+  <script src="admin.js"></script>
+
+  <style>
+    /* ── Page layout ─────────────────────────────────────── */
+    .rec-page {
+      position: relative; width: 100%; min-height: 100vh;
+      display: flex; flex-direction: column; overflow-x: hidden;
+    }
+    .rec-page > .slide-layer      { position: fixed; inset: 0; z-index: 0; height: 100%; }
+    .rec-page > .landing-overlay  { position: fixed; inset: 0; z-index: 10; height: 100%; pointer-events: none; }
+    .rec-page > .landing-vignette { position: fixed; inset: 0; z-index: 11; height: 100%; pointer-events: none; }
+
+    /* ── Hero ────────────────────────────────────────────── */
+    .rec-hero {
+      position: relative; z-index: 20; width: 100%;
+      min-height: calc(28vh - 10px);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-start;
+      padding: 5rem 2rem 2rem;
+    }
+    .rec-hero .landing-rule { position: absolute; bottom: 0; left: 0; right: 0; z-index: 10; }
+    .rec-hero-eyebrow {
+      font-family: var(--font-body); font-weight: 300;
+      font-size: var(--size-eyebrow, 8pt); letter-spacing: 0.45em;
+      text-transform: uppercase; color: var(--accent-dim); margin-bottom: 1rem;
+      opacity: 0; animation: heroReveal 1.2s 0.2s ease forwards;
+    }
+    .rec-hero-title {
+      font-family: var(--font-display); font-weight: 300;
+      font-size: var(--size-title, 72pt); line-height: 0.92;
+      letter-spacing: -0.02em; color: var(--accent); margin-bottom: 1rem;
+      opacity: 0; animation: heroReveal 1.2s 0.4s ease forwards;
+    }
+    .rec-hero-subtitle {
+      font-family: var(--font-body); font-weight: 200;
+      font-size: var(--size-subtitle, 10pt); letter-spacing: 0.35em;
+      text-transform: uppercase; color: var(--accent-dim);
+      opacity: 0; animation: heroReveal 1.2s 0.55s ease forwards;
+    }
+
+    /* ── Body ────────────────────────────────────────────── */
+    .rec-body { position: relative; z-index: 20; flex: 1; padding: 0 0 5rem; }
+    .rec-wrap { max-width: 1060px; margin: 0 auto; padding: 1.5rem 2rem 0; }
+    .rec-wrap.is-table { max-width: 500px; }
+
+    /* ── Controls ────────────────────────────────────────── */
+    .rec-controls {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 0.75rem;
+      margin-bottom: 1.4rem; padding-bottom: 0.9rem;
+      border-bottom: 1px solid var(--drawer-border);
+    }
+    .rec-tab-bar { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .rec-tab-pill {
+      font-family: var(--font-body); font-size: 0.6rem; font-weight: 400;
+      letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--accent-dim); background: transparent;
+      border: 1px solid var(--drawer-border);
+      padding: 0.3rem 0.75rem; cursor: pointer;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+    .rec-tab-pill:hover { color: var(--accent); border-color: rgba(232,232,232,0.3); }
+    .rec-tab-pill.is-active {
+      color: var(--accent); border-color: var(--accent);
+      background: rgba(232,232,232,0.06);
+    }
+
+    /* View toggle */
+    .view-toggle-wrap { display: flex; gap: 0.3rem; }
+    .view-toggle-btn {
+      font-size: 0.85rem; line-height: 1;
+      background: transparent; border: 1px solid var(--drawer-border);
+      color: var(--accent-dim); padding: 0.28rem 0.55rem;
+      cursor: pointer; transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+    .view-toggle-btn:hover { color: var(--accent); border-color: rgba(232,232,232,0.3); }
+    .view-toggle-btn.is-active {
+      color: var(--accent); border-color: var(--accent);
+      background: rgba(232,232,232,0.06);
+    }
+
+    /* ── Section heading ─────────────────────────────────── */
+    .rec-section-heading {
+      font-family: var(--font-body); font-weight: 300;
+      font-size: var(--size-section-heading, 7pt); letter-spacing: 0.4em;
+      text-transform: uppercase; color: var(--hint-color, var(--accent-dim));
+      margin-bottom: 1.2rem; padding-bottom: 0.6rem;
+      border-bottom: 1px solid var(--drawer-border);
+    }
+    .rec-section { margin-bottom: 2.8rem; }
+
+    /* ── Flip card grid ──────────────────────────────────── */
+    .rec-flip-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 1.1rem;
+    }
+
+    /* The outer wrapper provides perspective and fixed uniform height */
+    .rec-flip-wrap {
+      perspective: 900px;
+      cursor: pointer;
+      height: 360px;
+    }
+    /* Inner wrapper fills the wrap height */
+    .rec-flip-inner {
+      position: relative;
+      width: 100%; height: 100%;
+      transition: transform 0.55s cubic-bezier(0.4,0,0.2,1);
+      transform-style: preserve-3d;
+    }
+    .rec-flip-wrap.is-flipped .rec-flip-inner { transform: rotateY(180deg); }
+
+    /* Shared face styles — both absolute, both fill the card */
+    .rec-flip-front,
+    .rec-flip-back {
+      position: absolute; inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border: 1px solid var(--drawer-border);
+      background: rgba(13,13,13,0.82);
+      backdrop-filter: blur(8px);
+      overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .rec-flip-front { z-index: 2; }
+    .rec-flip-front:hover { border-color: rgba(232,232,232,0.2); }
+    .rec-flip-back {
+      transform: rotateY(180deg);
+      cursor: pointer;
+    }
+
+    /* ── FRONT: mugshot — width-fit, 4:3 aspect, capped height ─ */
+    .rec-front-mug {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      max-height: 220px;
+      overflow: hidden; flex-shrink: 0;
+      background: rgba(232,232,232,0.04);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .rec-front-mug img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: top center; display: block;
+    }
+    .rec-front-mug-initial {
+      font-family: var(--font-display); font-size: 3.5rem; font-weight: 300;
+      color: var(--accent-dim); opacity: 0.5; letter-spacing: -0.02em;
+    }
+
+    /* Front body */
+    .rec-front-body {
+      flex: 1; padding: 0.85rem 1rem 1.4rem;
+      display: flex; flex-direction: column; gap: 0.25rem;
+      position: relative;
+    }
+    .rec-front-label {
+      font-family: var(--font-body); font-size: 0.62rem; font-weight: 400;
+      letter-spacing: 0.35em; text-transform: uppercase;
+      color: var(--hint-color, var(--accent-dim));
+    }
+    .rec-front-value {
+      font-family: var(--font-display); font-size: 2rem; font-weight: 300;
+      letter-spacing: -0.02em; color: var(--accent); line-height: 1;
+    }
+    .rec-front-name {
+      font-family: var(--font-body); font-size: 0.8rem; font-weight: 400;
+      color: var(--accent); letter-spacing: 0.02em;
+    }
+    .rec-front-detail {
+      font-family: var(--font-body); font-size: 0.58rem; font-weight: 300;
+      color: var(--accent-dim); opacity: 0.65;
+    }
+    .rec-front-flip-hint {
+      position: absolute; bottom: 0.5rem; right: 0.65rem;
+      font-size: 0.45rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent-dim); opacity: 0.3; font-family: var(--font-body);
+    }
+    .rec-front-nil {
+      font-family: var(--font-body); font-size: 0.68rem; font-style: italic;
+      color: var(--accent-dim); opacity: 0.35; padding: 0.25rem 0;
+    }
+
+    /* ── BACK ────────────────────────────────────────────── */
+    .rec-back-header {
+      padding: 0.8rem 1rem 0.6rem;
+      border-bottom: 1px solid rgba(232,232,232,0.07);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .rec-back-title {
+      font-family: var(--font-body); font-size: 0.48rem; font-weight: 400;
+      letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--hint-color, var(--accent-dim));
+      flex: 1; padding-right: 0.5rem;
+    }
+    .rec-back-close {
+      background: none; border: none; cursor: pointer;
+      color: var(--accent-dim); font-size: 0.9rem; line-height: 1;
+      padding: 0.1rem 0.2rem; transition: color 0.15s; flex-shrink: 0;
+    }
+    .rec-back-close:hover { color: var(--accent); }
+
+    .rec-back-rows {
+      flex: 1; padding: 0.4rem 0; overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .rec-back-row {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.5rem 1rem;
+      border-bottom: 1px solid rgba(232,232,232,0.05);
+    }
+    .rec-back-row:last-child { border-bottom: none; }
+    .rec-back-rank {
+      font-family: var(--font-body); font-size: 0.6rem; font-weight: 600;
+      min-width: 1.2rem; text-align: right; flex-shrink: 0;
+      color: var(--accent-dim);
+    }
+    .rec-back-rank.rank-1 { color: #FFD700; }
+    .rec-back-rank.rank-2 { color: #C0C0C0; }
+    .rec-back-rank.rank-3 { color: #CD7F32; }
+    .rec-back-mug {
+      width: 30px; height: 30px; border-radius: 50%; overflow: hidden;
+      flex-shrink: 0; background: rgba(232,232,232,0.06);
+      border: 1px solid var(--drawer-border);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .rec-back-mug img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+    .rec-back-mug-ini {
+      font-family: var(--font-display); font-size: 0.65rem;
+      color: var(--accent-dim); font-weight: 300;
+    }
+    .rec-back-info { flex: 1; min-width: 0; }
+    .rec-back-name {
+      font-family: var(--font-body); font-size: 0.75rem; font-weight: 400;
+      color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .rec-back-sub {
+      font-family: var(--font-body); font-size: 0.55rem; color: var(--accent-dim); opacity: 0.6;
+    }
+    .rec-back-val {
+      font-family: var(--font-display); font-size: 1rem; font-weight: 300;
+      color: var(--hint-color, var(--accent-dim)); letter-spacing: -0.01em;
+      flex-shrink: 0;
+    }
+    .rec-back-empty {
+      font-family: var(--font-body); font-size: 0.7rem; font-style: italic;
+      color: var(--accent-dim); opacity: 0.35; padding: 1rem; text-align: center;
+    }
+
+    /* ── Table view — Records-1 style ────────────────────── */
+    .rec-tables-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+      gap: 1.5rem 2rem;
+    }
+    .rec-table-block { display: flex; flex-direction: column; }
+    .rec-table-block-heading {
+      font-family: var(--font-body); font-size: 0.52rem; font-weight: 400;
+      letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--accent-dim); opacity: 0.7;
+      margin-bottom: 0.5rem; padding-bottom: 0.35rem;
+      border-bottom: 1px solid rgba(232,232,232,0.06);
+    }
+    .rec-rank-table {
+      width: 100%; border-collapse: collapse; font-family: var(--font-body);
+    }
+    .rec-rank-table thead tr { border-bottom: 1px solid rgba(232,232,232,0.12); }
+    .rec-rank-table th {
+      font-size: 0.5rem; font-weight: 400; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--accent-dim);
+      padding: 0.5rem 0.8rem; white-space: nowrap; text-align: center;
+    }
+    .rec-rank-table th:nth-child(2) { text-align: left; }
+    .rec-rank-table tbody tr {
+      border-bottom: 1px solid rgba(232,232,232,0.05);
+      transition: background 0.15s;
+    }
+    .rec-rank-table tbody tr:hover { background: rgba(232,232,232,0.03); }
+    .rec-rank-table td {
+      padding: 0.65rem 0.8rem; font-size: 0.78rem;
+      color: var(--accent); white-space: nowrap; text-align: center;
+    }
+    .rec-rank-table td:nth-child(2) { text-align: left; }
+    .rec-rank-num {
+      font-size: 0.62rem; font-weight: 400; color: var(--accent-dim);
+      min-width: 1.5rem; display: inline-block; text-align: right;
+    }
+    .rec-rank-num.rank-1 { color: #FFD700; font-weight: 700; }
+    .rec-rank-num.rank-2 { color: #C0C0C0; font-weight: 600; }
+    .rec-rank-num.rank-3 { color: #CD7F32; font-weight: 600; }
+    .rec-name-cell { display: flex; align-items: center; gap: 0.6rem; }
+    .rec-mug {
+      width: 28px; height: 28px; border-radius: 50%; overflow: hidden;
+      flex-shrink: 0; background: rgba(232,232,232,0.06);
+      border: 1px solid var(--drawer-border);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .rec-mug img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+    .rec-mug-initial {
+      font-family: var(--font-display); font-size: 0.7rem; font-weight: 300; color: var(--accent-dim);
+    }
+    .rec-season-tag {
+      font-size: 0.58rem; color: var(--hint-color, var(--accent-dim));
+      margin-left: 0.4rem; opacity: 0.8;
+    }
+    .rec-tbl-empty {
+      font-family: var(--font-body); font-size: 0.72rem; font-style: italic;
+      color: var(--accent-dim); opacity: 0.45; padding: 0.75rem 0;
+    }
+
+    /* ── Footer ──────────────────────────────────────────── */
+    .rec-footer {
+      position: relative; z-index: 20; text-align: center;
+      font-family: var(--font-body); font-size: 0.6rem;
+      letter-spacing: 0.25em; text-transform: uppercase;
+      color: rgba(232,232,232,0.2); padding: 1.5rem 2rem 2rem;
+    }
+
+    @media (max-width: 640px) {
+      .rec-wrap { padding-left: 1rem; padding-right: 1rem; }
+      .rec-flip-wrap { height: 360px; }
+      .rec-tables-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="topnav" role="navigation" aria-label="Site navigation">
+    <a href="index.html" class="topnav-logo" id="navLogo">OFL</a>
+    <button class="menu-trigger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="site-drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <div class="drawer-overlay" aria-hidden="true"></div>
+  <aside id="site-drawer" class="drawer" role="dialog" aria-modal="true" aria-label="Navigation">
+    <p class="drawer-label">Navigate</p>
+    <ul class="drawer-nav"></ul>
+    <div class="drawer-footer"></div>
+  </aside>
+
+  <div class="rec-page">
+    <div class="slide-layer" id="slideA" aria-hidden="true"></div>
+    <div class="slide-layer" id="slideB" aria-hidden="true"></div>
+    <div class="landing-overlay" id="recOverlay" aria-hidden="true"></div>
+    <div class="landing-vignette" aria-hidden="true"></div>
+
+    <div class="rec-hero">
+      <p class="rec-hero-eyebrow" id="heroEyebrow">Hall of Records</p>
+      <h1 class="rec-hero-title">Records</h1>
+      <p class="rec-hero-subtitle">All-Time &middot; Season &middot; Career</p>
+      <div class="landing-rule" aria-hidden="true"></div>
+    </div>
+
+    <div class="rec-body">
+      <div class="rec-wrap section-reveal" id="recWrap" style="animation-delay:0.3s">
+
+        <div class="rec-controls">
+          <div class="rec-tab-bar" id="recTabBar"></div>
+          <div class="view-toggle-wrap">
+            <button class="view-toggle-btn is-active" id="btnViewCards" title="Card view">&#9783;</button>
+            <button class="view-toggle-btn" id="btnViewTable" title="Table view">&#9776;</button>
+          </div>
+        </div>
+
+        <div id="recContent"></div>
+
+      </div>
+    </div>
+
+    <div class="rec-footer section-reveal" id="recFooter" style="animation-delay:0.4s"></div>
+  </div>
+
+  <script src="sound.js"></script>
+  <script src="menu.js"></script>
+
+  <script>
+  (function () {
+    'use strict';
+
+    var config  = window.SITE_CONFIG || {};
+    var data    = window.OFL_DATA    || {};
+    var leagues = data.leagueData    || [];
+    var roster  = data.masterRoster  || [];
+
+    var state = { viewMode: 'cards', activeLeague: null };
+
+    // ── Helpers ────────────────────────────────────────────
+    function esc(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+    function memberById(id) {
+      return roster.find(function(m){ return m.id === id; }) || null;
+    }
+    function getMugSrc(memberId) {
+      var m = memberById(memberId);
+      return (m && m.mugshot) ? m.mugshot : '';
+    }
+    function getInitials(name) {
+      return (name||'?').split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();
+    }
+    function parseRecord(str) {
+      if (!str) return null;
+      var p = String(str).split('-').map(function(v){ return parseInt(v,10)||0; });
+      return p.length >= 2 ? { w:p[0], l:p[1], t:p[2]||0 } : null;
+    }
+    function winPct(rec) {
+      var g = rec.w + rec.l + rec.t;
+      return g > 0 ? ((rec.w / g) * 100) : 0;
+    }
+    function fmt(v, d) {
+      if (v === null || v === undefined) return '—';
+      return parseFloat(v).toFixed(d || 0);
+    }
+    function champBracketIds(season) {
+      var ids = {};
+      var po  = season.playoffs || {};
+      ['wildcard','semis','finals'].forEach(function(k) {
+        (po[k]||[]).forEach(function(mu) {
+          if (mu.homeMemberId) ids[mu.homeMemberId] = true;
+          if (mu.awayMemberId) ids[mu.awayMemberId] = true;
+        });
+      });
+      return ids;
+    }
+    function seasonComplete(s) { return !!(s.championName || s.championMemberId); }
+
+    // ── OFC compute ────────────────────────────────────────
+    function computeOFC(league) {
+      var seasons = (league.seasons||[]).filter(seasonComplete);
+      var seasonsByYear = seasons.slice().sort(function(a,b){ return (a.year||0)-(b.year||0); });
+
+      var allSeasonWins=[], allSeasonLoss=[], allSeasonWinPct=[];
+      var allSeasonPF=[], allSeasonLowPF=[];
+      var careerWins={}, mostPlayoffs={}, mostLastPlace={};
+      var consPlayoffs={}, consLastPlace={};
+      var sgHighScoreArr=[], sgLowScoreArr=[], sgBlowoutArr=[], sgClosestArr=[], sgHighLosingArr=[], sgMvpHighArr=[], sgMvpLowArr=[];
+      var recBestMissedArr=[], recWorstWonArr=[], recBigGapArr=[];
+      var mvpSeasonArr=[], mvpCareer={};
+
+      seasonsByYear.forEach(function(s) {
+        var standings = s.standings||[];
+        var champIds  = champBracketIds(s);
+        var lastIdx   = standings.length - 1;
+        var finalsIds = {};
+        ((s.playoffs||{}).finals||[]).forEach(function(mu){
+          if (mu.homeMemberId) finalsIds[mu.homeMemberId]=true;
+          if (mu.awayMemberId) finalsIds[mu.awayMemberId]=true;
+        });
+
+        standings.forEach(function(row, idx) {
+          var mid  = row.memberId;
+          var name = row.owner || row.ownerName || '?';
+          var rec  = parseRecord(row.record);
+          var pf   = parseFloat(row.pointsFor) || 0;
+          if (!mid) return;
+
+          if (!careerWins[mid])    careerWins[mid]    = {wins:0,losses:0,name:name,memberId:mid};
+          if (!mostPlayoffs[mid])  mostPlayoffs[mid]  = {count:0,name:name,memberId:mid};
+          if (!mostLastPlace[mid]) mostLastPlace[mid] = {count:0,name:name,memberId:mid};
+          if (!consPlayoffs[mid])  consPlayoffs[mid]  = {current:0,best:0,name:name,memberId:mid};
+          if (!consLastPlace[mid]) consLastPlace[mid] = {current:0,best:0,name:name,memberId:mid};
+
+          var madePlayoff = !!champIds[mid];
+          var isLast      = (idx === lastIdx);
+          var team        = row.teamName || '';
+
+          if (rec) { careerWins[mid].wins += rec.w; careerWins[mid].losses += rec.l; }
+
+          if (madePlayoff) {
+            mostPlayoffs[mid].count++;
+            consPlayoffs[mid].current++;
+            if (consPlayoffs[mid].current > consPlayoffs[mid].best) consPlayoffs[mid].best = consPlayoffs[mid].current;
+          } else { consPlayoffs[mid].current = 0; }
+
+          if (isLast) {
+            mostLastPlace[mid].count++;
+            consLastPlace[mid].current++;
+            if (consLastPlace[mid].current > consLastPlace[mid].best) consLastPlace[mid].best = consLastPlace[mid].current;
+          } else { consLastPlace[mid].current = 0; }
+
+          if (rec && (rec.w + rec.l) > 0) {
+            var e = {memberId:mid, name:name, year:s.year, team:team};
+            allSeasonWins.push(Object.assign({}, e, {value:rec.w}));
+            allSeasonLoss.push(Object.assign({}, e, {value:rec.l}));
+            var wp = winPct(rec);
+            allSeasonWinPct.push(Object.assign({}, e, {value:wp, display:wp.toFixed(1)+'%'}));
+          }
+          if (pf > 0) {
+            allSeasonPF.push(   {memberId:mid, name:name, year:s.year, team:team, value:pf});
+            allSeasonLowPF.push({memberId:mid, name:name, year:s.year, team:team, value:pf});
+          }
+          if (rec && !finalsIds[mid]) {
+            var wpM = winPct(rec);
+            recBestMissedArr.push({memberId:mid, name:name, year:s.year, team:team, value:wpM, rec:rec.w+'-'+rec.l});
+          }
+          if (s.championMemberId === mid && rec) {
+            var wpW = winPct(rec);
+            recWorstWonArr.push({memberId:mid, name:name, year:s.year, team:team, value:wpW, rec:rec.w+'-'+rec.l});
+          }
+        });
+
+        // PF gap — push one entry per season, sort later
+        if (standings.length > 1) {
+          var cr = standings.find(function(r){ return r.memberId === s.championMemberId; });
+          var lr = standings[standings.length - 1];
+          if (cr && lr) {
+            var gap = (parseFloat(cr.pointsFor)||0) - (parseFloat(lr.pointsFor)||0);
+            if (gap > 0)
+              recBigGapArr.push({
+                value: gap, year: s.year,
+                champMemberId: cr.memberId,
+                champName:     cr.owner || cr.ownerName || '?',
+                champTeam:     cr.teamName || '',
+                lastName:      lr.owner || lr.ownerName || '?'
+              });
+          }
+        }
+
+        // MVP counts
+        var mvpCounts = {};
+        (s.weeks||[]).forEach(function(wk) {
+          var hs = wk.highScorer;
+          if (hs && hs.memberId) {
+            if (!mvpCareer[hs.memberId]) mvpCareer[hs.memberId] = {count:0, name:hs.ownerName||'?', memberId:hs.memberId};
+            mvpCareer[hs.memberId].count++;
+            if (!mvpCounts[hs.memberId]) mvpCounts[hs.memberId] = {count:0, name:hs.ownerName||'?', memberId:hs.memberId, team:hs.teamName||''};
+            mvpCounts[hs.memberId].count++;
+          }
+          var pts = parseFloat((hs||{}).points) || 0;
+          if (pts > 0) {
+            var wl = 'Wk ' + (wk.weekNumber||'?') + ', ' + (s.year||'?');
+            var entry = {
+              value:      pts,
+              memberId:   (hs||{}).memberId  || null,
+              name:       (hs||{}).ownerName || '?',
+              team:       (hs||{}).teamName  || '',
+              player:     (hs||{}).playerName|| '',
+              sub:        wl
+            };
+            sgMvpHighArr.push(entry);
+            sgMvpLowArr.push(entry);
+          }
+        });
+        Object.values(mvpCounts).forEach(function(c) {
+          mvpSeasonArr.push({memberId:c.memberId, name:c.name, year:s.year, team:c.team||'', value:c.count});
+        });
+
+        // Single-game records — also track team name per side
+        (s.weeks||[]).forEach(function(wk) {
+          (wk.games||[]).forEach(function(gm) {
+            var hs  = parseFloat((gm.home||{}).score) || 0;
+            var as_ = parseFloat((gm.away||{}).score) || 0;
+            var hm  = (gm.home||{}).memberId, am = (gm.away||{}).memberId;
+            var hn  = (gm.home||{}).ownerName || (gm.home||{}).teamName || '?';
+            var an  = (gm.away||{}).ownerName || (gm.away||{}).teamName || '?';
+            var ht  = (gm.home||{}).teamName || '';
+            var at  = (gm.away||{}).teamName || '';
+            if (!hs && !as_) return;
+            var hi     = hs >= as_ ? {score:hs,  mid:hm, name:hn, team:ht} : {score:as_, mid:am, name:an, team:at};
+            var lo     = hs >= as_ ? {score:as_, mid:am, name:an, team:at} : {score:hs,  mid:hm, name:hn, team:ht};
+            var margin = hi.score - lo.score;
+            var wl     = 'Wk ' + (wk.weekNumber||'?') + ', ' + (s.year||'?');
+            sgHighScoreArr.push( {value:hi.score,  memberId:hi.mid, name:hi.name, team:hi.team, sub:wl});
+            sgLowScoreArr.push(  {value:lo.score,  memberId:lo.mid, name:lo.name, team:lo.team, sub:wl});
+            sgBlowoutArr.push(   {value:margin,    memberId:hi.mid, name:hi.name, team:hi.team, sub:wl});
+            sgClosestArr.push(   {value:margin,    memberId:hi.mid, name:hi.name, team:hi.team, sub:wl});
+            sgHighLosingArr.push({value:lo.score,  memberId:lo.mid, name:lo.name, team:lo.team, sub:wl});
+          });
+        });
+      });
+
+      function top3(arr, key, desc) {
+        return arr.slice().sort(function(a,b){ return desc ? b[key]-a[key] : a[key]-b[key]; }).slice(0,3);
+      }
+
+      return {
+        t3SgHighScore:  top3(sgHighScoreArr,  'value', true),
+        t3SgLowScore:   top3(sgLowScoreArr,   'value', false),
+        t3SgBlowout:    top3(sgBlowoutArr,    'value', true),
+        t3SgClosest:    top3(sgClosestArr,    'value', false),
+        t3SgHighLosing: top3(sgHighLosingArr, 'value', true),
+        t3SgMvpHigh:    top3(sgMvpHighArr,    'value', true),
+        t3SgMvpLow:     top3(sgMvpLowArr,     'value', false),
+        t3BestMissed:   recBestMissedArr.slice().sort(function(a,b){return b.value-a.value;}).slice(0,3),
+        t3WorstWon:     recWorstWonArr.slice().sort(function(a,b){return a.value-b.value;}).slice(0,3),
+        t3BigGap:       recBigGapArr.slice().sort(function(a,b){return b.value-a.value;}).slice(0,3),
+        t3SeasonWins:   top3(allSeasonWins,  'value', true),
+        t3SeasonLoss:   top3(allSeasonLoss,  'value', true),
+        t3BestWinPct:   top3(allSeasonWinPct,'value', true),
+        t3WorstWinPct:  top3(allSeasonWinPct,'value', false),
+        t3HighPF:       top3(allSeasonPF,    'value', true),
+        t3LowPF:        top3(allSeasonLowPF, 'value', false),
+        careerWinArr:    Object.values(careerWins).sort(function(a,b){return b.wins-a.wins;}).slice(0,3),
+        careerLossArr:   Object.values(careerWins).sort(function(a,b){return b.losses-a.losses;}).slice(0,3),
+        playoffArr:      Object.values(mostPlayoffs).sort(function(a,b){return b.count-a.count;}).slice(0,3),
+        lastPlaceArr:    Object.values(mostLastPlace).sort(function(a,b){return b.count-a.count;}).slice(0,3),
+        consPlayoffsArr: Object.values(consPlayoffs).sort(function(a,b){return b.best-a.best;}).slice(0,3),
+        consLastArr:     Object.values(consLastPlace).sort(function(a,b){return b.best-a.best;}).slice(0,3),
+        t3MvpSeason:     top3(mvpSeasonArr, 'value', true),
+        t3MvpCareer:     Object.values(mvpCareer).sort(function(a,b){return b.count-a.count;}).slice(0,3)
+                           .map(function(x){return {memberId:x.memberId, name:x.name, value:x.count};}),
+        hasWeeks: seasonsByYear.some(function(s){ return (s.weeks||[]).length > 0; })
+      };
+    }
+
+    // ── BRC compute ────────────────────────────────────────
+    function computeBRC(league) {
+      var seasons = (league.seasons||[]).filter(seasonComplete);
+      var seasonsByYear = seasons.slice().sort(function(a,b){ return (a.year||0)-(b.year||0); });
+      var allSeasonPts=[], allSeasonPicks=[], careerPts={}, champCorrect={}, finalScore={}, consChamp={};
+      var champLowPtsArr=[], champLowPicksArr=[];
+      var roundCumBest = [{},{},{},{},{}];
+
+      seasonsByYear.forEach(function(s) {
+        var champId = s.championMemberId;
+        (s.standings||[]).forEach(function(row) {
+          var mid        = row.memberId;
+          var name       = row.owner || row.ownerName || '?';
+          var totalPts   = parseFloat(row.totalPoints)  || 0;
+          var totalPicks = parseFloat(row.correctPicks) || 0;
+          var byRound    = row.pointsByRound || [];
+          if (!mid) return;
+          if (!careerPts[mid])    careerPts[mid]    = {total:0, name:name, memberId:mid};
+          if (!champCorrect[mid]) champCorrect[mid] = {count:0, name:name, memberId:mid};
+          if (!finalScore[mid])   finalScore[mid]   = {count:0, name:name, memberId:mid};
+          if (!consChamp[mid])    consChamp[mid]    = {current:0, best:0, name:name, memberId:mid};
+          var team = row.teamName || row.bracketName || '';
+          careerPts[mid].total += totalPts;
+          if (totalPts   > 0) allSeasonPts.push(  {memberId:mid, name:name, year:s.year, team:team, value:totalPts});
+          if (totalPicks > 0) allSeasonPicks.push({memberId:mid, name:name, year:s.year, team:team, value:totalPicks});
+          var cum = 0;
+          for (var r = 0; r < 5; r++) {
+            cum += parseFloat(byRound[r]) || 0;
+            if (!roundCumBest[r][mid] || cum > roundCumBest[r][mid].max)
+              roundCumBest[r][mid] = {max:cum, name:name, memberId:mid, year:s.year, team:team};
+          }
+          if (s.tournamentWinner && row.predictedChampion &&
+              row.predictedChampion.trim().toLowerCase() === s.tournamentWinner.trim().toLowerCase())
+            champCorrect[mid].count++;
+          var pw = parseFloat(row.predictedScoreWinner) || null;
+          var pl = parseFloat(row.predictedScoreLoser)  || null;
+          var aw = parseFloat(s.finalScoreWinner) || null;
+          var al = parseFloat(s.finalScoreLoser)  || null;
+          if (pw !== null && pl !== null && aw !== null && al !== null && pw === aw && pl === al)
+            finalScore[mid].count++;
+          if (mid === champId) {
+            if (totalPts   > 0) champLowPtsArr.push(  {memberId:mid, name:name, value:totalPts,   year:s.year, team:team});
+            if (totalPicks > 0) champLowPicksArr.push({memberId:mid, name:name, value:totalPicks, year:s.year, team:team});
+          }
+        });
+        Object.keys(consChamp).forEach(function(mid) {
+          if (mid === champId) {
+            consChamp[mid].current++;
+            if (consChamp[mid].current > consChamp[mid].best) consChamp[mid].best = consChamp[mid].current;
+          } else { consChamp[mid].current = 0; }
+        });
+      });
+
+      function top3(arr, key, desc) {
+        return arr.slice().sort(function(a,b){ return desc ? b[key]-a[key] : a[key]-b[key]; }).slice(0,3);
+      }
+      var roundCumTop3 = [];
+      for (var r = 0; r < 5; r++) {
+        var arr = Object.values(roundCumBest[r]).map(function(v){
+          return {memberId:v.memberId, name:v.name, year:v.year, team:v.team||'', value:v.max};
+        });
+        roundCumTop3.push(top3(arr, 'value', true));
+      }
+      return {
+        t3SeasonPts:   top3(allSeasonPts,   'value', true),
+        t3SeasonPicks: top3(allSeasonPicks, 'value', true),
+        careerArr:     Object.values(careerPts).sort(function(a,b){return b.total-a.total;}).slice(0,3)
+                         .map(function(x){return {memberId:x.memberId, name:x.name, value:x.total};}),
+        champCorrArr:  Object.values(champCorrect).filter(function(x){return x.count>0;})
+                         .sort(function(a,b){return b.count-a.count;}).slice(0,3),
+        finalScoreArr: Object.values(finalScore).filter(function(x){return x.count>0;})
+                         .sort(function(a,b){return b.count-a.count;}).slice(0,3),
+        consChampArr:  Object.values(consChamp).sort(function(a,b){return b.best-a.best;}).slice(0,3),
+        roundCumTop3,
+        t3ChampLowPts:   top3(champLowPtsArr,   'value', false),
+        t3ChampLowPicks: top3(champLowPicksArr, 'value', false),
+      };
+    }
+
+    // ── Card def arrays (each def has a section label) ─────
+    function ofcCardDefs(r) {
+      var defs = [];
+
+      if (r.hasWeeks) {
+        var SG = 'Single-Game Records';
+        defs.push({section:SG, label:'Highest Score',           top3: r.t3SgHighScore.map( function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
+        defs.push({section:SG, label:'Lowest Score',            top3: r.t3SgLowScore.map(  function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
+        defs.push({section:SG, label:'Biggest Blowout',         top3: r.t3SgBlowout.map(   function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
+        defs.push({section:SG, label:'Closest Game',            top3: r.t3SgClosest.map(   function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
+        defs.push({section:SG, label:'Highest Losing Score',    top3: r.t3SgHighLosing.map(function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
+        defs.push({section:SG, label:'Highest Scoring Weekly MVP', top3: r.t3SgMvpHigh.map(   function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',player:x.player||'',value:fmt(x.value,2),sub:x.sub};})});
+        defs.push({section:SG, label:'Lowest Scoring Weekly MVP',  top3: r.t3SgMvpLow.map(    function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',player:x.player||'',value:fmt(x.value,2),sub:x.sub};})});
+      }
+
+      var SS = 'Season Records';
+      defs.push({section:SS, label:'Most Wins — Season',     top3: r.t3SeasonWins.map(  function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:x.value,sub:x.year};})});
+      defs.push({section:SS, label:'Most Losses — Season',   top3: r.t3SeasonLoss.map(  function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:x.value,sub:x.year};})});
+      defs.push({section:SS, label:'Best Win % — Season',    top3: r.t3BestWinPct.map(  function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:x.value.toFixed(1)+'%',sub:x.year};})});
+      defs.push({section:SS, label:'Worst Win % — Season',   top3: r.t3WorstWinPct.map( function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:x.value.toFixed(1)+'%',sub:x.year};})});
+      defs.push({section:SS, label:'Highest PF — Season',    top3: r.t3HighPF.map(      function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.year};})});
+      defs.push({section:SS, label:'Lowest PF — Season',     top3: r.t3LowPF.map(       function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.year};})});
+      defs.push({section:SS, label:'Best Record, No Ring',   top3: r.t3BestMissed.map(function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:x.rec,sub:x.year};})});
+      defs.push({section:SS, label:'Worst Record, Won Ring', top3: r.t3WorstWon.map(  function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:x.rec,sub:x.year};})});
+      defs.push({section:SS, label:'Champion / Last PF Gap', top3: r.t3BigGap.map(function(x){return{memberId:x.champMemberId,name:x.champName+' vs '+x.lastName,team:x.champTeam||'',value:fmt(x.value,2),sub:x.year};})});
+      if (r.hasWeeks) {
+        defs.push({section:SS, label:'Most Weekly MVPs — Season', top3: r.t3MvpSeason.map(function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:x.value,sub:x.year};})});
+      }
+
+      var CS = 'Career Records';
+      defs.push({section:CS, label:'Most Career Wins',           top3: r.careerWinArr.map(   function(x){return{memberId:x.memberId,name:x.name,value:x.wins};})});
+      defs.push({section:CS, label:'Most Career Losses',         top3: r.careerLossArr.map(  function(x){return{memberId:x.memberId,name:x.name,value:x.losses};})});
+      defs.push({section:CS, label:'Most Playoff Appearances',   top3: r.playoffArr.map(     function(x){return{memberId:x.memberId,name:x.name,value:x.count};})});
+      defs.push({section:CS, label:'Most Last-Place Finishes',   top3: r.lastPlaceArr.map(   function(x){return{memberId:x.memberId,name:x.name,value:x.count};})});
+      defs.push({section:CS, label:'Longest Playoff Streak',     top3: r.consPlayoffsArr.map(function(x){return{memberId:x.memberId,name:x.name,value:x.best};})});
+      defs.push({section:CS, label:'Longest Last-Place Streak',  top3: r.consLastArr.map(    function(x){return{memberId:x.memberId,name:x.name,value:x.best};})});
+      if (r.hasWeeks) {
+        defs.push({section:CS, label:'Most Weekly MVPs — Career', top3: r.t3MvpCareer.map(function(x){return{memberId:x.memberId,name:x.name,value:x.value};})});
+      }
+
+      return defs;
+    }
+
+    function brcCardDefs(r) {
+      var defs = [];
+
+      var SS = 'Season Records';
+      defs.push({section:SS, label:'Most Points — Season',        top3: r.t3SeasonPts.map(  function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.year};})});
+      defs.push({section:SS, label:'Most Correct Picks — Season', top3: r.t3SeasonPicks.map(function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:x.value,sub:x.year};})});
+      defs.push({section:SS, label:'Champion Lowest Points', top3: r.t3ChampLowPts.map(  function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.year};})});
+      defs.push({section:SS, label:'Champion Lowest Picks',  top3: r.t3ChampLowPicks.map(function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:x.value,sub:x.year};})});
+
+      var RS = 'Most Points Through Each Round';
+      var rLabels = ['After Round 1','After Round 2','After Round 3','After Round 4','After Round 5'];
+      for (var ri = 0; ri < 5; ri++) {
+        defs.push({section:RS, label:'Most Points '+rLabels[ri],
+          top3: r.roundCumTop3[ri].map(function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.year};})});
+      }
+
+      var CS = 'Career Records';
+      defs.push({section:CS, label:'Most Career Points',        top3: r.careerArr.map(   function(x){return{memberId:x.memberId,name:x.name,value:fmt(x.value,2)};})});
+      defs.push({section:CS, label:'Consecutive Championships', top3: r.consChampArr.map(function(x){return{memberId:x.memberId,name:x.name,value:x.best};})});
+      defs.push({section:CS, label:'Correctly Picked Champion', top3: r.champCorrArr.map(function(x){return{memberId:x.memberId,name:x.name,value:x.count};})});
+      defs.push({section:CS, label:'Predicted Final Score',     top3: r.finalScoreArr.map(function(x){return{memberId:x.memberId,name:x.name,value:x.count};})});
+
+      return defs;
+    }
+
+    // ── Group defs by section (preserving order) ──────────
+    function groupBySection(defs) {
+      var order = [], map = {};
+      defs.forEach(function(d) {
+        var sec = d.section || 'Records';
+        if (!map[sec]) { map[sec] = []; order.push(sec); }
+        map[sec].push(d);
+      });
+      return order.map(function(sec){ return {section:sec, defs:map[sec]}; });
+    }
+
+    // ── Mugshot HTML helpers ───────────────────────────────
+    function frontMugHtml(memberId, name) {
+      var src = memberId ? getMugSrc(memberId) : '';
+      return src
+        ? '<div class="rec-front-mug"><img src="'+esc(src)+'" alt="" loading="lazy" /></div>'
+        : '<div class="rec-front-mug"><span class="rec-front-mug-initial">'+esc(getInitials(name))+'</span></div>';
+    }
+    function backMugHtml(memberId, name) {
+      var src = memberId ? getMugSrc(memberId) : '';
+      return src
+        ? '<div class="rec-back-mug"><img src="'+esc(src)+'" alt="" loading="lazy" /></div>'
+        : '<div class="rec-back-mug"><span class="rec-back-mug-ini">'+esc(getInitials(name))+'</span></div>';
+    }
+    function tblMugHtml(memberId, name) {
+      var src = memberId ? getMugSrc(memberId) : '';
+      return src
+        ? '<div class="rec-mug"><img src="'+esc(src)+'" alt="" loading="lazy" /></div>'
+        : '<div class="rec-mug"><span class="rec-mug-initial">'+esc(getInitials(name))+'</span></div>';
+    }
+
+    // ── Render: CARD view ─────────────────────────────────
+    function renderCards(defs) {
+      var el = document.getElementById('recContent');
+      if (!el) return;
+      el.innerHTML = '';
+
+      groupBySection(defs).forEach(function(grp) {
+        var section = document.createElement('div');
+        section.className = 'rec-section';
+
+        var heading = document.createElement('div');
+        heading.className = 'rec-section-heading';
+        heading.textContent = grp.section;
+        section.appendChild(heading);
+
+        var grid = document.createElement('div');
+        grid.className = 'rec-flip-grid';
+
+        grp.defs.forEach(function(def) {
+          var top  = def.top3 || [];
+          var best = top[0];
+
+          // Front mugshot: use memberId if present, else initials from name
+          var mugEl = best
+            ? frontMugHtml(best.memberId, best.name)
+            : '<div class="rec-front-mug"><span class="rec-front-mug-initial">—</span></div>';
+
+          // Front body
+          var frontSubLine = best ? [best.sub, best.team].filter(Boolean).join(' · ') : '';
+          var frontBodyHtml =
+            '<div class="rec-front-body">' +
+              '<div class="rec-front-label">'+esc(def.label)+'</div>' +
+              (best
+                ? '<div class="rec-front-value">'+esc(String(best.value))+'</div>' +
+                  '<div class="rec-front-name">'+esc(best.name)+'</div>' +
+                  (best.player ? '<div class="rec-front-detail" style="opacity:0.9;">'+esc(best.player)+'</div>' : '') +
+                  (frontSubLine ? '<div class="rec-front-detail">'+esc(frontSubLine)+'</div>' : '')
+                : '<div class="rec-front-nil">No data yet</div>') +
+              '<span class="rec-front-flip-hint">Top 3 ›</span>' +
+            '</div>';
+
+          // Back rows
+          var backRowsHtml = top.length === 0
+            ? '<div class="rec-back-empty">No data yet</div>'
+            : top.map(function(row, idx) {
+                var rank    = idx + 1;
+                var rankCls = rank <= 3 ? ' rank-'+rank : '';
+                var subLine = [row.sub, row.team].filter(Boolean).join(' · ');
+                return '<div class="rec-back-row">' +
+                  '<span class="rec-back-rank'+rankCls+'">'+rank+'</span>' +
+                  backMugHtml(row.memberId, row.name) +
+                  '<div class="rec-back-info">' +
+                    '<div class="rec-back-name">'+esc(row.name)+'</div>' +
+                    (row.player ? '<div class="rec-back-sub" style="opacity:0.9;">'+esc(row.player)+'</div>' : '') +
+                    (subLine ? '<div class="rec-back-sub">'+esc(subLine)+'</div>' : '') +
+                  '</div>' +
+                  '<div class="rec-back-val">'+esc(String(row.value))+'</div>' +
+                '</div>';
+              }).join('');
+
+          var wrap = document.createElement('div');
+          wrap.className = 'rec-flip-wrap';
+          wrap.innerHTML =
+            '<div class="rec-flip-inner">' +
+              '<div class="rec-flip-front">'+mugEl+frontBodyHtml+'</div>' +
+              '<div class="rec-flip-back">' +
+                '<div class="rec-back-header">' +
+                  '<div class="rec-back-title">'+esc(def.label)+'</div>' +
+                  '<button class="rec-back-close" aria-label="Flip back">&larr;</button>' +
+                '</div>' +
+                '<div class="rec-back-rows">'+backRowsHtml+'</div>' +
+              '</div>' +
+            '</div>';
+
+          // Front click → flip to back
+          wrap.querySelector('.rec-flip-front').addEventListener('click', function() {
+            wrap.classList.add('is-flipped');
+          });
+          // Clicking anywhere on back (incl. close btn) → flip to front
+          wrap.querySelector('.rec-flip-back').addEventListener('click', function() {
+            wrap.classList.remove('is-flipped');
+          });
+
+          grid.appendChild(wrap);
+        });
+
+        section.appendChild(grid);
+        el.appendChild(section);
+      });
+    }
+
+    // ── Render: TABLE view (Records-1 style) ──────────────
+    function renderTable(defs) {
+      var el = document.getElementById('recContent');
+      if (!el) return;
+      el.innerHTML = '';
+
+      function rankTableBlock(def) {
+        var top = def.top3 || [];
+        if (top.length === 0) {
+          return '<div class="rec-table-block">' +
+            '<div class="rec-table-block-heading">'+esc(def.label)+'</div>' +
+            '<div class="rec-tbl-empty">No data yet</div>' +
+          '</div>';
+        }
+        var rows = top.map(function(row, idx) {
+          var rank    = idx + 1;
+          var rankCls = rank <= 3 ? ' rank-'+rank : '';
+          var subLine = [row.sub, row.team].filter(Boolean).join(' · ');
+          return '<tr>' +
+            '<td><span class="rec-rank-num'+rankCls+'">'+rank+'</span></td>' +
+            '<td><div class="rec-name-cell">' +
+              tblMugHtml(row.memberId, row.name) +
+              '<span>'+esc(row.name)+
+                (row.player ? '<span class="rec-season-tag" style="opacity:0.9;display:block;">'+esc(row.player)+'</span>' : '') +
+                (subLine ? '<span class="rec-season-tag">'+esc(subLine)+'</span>' : '') +
+              '</span>' +
+            '</div></td>' +
+            '<td>'+esc(String(row.value))+'</td>' +
+          '</tr>';
+        }).join('');
+        return '<div class="rec-table-block">' +
+          '<div class="rec-table-block-heading">'+esc(def.label)+'</div>' +
+          '<table class="rec-rank-table">' +
+            '<thead><tr>' +
+              '<th style="width:2rem">#</th>' +
+              '<th>Member</th>' +
+              '<th>Value</th>' +
+            '</tr></thead>' +
+            '<tbody>'+rows+'</tbody>' +
+          '</table>' +
+        '</div>';
+      }
+
+      groupBySection(defs).forEach(function(grp) {
+        var section = document.createElement('div');
+        section.className = 'rec-section';
+
+        var heading = document.createElement('div');
+        heading.className = 'rec-section-heading';
+        heading.textContent = grp.section;
+        section.appendChild(heading);
+
+        var grid = document.createElement('div');
+        grid.className = 'rec-tables-grid';
+        grid.innerHTML = grp.defs.map(rankTableBlock).join('');
+        section.appendChild(grid);
+
+        el.appendChild(section);
+      });
+    }
+
+    // ── Render current league ─────────────────────────────
+    function renderLeague(lgKey) {
+      var league = leagues.find(function(l){ return l.name === lgKey; });
+      if (!league) return;
+      var defs = league.sport === 'football'
+        ? ofcCardDefs(computeOFC(league))
+        : brcCardDefs(computeBRC(league));
+      if (state.viewMode === 'cards') {
+        renderCards(defs);
+      } else {
+        renderTable(defs);
+      }
+    }
+
+    // ── Tabs ──────────────────────────────────────────────
+    function buildTabs() {
+      var bar = document.getElementById('recTabBar');
+      if (!bar) return;
+      var hashLeague = (window.location.hash||'').replace('#','').toUpperCase();
+      var available  = leagues.filter(function(l){ return (l.seasons||[]).length > 0; });
+      if (!available.length) return;
+      state.activeLeague = (available.find(function(l){ return l.name === hashLeague; }) || available[0]).name;
+
+      available.forEach(function(lg) {
+        var btn = document.createElement('button');
+        btn.className = 'rec-tab-pill' + (lg.name === state.activeLeague ? ' is-active' : '');
+        btn.textContent = lg.name;
+        btn.addEventListener('click', function() {
+          state.activeLeague = lg.name;
+          bar.querySelectorAll('.rec-tab-pill').forEach(function(b){ b.classList.remove('is-active'); });
+          btn.classList.add('is-active');
+          history.replaceState(null, '', '#' + lg.name.toLowerCase());
+          renderLeague(lg.name);
+        });
+        bar.appendChild(btn);
+      });
+    }
+
+    // ── Slideshow ─────────────────────────────────────────
+    function initSlideshow(cfg) {
+      var ss = cfg.slideshow;
+      var ov = document.getElementById('recOverlay');
+      if (ov && ss && ss.overlay) ov.style.background = ss.overlay;
+      if (!ss || !ss.slides || !ss.slides.length) return;
+      var slideA = document.getElementById('slideA');
+      var slideB = document.getElementById('slideB');
+      if (!slideA || !slideB) return;
+      var slides = ss.slides, total = slides.length;
+      var displayMs = ss.displayDuration || 8000;
+      var fadeMs    = ss.fadeDuration    || 2000;
+      var cycleMs   = displayMs + fadeMs;
+      document.documentElement.style.setProperty('--slide-fade', (fadeMs/1000)+'s');
+      var idx = 0, act = slideA, inact = slideB;
+      slides.forEach(function(s){ new Image().src = s.image; });
+      function applySlide(layer, slide) {
+        layer.style.backgroundImage    = 'url("'+slide.image+'")';
+        layer.style.animationName      = slide.direction || 'kb-zoom-in';
+        layer.style.animationDuration  = cycleMs+'ms';
+        layer.style.animationPlayState = 'paused';
+        layer.classList.add('kb-active');
+      }
+      function resetLayer(layer) {
+        layer.classList.remove('kb-active');
+        layer.style.animation = 'none'; void layer.offsetWidth; layer.style.animation = '';
+      }
+      function showSlide(i) {
+        applySlide(inact, slides[i]);
+        act.style.zIndex = '1'; inact.style.zIndex = '2';
+        inact.style.animationPlayState = 'running';
+        inact.classList.add('is-active');
+        setTimeout(function() {
+          act.classList.remove('is-active');
+          var tmp = act; act = inact; inact = tmp;
+          setTimeout(function(){ resetLayer(inact); }, 50);
+        }, fadeMs);
+      }
+      applySlide(slideA, slides[0]);
+      slideA.style.zIndex = '2'; slideB.style.zIndex = '1';
+      slideA.style.animationPlayState = 'running';
+      slideA.classList.add('is-active'); resetLayer(slideB);
+      if (total === 1) return;
+      function cycle(){ idx=(idx+1)%total; showSlide(idx); setTimeout(cycle, cycleMs); }
+      setTimeout(cycle, cycleMs);
+    }
+
+    // ── Init ──────────────────────────────────────────────
+    function init() {
+      var title = (config.landing && config.landing.title) || 'OFL';
+      document.title = title + ' \u2014 Records';
+
+      var eyebrow = document.getElementById('heroEyebrow');
+      if (eyebrow && config.landing && config.landing.eyebrow)
+        eyebrow.textContent = config.landing.eyebrow;
+
+      var logo = document.getElementById('navLogo');
+      if (logo && config.landing && config.landing.title)
+        logo.textContent = config.landing.title;
+
+      initSlideshow(config);
+
+      var footer = document.getElementById('recFooter');
+      if (footer) {
+        if (config.footer && config.footer.show !== false && config.footer.text) {
+          footer.textContent = config.footer.text;
+        } else {
+          footer.style.display = 'none';
+        }
+      }
+
+      buildTabs();
+      renderLeague(state.activeLeague);
+
+      // View toggle wiring
+      var btnCards = document.getElementById('btnViewCards');
+      var btnTable = document.getElementById('btnViewTable');
+      var wrap     = document.getElementById('recWrap');
+
+      btnCards.addEventListener('click', function() {
+        state.viewMode = 'cards';
+        btnCards.classList.add('is-active');
+        btnTable.classList.remove('is-active');
+        wrap.classList.remove('is-table');
+        renderLeague(state.activeLeague);
+      });
+      btnTable.addEventListener('click', function() {
+        state.viewMode = 'table';
+        btnTable.classList.add('is-active');
+        btnCards.classList.remove('is-active');
+        wrap.classList.add('is-table');
+        renderLeague(state.activeLeague);
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+
+  })();
+  </script>
+
+</body>
+</html>

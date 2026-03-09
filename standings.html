@@ -8,6 +8,7 @@
   <link rel="icon" type="image/png" href="assets/favicon.png" />
   <link rel="stylesheet" href="style.css" />
   <script src="admin-config.js"></script>
+  <script src="ofl-data.js"></script>
   <script src="admin.js"></script>
 
   <style>
@@ -662,9 +663,9 @@
     }
 
     // ── Data aggregation ───────────────────────────────────
-    function buildMemberStats(config) {
-      var roster     = (config.masterRoster || []);
-      var leagues    = (config.leagueData || []);
+    function buildMemberStats(config, data) {
+      var roster     = (data.masterRoster || []);
+      var leagues    = (data.leagueData || []);
       var leagueKeys = [];
 
       // Collect unique league keys that have seasons with data
@@ -829,7 +830,7 @@
       }
       // League-specific filter: only that league's columns
       var lgKey = filter.toUpperCase();
-      var lg    = (window.SITE_CONFIG && window.SITE_CONFIG.leagueData || []).find(function (l) { return l.name === lgKey; });
+      var lg    = (window.OFL_DATA && window.OFL_DATA.leagueData || []).find(function (l) { return l.name === lgKey; });
       var sport = lg ? lg.sport : 'football';
       if (sport === 'football') {
         cols.push({ key: lgKey + '__record', label: 'Record',  sortable: true, lgKey: lgKey, sub: 'record' });
@@ -983,7 +984,7 @@
             ? 'overallPct'
             : (function () {
                 var lgKey = filter.toUpperCase();
-                var lg    = (window.SITE_CONFIG.leagueData || []).find(function (l) { return l.name === lgKey; });
+                var lg    = (window.OFL_DATA && window.OFL_DATA.leagueData || []).find(function (l) { return l.name === lgKey; });
                 var sport = lg ? lg.sport : 'football';
                 return sport === 'madness' ? lgKey + '__pointsPct' : lgKey + '__winPct';
               })();
@@ -1377,7 +1378,7 @@
               state.sortCol = 'overallPct';
             } else {
               var _lgKey = p.key.toUpperCase();
-              var _lg    = (window.SITE_CONFIG.leagueData || []).find(function (l) { return l.name === _lgKey; });
+              var _lg    = (window.OFL_DATA && window.OFL_DATA.leagueData || []).find(function (l) { return l.name === _lgKey; });
               var _sport = _lg ? _lg.sport : 'football';
               state.sortCol = _sport === 'madness' ? _lgKey + '__pointsPct' : _lgKey + '__winPct';
             }
@@ -1445,7 +1446,9 @@
     // ── Init ───────────────────────────────────────────────
     function init() {
       var config = window.SITE_CONFIG;
+      var data   = window.OFL_DATA;
       if (!config) { console.warn('SITE_CONFIG not found'); return; }
+      if (!data)   { console.warn('OFL_DATA not found'); return; }
 
       document.title = (config.landing && config.landing.title ? config.landing.title : 'OFL') + ' \u2014 Standings';
 
@@ -1455,7 +1458,7 @@
 
       initSlideshow(config);
 
-      var result     = buildMemberStats(config);
+      var result     = buildMemberStats(config, data);
       var allMembers = result.members;
       var leagueKeys = result.leagueKeys;
 
@@ -1522,7 +1525,7 @@
             state.sortCol = 'overallPct';
           } else {
             var _lgKey = _f.toUpperCase();
-            var _lg    = (window.SITE_CONFIG.leagueData || []).find(function (l) { return l.name === _lgKey; });
+            var _lg    = (window.OFL_DATA && window.OFL_DATA.leagueData || []).find(function (l) { return l.name === _lgKey; });
             state.sortCol = (_lg && _lg.sport === 'madness') ? _lgKey + '__pointsPct' : _lgKey + '__winPct';
           }
         }
