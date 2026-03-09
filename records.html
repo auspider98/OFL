@@ -449,6 +449,9 @@
       var consPlayoffs={}, consLastPlace={};
       var sgHighScoreArr=[], sgLowScoreArr=[], sgBlowoutArr=[], sgClosestArr=[], sgHighLosingArr=[], sgMvpHighArr=[], sgMvpLowArr=[];
       var recBestMissedArr=[], recWorstWonArr=[], recBigGapArr=[];
+      var poHighArr=[], poLowArr=[], poBlowoutArr=[], poClosestArr=[], poHighLosingArr=[];
+      var poChampHighArr=[], poChampBlowoutArr=[], poChampClosestArr=[];
+      var poCareerWins={}, poChampAppArr={}, poChampWonArr={};
       var mvpSeasonArr=[], mvpCareer={};
 
       seasonsByYear.forEach(function(s) {
@@ -581,38 +584,93 @@
             sgHighLosingArr.push({value:lo.score,  memberId:lo.mid, name:lo.name, team:lo.team, sub:wl});
           });
         });
+
+        // Playoff game records
+        var po = s.playoffs || {};
+        ['wildcard','semis','finals','consolation'].forEach(function(roundKey) {
+          (po[roundKey]||[]).forEach(function(mu) {
+            var hs = parseFloat(mu.homeScore) || 0;
+            var as_ = parseFloat(mu.awayScore) || 0;
+            if (!hs && !as_) return;
+            var hm = mu.homeMemberId, am = mu.awayMemberId;
+            var hn = mu.homeOwnerName || mu.homeTeamName || '?';
+            var an = mu.awayOwnerName || mu.awayTeamName || '?';
+            var ht = mu.homeTeamName || '', at = mu.awayTeamName || '';
+            var hi = hs >= as_ ? {score:hs, mid:hm, name:hn, team:ht} : {score:as_, mid:am, name:an, team:at};
+            var lo = hs >= as_ ? {score:as_, mid:am, name:an, team:at} : {score:hs, mid:hm, name:hn, team:ht};
+            var margin = hi.score - lo.score;
+            var lbl = (mu.gameType || roundKey) + ', ' + (s.year||'?');
+            var hiEntry = {value:hi.score, memberId:hi.mid, name:hi.name, team:hi.team, sub:lbl};
+            var loEntry = {value:lo.score, memberId:lo.mid, name:lo.name, team:lo.team, sub:lbl};
+            poHighArr.push(hiEntry);
+            poLowArr.push(loEntry);
+            poBlowoutArr.push({value:margin, memberId:hi.mid, name:hi.name, team:hi.team, sub:lbl});
+            poClosestArr.push({value:margin, memberId:hi.mid, name:hi.name, team:hi.team, sub:lbl});
+            poHighLosingArr.push(loEntry);
+            // Career playoff wins
+            if (!poCareerWins[hi.mid]) poCareerWins[hi.mid] = {memberId:hi.mid, name:hi.name, wins:0};
+            poCareerWins[hi.mid].wins++;
+            // Championship game records
+            if (mu.gameType === 'Championship') {
+              poChampHighArr.push(hiEntry);
+              poChampBlowoutArr.push({value:margin, memberId:hi.mid, name:hi.name, team:hi.team, sub:lbl});
+              poChampClosestArr.push({value:margin, memberId:hi.mid, name:hi.name, team:hi.team, sub:lbl});
+              // Championship appearances
+              [hi.mid, lo.mid].forEach(function(mid) {
+                if (!mid) return;
+                var nm = mid === hi.mid ? hi.name : lo.name;
+                if (!poChampAppArr[mid]) poChampAppArr[mid] = {memberId:mid, name:nm, count:0};
+                poChampAppArr[mid].count++;
+              });
+              // Championship wins
+              if (!poChampWonArr[hi.mid]) poChampWonArr[hi.mid] = {memberId:hi.mid, name:hi.name, count:0};
+              poChampWonArr[hi.mid].count++;
+            }
+          });
+        });
       });
 
-      function top3(arr, key, desc) {
-        return arr.slice().sort(function(a,b){ return desc ? b[key]-a[key] : a[key]-b[key]; }).slice(0,3);
+      function topN(arr, key, desc) {
+        return arr.slice().sort(function(a,b){ return desc ? b[key]-a[key] : a[key]-b[key]; }).slice(0,5);
       }
 
       return {
-        t3SgHighScore:  top3(sgHighScoreArr,  'value', true),
-        t3SgLowScore:   top3(sgLowScoreArr,   'value', false),
-        t3SgBlowout:    top3(sgBlowoutArr,    'value', true),
-        t3SgClosest:    top3(sgClosestArr,    'value', false),
-        t3SgHighLosing: top3(sgHighLosingArr, 'value', true),
-        t3SgMvpHigh:    top3(sgMvpHighArr,    'value', true),
-        t3SgMvpLow:     top3(sgMvpLowArr,     'value', false),
-        t3BestMissed:   recBestMissedArr.slice().sort(function(a,b){return b.value-a.value;}).slice(0,3),
-        t3WorstWon:     recWorstWonArr.slice().sort(function(a,b){return a.value-b.value;}).slice(0,3),
-        t3BigGap:       recBigGapArr.slice().sort(function(a,b){return b.value-a.value;}).slice(0,3),
-        t3SeasonWins:   top3(allSeasonWins,  'value', true),
-        t3SeasonLoss:   top3(allSeasonLoss,  'value', true),
-        t3BestWinPct:   top3(allSeasonWinPct,'value', true),
-        t3WorstWinPct:  top3(allSeasonWinPct,'value', false),
-        t3HighPF:       top3(allSeasonPF,    'value', true),
-        t3LowPF:        top3(allSeasonLowPF, 'value', false),
-        careerWinArr:    Object.values(careerWins).sort(function(a,b){return b.wins-a.wins;}).slice(0,3),
-        careerLossArr:   Object.values(careerWins).sort(function(a,b){return b.losses-a.losses;}).slice(0,3),
-        playoffArr:      Object.values(mostPlayoffs).sort(function(a,b){return b.count-a.count;}).slice(0,3),
-        lastPlaceArr:    Object.values(mostLastPlace).sort(function(a,b){return b.count-a.count;}).slice(0,3),
-        consPlayoffsArr: Object.values(consPlayoffs).sort(function(a,b){return b.best-a.best;}).slice(0,3),
-        consLastArr:     Object.values(consLastPlace).sort(function(a,b){return b.best-a.best;}).slice(0,3),
-        t3MvpSeason:     top3(mvpSeasonArr, 'value', true),
-        t3MvpCareer:     Object.values(mvpCareer).sort(function(a,b){return b.count-a.count;}).slice(0,3)
+        t3SgHighScore:  topN(sgHighScoreArr,  'value', true),
+        t3SgLowScore:   topN(sgLowScoreArr,   'value', false),
+        t3SgBlowout:    topN(sgBlowoutArr,    'value', true),
+        t3SgClosest:    topN(sgClosestArr,    'value', false),
+        t3SgHighLosing: topN(sgHighLosingArr, 'value', true),
+        t3SgMvpHigh:    topN(sgMvpHighArr,    'value', true),
+        t3SgMvpLow:     topN(sgMvpLowArr,     'value', false),
+        t3BestMissed:   recBestMissedArr.slice().sort(function(a,b){return b.value-a.value;}).slice(0,5),
+        t3WorstWon:     recWorstWonArr.slice().sort(function(a,b){return a.value-b.value;}).slice(0,5),
+        t3BigGap:       recBigGapArr.slice().sort(function(a,b){return b.value-a.value;}).slice(0,5),
+        t3SeasonWins:   topN(allSeasonWins,  'value', true),
+        t3SeasonLoss:   topN(allSeasonLoss,  'value', true),
+        t3BestWinPct:   topN(allSeasonWinPct,'value', true),
+        t3WorstWinPct:  topN(allSeasonWinPct,'value', false),
+        t3HighPF:       topN(allSeasonPF,    'value', true),
+        t3LowPF:        topN(allSeasonLowPF, 'value', false),
+        careerWinArr:    Object.values(careerWins).sort(function(a,b){return b.wins-a.wins;}).slice(0,5),
+        careerLossArr:   Object.values(careerWins).sort(function(a,b){return b.losses-a.losses;}).slice(0,5),
+        playoffArr:      Object.values(mostPlayoffs).sort(function(a,b){return b.count-a.count;}).slice(0,5),
+        lastPlaceArr:    Object.values(mostLastPlace).sort(function(a,b){return b.count-a.count;}).slice(0,5),
+        consPlayoffsArr: Object.values(consPlayoffs).sort(function(a,b){return b.best-a.best;}).slice(0,5),
+        consLastArr:     Object.values(consLastPlace).sort(function(a,b){return b.best-a.best;}).slice(0,5),
+        t3MvpSeason:     topN(mvpSeasonArr, 'value', true),
+        t3MvpCareer:     Object.values(mvpCareer).sort(function(a,b){return b.count-a.count;}).slice(0,5)
                            .map(function(x){return {memberId:x.memberId, name:x.name, value:x.count};}),
+        poHighScore:     topN(poHighArr,        'value', true),
+        poLowScore:      topN(poLowArr,         'value', false),
+        poBlowout:       topN(poBlowoutArr,     'value', true),
+        poClosest:       topN(poClosestArr,     'value', false),
+        poHighLosing:    topN(poHighLosingArr,  'value', true),
+        poChampHigh:     topN(poChampHighArr,   'value', true),
+        poChampBlowout:  topN(poChampBlowoutArr,'value', true),
+        poChampClosest:  topN(poChampClosestArr,'value', false),
+        poCareerWinsArr: Object.values(poCareerWins).sort(function(a,b){return b.wins-a.wins;}).slice(0,5),
+        poChampAppArr:   Object.values(poChampAppArr).sort(function(a,b){return b.count-a.count;}).slice(0,5),
+        poChampWonArr:   Object.values(poChampWonArr).sort(function(a,b){return b.count-a.count;}).slice(0,5),
         hasWeeks: seasonsByYear.some(function(s){ return (s.weeks||[]).length > 0; })
       };
     }
@@ -670,29 +728,29 @@
         });
       });
 
-      function top3(arr, key, desc) {
-        return arr.slice().sort(function(a,b){ return desc ? b[key]-a[key] : a[key]-b[key]; }).slice(0,3);
+      function topN(arr, key, desc) {
+        return arr.slice().sort(function(a,b){ return desc ? b[key]-a[key] : a[key]-b[key]; }).slice(0,5);
       }
-      var roundCumTop3 = [];
+      var roundCumTop5 = [];
       for (var r = 0; r < 5; r++) {
         var arr = Object.values(roundCumBest[r]).map(function(v){
           return {memberId:v.memberId, name:v.name, year:v.year, team:v.team||'', value:v.max};
         });
-        roundCumTop3.push(top3(arr, 'value', true));
+        roundCumTop5.push(topN(arr, 'value', true));
       }
       return {
-        t3SeasonPts:   top3(allSeasonPts,   'value', true),
-        t3SeasonPicks: top3(allSeasonPicks, 'value', true),
-        careerArr:     Object.values(careerPts).sort(function(a,b){return b.total-a.total;}).slice(0,3)
+        t3SeasonPts:   topN(allSeasonPts,   'value', true),
+        t3SeasonPicks: topN(allSeasonPicks, 'value', true),
+        careerArr:     Object.values(careerPts).sort(function(a,b){return b.total-a.total;}).slice(0,5)
                          .map(function(x){return {memberId:x.memberId, name:x.name, value:x.total};}),
         champCorrArr:  Object.values(champCorrect).filter(function(x){return x.count>0;})
-                         .sort(function(a,b){return b.count-a.count;}).slice(0,3),
+                         .sort(function(a,b){return b.count-a.count;}).slice(0,5),
         finalScoreArr: Object.values(finalScore).filter(function(x){return x.count>0;})
-                         .sort(function(a,b){return b.count-a.count;}).slice(0,3),
-        consChampArr:  Object.values(consChamp).sort(function(a,b){return b.best-a.best;}).slice(0,3),
-        roundCumTop3,
-        t3ChampLowPts:   top3(champLowPtsArr,   'value', false),
-        t3ChampLowPicks: top3(champLowPicksArr, 'value', false),
+                         .sort(function(a,b){return b.count-a.count;}).slice(0,5),
+        consChampArr:  Object.values(consChamp).sort(function(a,b){return b.best-a.best;}).slice(0,5),
+        roundCumTop5,
+        t3ChampLowPts:   topN(champLowPtsArr,   'value', false),
+        t3ChampLowPicks: topN(champLowPicksArr, 'value', false),
       };
     }
 
@@ -701,7 +759,7 @@
       var defs = [];
 
       if (r.hasWeeks) {
-        var SG = 'Single-Game Records';
+        var SG = 'Regular Season Game Records';
         defs.push({section:SG, label:'Highest Score',           top3: r.t3SgHighScore.map( function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
         defs.push({section:SG, label:'Lowest Score',            top3: r.t3SgLowScore.map(  function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
         defs.push({section:SG, label:'Biggest Blowout',         top3: r.t3SgBlowout.map(   function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
@@ -725,13 +783,26 @@
         defs.push({section:SS, label:'Most Weekly MVPs — Season', top3: r.t3MvpSeason.map(function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:x.value,sub:x.year};})});
       }
 
+      var PS = 'Playoff Records';
+      defs.push({section:PS, label:'Highest Playoff Score',          top3: r.poHighScore.map(    function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
+      defs.push({section:PS, label:'Lowest Playoff Score',           top3: r.poLowScore.map(     function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
+      defs.push({section:PS, label:'Biggest Playoff Blowout',        top3: r.poBlowout.map(      function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
+      defs.push({section:PS, label:'Closest Playoff Game',           top3: r.poClosest.map(      function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
+      defs.push({section:PS, label:'Highest Losing Playoff Score',   top3: r.poHighLosing.map(   function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
+      defs.push({section:PS, label:'Highest Championship Score',     top3: r.poChampHigh.map(    function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
+      defs.push({section:PS, label:'Biggest Championship Blowout',   top3: r.poChampBlowout.map( function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
+      defs.push({section:PS, label:'Closest Championship Game',      top3: r.poChampClosest.map( function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
+      defs.push({section:PS, label:'Most Playoff Wins — Career',     top3: r.poCareerWinsArr.map(function(x){return{memberId:x.memberId,name:x.name,value:x.wins};})});
+      defs.push({section:PS, label:'Most Playoff Appearances',       top3: r.playoffArr.map(     function(x){return{memberId:x.memberId,name:x.name,value:x.count};})});
+      defs.push({section:PS, label:'Longest Playoff Streak',         top3: r.consPlayoffsArr.map(function(x){return{memberId:x.memberId,name:x.name,value:x.best};})});
+      defs.push({section:PS, label:'Most Championship Appearances',  top3: r.poChampAppArr.map(  function(x){return{memberId:x.memberId,name:x.name,value:x.count};})});
+      defs.push({section:PS, label:'Most Championships Won',         top3: r.poChampWonArr.map(  function(x){return{memberId:x.memberId,name:x.name,value:x.count};})});
+      defs.push({section:PS, label:'Most Last-Place Finishes',       top3: r.lastPlaceArr.map(   function(x){return{memberId:x.memberId,name:x.name,value:x.count};})});
+      defs.push({section:PS, label:'Longest Last-Place Streak',      top3: r.consLastArr.map(    function(x){return{memberId:x.memberId,name:x.name,value:x.best};})});
+
       var CS = 'Career Records';
-      defs.push({section:CS, label:'Most Career Wins',           top3: r.careerWinArr.map(   function(x){return{memberId:x.memberId,name:x.name,value:x.wins};})});
-      defs.push({section:CS, label:'Most Career Losses',         top3: r.careerLossArr.map(  function(x){return{memberId:x.memberId,name:x.name,value:x.losses};})});
-      defs.push({section:CS, label:'Most Playoff Appearances',   top3: r.playoffArr.map(     function(x){return{memberId:x.memberId,name:x.name,value:x.count};})});
-      defs.push({section:CS, label:'Most Last-Place Finishes',   top3: r.lastPlaceArr.map(   function(x){return{memberId:x.memberId,name:x.name,value:x.count};})});
-      defs.push({section:CS, label:'Longest Playoff Streak',     top3: r.consPlayoffsArr.map(function(x){return{memberId:x.memberId,name:x.name,value:x.best};})});
-      defs.push({section:CS, label:'Longest Last-Place Streak',  top3: r.consLastArr.map(    function(x){return{memberId:x.memberId,name:x.name,value:x.best};})});
+      defs.push({section:CS, label:'Most Career Wins',          top3: r.careerWinArr.map( function(x){return{memberId:x.memberId,name:x.name,value:x.wins};})});
+      defs.push({section:CS, label:'Most Career Losses',        top3: r.careerLossArr.map(function(x){return{memberId:x.memberId,name:x.name,value:x.losses};})});
       if (r.hasWeeks) {
         defs.push({section:CS, label:'Most Weekly MVPs — Career', top3: r.t3MvpCareer.map(function(x){return{memberId:x.memberId,name:x.name,value:x.value};})});
       }
@@ -752,7 +823,7 @@
       var rLabels = ['After Round 1','After Round 2','After Round 3','After Round 4','After Round 5'];
       for (var ri = 0; ri < 5; ri++) {
         defs.push({section:RS, label:'Most Points '+rLabels[ri],
-          top3: r.roundCumTop3[ri].map(function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.year};})});
+          top3: r.roundCumTop5[ri].map(function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.year};})});
       }
 
       var CS = 'Career Records';
