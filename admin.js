@@ -265,6 +265,7 @@ var SPORT_STAT_SCHEMAS = {
     ],
     awards: [
       { key: "champion",              defaultLabel: "The Bracket King",        hint: "Winning Bracket" },
+      { key: "runnerUp",              defaultLabel: "Runner-Up",               hint: "Season Runner-Up" },
       { key: "mostCorrectPicks",      defaultLabel: "The Oracle",              hint: "Most Correct Picks" },
       { key: "cinderellaPick",        defaultLabel: "The Cinderella Chaser",   hint: "Best Upset Pick" },
       { key: "earliestBust",          defaultLabel: "The First Out",           hint: "Earliest Bracket Bust" },
