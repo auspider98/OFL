@@ -747,10 +747,12 @@
         var member = (roster || []).find(function (m) { return m.id === oppId; });
         var ofcLg  = member ? (member.leagues || []).find(function (lg) { return lg.leagueKey === 'OFC'; }) : null;
         var teams  = ofcLg ? (ofcLg.teams || []) : [];
-        var currentTeamName = teams.length ? teams[teams.length - 1].name : (member ? member.name : 'Unknown');
+        var currentTeam = teams.length ? teams[teams.length - 1] : null;
+        var currentTeamName = currentTeam ? currentTeam.name : (member ? member.name : 'Unknown');
         return {
           oppId:   oppId,
           name:    currentTeamName,
+          logo:    currentTeam ? (currentTeam.logo || '') : '',
           mugshot: member ? member.mugshot : '',
           wins:    rec.wins,
           losses:  rec.losses,
@@ -932,9 +934,11 @@
         var winPct   = total > 0 ? (opp.wins / total) * 100 : 0;
         var recordLbl = opp.wins + '\u2013' + opp.losses + (opp.ties ? '\u2013' + opp.ties : '');
 
-        var thumbHtml = opp.mugshot
-          ? '<img class="team-h2h-thumb" src="' + esc(opp.mugshot) + '" alt="" loading="lazy" />'
-          : '<div class="team-h2h-thumb-init">' + esc(initials(opp.name)) + '</div>';
+        var thumbHtml = opp.logo
+          ? '<img class="team-h2h-thumb" src="' + esc(opp.logo) + '" alt="" loading="lazy" />'
+          : opp.mugshot
+            ? '<img class="team-h2h-thumb" src="' + esc(opp.mugshot) + '" alt="" loading="lazy" />'
+            : '<div class="team-h2h-thumb-init">' + esc(initials(opp.name)) + '</div>';
 
         // Season breakdown rows — sorted year desc
         var seasonRows = Object.keys(opp.seasons).sort(function (a, b) {
