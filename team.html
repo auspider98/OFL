@@ -400,7 +400,7 @@
       .team-career-stat { padding: 1rem 0.5rem; }
       .team-career-stat-value { font-size: 2rem; }
       .team-h2h-grid  { grid-template-columns: 1fr; }
-      .team-mvp-grid  { grid-template-columns: 1fr; }
+      .team-mvp-grid  { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
@@ -745,9 +745,12 @@
       return Object.keys(records).map(function (oppId) {
         var rec    = records[oppId];
         var member = (roster || []).find(function (m) { return m.id === oppId; });
+        var ofcLg  = member ? (member.leagues || []).find(function (lg) { return lg.leagueKey === 'OFC'; }) : null;
+        var teams  = ofcLg ? (ofcLg.teams || []) : [];
+        var currentTeamName = teams.length ? teams[teams.length - 1].name : (member ? member.name : 'Unknown');
         return {
           oppId:   oppId,
-          name:    member ? member.name    : 'Unknown',
+          name:    currentTeamName,
           mugshot: member ? member.mugshot : '',
           wins:    rec.wins,
           losses:  rec.losses,
