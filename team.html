@@ -215,6 +215,12 @@
       background: rgba(255,255,255,0.02);
       backdrop-filter: blur(4px);
       overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+    .team-h2h-card:hover {
+      border-color: rgba(232,232,232,0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.35);
     }
     .team-h2h-card-header {
       display: flex; align-items: center; gap: 0.65rem;
@@ -224,13 +230,13 @@
     }
     .team-h2h-card-header:hover { background: rgba(255,255,255,0.03); }
     .team-h2h-thumb {
-      width: 34px; height: 34px; border-radius: 50%;
-      object-fit: cover; object-position: top center;
-      border: 1px solid var(--drawer-border); flex-shrink: 0;
-      background: rgba(255,255,255,0.04);
+      width: 40px; height: 40px; border-radius: 0;
+      object-fit: contain;
+      flex-shrink: 0;
+      background: transparent;
     }
     .team-h2h-thumb-init {
-      width: 34px; height: 34px; border-radius: 50%;
+      width: 40px; height: 40px; border-radius: 50%;
       border: 1px solid var(--drawer-border); flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
       font-family: var(--font-display); font-size: 0.9rem;
@@ -243,7 +249,7 @@
       margin-bottom: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .team-h2h-record {
-      font-family: var(--font-body); font-size: 0.48rem;
+      font-family: var(--font-body); font-size: 0.58rem;
       letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent-dim);
     }
     .team-h2h-record .win  { color: var(--team-primary, var(--hint-color, var(--accent))); }
@@ -280,7 +286,7 @@
     .team-h2h-season-row:last-child { border-bottom: none; }
     .team-h2h-season-year { color: var(--accent-dim); letter-spacing: 0.12em; }
     .team-h2h-season-result {
-      font-size: 0.46rem; letter-spacing: 0.18em; text-transform: uppercase;
+      font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase;
       color: var(--accent-dim);
     }
     .team-h2h-season-result.w { color: var(--team-primary, var(--hint-color, var(--accent))); }
@@ -1060,11 +1066,11 @@
           '<div class="team-wrap">' +
             careerStripHtml +
 
-            '<p class="team-section-heading section-reveal">Season Log</p>' +
-            seasonLogHtml +
-
             '<p class="team-section-heading section-reveal">Head to Head</p>' +
             h2hHtml +
+
+            '<p class="team-section-heading section-reveal">Season Log</p>' +
+            seasonLogHtml +
 
             '<p class="team-section-heading section-reveal">Weekly MVP Log</p>' +
             mvpHtml +

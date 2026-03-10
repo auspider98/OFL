@@ -84,7 +84,7 @@
     .playa-card {
       perspective: 1000px;
       cursor: pointer;
-      height: 340px;
+      height: 380px;
     }
     .playa-card.is-inactive { opacity: 0.45; }
     .playa-card-inner {
@@ -165,14 +165,16 @@
     }
 
     /* Team page hint */
-    .playa-team-hint {
-      position: absolute; bottom: 0.55rem; left: 0.7rem;
-      font-family: var(--font-body); font-size: 0.46rem;
-      letter-spacing: 0.18em; text-transform: uppercase;
-      color: var(--hint-color, var(--accent-dim)); opacity: 0.6; z-index: 2;
-      cursor: pointer; transition: opacity 0.2s;
+    .playa-back-team-link {
+      display: block; margin-top: auto; padding-top: 0.6rem;
+      font-family: var(--font-body); font-size: 0.52rem;
+      letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--hint-color, var(--accent-dim));
+      text-decoration: none; opacity: 0.65;
+      border-top: 1px solid var(--drawer-border);
+      transition: opacity 0.2s, color 0.2s;
     }
-    .playa-team-hint:hover { opacity: 1; }
+    .playa-back-team-link:hover { opacity: 1; color: var(--accent); }
 
     /* ── Front info area ──────────────────────────────────── */
     .playa-front-info {
@@ -262,7 +264,7 @@
     /* ── Stats strip ──────────────────────────────────────── */
     .playa-stats-strip {
       display: flex; gap: 1.5rem;
-      padding: 0.5rem 0.9rem 1.6rem;
+      padding: 0.6rem 0.9rem 0.6rem;
       border-top: 1px solid var(--drawer-border);
       position: relative; z-index: 1;
     }
@@ -506,8 +508,8 @@
     }
     @media (max-width: 380px) {
       .playas-grid { grid-template-columns: 1fr; }
-      .playa-card { height: 340px; }
-      .playa-card-inner { height: 340px; }
+      .playa-card { height: 380px; }
+      .playa-card-inner { height: 380px; }
       .playa-mugshot-wrap { max-height: 180px; }
     }
   </style>
@@ -730,7 +732,7 @@
           '</div>' +
           statsHtml +
           '<div class="playa-flip-hint">Details &rarr;</div>' +
-          (teamUrl ? '<div class="playa-team-hint">Team Page &#x2197;</div>' : '') +
+
         '</div>';
 
       // ── BACK ───────────────────────────────────────────
@@ -772,6 +774,9 @@
               (backTeamsHtml
                 ? '<div class="playa-back-leagues">' + backTeamsHtml + '</div>'
                 : '<p style="font-size:0.62rem;color:var(--accent-dim);opacity:0.5;">No teams yet.</p>') +
+              (teamUrl
+                ? '<a class="playa-back-team-link" href="' + esc(teamUrl) + '">Team Page &#x2197;</a>'
+                : '') +
             '</div>' +
           '</div>' +
         '</div>';
@@ -785,8 +790,8 @@
       card.addEventListener('click', function (e) {
         if (e.target.classList.contains('playa-back-close')) {
           card.classList.remove('is-flipped');
-        } else if (e.target.classList.contains('playa-team-hint') && teamUrl) {
-          window.location.href = teamUrl;
+        } else if (e.target.classList.contains('playa-back-team-link')) {
+          // allow native <a> navigation
         } else {
           card.classList.toggle('is-flipped');
         }
