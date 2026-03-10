@@ -10,6 +10,8 @@
   <script src="ofl-data.js"></script>
   <script src="admin.js"></script>
   <style>
+    a.roster-card { text-decoration: none; cursor: pointer; }
+    a.roster-card:hover .roster-card-name { color: var(--hint-color, var(--accent)); }
     .yahoo-link-wrap {
       text-align: center;
       padding: 0.75rem 1rem 1.25rem;
@@ -891,10 +893,11 @@
           ? '<img class="roster-card-logo" src="' + esc(logo) + '" alt="' + esc(name) + '" />'
           : '<div class="roster-card-initial">' + esc(initial) + '</div>';
 
-        return '<div class="roster-card">' +
+        var teamUrl = entry.memberId ? 'team.html?id=' + encodeURIComponent(entry.memberId) : null;
+        return (teamUrl ? '<a class="roster-card" href="' + esc(teamUrl) + '">' : '<div class="roster-card">') +
           imgHtml +
           '<div class="roster-card-name">' + esc(name || entry.ownerName || '—') + '</div>' +
-        '</div>';
+        (teamUrl ? '</a>' : '</div>');
       }).join('');
 
       return '<div class="roster-grid">' + html + '</div>';
