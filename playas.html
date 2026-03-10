@@ -120,7 +120,7 @@
 
     /* ── Mugshot ──────────────────────────────────────────── */
     .playa-mugshot-wrap {
-      width: 100%; aspect-ratio: 3 / 2; overflow: hidden;
+      width: 100%; aspect-ratio: 4 / 3; overflow: hidden;
       background: rgba(255,255,255,0.03); flex-shrink: 0; position: relative;
     }
     .playa-mugshot-wrap img {
@@ -354,47 +354,56 @@
       letter-spacing: 0.06em; color: var(--accent-dim);
     }
 
-    /* ── Controls row ────────────────────────────────────────── */
-    .playas-controls-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
+    /* ── Controls ───────────────────────────────────────────── */
+    .playas-controls {
       margin-bottom: 1.4rem;
       padding-bottom: 0.6rem;
       border-bottom: 1px solid var(--drawer-border);
-      flex-wrap: wrap;
     }
-    .playas-controls-left {
+
+    /* Line 1 — filter pills, centered */
+    .playas-filter-pills {
       display: flex;
-      align-items: baseline;
+      flex-wrap: wrap;
+      justify-content: center;
       gap: 0.4rem;
+      margin-bottom: 0.75rem;
     }
-    .playas-heading-text {
+    .playas-filter-pill {
       font-family: var(--font-body);
-      font-weight: var(--weight-section-heading, 300);
-      font-size: var(--size-section-heading, 7pt);
-      letter-spacing: 0.4em;
-      text-transform: uppercase;
-      color: var(--hint-color, var(--accent-dim));
-    }
-    .playas-heading-count {
-      font-family: var(--font-body);
-      font-size: var(--size-section-heading, 7pt);
-      letter-spacing: 0.3em;
+      font-size: 0.6rem;
+      font-weight: 400;
+      letter-spacing: 0.25em;
       text-transform: uppercase;
       color: var(--accent-dim);
-      opacity: 0.6;
+      background: transparent;
+      border: 1px solid var(--drawer-border);
+      padding: 0.3rem 0.75rem;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
     }
-    .playas-controls-right {
+    .playas-filter-pill:hover {
+      color: var(--accent);
+      border-color: rgba(232,232,232,0.3);
+    }
+    .playas-filter-pill.is-active {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: rgba(232,232,232,0.06);
+    }
+
+    /* Line 2 — view dropdown left, heading center/right */
+    .playas-controls-row2 {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      position: relative;
+      min-height: 1.8rem;
     }
-    .playas-control-group {
+    .playas-view-group {
       display: flex;
       align-items: center;
       gap: 0.35rem;
+      flex-shrink: 0;
     }
     .playas-control-label {
       font-family: var(--font-body);
@@ -425,6 +434,50 @@
     }
     .playas-select:focus { border-color: var(--accent-dim); }
     .playas-select option { background: #111; color: var(--accent); }
+    .playas-heading-group {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: baseline;
+      gap: 0.4rem;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .playas-heading-text {
+      font-family: var(--font-body);
+      font-weight: var(--weight-section-heading, 300);
+      font-size: var(--size-section-heading, 7pt);
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--hint-color, var(--accent-dim));
+    }
+    .playas-heading-count {
+      font-family: var(--font-body);
+      font-size: var(--size-section-heading, 7pt);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+      opacity: 0.6;
+    }
+
+    /* Mobile portrait — stack and center everything */
+    @media (max-width: 600px) {
+      .playas-controls-row2 {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.6rem;
+        position: static;
+      }
+      .playas-view-group {
+        justify-content: center;
+      }
+      .playas-heading-group {
+        position: static;
+        transform: none;
+        justify-content: center;
+      }
+    }
 
     /* ── Footer ─────────────────────────────────────────────── */
     .playas-footer {
@@ -810,31 +863,30 @@
       sec.className = 'playas-section section-reveal';
       sec.style.animationDelay = '0.5s';
 
-      // ── Controls row ──
+      // ── Controls ──
       var controlsRow = document.createElement('div');
-      controlsRow.className = 'playas-controls-row';
+      controlsRow.className = 'playas-controls';
       controlsRow.innerHTML =
-        '<div class="playas-controls-left">' +
-          '<span class="playas-heading-text">Active Roster</span>' +
-          '<span class="playas-heading-count"></span>' +
+        // Line 1: filter pills centered
+        '<div class="playas-filter-pills">' +
+          '<button class="playas-filter-pill is-active" data-filter="career">Active</button>' +
+          '<button class="playas-filter-pill" data-filter="ofc">OFC</button>' +
+          '<button class="playas-filter-pill" data-filter="brc">BRC</button>' +
+          '<button class="playas-filter-pill" data-filter="retired">Retired</button>' +
         '</div>' +
-        '<div class="playas-controls-right">' +
-          '<div class="playas-control-group">' +
-            '<label class="playas-control-label">Filter</label>' +
-            '<select class="playas-select" id="playasFilter">' +
-              '<option value="career">Active</option>' +
-              '<option value="ofc">OFC</option>' +
-              '<option value="brc">BRC</option>' +
-              '<option value="retired">Retired</option>' +
-            '</select>' +
-          '</div>' +
-          '<div class="playas-control-group">' +
-            '<label class="playas-control-label">Sort</label>' +
+        // Line 2: view dropdown left, heading right
+        '<div class="playas-controls-row2">' +
+          '<div class="playas-view-group">' +
+            '<label class="playas-control-label" for="playasSort">View</label>' +
             '<select class="playas-select" id="playasSort">' +
               '<option value="az">A–Z</option>' +
               '<option value="seasons">Seasons</option>' +
               '<option value="titles">Titles</option>' +
             '</select>' +
+          '</div>' +
+          '<div class="playas-heading-group">' +
+            '<span class="playas-heading-text">Active Roster</span>' +
+            '<span class="playas-heading-count"></span>' +
           '</div>' +
         '</div>';
       sec.appendChild(controlsRow);
@@ -858,8 +910,10 @@
       body.appendChild(footer);
 
       // ── Render grid based on current filter + sort ──
+      var activeFilter = 'career';
+
       function applyFilterSort() {
-        var filterVal = document.getElementById('playasFilter').value;
+        var filterVal = activeFilter;
         var sortVal   = document.getElementById('playasSort').value;
         var wrap      = document.getElementById('playasGridWrap');
         var heading   = controlsRow.querySelector('.playas-heading-text');
@@ -913,7 +967,17 @@
         if (footerEl) footerEl.style.animationDelay = '0.5s';
       }
 
-      document.getElementById('playasFilter').addEventListener('change', applyFilterSort);
+      // ── Filter pill clicks ──
+      controlsRow.querySelectorAll('.playas-filter-pill').forEach(function (pill) {
+        pill.addEventListener('click', function () {
+          activeFilter = pill.getAttribute('data-filter');
+          controlsRow.querySelectorAll('.playas-filter-pill').forEach(function (p) {
+            p.classList.toggle('is-active', p === pill);
+          });
+          applyFilterSort();
+        });
+      });
+
       document.getElementById('playasSort').addEventListener('change', applyFilterSort);
 
       applyFilterSort();
