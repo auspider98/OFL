@@ -170,6 +170,20 @@
 <div class="admin-toast" id="adminToast"></div>
 
 <style>
+/* ── Team sort arrows ────────────────────────────────── */
+.team-sort-arrows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  align-self: flex-start;
+  margin-top: 1.4rem;
+  flex-shrink: 0;
+}
+.team-sort-arrows .btn[disabled] {
+  opacity: 0.18;
+  cursor: default;
+  pointer-events: none;
+}
 /* ── BRC Round Grid ─────────────────────────────────── */
 .brc-round-inputs {
   display: flex;
@@ -729,16 +743,36 @@ document.addEventListener('DOMContentLoaded', function () {
               '<input class="admin-input lg-name-field" type="text" value="'+esc(lg.leagueName||'')+'" placeholder="e.g. Poker Night" /></div>'
           : '';
 
+        var teamCount = (lg.teams || []).length;
         var teamsHtml = (lg.teams || []).map(function (t, tIdx) {
+          var isFirst = tIdx === 0;
+          var isLast  = tIdx === teamCount - 1;
           var logoField = isOFC
             ? '<div class="admin-field-group"><label>Team Logo URL</label>' +
                 '<input class="admin-input team-logo-field" type="text" value="'+esc(t.logo||'')+'" placeholder="assets/logos/team.png" /></div>'
             : '';
+          var colorFields = isOFC
+            ? '<div class="admin-field-group"><label>Primary Color</label>' +
+                '<div class="color-field">' +
+                  '<input class="color-swatch team-primary-sw" type="color" value="'+(t.primaryColor && t.primaryColor.charAt(0)==='#' ? esc(t.primaryColor.slice(0,7)) : '#888888')+'" />' +
+                  '<input class="admin-input team-primary-hex" type="text" value="'+esc(t.primaryColor||'')+'" placeholder="#e8e8e8 or blank" />' +
+                '</div></div>' +
+              '<div class="admin-field-group"><label>Secondary Color</label>' +
+                '<div class="color-field">' +
+                  '<input class="color-swatch team-secondary-sw" type="color" value="'+(t.secondaryColor && t.secondaryColor.charAt(0)==='#' ? esc(t.secondaryColor.slice(0,7)) : '#888888')+'" />' +
+                  '<input class="admin-input team-secondary-hex" type="text" value="'+esc(t.secondaryColor||'')+'" placeholder="#888888 or blank" />' +
+                '</div></div>'
+            : '';
           return '<div class="team-entry-v2" data-tidx="'+tIdx+'">' +
+            '<div class="team-sort-arrows">' +
+              '<button class="btn btn-sm btn-icon team-move-up"'  +(isFirst?' disabled':'')+' title="Move up">\u25B2</button>' +
+              '<button class="btn btn-sm btn-icon team-move-down"'+(isLast ?' disabled':'')+' title="Move down">\u25BC</button>' +
+            '</div>' +
             '<div class="team-entry-fields">' +
               '<div class="admin-field-group"><label>Team Name</label>' +
                 '<input class="admin-input team-name-field" type="text" value="'+esc(t.name||'')+'" placeholder="Team name" /></div>' +
               logoField +
+              colorFields +
             '</div>' +
             '<button class="btn btn-sm btn-danger btn-icon team-del-v2" style="align-self:flex-start;margin-top:1.4rem;">&#x2715;</button>' +
           '</div>';
@@ -847,6 +881,45 @@ document.addEventListener('DOMContentLoaded', function () {
           if (nameField) nameField.addEventListener('input', function () { t.name = this.value; markDirty(); });
           var logoField = te.querySelector('.team-logo-field');
           if (logoField) logoField.addEventListener('input', function () { t.logo = this.value; markDirty(); });
+          /* Primary color */
+          var primSw  = te.querySelector('.team-primary-sw');
+          var primHex = te.querySelector('.team-primary-hex');
+          if (primSw) primSw.addEventListener('input', function () {
+            t.primaryColor = this.value; if (primHex) primHex.value = this.value; markDirty();
+          });
+          if (primHex) primHex.addEventListener('input', function () {
+            t.primaryColor = this.value.trim();
+            if (primSw && this.value.match(/^#[0-9a-fA-F]{6}$/)) primSw.value = this.value.slice(0,7);
+            markDirty();
+          });
+          /* Secondary color */
+          var secSw  = te.querySelector('.team-secondary-sw');
+          var secHex = te.querySelector('.team-secondary-hex');
+          if (secSw) secSw.addEventListener('input', function () {
+            t.secondaryColor = this.value; if (secHex) secHex.value = this.value; markDirty();
+          });
+          if (secHex) secHex.addEventListener('input', function () {
+            t.secondaryColor = this.value.trim();
+            if (secSw && this.value.match(/^#[0-9a-fA-F]{6}$/)) secSw.value = this.value.slice(0,7);
+            markDirty();
+          });
+          /* Sort arrows */
+          var upBtn   = te.querySelector('.team-move-up');
+          var downBtn = te.querySelector('.team-move-down');
+          if (upBtn) upBtn.addEventListener('click', function () {
+            if (tIdx === 0) return;
+            var tmp = lg.teams[tIdx - 1];
+            lg.teams[tIdx - 1] = lg.teams[tIdx];
+            lg.teams[tIdx]     = tmp;
+            refreshMemberLeagues(section, member); markDirty();
+          });
+          if (downBtn) downBtn.addEventListener('click', function () {
+            if (tIdx === lg.teams.length - 1) return;
+            var tmp = lg.teams[tIdx + 1];
+            lg.teams[tIdx + 1] = lg.teams[tIdx];
+            lg.teams[tIdx]     = tmp;
+            refreshMemberLeagues(section, member); markDirty();
+          });
           te.querySelector('.team-del-v2').addEventListener('click', function () {
             lg.teams.splice(tIdx, 1);
             refreshMemberLeagues(section, member); markDirty();

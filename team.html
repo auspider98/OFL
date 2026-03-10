@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OFL — Team</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="admin-config.js"></script>
+  <script src="ofl-data.js"></script>
+  <script src="admin.js"></script>
+
+  <style>
+    /* ══════════════════════════════════════════════════════════
+       TEAM PAGE LAYOUT
+    ══════════════════════════════════════════════════════════ */
+    .team-page {
+      position: relative; width: 100%; min-height: 100vh;
+      display: flex; flex-direction: column; overflow-x: hidden;
+    }
+    .team-page > .slide-layer      { position: fixed; inset: 0; z-index: 0; height: 100%; }
+    .team-page > .landing-overlay  { position: fixed; inset: 0; z-index: 10; height: 100%; pointer-events: none; }
+    .team-page > .landing-vignette { position: fixed; inset: 0; z-index: 11; height: 100%; pointer-events: none; }
+
+    /* ══════════════════════════════════════════════════════════
+       HERO
+    ══════════════════════════════════════════════════════════ */
+    .team-hero {
+      position: relative; z-index: 20; width: 100%;
+      min-height: calc(42vh - 10px);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-end;
+      padding: 5rem 2rem 0;
+    }
+    .team-hero .landing-rule { position: absolute; bottom: 0; left: 0; right: 0; z-index: 10; }
+
+    .team-hero-inner {
+      position: relative; z-index: 13;
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; width: 100%; max-width: 700px;
+      padding-bottom: 2.5rem;
+    }
+
+    /* Logo */
+    .team-hero-logo-wrap {
+      width: 96px; height: 96px; margin-bottom: 1.4rem;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; animation: heroReveal 1s 0.1s ease forwards;
+    }
+    .team-hero-logo-wrap img {
+      width: 100%; height: 100%; object-fit: contain;
+      filter: drop-shadow(0 4px 20px rgba(0,0,0,0.6));
+    }
+    .team-hero-logo-placeholder {
+      width: 96px; height: 96px;
+      border: 1px solid var(--drawer-border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: 2.2rem;
+      color: var(--accent-dim); opacity: 0.4;
+    }
+
+    /* Owner back-link */
+    .team-hero-owner {
+      font-family: var(--font-body); font-weight: 300;
+      font-size: var(--size-eyebrow, 8pt); letter-spacing: 0.45em;
+      text-transform: uppercase; color: var(--accent-dim);
+      margin-bottom: 0.8rem;
+      opacity: 0; animation: heroReveal 1.2s 0.2s ease forwards;
+    }
+    .team-hero-owner a {
+      color: inherit; text-decoration: none;
+      transition: color 0.25s;
+    }
+    .team-hero-owner a:hover { color: var(--team-primary, var(--accent)); }
+
+    /* Team name */
+    .team-hero-name {
+      font-family: var(--font-display); font-weight: 300;
+      font-size: var(--size-title, 72pt); line-height: 0.92;
+      letter-spacing: -0.02em; color: var(--accent); margin-bottom: 1rem;
+      opacity: 0; animation: heroReveal 1.2s 0.35s ease forwards;
+    }
+
+    /* Color bar under name */
+    .team-hero-color-bar {
+      display: flex; gap: 0.4rem; margin-bottom: 1rem; justify-content: center;
+      opacity: 0; animation: heroReveal 1s 0.5s ease forwards;
+    }
+    .team-hero-color-swatch {
+      width: 28px; height: 4px; border-radius: 2px;
+    }
+
+    /* Status + seasons pill row */
+    .team-hero-meta {
+      display: flex; gap: 0.6rem; align-items: center; justify-content: center;
+      flex-wrap: wrap;
+      opacity: 0; animation: heroReveal 1.2s 0.55s ease forwards;
+    }
+    .team-hero-pill {
+      font-family: var(--font-body); font-size: 0.48rem;
+      letter-spacing: 0.25em; text-transform: uppercase;
+      border: 1px solid var(--drawer-border);
+      padding: 0.22rem 0.6rem; color: var(--accent-dim);
+    }
+    .team-hero-pill.active {
+      color: var(--team-primary, var(--hint-color, var(--accent-dim)));
+      border-color: var(--team-primary, var(--hint-color, var(--drawer-border)));
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       BODY
+    ══════════════════════════════════════════════════════════ */
+    .team-body { position: relative; z-index: 20; flex: 1; padding: 0 0 6rem; }
+    .team-wrap { max-width: 1060px; margin: 0 auto; padding: 2rem 2rem 0; }
+
+    /* ── Section heading ──────────────────────────────────── */
+    .team-section-heading {
+      font-family: var(--font-body); font-weight: var(--weight-section-heading, 300);
+      font-size: var(--size-section-heading, 7pt); letter-spacing: 0.4em;
+      text-transform: uppercase; color: var(--hint-color, var(--accent-dim));
+      margin-bottom: 1.2rem; padding-bottom: 0.6rem;
+      border-bottom: 1px solid var(--drawer-border);
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       CAREER OVERVIEW STRIP
+    ══════════════════════════════════════════════════════════ */
+    .team-career-strip {
+      display: flex; flex-wrap: wrap; gap: 0;
+      border: 1px solid var(--drawer-border);
+      margin-bottom: 2.5rem;
+      background: rgba(255,255,255,0.02);
+      backdrop-filter: blur(4px);
+    }
+    .team-career-stat {
+      flex: 1 1 100px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 1.4rem 1rem; text-align: center;
+      border-right: 1px solid var(--drawer-border);
+    }
+    .team-career-stat:last-child { border-right: none; }
+    .team-career-stat-value {
+      font-family: var(--font-display); font-weight: 300;
+      font-size: 2.6rem; line-height: 1; color: var(--accent);
+      margin-bottom: 0.35rem;
+    }
+    .team-career-stat-value.accent {
+      color: var(--team-primary, var(--hint-color, var(--accent)));
+    }
+    .team-career-stat-label {
+      font-family: var(--font-body); font-size: 0.46rem;
+      letter-spacing: 0.28em; text-transform: uppercase; color: var(--accent-dim);
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       SEASON LOG TABLE
+    ══════════════════════════════════════════════════════════ */
+    .team-table-wrap {
+      overflow-x: auto; margin-bottom: 2.5rem;
+    }
+    .team-table {
+      width: 100%; border-collapse: collapse;
+      font-family: var(--font-body); font-size: 0.68rem;
+    }
+    .team-table th {
+      font-size: 0.44rem; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--accent-dim); font-weight: 300;
+      padding: 0.5rem 0.75rem; text-align: left;
+      border-bottom: 1px solid var(--drawer-border);
+      white-space: nowrap;
+    }
+    .team-table th.num { text-align: right; }
+    .team-table td {
+      padding: 0.65rem 0.75rem; border-bottom: 1px solid rgba(232,232,232,0.05);
+      color: var(--accent); vertical-align: middle; white-space: nowrap;
+    }
+    .team-table td.num { text-align: right; color: var(--accent-dim); }
+    .team-table td.team-name-cell { color: var(--accent); }
+    .team-table tr:last-child td { border-bottom: none; }
+    .team-table tr:hover td { background: rgba(255,255,255,0.025); }
+
+    /* Result badges */
+    .result-badge {
+      display: inline-block;
+      font-family: var(--font-body); font-size: 0.42rem;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      padding: 0.18rem 0.45rem; border: 1px solid;
+    }
+    .result-badge.champ {
+      color: var(--team-primary, var(--hint-color, var(--accent)));
+      border-color: var(--team-primary, var(--hint-color, var(--drawer-border)));
+    }
+    .result-badge.finals  { color: var(--accent-dim); border-color: var(--drawer-border); }
+    .result-badge.semis   { color: var(--accent-dim); border-color: var(--drawer-border); }
+    .result-badge.wild    { color: var(--accent-dim); border-color: var(--drawer-border); }
+    .result-badge.miss    { color: rgba(232,232,232,0.2); border-color: rgba(232,232,232,0.1); }
+
+    /* Mini logo in season row */
+    .season-team-logo {
+      width: 18px; height: 18px; object-fit: contain;
+      vertical-align: middle; margin-right: 0.4rem;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       HEAD TO HEAD
+    ══════════════════════════════════════════════════════════ */
+    .team-h2h-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem; margin-bottom: 2.5rem;
+    }
+    .team-h2h-card {
+      border: 1px solid var(--drawer-border);
+      background: rgba(255,255,255,0.02);
+      backdrop-filter: blur(4px);
+      overflow: hidden;
+    }
+    .team-h2h-card-header {
+      display: flex; align-items: center; gap: 0.65rem;
+      padding: 0.75rem 0.85rem; border-bottom: 1px solid var(--drawer-border);
+      cursor: pointer; user-select: none;
+      transition: background 0.2s;
+    }
+    .team-h2h-card-header:hover { background: rgba(255,255,255,0.03); }
+    .team-h2h-thumb {
+      width: 34px; height: 34px; border-radius: 50%;
+      object-fit: cover; object-position: top center;
+      border: 1px solid var(--drawer-border); flex-shrink: 0;
+      background: rgba(255,255,255,0.04);
+    }
+    .team-h2h-thumb-init {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 1px solid var(--drawer-border); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: 0.9rem;
+      color: var(--accent-dim); background: rgba(255,255,255,0.04);
+    }
+    .team-h2h-info { flex: 1; min-width: 0; }
+    .team-h2h-name {
+      font-family: var(--font-display); font-weight: 300;
+      font-size: 1rem; color: var(--accent); line-height: 1;
+      margin-bottom: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .team-h2h-record {
+      font-family: var(--font-body); font-size: 0.48rem;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent-dim);
+    }
+    .team-h2h-record .win  { color: var(--team-primary, var(--hint-color, var(--accent))); }
+    .team-h2h-caret {
+      font-size: 0.55rem; color: var(--accent-dim); opacity: 0.5;
+      transition: transform 0.25s; flex-shrink: 0;
+    }
+    .team-h2h-card.is-open .team-h2h-caret { transform: rotate(180deg); }
+
+    /* Win bar */
+    .team-h2h-bar-wrap {
+      padding: 0.6rem 0.85rem 0.75rem; border-bottom: 1px solid var(--drawer-border);
+    }
+    .team-h2h-bar {
+      height: 4px; background: var(--drawer-border);
+      border-radius: 2px; overflow: hidden;
+    }
+    .team-h2h-bar-fill {
+      height: 100%;
+      background: var(--team-primary, var(--hint-color, var(--accent-dim)));
+      border-radius: 2px; transition: width 0.5s ease;
+    }
+
+    /* Season breakdown */
+    .team-h2h-breakdown {
+      display: none; padding: 0.5rem 0.85rem 0.75rem;
+    }
+    .team-h2h-card.is-open .team-h2h-breakdown { display: block; }
+    .team-h2h-season-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.28rem 0; border-bottom: 1px solid rgba(232,232,232,0.04);
+      font-family: var(--font-body); font-size: 0.58rem;
+    }
+    .team-h2h-season-row:last-child { border-bottom: none; }
+    .team-h2h-season-year { color: var(--accent-dim); letter-spacing: 0.12em; }
+    .team-h2h-season-result {
+      font-size: 0.46rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent-dim);
+    }
+    .team-h2h-season-result.w { color: var(--team-primary, var(--hint-color, var(--accent))); }
+
+    /* ══════════════════════════════════════════════════════════
+       MVP LOG
+    ══════════════════════════════════════════════════════════ */
+    .team-mvp-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem; margin-bottom: 2.5rem;
+    }
+    .team-mvp-season-card {
+      border: 1px solid var(--drawer-border);
+      background: rgba(255,255,255,0.02);
+      backdrop-filter: blur(4px);
+      padding: 0.85rem 1rem;
+    }
+    .team-mvp-season-year {
+      font-family: var(--font-body); font-size: 0.44rem;
+      letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--hint-color, var(--accent-dim)); margin-bottom: 0.5rem;
+    }
+    .team-mvp-week-list {
+      display: flex; flex-wrap: wrap; gap: 0.3rem;
+    }
+    .team-mvp-week-chip {
+      font-family: var(--font-body); font-size: 0.46rem;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      border: 1px solid var(--team-primary, var(--hint-color, var(--drawer-border)));
+      color: var(--team-primary, var(--hint-color, var(--accent-dim)));
+      padding: 0.16rem 0.38rem;
+    }
+    .team-mvp-season-count {
+      font-family: var(--font-display); font-size: 1.6rem; font-weight: 300;
+      color: var(--accent); line-height: 1; margin-bottom: 0.15rem;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       TEAM HISTORY TIMELINE
+    ══════════════════════════════════════════════════════════ */
+    .team-history-list {
+      display: flex; flex-direction: column; gap: 0;
+      margin-bottom: 2.5rem;
+      border: 1px solid var(--drawer-border);
+      background: rgba(255,255,255,0.02);
+      backdrop-filter: blur(4px);
+    }
+    .team-history-row {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 0.85rem 1rem; border-bottom: 1px solid rgba(232,232,232,0.05);
+    }
+    .team-history-row:last-child { border-bottom: none; }
+    .team-history-logo {
+      width: 36px; height: 36px; object-fit: contain; flex-shrink: 0;
+    }
+    .team-history-logo-init {
+      width: 36px; height: 36px; flex-shrink: 0;
+      border: 1px solid var(--drawer-border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: 0.9rem; color: var(--accent-dim);
+    }
+    .team-history-info { flex: 1; min-width: 0; }
+    .team-history-name {
+      font-family: var(--font-body); font-size: 0.8rem;
+      color: var(--accent); margin-bottom: 0.12rem;
+    }
+    .team-history-seasons {
+      font-family: var(--font-body); font-size: 0.5rem;
+      letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-dim);
+    }
+    .team-history-colors {
+      display: flex; gap: 0.3rem; align-items: center; flex-shrink: 0;
+    }
+    .team-history-swatch {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .team-history-badge {
+      font-family: var(--font-body); font-size: 0.42rem;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      padding: 0.16rem 0.4rem; border: 1px solid;
+      color: var(--team-primary, var(--hint-color, var(--accent-dim)));
+      border-color: var(--team-primary, var(--hint-color, var(--drawer-border)));
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       NOT FOUND / LOADING
+    ══════════════════════════════════════════════════════════ */
+    .team-not-found {
+      position: relative; z-index: 20;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; min-height: 70vh;
+      font-family: var(--font-body); text-align: center; padding: 2rem;
+    }
+    .team-not-found-title {
+      font-family: var(--font-display); font-size: 3rem; font-weight: 300;
+      color: var(--accent-dim); margin-bottom: 1rem;
+    }
+    .team-not-found-msg {
+      font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent-dim); opacity: 0.5; margin-bottom: 1.5rem;
+    }
+    .team-not-found a {
+      font-size: 0.55rem; letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--accent-dim); border-bottom: 1px solid var(--drawer-border);
+      text-decoration: none; padding-bottom: 0.1rem;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════════════════════ */
+    @media (max-width: 600px) {
+      .team-hero { min-height: 0; padding: 4.5rem 1.2rem 0; }
+      .team-wrap  { padding: 1.5rem 1rem 0; }
+      .team-hero-name { font-size: clamp(2.5rem, 12vw, 5rem); }
+      .team-career-stat { padding: 1rem 0.5rem; }
+      .team-career-stat-value { font-size: 2rem; }
+      .team-h2h-grid  { grid-template-columns: 1fr; }
+      .team-mvp-grid  { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── TOP NAV ──────────────────────────────────────────── -->
+  <nav class="topnav" role="navigation" aria-label="Site navigation">
+    <a href="index.html" class="topnav-logo">OFC</a>
+    <button class="menu-trigger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="site-drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- ── DRAWER ───────────────────────────────────────────── -->
+  <div class="drawer-overlay" aria-hidden="true"></div>
+  <aside id="site-drawer" class="drawer" role="dialog" aria-modal="true" aria-label="Navigation">
+    <p class="drawer-label">Navigate</p>
+    <ul class="drawer-nav"></ul>
+    <div class="drawer-footer"></div>
+  </aside>
+
+  <!-- ── TEAM PAGE ────────────────────────────────────────── -->
+  <div class="team-page" id="teamPage">
+
+    <div class="slide-layer" id="slideA" aria-hidden="true"></div>
+    <div class="slide-layer" id="slideB" aria-hidden="true"></div>
+    <div class="landing-overlay" id="teamOverlay" aria-hidden="true"></div>
+    <div class="landing-vignette" aria-hidden="true"></div>
+
+    <div id="teamContent"></div>
+
+  </div>
+
+  <script src="sound.js"></script>
+  <script src="menu.js"></script>
+
+  <script>
+  (function () {
+    'use strict';
+
+    /* ── Helpers ──────────────────────────────────────────── */
+    function esc(s) {
+      return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function getParam(key) {
+      var params = new URLSearchParams(window.location.search);
+      return params.get(key);
+    }
+
+    function initials(name) {
+      return (name || '?').split(' ').map(function (w) { return w[0]; }).join('').slice(0,2).toUpperCase();
+    }
+
+    /* ── Get OFC league entry for a member ───────────────── */
+    function getOFCEntry(member) {
+      if (!member || !member.leagues) return null;
+      return member.leagues.find(function (lg) { return lg.leagueKey === 'OFC'; }) || null;
+    }
+
+    /* ── Get current (last) team ──────────────────────────── */
+    function getCurrentTeam(ofcEntry) {
+      if (!ofcEntry || !ofcEntry.teams || !ofcEntry.teams.length) return null;
+      return ofcEntry.teams[ofcEntry.teams.length - 1];
+    }
+
+    /* ── Find OFC league in leagueData ────────────────────── */
+    function getOFCLeague(leagueData) {
+      return (leagueData || []).find(function (lg) { return lg.sport === 'football'; }) || null;
+    }
+
+    /* ── Build custom slideshow from team logos ───────────── */
+    var KB_DIRS = ['kb-zoom-in','kb-zoom-out','kb-pan-right','kb-pan-left','kb-drift-up'];
+    function buildTeamSlideshow(ofcEntry, config) {
+      if (!ofcEntry || !ofcEntry.teams) return null;
+      var logos = ofcEntry.teams.map(function (t) { return t.logo; }).filter(Boolean);
+      if (!logos.length) return null;
+
+      var ss = config.slideshow || {};
+      var slides;
+      if (logos.length === 1) {
+        // Single logo — generate 5 varied keyframe directions
+        slides = KB_DIRS.map(function (dir) { return { image: logos[0], direction: dir }; });
+      } else {
+        // Multiple logos — cycle each with a varied direction
+        slides = logos.map(function (logo, i) {
+          return { image: logo, direction: KB_DIRS[i % KB_DIRS.length] };
+        });
+      }
+
+      return {
+        slides:          slides,
+        overlay:         ss.overlay         || 'rgba(0,0,0,0.62)',
+        displayDuration: ss.displayDuration || 8000,
+        fadeDuration:    ss.fadeDuration    || 2000
+      };
+    }
+
+    /* ── Apply team color CSS vars ────────────────────────── */
+    function applyTeamColors(currentTeam) {
+      var root = document.documentElement;
+      if (currentTeam && currentTeam.primaryColor) {
+        root.style.setProperty('--team-primary', currentTeam.primaryColor);
+      }
+      if (currentTeam && currentTeam.secondaryColor) {
+        root.style.setProperty('--team-secondary', currentTeam.secondaryColor);
+      }
+    }
+
+    /* ── Run the team slideshow (standalone, not via menu.js) */
+    function runTeamSlideshow(ss) {
+      if (!ss || !ss.slides || !ss.slides.length) return;
+      var slideA  = document.getElementById('slideA');
+      var slideB  = document.getElementById('slideB');
+      if (!slideA || !slideB) return;
+
+      var slides     = ss.slides;
+      var total      = slides.length;
+      var displayMs  = ss.displayDuration || 8000;
+      var fadeMs     = ss.fadeDuration    || 2000;
+      var cycleMs    = displayMs + fadeMs;
+      var currentIdx = 0;
+      var activLayer = slideA;
+      var inactLayer = slideB;
+
+      slides.forEach(function (s) { var img = new Image(); img.src = s.image; });
+
+      function applySlide(layer, slide) {
+        layer.style.backgroundImage    = 'url("' + slide.image + '")';
+        layer.style.animationName      = slide.direction || 'kb-zoom-in';
+        layer.style.animationDuration  = cycleMs + 'ms';
+        layer.style.animationDelay     = '0ms';
+        layer.style.animationPlayState = 'paused';
+        layer.classList.add('kb-active');
+      }
+      function resetLayer(layer) {
+        layer.classList.remove('kb-active');
+        layer.style.animation = 'none';
+        void layer.offsetWidth;
+        layer.style.animation = '';
+      }
+      function showSlide(idx) {
+        applySlide(inactLayer, slides[idx]);
+        activLayer.style.zIndex  = '1';
+        inactLayer.style.zIndex  = '2';
+        inactLayer.style.animationPlayState = 'running';
+        inactLayer.classList.add('is-active');
+        setTimeout(function () {
+          activLayer.classList.remove('is-active');
+          var out = activLayer; activLayer = inactLayer; inactLayer = out;
+          setTimeout(function () { resetLayer(inactLayer); }, 50);
+        }, fadeMs);
+      }
+
+      applySlide(slideA, slides[0]);
+      slideA.style.zIndex = '2'; slideB.style.zIndex = '1';
+      slideA.style.animationPlayState = 'running';
+      slideA.classList.add('is-active');
+      activLayer = slideA; resetLayer(slideB); inactLayer = slideB;
+      if (total === 1) return;
+
+      function cycle() {
+        currentIdx = (currentIdx + 1) % total;
+        showSlide(currentIdx);
+        setTimeout(cycle, cycleMs);
+      }
+      setTimeout(cycle, cycleMs);
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       DATA COMPUTATIONS
+    ══════════════════════════════════════════════════════════ */
+
+    /* ── Season log for this member in OFC ───────────────── */
+    function buildSeasonLog(memberId, ofcLeague, ofcEntry) {
+      if (!ofcLeague) return [];
+      var seasons = (ofcLeague.seasons || []).slice().sort(function (a, b) {
+        return (parseInt(b.year,10)||0) - (parseInt(a.year,10)||0);
+      });
+
+      return seasons.map(function (season) {
+        var row = (season.standings || []).find(function (r) { return r.memberId === memberId; });
+        if (!row) return null;
+
+        // Playoff result
+        var playoffResult = getPlayoffResult(memberId, season, ofcLeague);
+
+        // Team logo — find matching team entry by name
+        var logoSrc = '';
+        if (row.teamName && ofcEntry) {
+          var teamEntry = (ofcEntry.teams || []).find(function (t) { return t.name === row.teamName; });
+          if (teamEntry) logoSrc = teamEntry.logo || '';
+        }
+
+        // Finish rank
+        var standings = (season.standings || []).slice().sort(function (a, b) {
+          return (parseFloat(b.totalPoints)||0) - (parseFloat(a.totalPoints)||0);
+        });
+        var rank = standings.findIndex(function (r) { return r.memberId === memberId; }) + 1;
+
+        return {
+          year:         season.year || '?',
+          teamName:     row.teamName || '—',
+          logo:         logoSrc,
+          record:       (row.record || ''),
+          pointsFor:    row.pointsFor    || row.totalPoints || '',
+          pointsAgainst:row.pointsAgainst || '',
+          rank:         rank,
+          playoff:      playoffResult,
+          isChamp:      season.championMemberId === memberId
+        };
+      }).filter(Boolean);
+    }
+
+    /* ── Determine playoff result from bracket data ─────── */
+    function getPlayoffResult(memberId, season, league) {
+      var p = season.playoffs;
+      if (!p) return 'missed';
+
+      var inFinals      = false;
+      var inSemis       = false;
+      var inWild        = false;
+      var wonFinals     = false;
+      var wonSemis      = false;
+
+      // Check finals
+      var finals = p.finals || [];
+      finals.forEach(function (g) {
+        if (g.homeMemberId === memberId || g.awayMemberId === memberId) {
+          inFinals = true;
+          var homeWon = parseFloat(g.homeScore) > parseFloat(g.awayScore);
+          if ((g.homeMemberId === memberId && homeWon) || (g.awayMemberId === memberId && !homeWon)) {
+            wonFinals = true;
+          }
+        }
+      });
+
+      var semis = p.semis || [];
+      semis.forEach(function (g) {
+        if (g.homeMemberId === memberId || g.awayMemberId === memberId) {
+          inSemis = true;
+          var homeWon = parseFloat(g.homeScore) > parseFloat(g.awayScore);
+          if ((g.homeMemberId === memberId && homeWon) || (g.awayMemberId === memberId && !homeWon)) {
+            wonSemis = true;
+          }
+        }
+      });
+
+      var wild = p.wildcard || [];
+      wild.forEach(function (g) {
+        if (g.homeMemberId === memberId || g.awayMemberId === memberId) inWild = true;
+      });
+
+      if (season.championMemberId === memberId) return 'champion';
+      if (inFinals)  return 'finals';
+      if (wonSemis)  return 'finals';  // won semis = reached finals
+      if (inSemis)   return 'semis';
+      if (inWild)    return 'wildcard';
+      return 'missed';
+    }
+
+    /* ── Career overview stats ────────────────────────────── */
+    function buildCareerStats(memberId, ofcLeague) {
+      var wins = 0, losses = 0, ties = 0;
+      var playoffAppearances = 0, championships = 0, finalAppearances = 0;
+      var mvpCount = 0;
+
+      if (!ofcLeague) return { wins, losses, ties, playoffAppearances, championships, finalAppearances, mvpCount, winPct: 0, seasonsPlayed: 0 };
+
+      (ofcLeague.seasons || []).forEach(function (season) {
+        var row = (season.standings || []).find(function (r) { return r.memberId === memberId; });
+        if (!row) return;
+
+        // Parse W-L-T from record string e.g. "10-3" or "9-3-1"
+        if (row.record) {
+          var parts = row.record.split('-').map(Number);
+          wins    += parts[0] || 0;
+          losses  += parts[1] || 0;
+          ties    += parts[2] || 0;
+        }
+
+        var pr = getPlayoffResult(memberId, season, ofcLeague);
+        if (pr !== 'missed')    playoffAppearances++;
+        if (pr === 'champion')  championships++;
+        if (pr === 'champion' || pr === 'finals') finalAppearances++;
+
+        // MVPs
+        (season.weeks || []).forEach(function (week) {
+          if (week.highScorer && week.highScorer.memberId === memberId) mvpCount++;
+        });
+      });
+
+      var seasonsPlayed = (ofcLeague.seasons || []).filter(function (s) {
+        return (s.standings || []).some(function (r) { return r.memberId === memberId; });
+      }).length;
+
+      var totalGames = wins + losses + ties;
+      var winPct = totalGames > 0 ? ((wins + ties * 0.5) / totalGames) : 0;
+
+      return { wins, losses, ties, playoffAppearances, championships, finalAppearances, mvpCount, winPct, seasonsPlayed };
+    }
+
+    /* ── Head-to-head records ─────────────────────────────── */
+    function buildH2H(memberId, ofcLeague, roster) {
+      var records = {}; // opponentId → { wins, losses, ties, seasons: [] }
+
+      if (!ofcLeague) return [];
+
+      (ofcLeague.seasons || []).forEach(function (season) {
+        (season.weeks || []).forEach(function (week) {
+          (week.games || []).forEach(function (game) {
+            var isHome = game.homeMemberId === memberId;
+            var isAway = game.awayMemberId === memberId;
+            if (!isHome && !isAway) return;
+
+            var oppId = isHome ? game.awayMemberId : game.homeMemberId;
+            if (!oppId) return;
+
+            var myScore  = isHome ? parseFloat(game.homeScore) : parseFloat(game.awayScore);
+            var oppScore = isHome ? parseFloat(game.awayScore) : parseFloat(game.homeScore);
+
+            if (!records[oppId]) records[oppId] = { wins: 0, losses: 0, ties: 0, seasons: {} };
+            var rec = records[oppId];
+
+            if (!rec.seasons[season.year]) rec.seasons[season.year] = { wins: 0, losses: 0, ties: 0 };
+            var seasonRec = rec.seasons[season.year];
+
+            if (myScore > oppScore)       { rec.wins++;   seasonRec.wins++;   }
+            else if (myScore < oppScore)  { rec.losses++; seasonRec.losses++; }
+            else                          { rec.ties++;   seasonRec.ties++;   }
+          });
+        });
+      });
+
+      // Convert to array with opponent info
+      return Object.keys(records).map(function (oppId) {
+        var rec    = records[oppId];
+        var member = (roster || []).find(function (m) { return m.id === oppId; });
+        return {
+          oppId:   oppId,
+          name:    member ? member.name    : 'Unknown',
+          mugshot: member ? member.mugshot : '',
+          wins:    rec.wins,
+          losses:  rec.losses,
+          ties:    rec.ties,
+          seasons: rec.seasons
+        };
+      }).sort(function (a, b) {
+        var aTotal = a.wins + a.losses + a.ties;
+        var bTotal = b.wins + b.losses + b.ties;
+        if (bTotal !== aTotal) return bTotal - aTotal;
+        return (a.name || '').localeCompare(b.name || '');
+      });
+    }
+
+    /* ── MVP log by season ────────────────────────────────── */
+    function buildMVPLog(memberId, ofcLeague) {
+      if (!ofcLeague) return [];
+      var seasons = [];
+      (ofcLeague.seasons || []).forEach(function (season) {
+        var weeks = [];
+        (season.weeks || []).forEach(function (week) {
+          if (week.highScorer && week.highScorer.memberId === memberId) {
+            weeks.push(week.weekNumber || '?');
+          }
+        });
+        if (weeks.length) {
+          seasons.push({ year: season.year || '?', weeks: weeks, count: weeks.length });
+        }
+      });
+      return seasons.sort(function (a, b) { return (parseInt(b.year,10)||0) - (parseInt(a.year,10)||0); });
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       RENDER
+    ══════════════════════════════════════════════════════════ */
+
+    function renderPlayoffBadge(result) {
+      var labels = {
+        champion: '&#x2605; Champion',
+        finals:   'Finals',
+        semis:    'Semis',
+        wildcard: 'Wildcard',
+        missed:   'Missed'
+      };
+      return '<span class="result-badge ' + result + '">' + (labels[result] || result) + '</span>';
+    }
+
+    function renderPage(member, ofcLeague, config) {
+      var data = window.OFL_DATA;
+      var roster = data.masterRoster || [];
+
+      var ofcEntry    = getOFCEntry(member);
+      var currentTeam = getCurrentTeam(ofcEntry);
+      var career      = buildCareerStats(member.id, ofcLeague);
+      var seasonLog   = buildSeasonLog(member.id, ofcLeague, ofcEntry);
+      var h2h         = buildH2H(member.id, ofcLeague, roster);
+      var mvpLog      = buildMVPLog(member.id, ofcLeague);
+
+      applyTeamColors(currentTeam);
+
+      var overlayEl = document.getElementById('teamOverlay');
+      if (overlayEl && config.slideshow) overlayEl.style.background = config.slideshow.overlay || 'rgba(0,0,0,0.62)';
+
+      /* ── Title ── */
+      document.title = 'OFL \u2014 ' + (currentTeam ? currentTeam.name : member.name);
+
+      var content = document.getElementById('teamContent');
+
+      /* ═════════════════════════════════════════════════════
+         HERO
+      ═════════════════════════════════════════════════════ */
+      var logoHtml = (currentTeam && currentTeam.logo)
+        ? '<img src="' + esc(currentTeam.logo) + '" alt="' + esc(currentTeam.name) + '" />'
+        : '<div class="team-hero-logo-placeholder">' + esc(initials(currentTeam ? currentTeam.name : member.name)) + '</div>';
+
+      var colorBarHtml = '';
+      if (currentTeam && (currentTeam.primaryColor || currentTeam.secondaryColor)) {
+        colorBarHtml = '<div class="team-hero-color-bar">';
+        if (currentTeam.primaryColor)   colorBarHtml += '<div class="team-hero-color-swatch" style="background:' + esc(currentTeam.primaryColor) + '"></div>';
+        if (currentTeam.secondaryColor) colorBarHtml += '<div class="team-hero-color-swatch" style="background:' + esc(currentTeam.secondaryColor) + '"></div>';
+        colorBarHtml += '</div>';
+      }
+
+      var heroHtml =
+        '<header class="team-hero" id="teamHero">' +
+          '<div class="landing-rule" aria-hidden="true"></div>' +
+          '<div class="team-hero-inner">' +
+            '<div class="team-hero-logo-wrap">' + logoHtml + '</div>' +
+            '<p class="team-hero-owner">' +
+              '<a href="playas.html">' + esc(member.name) + '</a>' +
+              (member.nickname ? ' &nbsp;&middot;&nbsp; &ldquo;' + esc(member.nickname) + '&rdquo;' : '') +
+            '</p>' +
+            '<h1 class="team-hero-name">' + esc(currentTeam ? currentTeam.name : member.name) + '</h1>' +
+            colorBarHtml +
+            '<div class="team-hero-meta">' +
+              '<span class="team-hero-pill ' + (member.active !== false ? 'active' : '') + '">' +
+                (member.active !== false ? 'Active' : 'Alumni') +
+              '</span>' +
+              (career.seasonsPlayed ? '<span class="team-hero-pill">' + career.seasonsPlayed + ' Season' + (career.seasonsPlayed !== 1 ? 's' : '') + '</span>' : '') +
+              (career.championships ? '<span class="team-hero-pill">' + career.championships + ' Title' + (career.championships !== 1 ? 's' : '') + '</span>' : '') +
+            '</div>' +
+          '</div>' +
+        '</header>';
+
+      /* ═════════════════════════════════════════════════════
+         CAREER OVERVIEW STRIP
+      ═════════════════════════════════════════════════════ */
+      var pct = career.winPct;
+      var pctStr = (pct * 100).toFixed(1) + '%';
+      var recordStr = career.wins + '\u2013' + career.losses + (career.ties ? '\u2013' + career.ties : '');
+
+      var careerStripHtml =
+        '<div class="team-career-strip section-reveal">' +
+          '<div class="team-career-stat">' +
+            '<div class="team-career-stat-value">' + recordStr + '</div>' +
+            '<div class="team-career-stat-label">Career Record</div>' +
+          '</div>' +
+          '<div class="team-career-stat">' +
+            '<div class="team-career-stat-value">' + pctStr + '</div>' +
+            '<div class="team-career-stat-label">Win %</div>' +
+          '</div>' +
+          '<div class="team-career-stat">' +
+            '<div class="team-career-stat-value ' + (career.playoffAppearances ? 'accent' : '') + '">' + career.playoffAppearances + '</div>' +
+            '<div class="team-career-stat-label">Playoff Apps</div>' +
+          '</div>' +
+          '<div class="team-career-stat">' +
+            '<div class="team-career-stat-value ' + (career.finalAppearances ? 'accent' : '') + '">' + career.finalAppearances + '</div>' +
+            '<div class="team-career-stat-label">Finals</div>' +
+          '</div>' +
+          '<div class="team-career-stat">' +
+            '<div class="team-career-stat-value ' + (career.championships ? 'accent' : '') + '">' + career.championships + '</div>' +
+            '<div class="team-career-stat-label">Championships</div>' +
+          '</div>' +
+          '<div class="team-career-stat">' +
+            '<div class="team-career-stat-value ' + (career.mvpCount ? 'accent' : '') + '">' + career.mvpCount + '</div>' +
+            '<div class="team-career-stat-label">Weekly MVPs</div>' +
+          '</div>' +
+        '</div>';
+
+      /* ═════════════════════════════════════════════════════
+         SEASON LOG
+      ═════════════════════════════════════════════════════ */
+      var seasonRowsHtml = seasonLog.map(function (s) {
+        var logoCell = s.logo
+          ? '<img class="season-team-logo" src="' + esc(s.logo) + '" alt="" />'
+          : '';
+        return '<tr>' +
+          '<td>' + esc(s.year) + '</td>' +
+          '<td class="team-name-cell">' + logoCell + esc(s.teamName) + '</td>' +
+          '<td class="num">' + esc(s.record) + '</td>' +
+          '<td class="num">' + esc(s.pointsFor ? parseFloat(s.pointsFor).toFixed(1) : '—') + '</td>' +
+          '<td class="num">' + esc(s.pointsAgainst ? parseFloat(s.pointsAgainst).toFixed(1) : '—') + '</td>' +
+          '<td class="num">' + (s.rank ? '#' + s.rank : '—') + '</td>' +
+          '<td>' + renderPlayoffBadge(s.playoff) + '</td>' +
+        '</tr>';
+      }).join('');
+
+      var seasonLogHtml = seasonLog.length
+        ? '<div class="team-table-wrap section-reveal">' +
+            '<table class="team-table">' +
+              '<thead><tr>' +
+                '<th>Year</th><th>Team</th>' +
+                '<th class="num">Record</th>' +
+                '<th class="num">PF</th>' +
+                '<th class="num">PA</th>' +
+                '<th class="num">Finish</th>' +
+                '<th>Playoff</th>' +
+              '</tr></thead>' +
+              '<tbody>' + seasonRowsHtml + '</tbody>' +
+            '</table>' +
+          '</div>'
+        : '<p style="font-family:var(--font-body);font-size:0.65rem;color:var(--accent-dim);opacity:0.5;letter-spacing:0.15em;text-transform:uppercase;">No season data yet.</p>';
+
+      /* ═════════════════════════════════════════════════════
+         HEAD TO HEAD
+      ═════════════════════════════════════════════════════ */
+      var h2hCardsHtml = h2h.map(function (opp) {
+        var total    = opp.wins + opp.losses + opp.ties;
+        var winPct   = total > 0 ? (opp.wins / total) * 100 : 0;
+        var recordLbl = opp.wins + '\u2013' + opp.losses + (opp.ties ? '\u2013' + opp.ties : '');
+
+        var thumbHtml = opp.mugshot
+          ? '<img class="team-h2h-thumb" src="' + esc(opp.mugshot) + '" alt="" loading="lazy" />'
+          : '<div class="team-h2h-thumb-init">' + esc(initials(opp.name)) + '</div>';
+
+        // Season breakdown rows — sorted year desc
+        var seasonRows = Object.keys(opp.seasons).sort(function (a, b) {
+          return (parseInt(b,10)||0) - (parseInt(a,10)||0);
+        }).map(function (yr) {
+          var sr = opp.seasons[yr];
+          var res = sr.wins > sr.losses ? 'w' : (sr.wins < sr.losses ? 'l' : 't');
+          var lbl = sr.wins > sr.losses ? 'W' : (sr.wins < sr.losses ? 'L' : 'T');
+          var recLbl = sr.wins + '\u2013' + sr.losses + (sr.ties ? '\u2013' + sr.ties : '');
+          return '<div class="team-h2h-season-row">' +
+            '<span class="team-h2h-season-year">' + esc(yr) + '</span>' +
+            '<span class="team-h2h-season-result ' + res + '">' + lbl + ' &nbsp; ' + recLbl + '</span>' +
+          '</div>';
+        }).join('');
+
+        return '<div class="team-h2h-card">' +
+          '<div class="team-h2h-card-header">' +
+            thumbHtml +
+            '<div class="team-h2h-info">' +
+              '<div class="team-h2h-name">' + esc(opp.name) + '</div>' +
+              '<div class="team-h2h-record">' +
+                '<span class="win">' + opp.wins + 'W</span> &nbsp;' + opp.losses + 'L' +
+                (opp.ties ? ' &nbsp;' + opp.ties + 'T' : '') +
+                ' &nbsp;&middot;&nbsp; ' + recordLbl +
+              '</div>' +
+            '</div>' +
+            '<span class="team-h2h-caret">&#x25BC;</span>' +
+          '</div>' +
+          '<div class="team-h2h-bar-wrap">' +
+            '<div class="team-h2h-bar">' +
+              '<div class="team-h2h-bar-fill" style="width:' + winPct.toFixed(1) + '%"></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="team-h2h-breakdown">' + (seasonRows || '<span style="font-size:0.55rem;color:var(--accent-dim);opacity:0.5;">No season data.</span>') + '</div>' +
+        '</div>';
+      }).join('');
+
+      var h2hHtml = h2h.length
+        ? '<div class="team-h2h-grid section-reveal">' + h2hCardsHtml + '</div>'
+        : '<p style="font-family:var(--font-body);font-size:0.65rem;color:var(--accent-dim);opacity:0.5;letter-spacing:0.15em;text-transform:uppercase;">No matchup data yet.</p>';
+
+      /* ═════════════════════════════════════════════════════
+         MVP LOG
+      ═════════════════════════════════════════════════════ */
+      var mvpCardsHtml = mvpLog.map(function (s) {
+        var chips = s.weeks.map(function (w) {
+          return '<span class="team-mvp-week-chip">Wk ' + esc(w) + '</span>';
+        }).join('');
+        return '<div class="team-mvp-season-card">' +
+          '<div class="team-mvp-season-year">' + esc(s.year) + ' Season</div>' +
+          '<div class="team-mvp-season-count">' + s.count + '</div>' +
+          '<div class="team-mvp-week-list">' + chips + '</div>' +
+        '</div>';
+      }).join('');
+
+      var mvpHtml = mvpLog.length
+        ? '<div class="team-mvp-grid section-reveal">' + mvpCardsHtml + '</div>'
+        : '<p style="font-family:var(--font-body);font-size:0.65rem;color:var(--accent-dim);opacity:0.5;letter-spacing:0.15em;text-transform:uppercase;">No weekly MVP data.</p>';
+
+      /* ═════════════════════════════════════════════════════
+         TEAM HISTORY
+      ═════════════════════════════════════════════════════ */
+      var teams = ofcEntry ? (ofcEntry.teams || []) : [];
+      var teamsReversed = teams.slice().reverse(); // most recent first
+
+      // Map team name → season years played
+      var teamSeasons = {};
+      if (ofcLeague) {
+        (ofcLeague.seasons || []).forEach(function (season) {
+          var row = (season.standings || []).find(function (r) { return r.memberId === member.id; });
+          if (row && row.teamName) {
+            if (!teamSeasons[row.teamName]) teamSeasons[row.teamName] = [];
+            teamSeasons[row.teamName].push(season.year || '?');
+          }
+        });
+      }
+
+      var historyRowsHtml = teamsReversed.map(function (t, i) {
+        var logoHtml = t.logo
+          ? '<img class="team-history-logo" src="' + esc(t.logo) + '" alt="" />'
+          : '<div class="team-history-logo-init">' + esc(initials(t.name)) + '</div>';
+
+        var years = teamSeasons[t.name] || [];
+        var yearsLabel = years.length
+          ? years.slice().sort().join(', ')
+          : 'No season data';
+
+        var colorDots = '';
+        if (t.primaryColor || t.secondaryColor) {
+          colorDots += '<div class="team-history-colors">';
+          if (t.primaryColor)   colorDots += '<div class="team-history-swatch" style="background:' + esc(t.primaryColor)   + '"></div>';
+          if (t.secondaryColor) colorDots += '<div class="team-history-swatch" style="background:' + esc(t.secondaryColor) + '"></div>';
+          colorDots += '</div>';
+        }
+
+        var currentBadge = i === 0 ? '<span class="team-history-badge">Current</span>' : '';
+
+        return '<div class="team-history-row">' +
+          logoHtml +
+          '<div class="team-history-info">' +
+            '<div class="team-history-name">' + esc(t.name) + '</div>' +
+            '<div class="team-history-seasons">' + esc(yearsLabel) + '</div>' +
+          '</div>' +
+          colorDots +
+          currentBadge +
+        '</div>';
+      }).join('');
+
+      var historyHtml = teamsReversed.length
+        ? '<div class="team-history-list section-reveal">' + historyRowsHtml + '</div>'
+        : '<p style="font-family:var(--font-body);font-size:0.65rem;color:var(--accent-dim);opacity:0.5;letter-spacing:0.15em;text-transform:uppercase;">No team history.</p>';
+
+      /* ═════════════════════════════════════════════════════
+         ASSEMBLE
+      ═════════════════════════════════════════════════════ */
+      content.innerHTML =
+        heroHtml +
+        '<div class="team-body">' +
+          '<div class="team-wrap">' +
+            careerStripHtml +
+
+            '<p class="team-section-heading section-reveal">Season Log</p>' +
+            seasonLogHtml +
+
+            '<p class="team-section-heading section-reveal">Head to Head</p>' +
+            h2hHtml +
+
+            '<p class="team-section-heading section-reveal">Weekly MVP Log</p>' +
+            mvpHtml +
+
+            '<p class="team-section-heading section-reveal">Franchise History</p>' +
+            historyHtml +
+          '</div>' +
+        '</div>';
+
+      /* ── H2H card expand/collapse ── */
+      content.querySelectorAll('.team-h2h-card-header').forEach(function (header) {
+        header.addEventListener('click', function () {
+          header.closest('.team-h2h-card').classList.toggle('is-open');
+        });
+      });
+    }
+
+    /* ── Not found state ──────────────────────────────────── */
+    function renderNotFound(msg) {
+      var content = document.getElementById('teamContent');
+      content.innerHTML =
+        '<div class="team-not-found">' +
+          '<div class="team-not-found-title">404</div>' +
+          '<p class="team-not-found-msg">' + esc(msg || 'Team not found') + '</p>' +
+          '<a href="playas.html">&#x2190; Back to Roster</a>' +
+        '</div>';
+    }
+
+    /* ── Boot ─────────────────────────────────────────────── */
+    function init() {
+      var config = window.SITE_CONFIG;
+      var data   = window.OFL_DATA;
+      if (!config || !data) { renderNotFound('Site data not loaded'); return; }
+
+      var memberId = getParam('id');
+      if (!memberId) { renderNotFound('No team ID specified'); return; }
+
+      var member = (data.masterRoster || []).find(function (m) { return m.id === memberId; });
+      if (!member) { renderNotFound('Member not found: ' + memberId); return; }
+
+      var ofcLeague = getOFCLeague(data.leagueData);
+      var ofcEntry  = getOFCEntry(member);
+      if (!ofcEntry) { renderNotFound(member.name + ' has no OFC team data'); return; }
+
+      // Apply team slideshow (overrides global slideshow started by menu.js)
+      var teamSS = buildTeamSlideshow(ofcEntry, config);
+      if (teamSS) {
+        // Cancel global slideshow by clearing slide layers first
+        ['slideA','slideB'].forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el) { el.style.animation = 'none'; el.classList.remove('kb-active','is-active'); }
+        });
+        setTimeout(function () { runTeamSlideshow(teamSS); }, 50);
+        var overlayEl = document.getElementById('teamOverlay');
+        if (overlayEl) overlayEl.style.background = teamSS.overlay;
+      }
+
+      renderPage(member, ofcLeague, config);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+
+  })();
+  </script>
+
+</body>
+</html>
