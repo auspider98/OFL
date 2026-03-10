@@ -457,6 +457,8 @@ img {
   flex-direction: column;
   justify-content: center;
   padding: 4rem 3rem;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .drawer.is-open {
@@ -674,16 +676,6 @@ img {
     min-width: unset;
   }
 
-  .drawer {
-    width: 100vw;
-    border-left: none;
-    padding: 5rem 2.5rem 2.5rem;
-  }
-
-  .drawer-nav a {
-    font-size: 2rem;
-  }
-
   .inner-hero {
     padding: 4rem 1.2rem 3rem;
   }
@@ -699,6 +691,36 @@ img {
   .data-table th,
   .data-table td {
     padding: 0.7rem 0.6rem;
+  }
+}
+
+/* ── Drawer: portrait mobile (full width) ─────────────────── */
+@media (max-width: 600px) and (orientation: portrait) {
+  .drawer {
+    width: 100vw;
+    border-left: none;
+    padding: 5rem 2.5rem 2.5rem;
+  }
+  .drawer-nav a {
+    font-size: 2rem;
+  }
+}
+
+/* ── Drawer: landscape (short viewports) ─────────────────── */
+@media (max-height: 500px) {
+  .drawer {
+    justify-content: flex-start;
+    padding: 2rem 3rem 1.5rem;
+  }
+  .drawer-label {
+    margin-bottom: 1rem;
+  }
+  .drawer-nav a {
+    font-size: 1.2rem;
+    padding: 0.25rem 0;
+  }
+  .drawer-footer {
+    padding-top: 0.75rem;
   }
 }
 
