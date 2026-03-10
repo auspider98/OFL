@@ -712,15 +712,21 @@
       (ofcLeague.seasons || []).forEach(function (season) {
         (season.weeks || []).forEach(function (week) {
           (week.games || []).forEach(function (game) {
-            var isHome = game.homeMemberId === memberId;
-            var isAway = game.awayMemberId === memberId;
+            /* Support both nested {home,away} and flat homeMemberId shapes */
+            var homeId    = (game.home && game.home.memberId) || game.homeMemberId || '';
+            var awayId    = (game.away && game.away.memberId) || game.awayMemberId || '';
+            var homeScore = parseFloat((game.home && game.home.score) || game.homeScore || 0);
+            var awayScore = parseFloat((game.away && game.away.score) || game.awayScore || 0);
+
+            var isHome = homeId === memberId;
+            var isAway = awayId === memberId;
             if (!isHome && !isAway) return;
 
-            var oppId = isHome ? game.awayMemberId : game.homeMemberId;
+            var oppId = isHome ? awayId : homeId;
             if (!oppId) return;
 
-            var myScore  = isHome ? parseFloat(game.homeScore) : parseFloat(game.awayScore);
-            var oppScore = isHome ? parseFloat(game.awayScore) : parseFloat(game.homeScore);
+            var myScore  = isHome ? homeScore : awayScore;
+            var oppScore = isHome ? awayScore : homeScore;
 
             if (!records[oppId]) records[oppId] = { wins: 0, losses: 0, ties: 0, seasons: {} };
             var rec = records[oppId];
@@ -803,7 +809,7 @@
       applyTeamColors(currentTeam);
 
       var overlayEl = document.getElementById('teamOverlay');
-      if (overlayEl && config.slideshow) overlayEl.style.background = config.slideshow.overlay || 'rgba(0,0,0,0.62)';
+      if (overlayEl) overlayEl.style.background = 'rgba(0,0,0,0.82)';
 
       /* ── Title ── */
       document.title = 'OFL \u2014 ' + (currentTeam ? currentTeam.name : member.name);
@@ -1106,7 +1112,7 @@
         });
         setTimeout(function () { runTeamSlideshow(teamSS); }, 50);
         var overlayEl = document.getElementById('teamOverlay');
-        if (overlayEl) overlayEl.style.background = teamSS.overlay;
+        if (overlayEl) overlayEl.style.background = 'rgba(0,0,0,0.82)';
       }
 
       renderPage(member, ofcLeague, config);
