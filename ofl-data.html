@@ -1136,9 +1136,11 @@ document.addEventListener('DOMContentLoaded', function () {
       wrap.appendChild(buildNestedSection('Background Slideshow', true, function (sec) {
         if (!league.slideshow) league.slideshow = { slides:[], overlay:'rgba(0,0,0,0.55)' };
         if (!league.slideshow.slides) league.slideshow.slides = [];
+        if (!league.slideshow.teamOverlay) league.slideshow.teamOverlay = 'rgba(0,0,0,0.88)';
 
         sec.innerHTML =
-          '<div class="field-row"><div class="field-label">Overlay Darkness<span class="field-hint">0 = none · 0.9 = very dark</span></div><input class="admin-input lg-ss-overlay" type="number" min="0" max="1" step="0.05" value="'+ esc(parseOverlayAlpha(league.slideshow.overlay)) +'" style="max-width:120px;" /></div>' +
+          '<div class="field-row"><div class="field-label">League Page Overlay<span class="field-hint">0 = none · 0.9 = very dark</span></div><input class="admin-input lg-ss-overlay" type="number" min="0" max="1" step="0.05" value="'+ esc(parseOverlayAlpha(league.slideshow.overlay)) +'" style="max-width:120px;" /></div>' +
+          '<div class="field-row"><div class="field-label">Team Page Overlay<span class="field-hint">0 = none · 0.9 = very dark</span></div><input class="admin-input lg-ss-team-overlay" type="number" min="0" max="1" step="0.05" value="'+ esc(parseOverlayAlpha(league.slideshow.teamOverlay)) +'" style="max-width:120px;" /></div>' +
           '<div class="card-list" id="lgSlides_'+league.id+'"></div>' +
           '<button class="btn btn-sm" style="margin-top:0.75rem;" id="lgAddSlide_'+league.id+'">+ Add Slide</button>';
 
@@ -1147,6 +1149,11 @@ document.addEventListener('DOMContentLoaded', function () {
         sec.querySelector('.lg-ss-overlay').addEventListener('input', function () {
           var alpha = Math.min(1, Math.max(0, parseFloat(this.value) || 0));
           league.slideshow.overlay = 'rgba(0,0,0,' + alpha + ')';
+          markDirty();
+        });
+        sec.querySelector('.lg-ss-team-overlay').addEventListener('input', function () {
+          var alpha = Math.min(1, Math.max(0, parseFloat(this.value) || 0));
+          league.slideshow.teamOverlay = 'rgba(0,0,0,' + alpha + ')';
           markDirty();
         });
         sec.querySelector('#lgAddSlide_'+league.id).addEventListener('click', function () {

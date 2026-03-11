@@ -820,7 +820,11 @@
       applyTeamColors(currentTeam);
 
       var overlayEl = document.getElementById('teamOverlay');
-      if (overlayEl) overlayEl.style.background = 'rgba(0,0,0,0.88)';
+      if (overlayEl) {
+        var teamOverlay = (ofcLeague && ofcLeague.slideshow && ofcLeague.slideshow.teamOverlay)
+          ? ofcLeague.slideshow.teamOverlay : 'rgba(0,0,0,0.88)';
+        overlayEl.style.background = teamOverlay;
+      }
 
       /* ── Title ── */
       document.title = 'OFL \u2014 ' + (currentTeam ? currentTeam.name : member.name);
@@ -1125,7 +1129,11 @@
         });
         setTimeout(function () { runTeamSlideshow(teamSS); }, 50);
         var overlayEl = document.getElementById('teamOverlay');
-        if (overlayEl) overlayEl.style.background = 'rgba(0,0,0,0.88)';
+        if (overlayEl) {
+          var teamOverlay = (ofcLeague && ofcLeague.slideshow && ofcLeague.slideshow.teamOverlay)
+            ? ofcLeague.slideshow.teamOverlay : 'rgba(0,0,0,0.88)';
+          overlayEl.style.background = teamOverlay;
+        }
       }
 
       renderPage(member, ofcLeague, config);
