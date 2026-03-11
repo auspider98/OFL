@@ -577,11 +577,11 @@
             var lo     = hs >= as_ ? {score:as_, mid:am, name:an, team:at} : {score:hs,  mid:hm, name:hn, team:ht};
             var margin = hi.score - lo.score;
             var wl     = 'Wk ' + (wk.weekNumber||'?') + ', ' + (s.year||'?');
-            sgHighScoreArr.push( {value:hi.score,  memberId:hi.mid, name:hi.name, team:hi.team, sub:wl});
-            sgLowScoreArr.push(  {value:lo.score,  memberId:lo.mid, name:lo.name, team:lo.team, sub:wl});
-            sgBlowoutArr.push(   {value:margin,    memberId:hi.mid, name:hi.name, team:hi.team, sub:wl});
-            sgClosestArr.push(   {value:margin,    memberId:hi.mid, name:hi.name, team:hi.team, sub:wl});
-            sgHighLosingArr.push({value:lo.score,  memberId:lo.mid, name:lo.name, team:lo.team, sub:wl});
+            sgHighScoreArr.push( {value:hi.score,  memberId:hi.mid, name:hi.name, team:hi.team, sub:wl, oppTeam:lo.team});
+            sgLowScoreArr.push(  {value:lo.score,  memberId:lo.mid, name:lo.name, team:lo.team, sub:wl, oppTeam:hi.team});
+            sgBlowoutArr.push(   {value:margin,    memberId:hi.mid, name:hi.name, team:hi.team, sub:wl, oppTeam:lo.team, oppScore:lo.score, winScore:hi.score});
+            sgClosestArr.push(   {value:margin,    memberId:hi.mid, name:hi.name, team:hi.team, sub:wl, oppTeam:lo.team, oppScore:lo.score, winScore:hi.score});
+            sgHighLosingArr.push({value:lo.score,  memberId:lo.mid, name:lo.name, team:lo.team, sub:wl, oppTeam:hi.team});
           });
         });
 
@@ -600,12 +600,12 @@
             var lo = hs >= as_ ? {score:as_, mid:am, name:an, team:at} : {score:hs, mid:hm, name:hn, team:ht};
             var margin = hi.score - lo.score;
             var lbl = (mu.gameType || roundKey) + ', ' + (s.year||'?');
-            var hiEntry = {value:hi.score, memberId:hi.mid, name:hi.name, team:hi.team, sub:lbl};
-            var loEntry = {value:lo.score, memberId:lo.mid, name:lo.name, team:lo.team, sub:lbl};
+            var hiEntry = {value:hi.score, memberId:hi.mid, name:hi.name, team:hi.team, sub:lbl, oppTeam:lo.team};
+            var loEntry = {value:lo.score, memberId:lo.mid, name:lo.name, team:lo.team, sub:lbl, oppTeam:hi.team};
             poHighArr.push(hiEntry);
             poLowArr.push(loEntry);
-            poBlowoutArr.push({value:margin, memberId:hi.mid, name:hi.name, team:hi.team, sub:lbl});
-            poClosestArr.push({value:margin, memberId:hi.mid, name:hi.name, team:hi.team, sub:lbl});
+            poBlowoutArr.push({value:margin, memberId:hi.mid, name:hi.name, team:hi.team, sub:lbl, oppTeam:lo.team, oppScore:lo.score, winScore:hi.score});
+            poClosestArr.push({value:margin, memberId:hi.mid, name:hi.name, team:hi.team, sub:lbl, oppTeam:lo.team, oppScore:lo.score, winScore:hi.score});
             poHighLosingArr.push(loEntry);
             // Career playoff wins
             if (!poCareerWins[hi.mid]) poCareerWins[hi.mid] = {memberId:hi.mid, name:hi.name, wins:0};
@@ -613,8 +613,8 @@
             // Championship game records
             if (mu.gameType === 'Championship') {
               poChampHighArr.push(hiEntry);
-              poChampBlowoutArr.push({value:margin, memberId:hi.mid, name:hi.name, team:hi.team, sub:lbl});
-              poChampClosestArr.push({value:margin, memberId:hi.mid, name:hi.name, team:hi.team, sub:lbl});
+              poChampBlowoutArr.push({value:margin, memberId:hi.mid, name:hi.name, team:hi.team, sub:lbl, oppTeam:lo.team, oppScore:lo.score, winScore:hi.score});
+              poChampClosestArr.push({value:margin, memberId:hi.mid, name:hi.name, team:hi.team, sub:lbl, oppTeam:lo.team, oppScore:lo.score, winScore:hi.score});
               // Championship appearances
               [hi.mid, lo.mid].forEach(function(mid) {
                 if (!mid) return;
@@ -760,13 +760,13 @@
 
       if (r.hasWeeks) {
         var SG = 'Regular Season Game Records';
-        defs.push({section:SG, label:'Highest Score',           top3: r.t3SgHighScore.map( function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
-        defs.push({section:SG, label:'Lowest Score',            top3: r.t3SgLowScore.map(  function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
-        defs.push({section:SG, label:'Biggest Blowout',         top3: r.t3SgBlowout.map(   function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
-        defs.push({section:SG, label:'Closest Game',            top3: r.t3SgClosest.map(   function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
-        defs.push({section:SG, label:'Highest Losing Score',    top3: r.t3SgHighLosing.map(function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
-        defs.push({section:SG, label:'Highest Scoring Weekly MVP', top3: r.t3SgMvpHigh.map(   function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',player:x.player||'',value:fmt(x.value,2),sub:x.sub};})});
-        defs.push({section:SG, label:'Lowest Scoring Weekly MVP',  top3: r.t3SgMvpLow.map(    function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',player:x.player||'',value:fmt(x.value,2),sub:x.sub};})});
+        defs.push({section:SG, label:'Highest Score',           top3: r.t3SgHighScore.map( function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||''};})});
+        defs.push({section:SG, label:'Lowest Score',            top3: r.t3SgLowScore.map(  function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||''};})});
+        defs.push({section:SG, label:'Biggest Blowout',         top3: r.t3SgBlowout.map(   function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||'',oppScore:x.oppScore||0,winScore:x.winScore||0};})});
+        defs.push({section:SG, label:'Closest Game',            top3: r.t3SgClosest.map(   function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||'',oppScore:x.oppScore||0,winScore:x.winScore||0};})});
+        defs.push({section:SG, label:'Highest Losing Score',    top3: r.t3SgHighLosing.map(function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||''};})});
+        defs.push({section:SG, label:'Highest Scoring Weekly MVP', top3: r.t3SgMvpHigh.map(   function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',player:x.player||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||''};})});
+        defs.push({section:SG, label:'Lowest Scoring Weekly MVP',  top3: r.t3SgMvpLow.map(    function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',player:x.player||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||''};})});
       }
 
       var SS = 'Season Records';
@@ -784,14 +784,14 @@
       }
 
       var PS = 'Playoff Records';
-      defs.push({section:PS, label:'Highest Playoff Score',          top3: r.poHighScore.map(    function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
-      defs.push({section:PS, label:'Lowest Playoff Score',           top3: r.poLowScore.map(     function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
-      defs.push({section:PS, label:'Biggest Playoff Blowout',        top3: r.poBlowout.map(      function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
-      defs.push({section:PS, label:'Closest Playoff Game',           top3: r.poClosest.map(      function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
-      defs.push({section:PS, label:'Highest Losing Playoff Score',   top3: r.poHighLosing.map(   function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
-      defs.push({section:PS, label:'Highest Championship Score',     top3: r.poChampHigh.map(    function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
-      defs.push({section:PS, label:'Biggest Championship Blowout',   top3: r.poChampBlowout.map( function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
-      defs.push({section:PS, label:'Closest Championship Game',      top3: r.poChampClosest.map( function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub};})});
+      defs.push({section:PS, label:'Highest Playoff Score',          top3: r.poHighScore.map(    function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||''};})});
+      defs.push({section:PS, label:'Lowest Playoff Score',           top3: r.poLowScore.map(     function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||''};})});
+      defs.push({section:PS, label:'Biggest Playoff Blowout',        top3: r.poBlowout.map(      function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||'',oppScore:x.oppScore||0,winScore:x.winScore||0};})});
+      defs.push({section:PS, label:'Closest Playoff Game',           top3: r.poClosest.map(      function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||'',oppScore:x.oppScore||0,winScore:x.winScore||0};})});
+      defs.push({section:PS, label:'Highest Losing Playoff Score',   top3: r.poHighLosing.map(   function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||''};})});
+      defs.push({section:PS, label:'Highest Championship Score',     top3: r.poChampHigh.map(    function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||''};})});
+      defs.push({section:PS, label:'Biggest Championship Blowout',   top3: r.poChampBlowout.map( function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||'',oppScore:x.oppScore||0,winScore:x.winScore||0};})});
+      defs.push({section:PS, label:'Closest Championship Game',      top3: r.poChampClosest.map( function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||'',oppScore:x.oppScore||0,winScore:x.winScore||0};})});
       defs.push({section:PS, label:'Most Playoff Wins — Career',     top3: r.poCareerWinsArr.map(function(x){return{memberId:x.memberId,name:x.name,value:x.wins};})});
       defs.push({section:PS, label:'Most Playoff Appearances',       top3: r.playoffArr.map(     function(x){return{memberId:x.memberId,name:x.name,value:x.count};})});
       defs.push({section:PS, label:'Longest Playoff Streak',         top3: r.consPlayoffsArr.map(function(x){return{memberId:x.memberId,name:x.name,value:x.best};})});
@@ -895,6 +895,12 @@
 
           // Front body
           var frontSubLine = best ? [best.sub, best.team].filter(Boolean).join(' · ') : '';
+          var frontWinLine = best && best.winScore
+            ? [best.sub, best.team + ' (' + parseFloat(best.winScore).toFixed(2) + ')'].filter(Boolean).join(' · ')
+            : '';
+          var frontOppLine = best && best.oppTeam
+            ? ('vs ' + best.oppTeam + (best.oppScore ? ' (' + parseFloat(best.oppScore).toFixed(2) + ')' : ''))
+            : '';
           var frontBodyHtml =
             '<div class="rec-front-body">' +
               '<div class="rec-front-label">'+esc(def.label)+'</div>' +
@@ -902,7 +908,8 @@
                 ? '<div class="rec-front-value">'+esc(String(best.value))+'</div>' +
                   '<div class="rec-front-name">'+esc(best.name)+'</div>' +
                   (best.player ? '<div class="rec-front-detail" style="opacity:0.9;">'+esc(best.player)+'</div>' : '') +
-                  (frontSubLine ? '<div class="rec-front-detail">'+esc(frontSubLine)+'</div>' : '')
+                  (frontWinLine ? '<div class="rec-front-detail">'+esc(frontWinLine)+'</div>' : (frontSubLine ? '<div class="rec-front-detail">'+esc(frontSubLine)+'</div>' : '')) +
+                  (frontOppLine ? '<div class="rec-front-detail" style="opacity:0.65;">'+esc(frontOppLine)+'</div>' : '')
                 : '<div class="rec-front-nil">No data yet</div>') +
               '<span class="rec-front-flip-hint">Top 3 ›</span>' +
             '</div>';
@@ -913,7 +920,12 @@
             : top.map(function(row, idx) {
                 var rank    = idx + 1;
                 var rankCls = rank <= 3 ? ' rank-'+rank : '';
-                var subLine = [row.sub, row.team].filter(Boolean).join(' · ');
+                var subLine = row.winScore
+                  ? [row.sub, row.team + ' (' + parseFloat(row.winScore).toFixed(2) + ')'].filter(Boolean).join(' · ')
+                  : [row.sub, row.team].filter(Boolean).join(' · ');
+                var oppLine = row.oppTeam
+                  ? ('vs ' + row.oppTeam + (row.oppScore ? ' (' + parseFloat(row.oppScore).toFixed(2) + ')' : ''))
+                  : '';
                 return '<div class="rec-back-row">' +
                   '<span class="rec-back-rank'+rankCls+'">'+rank+'</span>' +
                   backMugHtml(row.memberId, row.name) +
@@ -921,6 +933,7 @@
                     '<div class="rec-back-name">'+esc(row.name)+'</div>' +
                     (row.player ? '<div class="rec-back-sub" style="opacity:0.9;">'+esc(row.player)+'</div>' : '') +
                     (subLine ? '<div class="rec-back-sub">'+esc(subLine)+'</div>' : '') +
+                    (oppLine ? '<div class="rec-back-sub" style="opacity:0.65;">'+esc(oppLine)+'</div>' : '') +
                   '</div>' +
                   '<div class="rec-back-val">'+esc(String(row.value))+'</div>' +
                 '</div>';
@@ -974,7 +987,12 @@
         var rows = top.map(function(row, idx) {
           var rank    = idx + 1;
           var rankCls = rank <= 3 ? ' rank-'+rank : '';
-          var subLine = [row.sub, row.team].filter(Boolean).join(' · ');
+          var subLine = row.winScore
+            ? [row.sub, row.team + ' (' + parseFloat(row.winScore).toFixed(2) + ')'].filter(Boolean).join(' · ')
+            : [row.sub, row.team].filter(Boolean).join(' · ');
+          var oppLine = row.oppTeam
+            ? ('vs ' + row.oppTeam + (row.oppScore ? ' (' + parseFloat(row.oppScore).toFixed(2) + ')' : ''))
+            : '';
           return '<tr>' +
             '<td><span class="rec-rank-num'+rankCls+'">'+rank+'</span></td>' +
             '<td><div class="rec-name-cell">' +
@@ -982,6 +1000,7 @@
               '<span>'+esc(row.name)+
                 (row.player ? '<span class="rec-season-tag" style="opacity:0.9;display:block;">'+esc(row.player)+'</span>' : '') +
                 (subLine ? '<span class="rec-season-tag">'+esc(subLine)+'</span>' : '') +
+                (oppLine ? '<span class="rec-season-tag" style="opacity:0.65;">'+esc(oppLine)+'</span>' : '') +
               '</span>' +
             '</div></td>' +
             '<td>'+esc(String(row.value))+'</td>' +
