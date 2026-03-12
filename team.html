@@ -100,7 +100,7 @@
       font-family: var(--font-body); font-size: 0.48rem;
       letter-spacing: 0.25em; text-transform: uppercase;
       border: 1px solid var(--drawer-border);
-      padding: 0.22rem 0.6rem; color: var(--accent-dim);
+      padding: 0.22rem 0.6rem; color: var(--accent); font-weight: 700;
     }
     .team-hero-pill.active {
       color: var(--team-primary, var(--hint-color, var(--accent-dim)));
@@ -140,6 +140,13 @@
       border-right: 1px solid var(--drawer-border);
     }
     .team-career-stat:last-child { border-right: none; }
+    .team-career-stat {
+      transition: background 0.2s, transform 0.2s;
+    }
+    .team-career-stat:hover {
+      background: rgba(255,255,255,0.04);
+      transform: translateY(-2px);
+    }
     .team-career-stat-value {
       font-family: var(--font-display); font-weight: 300;
       font-size: 2.6rem; line-height: 1; color: var(--accent);
@@ -173,12 +180,12 @@
     .team-table th.num { text-align: right; }
     .team-table td {
       padding: 0.65rem 0.75rem; border-bottom: 1px solid rgba(232,232,232,0.05);
-      color: var(--accent); vertical-align: middle; white-space: nowrap;
+      color: var(--accent); vertical-align: middle; white-space: nowrap; font-weight: 600;
     }
-    .team-table td.num { text-align: right; color: var(--accent-dim); }
+    .team-table td.num { text-align: right; color: var(--accent); }
     .team-table td.team-name-cell { color: var(--accent); }
     .team-table tr:last-child td { border-bottom: none; }
-    .team-table tr:hover td { background: rgba(255,255,255,0.025); }
+    .team-table tr:hover td { background: rgba(255,255,255,0.06); }
 
     /* Result badges */
     .result-badge {
@@ -244,13 +251,13 @@
     }
     .team-h2h-info { flex: 1; min-width: 0; }
     .team-h2h-name {
-      font-family: var(--font-display); font-weight: 300;
+      font-family: var(--font-display); font-weight: 600;
       font-size: 1rem; color: var(--accent); line-height: 1;
       margin-bottom: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .team-h2h-record {
       font-family: var(--font-body); font-size: 0.58rem;
-      letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent-dim);
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); font-weight: 700;
     }
     .team-h2h-record .win  { color: var(--team-primary, var(--hint-color, var(--accent))); }
     .team-h2h-caret {
@@ -287,7 +294,7 @@
     .team-h2h-season-year { color: var(--accent-dim); letter-spacing: 0.12em; }
     .team-h2h-season-result {
       font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase;
-      color: var(--accent-dim);
+      color: var(--accent-dim); font-weight: 700;
     }
     .team-h2h-season-result.w { color: var(--team-primary, var(--hint-color, var(--accent))); }
 
@@ -304,11 +311,17 @@
       background: rgba(255,255,255,0.02);
       backdrop-filter: blur(4px);
       padding: 0.85rem 1rem;
+      transition: background 0.2s, transform 0.2s, border-color 0.2s;
+    }
+    .team-mvp-season-card:hover {
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(232,232,232,0.2);
+      transform: translateY(-2px);
     }
     .team-mvp-season-year {
       font-family: var(--font-body); font-size: 0.44rem;
       letter-spacing: 0.3em; text-transform: uppercase;
-      color: var(--hint-color, var(--accent-dim)); margin-bottom: 0.5rem;
+      color: var(--hint-color, var(--accent-dim)); margin-bottom: 0.5rem; font-weight: 700;
     }
     .team-mvp-week-list {
       display: flex; flex-wrap: wrap; gap: 0.3rem;
@@ -321,7 +334,7 @@
       padding: 0.16rem 0.38rem;
     }
     .team-mvp-season-count {
-      font-family: var(--font-display); font-size: 1.6rem; font-weight: 300;
+      font-family: var(--font-display); font-size: 1.6rem; font-weight: 700;
       color: var(--accent); line-height: 1; margin-bottom: 0.15rem;
     }
 
@@ -340,6 +353,12 @@
       padding: 0.85rem 1rem; border-bottom: 1px solid rgba(232,232,232,0.05);
     }
     .team-history-row:last-child { border-bottom: none; }
+    .team-history-row {
+      transition: background 0.2s;
+    }
+    .team-history-row:hover {
+      background: rgba(255,255,255,0.04);
+    }
     .team-history-logo {
       width: 36px; height: 36px; object-fit: contain; flex-shrink: 0;
     }
@@ -352,7 +371,7 @@
     .team-history-info { flex: 1; min-width: 0; }
     .team-history-name {
       font-family: var(--font-body); font-size: 0.8rem;
-      color: var(--accent); margin-bottom: 0.12rem;
+      color: var(--accent); margin-bottom: 0.12rem; font-weight: 700;
     }
     .team-history-seasons {
       font-family: var(--font-body); font-size: 0.5rem;
