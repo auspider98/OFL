@@ -188,13 +188,6 @@
     body.className   = 'ann-body';
     body.innerHTML   = ann.body || '';
 
-    panel.appendChild(eyebrow);
-    panel.appendChild(title);
-    panel.appendChild(divider);
-    panel.appendChild(body);
-
-    applyIdle(panel, ann.idleAnimation);
-
     // Backdrop is the full-screen flex container — panel sits inside it
     document.body.appendChild(backdrop);
     backdrop.appendChild(panel);
@@ -209,10 +202,17 @@
       }, 500);
     }
 
-    // Optional dismiss button — passes closeDispatch so it cleans up correctly
+    // Dismiss button — appended first so it's always top-right regardless of content
     if (ann.showDismiss !== false) {
       panel.appendChild(buildDismissBtn(ann, panel, closeDispatch));
     }
+
+    panel.appendChild(eyebrow);
+    panel.appendChild(title);
+    panel.appendChild(divider);
+    panel.appendChild(body);
+
+    applyIdle(panel, ann.idleAnimation);
 
     // Animate in
     setTimeout(function () {

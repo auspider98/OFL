@@ -3357,6 +3357,15 @@ select.admin-input option {
 }
 .ann-dismiss:hover { color: var(--accent); }
 
+/* Dispatch modal dismiss — slightly larger for easier tap target */
+.ann-dispatch .ann-dismiss {
+  top: 0.8rem;
+  right: 0.8rem;
+  font-size: 1.1rem;
+  padding: 0.4rem 0.6rem;
+  color: rgba(232,232,232,0.5);
+}
+
 /* ── Shared: eyebrow ──────────────────────────────────────── */
 .ann-eyebrow {
   font-family: var(--font-body);
@@ -3486,10 +3495,13 @@ select.admin-input option {
   z-index: 2;
 }
 .ann-dispatch .ann-timer,
-.ann-dispatch .ann-dismiss,
 .ann-dispatch .ann-letterhead {
   position: relative;
   z-index: 2;
+}
+.ann-dispatch .ann-dismiss {
+  position: absolute;
+  z-index: 5;
 }
 
 /* ── Letterhead ───────────────────────────────────────────── */
