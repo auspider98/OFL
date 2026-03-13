@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OFL — Announcements</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="ofl-pin.js"></script>
+  <script src="admin-config.js"></script>
+  <script src="ofl-data.js"></script>
+  <script src="admin.js"></script>
+</head>
+<body class="admin-page-body">
+
+<!-- ══════════════════════════════════════════════════════════
+     PIN GATE
+══════════════════════════════════════════════════════════ -->
+<div class="pin-gate" id="pinGate">
+  <p class="pin-gate-eyebrow">OFC · Restricted Access</p>
+  <h1 class="pin-gate-title">Announcements</h1>
+  <div class="pin-gate-form">
+    <div class="pin-dots" id="pinDots">
+      <div class="pin-dot" id="dot0"></div>
+      <div class="pin-dot" id="dot1"></div>
+      <div class="pin-dot" id="dot2"></div>
+      <div class="pin-dot" id="dot3"></div>
+    </div>
+    <div class="pin-keypad">
+      <button class="pin-key" data-val="1">1</button>
+      <button class="pin-key" data-val="2">2</button>
+      <button class="pin-key" data-val="3">3</button>
+      <button class="pin-key" data-val="4">4</button>
+      <button class="pin-key" data-val="5">5</button>
+      <button class="pin-key" data-val="6">6</button>
+      <button class="pin-key" data-val="7">7</button>
+      <button class="pin-key" data-val="8">8</button>
+      <button class="pin-key" data-val="9">9</button>
+      <button class="pin-key clear" data-val="clear">Clear</button>
+      <button class="pin-key" data-val="0">0</button>
+      <button class="pin-key" data-val="back">&#x232B;</button>
+    </div>
+    <p class="pin-error-msg" id="pinError">Incorrect PIN — try again</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     ADMIN PAGE
+══════════════════════════════════════════════════════════ -->
+<div class="admin-page" id="adminPage" style="display:none;">
+
+  <nav class="topnav" role="navigation">
+    <a href="index.html" class="topnav-logo">OFC</a>
+    <button class="menu-trigger" aria-label="Open menu" aria-expanded="false" aria-controls="site-drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <div class="drawer-overlay" aria-hidden="true"></div>
+  <aside id="site-drawer" class="drawer" role="dialog" aria-modal="true" aria-label="Navigation">
+    <p class="drawer-label">Admin</p>
+    <ul class="admin-drawer-nav" id="adminDrawerNav">
+      <li><a href="index.html" target="_blank" class="drawer-link">Preview Site <span style="opacity:.5;font-size:.8em;">&#x2197;</span></a></li>
+      <li><a href="index-admin.html" class="drawer-link">Site Settings</a></li>
+      <li><a href="ofl-data.html" class="drawer-link">League Data</a></li>
+    </ul>
+    <div class="admin-drawer-footer">OFC Announcements</div>
+  </aside>
+
+  <header class="admin-hero">
+    <div class="admin-hero-text">
+      <p class="admin-eyebrow">Commissioner Tools</p>
+      <h1>Announcements</h1>
+    </div>
+    <div class="admin-hero-actions">
+      <a href="index.html" target="_blank" class="btn">Preview Site &#x2197;</a>
+      <button class="btn btn-primary" id="btnNewAnnouncement">+ New Announcement</button>
+    </div>
+  </header>
+
+  <main class="admin-body">
+
+    <section class="admin-section" style="margin-bottom:0;">
+      <div class="admin-section-body" style="display:block;padding:0;">
+        <div class="section-desc-row" style="margin-bottom:1.5rem;">
+          <p class="admin-section-desc">
+            Create commissioner announcements that appear on the landing page. Only the first active, in-window announcement is shown at a time. Announcements are stored in this browser and display to all visitors on this device's network.
+          </p>
+        </div>
+        <div id="liveStatus" class="ann-admin-status"></div>
+      </div>
+    </section>
+
+    <section class="admin-section" style="border:none;padding:0;">
+      <div class="admin-section-body" style="display:block;padding:0;">
+        <div id="annList" class="ann-admin-list"></div>
+        <div id="annEmpty" class="ann-admin-empty" style="display:none;">
+          <p>No announcements yet.</p>
+          <p style="margin-top:0.4rem;opacity:0.5;">Create one using the button above.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     ANNOUNCEMENT EDITOR MODAL
+══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="editorModal">
+  <div class="modal ann-editor-modal">
+    <div class="modal-header">
+      <span class="modal-title" id="editorModalTitle">New Announcement</span>
+      <button class="btn btn-sm" id="btnCloseEditor">&#x2715; Close</button>
+    </div>
+    <div class="modal-body ann-editor-body">
+
+      <!-- ── Content ──────────────────────────────────────── -->
+      <p class="ann-editor-section-label" style="margin-top:0;">Content</p>
+
+      <div class="field-row">
+        <div class="field-label">Title<span class="field-hint">Headline shown in the announcement</span></div>
+        <input class="admin-input" type="text" id="e_title" placeholder="Draft Night is Friday" />
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Body<span class="field-hint">Supporting message — can be left blank for title-only</span></div>
+        <textarea class="admin-input" id="e_body" rows="3" placeholder="Report to the war room at 7 PM sharp. No excuses." style="resize:vertical;font-family:inherit;"></textarea>
+      </div>
+
+      <!-- ── Display ──────────────────────────────────────── -->
+      <div style="border-top:1px solid var(--drawer-border);margin:1.2rem 0 0.2rem;"></div>
+      <p class="ann-editor-section-label">Display</p>
+
+      <div class="field-row">
+        <div class="field-label">Style<span class="field-hint">How the announcement appears on the page</span></div>
+        <select class="admin-input" id="e_style" style="max-width:220px;">
+          <option value="dispatch">Dispatch — Modal popup</option>
+          <option value="ribbon">Ribbon — Banner bar</option>
+          <option value="marquee">Marquee — Scrolling ticker</option>
+        </select>
+      </div>
+
+      <!-- Position — shown for ribbon and marquee -->
+      <div class="field-row" id="row_position" style="display:none;">
+        <div class="field-label">Position<span class="field-hint">Where the announcement sits on screen</span></div>
+        <select class="admin-input" id="e_position" style="max-width:220px;">
+          <option value="top">Top of page</option>
+          <option value="bottom">Bottom of page</option>
+          <option value="below-hero">Above league cards (inline)</option>
+        </select>
+      </div>
+
+      <!-- Ribbon layout — shown only for ribbon at top position -->
+      <div class="field-row" id="row_ribbonLayout" style="display:none;">
+        <div class="field-label">Top Ribbon Layout<span class="field-hint">Float over content, or push it down</span></div>
+        <select class="admin-input" id="e_ribbonLayout" style="max-width:220px;">
+          <option value="float">Float over content</option>
+          <option value="push">Push content down</option>
+        </select>
+      </div>
+
+      <!-- Marquee label — shown only for marquee -->
+      <div class="field-row" id="row_marqueeLabel" style="display:none;">
+        <div class="field-label">
+          Ticker Label<span class="field-hint">Text in the fixed left tab — defaults to "COMMISSIONER"</span>
+          <label class="toggle-switch" style="margin-left:auto;" title="Show/hide the ticker label">
+            <input type="checkbox" id="e_showMarqueeLabel" checked />
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <input class="admin-input" type="text" id="e_marqueeLabel" placeholder="COMMISSIONER" style="max-width:220px;" />
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Entry Animation<span class="field-hint">How the announcement enters the screen</span></div>
+        <select class="admin-input" id="e_entryAnimation" style="max-width:220px;">
+          <option value="fade-up">Fade Up</option>
+          <option value="scale-in">Scale In</option>
+          <option value="slide-down">Slide Down</option>
+          <option value="slide-up">Slide Up</option>
+          <option value="none">None</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Idle Animation<span class="field-hint">Subtle effect while announcement is on screen</span></div>
+        <select class="admin-input" id="e_idleAnimation" style="max-width:220px;">
+          <option value="none">None</option>
+          <option value="pulse">Border Pulse</option>
+          <option value="shimmer">Shimmer Sweep</option>
+        </select>
+      </div>
+
+      <!-- Show dismiss button -->
+      <!-- ── Modal Images — Dispatch only ──────────────────── -->
+      <div style="border-top:1px solid var(--drawer-border);margin:1.2rem 0 0.2rem;" id="row_modalImagesDivider" style="display:none;"></div>
+      <p class="ann-editor-section-label" id="row_modalImagesLabel" style="display:none;">Modal Images</p>
+
+      <div class="field-row" id="row_eyebrow" style="display:none;">
+        <div class="field-label">Eyebrow Text<span class="field-hint">Small caps line above the title — defaults to "Commissioner's Office"</span></div>
+        <input class="admin-input" type="text" id="e_eyebrow" placeholder="Commissioner's Office" />
+      </div>
+
+      <div class="field-row" id="row_letterheadUrl" style="display:none;">
+        <div class="field-label">Letterhead Image URL<span class="field-hint">Centered image displayed above the message</span></div>
+        <input class="admin-input" type="text" id="e_letterheadUrl" placeholder="assets/commissioner-seal.png" />
+      </div>
+
+      <div class="field-row" id="row_letterheadHeight" style="display:none;">
+        <div class="field-label">Letterhead Height<span class="field-hint">Image height in pixels</span></div>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <input class="admin-input" type="number" id="e_letterheadHeight" min="20" max="400" step="1" placeholder="80" style="max-width:100px;" />
+          <span class="pt-label">PX</span>
+        </div>
+      </div>
+
+      <div class="field-row" id="row_watermarkUrl" style="display:none;">
+        <div class="field-label">Watermark Image URL<span class="field-hint">Faint image centered behind the modal content</span></div>
+        <input class="admin-input" type="text" id="e_watermarkUrl" placeholder="assets/ofc-seal.png" />
+      </div>
+
+      <div class="field-row" id="row_watermarkOpacity" style="display:none;">
+        <div class="field-label">Watermark Opacity<span class="field-hint">0.01 (barely visible) to 1.0 (fully opaque)</span></div>
+        <input class="admin-input" type="number" id="e_watermarkOpacity" min="0.01" max="1" step="0.01" placeholder="0.07" style="max-width:100px;" />
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Show Dismiss Button<span class="field-hint">Display the ✕ close button on the announcement</span>
+          <label class="toggle-switch" style="margin-left:auto;" title="Show/hide the dismiss button">
+            <input type="checkbox" id="e_showDismiss" checked />
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- ── Timing ─────────────────────────────────────── -->
+      <div style="border-top:1px solid var(--drawer-border);margin:1.2rem 0 0.2rem;"></div>
+      <p class="ann-editor-section-label">Timing</p>
+
+      <div class="field-row">
+        <div class="field-label">Active<span class="field-hint">Master switch — off overrides all dates</span>
+          <label class="toggle-switch" style="margin-left:auto;" title="Enable/disable this announcement">
+            <input type="checkbox" id="e_active" checked />
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Start Date &amp; Time<span class="field-hint">Leave blank to start immediately</span></div>
+        <input class="admin-input" type="datetime-local" id="e_startDate" style="max-width:260px;" />
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">End Date &amp; Time<span class="field-hint">Leave blank to run indefinitely</span></div>
+        <input class="admin-input" type="datetime-local" id="e_endDate" style="max-width:260px;" />
+      </div>
+
+      <!-- ── Dismiss Behavior ───────────────────────────── -->
+      <div style="border-top:1px solid var(--drawer-border);margin:1.2rem 0 0.2rem;"></div>
+      <p class="ann-editor-section-label">Dismiss Behavior</p>
+
+      <div class="field-row">
+        <div class="field-label">Dismiss Mode<span class="field-hint">What happens after a visitor dismisses the announcement</span></div>
+        <select class="admin-input" id="e_dismissBehavior" style="max-width:280px;">
+          <option value="always">Re-show every visit</option>
+          <option value="session">Once per session (until tab closes)</option>
+          <option value="permanent">Once permanently (until new announcement)</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Auto-Dismiss<span class="field-hint">Automatically close after a set time</span>
+          <label class="toggle-switch" style="margin-left:auto;" title="Enable auto-dismiss">
+            <input type="checkbox" id="e_autoDismiss" />
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field-row" id="row_autoDismissSecs" style="display:none;">
+        <div class="field-label">Auto-Dismiss After<span class="field-hint">Seconds before the announcement closes itself</span></div>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <input class="admin-input" type="number" id="e_autoDismissSecs" min="2" max="300" step="1" value="10" style="max-width:100px;" />
+          <span class="pt-label">SEC</span>
+        </div>
+      </div>
+
+    </div><!-- /modal-body -->
+    <div class="modal-footer">
+      <button class="btn" id="btnCancelEditor">Cancel</button>
+      <button class="btn btn-primary" id="btnSaveEditor">Save Announcement</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     CONFIRM MODAL
+══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <span class="modal-title" id="confirmModalTitle">Confirm Action</span>
+    </div>
+    <div class="modal-body">
+      <p class="confirm-modal-msg" id="confirmModalMsg"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" id="btnConfirmCancel">Cancel</button>
+      <button class="btn btn-danger" id="btnConfirmOk">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="admin-toast" id="adminToast"></div>
+
+<script src="sound.js"></script>
+<script src="menu.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var drawer  = document.querySelector('.drawer');
+  var overlay = document.querySelector('.drawer-overlay');
+  var trigger = document.querySelector('.menu-trigger');
+  function closeDrawer() {
+    if (drawer)  drawer.classList.remove('is-open');
+    if (overlay) overlay.classList.remove('is-visible');
+    if (trigger) { trigger.classList.remove('is-active'); trigger.setAttribute('aria-expanded','false'); }
+    document.body.classList.remove('no-scroll');
+  }
+  document.querySelectorAll('.admin-drawer-nav a').forEach(function (a) {
+    a.addEventListener('click', function () {
+      if (!a.target || a.target !== '_blank') closeDrawer();
+    });
+  });
+});
+</script>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ══════════════════════════════════════════════════════
+     PIN GATE
+  ══════════════════════════════════════════════════════ */
+  var pinEntry    = '';
+  var PIN         = window.OFL_PIN || '1234';
+  var SESSION_KEY = 'ofc_admin_unlocked';
+  var pinGate     = document.getElementById('pinGate');
+  var adminPage   = document.getElementById('adminPage');
+  var pinError    = document.getElementById('pinError');
+
+  function updateDots() {
+    for (var i = 0; i < 4; i++) {
+      var dot = document.getElementById('dot' + i);
+      dot.classList[i < pinEntry.length ? 'add' : 'remove']('filled');
+      dot.classList.remove('error');
+    }
+  }
+  function shakeError() {
+    for (var i = 0; i < 4; i++) document.getElementById('dot' + i).classList.add('error');
+    pinError.classList.add('visible');
+    setTimeout(function () { pinEntry = ''; updateDots(); pinError.classList.remove('visible'); }, 1200);
+  }
+  function checkPin() {
+    if (pinEntry === PIN) { sessionStorage.setItem(SESSION_KEY, '1'); unlock(); }
+    else { shakeError(); }
+  }
+  function unlock() {
+    pinGate.style.display   = 'none';
+    adminPage.style.display = 'block';
+    document.body.classList.add('admin-page');
+    initAdmin();
+  }
+  if (sessionStorage.getItem(SESSION_KEY) === '1') { unlock(); }
+
+  document.querySelectorAll('.pin-key').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var val = btn.getAttribute('data-val');
+      if (val === 'clear')          { pinEntry = ''; }
+      else if (val === 'back')      { pinEntry = pinEntry.slice(0, -1); }
+      else if (pinEntry.length < 4) {
+        pinEntry += val;
+        if (pinEntry.length === 4) { updateDots(); setTimeout(checkPin, 150); return; }
+      }
+      updateDots();
+    });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (pinGate.style.display === 'none') return;
+    if (/^[0-9]$/.test(e.key) && pinEntry.length < 4) {
+      pinEntry += e.key;
+      if (pinEntry.length === 4) { updateDots(); setTimeout(checkPin, 150); return; }
+    } else if (e.key === 'Backspace') { pinEntry = pinEntry.slice(0, -1); }
+    else if (e.key === 'Escape')      { pinEntry = ''; }
+    updateDots();
+  });
+
+  /* ══════════════════════════════════════════════════════
+     ADMIN INIT
+  ══════════════════════════════════════════════════════ */
+  function initAdmin() {
+
+    var STORAGE_KEY = 'ofc_announcements';
+
+    /* ── Toast ──────────────────────────────────────────── */
+    var toast = document.getElementById('adminToast');
+    var toastTimer;
+    function showToast(msg, duration) {
+      clearTimeout(toastTimer);
+      toast.textContent = msg;
+      toast.classList.add('visible');
+      toastTimer = setTimeout(function () { toast.classList.remove('visible'); }, duration || 2400);
+    }
+
+    /* ── Storage helpers ────────────────────────────────── */
+    function loadList() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+      catch (e) { return []; }
+    }
+    function saveList(list) { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
+    function generateId() {
+      return 'ann_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,6);
+    }
+
+    /* ── Status/date helpers ────────────────────────────── */
+    function getStatus(ann) {
+      var now = Date.now();
+      if (!ann.active) return { label: 'Inactive',  cls: 'status-inactive'  };
+      if (ann.startDate && now < new Date(ann.startDate).getTime()) return { label: 'Scheduled', cls: 'status-scheduled' };
+      if (ann.endDate   && now > new Date(ann.endDate).getTime())   return { label: 'Expired',   cls: 'status-expired'   };
+      return { label: 'Live', cls: 'status-live' };
+    }
+    function formatDate(dt) {
+      if (!dt) return '—';
+      var d = new Date(dt);
+      return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) +
+             ' ' + d.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+    }
+    function styleLabel(s) {
+      return { dispatch:'Dispatch', ribbon:'Ribbon', marquee:'Marquee' }[s] || s;
+    }
+    function posLabel(p) {
+      return { top:'Top', bottom:'Bottom', 'below-hero':'Above Cards' }[p] || '';
+    }
+
+    /* ── Confirm modal ──────────────────────────────────── */
+    var confirmModal     = document.getElementById('confirmModal');
+    var pendingConfirmFn = null;
+    function showConfirm(title, msg, onOk) {
+      document.getElementById('confirmModalTitle').textContent = title;
+      document.getElementById('confirmModalMsg').textContent   = msg;
+      pendingConfirmFn = onOk;
+      confirmModal.classList.add('visible');
+    }
+    document.getElementById('btnConfirmCancel').addEventListener('click', function () {
+      confirmModal.classList.remove('visible'); pendingConfirmFn = null;
+    });
+    document.getElementById('btnConfirmOk').addEventListener('click', function () {
+      confirmModal.classList.remove('visible');
+      if (pendingConfirmFn) { pendingConfirmFn(); pendingConfirmFn = null; }
+    });
+    confirmModal.addEventListener('click', function (e) {
+      if (e.target === confirmModal) { confirmModal.classList.remove('visible'); pendingConfirmFn = null; }
+    });
+
+    /* ══════════════════════════════════════════════════════
+       LIST RENDERER
+    ══════════════════════════════════════════════════════ */
+    function renderList() {
+      var list    = loadList();
+      var listEl  = document.getElementById('annList');
+      var emptyEl = document.getElementById('annEmpty');
+      var statEl  = document.getElementById('liveStatus');
+      listEl.innerHTML = '';
+
+      // Live status bar
+      var liveAnn = null;
+      var now = Date.now();
+      for (var i = 0; i < list.length; i++) {
+        var a = list[i];
+        if (!a.active) continue;
+        if (a.startDate && now < new Date(a.startDate).getTime()) continue;
+        if (a.endDate   && now > new Date(a.endDate).getTime())   continue;
+        liveAnn = a;
+        break;
+      }
+      if (liveAnn) {
+        statEl.innerHTML =
+          '<span class="ann-status-dot status-live-dot"></span>' +
+          '<span>Currently showing: <strong>' + escHtml(liveAnn.title || '(untitled)') + '</strong>' +
+          ' &mdash; <em>' + styleLabel(liveAnn.style) + '</em></span>';
+      } else {
+        statEl.innerHTML =
+          '<span class="ann-status-dot status-none-dot"></span>' +
+          '<span>No announcement is currently active.</span>';
+      }
+      statEl.style.display = 'flex';
+
+      if (!list.length) { emptyEl.style.display = 'block'; return; }
+      emptyEl.style.display = 'none';
+
+      list.forEach(function (ann, idx) {
+        var st   = getStatus(ann);
+        var card = document.createElement('div');
+        card.className = 'ann-admin-card';
+
+        var posMeta = ann.style !== 'dispatch' && ann.position ? ' · ' + posLabel(ann.position) : '';
+
+        card.innerHTML = [
+          '<div class="ann-admin-card-header">',
+            '<div class="ann-admin-card-meta">',
+              '<span class="ann-admin-status-badge ' + st.cls + '">' + st.label + '</span>',
+              '<span class="ann-admin-style-badge">' + styleLabel(ann.style) + posMeta + '</span>',
+            '</div>',
+            '<div class="ann-admin-card-actions">',
+              '<button class="btn btn-sm" data-action="edit" data-idx="' + idx + '">Edit</button>',
+              '<button class="btn btn-sm btn-danger" data-action="delete" data-idx="' + idx + '">Delete</button>',
+            '</div>',
+          '</div>',
+          '<div class="ann-admin-card-title">' + escHtml(ann.title || '(no title)') + '</div>',
+          ann.body ? '<div class="ann-admin-card-body">' + escHtml(ann.body) + '</div>' : '',
+          '<div class="ann-admin-card-dates">',
+            '<span>Start: ' + formatDate(ann.startDate) + '</span>',
+            '<span>End: '   + formatDate(ann.endDate)   + '</span>',
+          '</div>',
+        ].join('');
+
+        // Active toggle row
+        var toggleRow = document.createElement('div');
+        toggleRow.className = 'ann-admin-card-toggle-row';
+        toggleRow.innerHTML = '<span class="ann-toggle-label">Active</span>';
+        var lbl = document.createElement('label');
+        lbl.className = 'toggle-switch';
+        lbl.title = 'Enable/disable this announcement';
+        var cb = document.createElement('input');
+        cb.type = 'checkbox'; cb.checked = !!ann.active;
+        (function (i, checkbox) {
+          checkbox.addEventListener('change', function () {
+            var updated = loadList();
+            updated[i].active = checkbox.checked;
+            saveList(updated);
+            renderList();
+            showToast(checkbox.checked ? '\u2713  Activated' : '\u2713  Deactivated');
+          });
+        }(idx, cb));
+        var trk = document.createElement('span'); trk.className = 'toggle-track';
+        lbl.appendChild(cb); lbl.appendChild(trk);
+        toggleRow.appendChild(lbl);
+        card.appendChild(toggleRow);
+        listEl.appendChild(card);
+      });
+
+      listEl.querySelectorAll('[data-action]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var action = btn.getAttribute('data-action');
+          var idx    = parseInt(btn.getAttribute('data-idx'), 10);
+          if (action === 'edit') openEditor(idx);
+          if (action === 'delete') {
+            showConfirm('Delete Announcement', 'This cannot be undone.', function () {
+              var updated = loadList(); updated.splice(idx, 1);
+              saveList(updated); renderList();
+              showToast('\u2713  Deleted');
+            });
+          }
+        });
+      });
+    }
+
+    /* ══════════════════════════════════════════════════════
+       EDITOR MODAL
+    ══════════════════════════════════════════════════════ */
+    var editorModal = document.getElementById('editorModal');
+    var editingIdx  = -1;
+
+    function openEditor(idx) {
+      editingIdx = (idx === undefined ? -1 : idx);
+      var ann    = editingIdx === -1 ? {} : (loadList()[editingIdx] || {});
+
+      document.getElementById('editorModalTitle').textContent =
+        editingIdx === -1 ? 'New Announcement' : 'Edit Announcement';
+
+      // Populate all fields
+      document.getElementById('e_title').value            = ann.title            || '';
+      document.getElementById('e_body').value             = ann.body             || '';
+      document.getElementById('e_style').value            = ann.style            || 'dispatch';
+      document.getElementById('e_position').value         = ann.position         || 'top';
+      document.getElementById('e_ribbonLayout').value     = ann.ribbonLayout     || 'float';
+      document.getElementById('e_marqueeLabel').value     = ann.marqueeLabel     || '';
+      document.getElementById('e_showMarqueeLabel').checked = ann.showMarqueeLabel !== false;
+      document.getElementById('e_entryAnimation').value   = ann.entryAnimation   || 'fade-up';
+      document.getElementById('e_idleAnimation').value    = ann.idleAnimation    || 'none';
+      document.getElementById('e_letterheadUrl').value     = ann.letterheadUrl    || '';
+      document.getElementById('e_eyebrow').value           = ann.eyebrow          || '';
+      document.getElementById('e_letterheadHeight').value  = ann.letterheadHeight || '';
+      document.getElementById('e_watermarkUrl').value      = ann.watermarkUrl     || '';
+      document.getElementById('e_watermarkOpacity').value  = ann.watermarkOpacity != null ? ann.watermarkOpacity : 0.07;
+      document.getElementById('e_showDismiss').checked     = ann.showDismiss      !== false;
+      document.getElementById('e_active').checked         = ann.active           !== false;
+      document.getElementById('e_startDate').value        = ann.startDate        || '';
+      document.getElementById('e_endDate').value          = ann.endDate          || '';
+      document.getElementById('e_dismissBehavior').value  = ann.dismissBehavior  || 'always';
+      document.getElementById('e_autoDismiss').checked    = !!ann.autoDismiss;
+      document.getElementById('e_autoDismissSecs').value  = ann.autoDismissSecs  || 10;
+
+      syncConditionals();
+      editorModal.classList.add('visible');
+    }
+
+    /* Show/hide conditional rows based on current field values */
+    function syncConditionals() {
+      var style    = document.getElementById('e_style').value;
+      var position = document.getElementById('e_position').value;
+      var autoOn   = document.getElementById('e_autoDismiss').checked;
+      var isDispatch = style === 'dispatch';
+
+      // Position row — ribbon and marquee only
+      show('row_position',      style === 'ribbon' || style === 'marquee');
+      // Ribbon layout — only when ribbon is at top position
+      show('row_ribbonLayout',  style === 'ribbon' && position === 'top');
+      // Marquee label — marquee only
+      show('row_marqueeLabel',  style === 'marquee');
+      // Auto-dismiss seconds — when toggle is on
+      show('row_autoDismissSecs', autoOn);
+      // Modal images — dispatch only
+      show('row_modalImagesDivider', isDispatch);
+      show('row_modalImagesLabel',   isDispatch);
+      show('row_eyebrow',            isDispatch);
+      show('row_letterheadUrl',      isDispatch);
+      show('row_letterheadHeight',   isDispatch);
+      show('row_watermarkUrl',       isDispatch);
+      show('row_watermarkOpacity',   isDispatch);
+    }
+
+    function show(id, visible) {
+      document.getElementById(id).style.display = visible ? '' : 'none';
+    }
+
+    document.getElementById('e_style').addEventListener('change', syncConditionals);
+    document.getElementById('e_position').addEventListener('change', syncConditionals);
+    document.getElementById('e_autoDismiss').addEventListener('change', syncConditionals);
+
+    function closeEditor() { editorModal.classList.remove('visible'); }
+
+    document.getElementById('btnCloseEditor').addEventListener('click',  closeEditor);
+    document.getElementById('btnCancelEditor').addEventListener('click', closeEditor);
+    editorModal.addEventListener('click', function (e) {
+      if (e.target === editorModal) closeEditor();
+    });
+
+    document.getElementById('btnNewAnnouncement').addEventListener('click', function () { openEditor(); });
+
+    document.getElementById('btnSaveEditor').addEventListener('click', function () {
+      var title = document.getElementById('e_title').value.trim();
+      var body  = document.getElementById('e_body').value.trim();
+      if (!title && !body) {
+        showToast('\u2717  Please add a title or body text', 3000);
+        return;
+      }
+
+      var style      = document.getElementById('e_style').value;
+      var isDispatch = style === 'dispatch';
+
+      var ann = {
+        id:               editingIdx === -1
+                            ? generateId()
+                            : ((loadList()[editingIdx] || {}).id || generateId()),
+        title:            title,
+        body:             body,
+        style:            style,
+        position:         style !== 'dispatch'
+                            ? document.getElementById('e_position').value
+                            : '',
+        ribbonLayout:     document.getElementById('e_ribbonLayout').value,
+        marqueeLabel:     document.getElementById('e_marqueeLabel').value.trim(),
+        showMarqueeLabel: document.getElementById('e_showMarqueeLabel').checked,
+        entryAnimation:   document.getElementById('e_entryAnimation').value,
+        idleAnimation:    document.getElementById('e_idleAnimation').value,
+        letterheadUrl:    isDispatch ? document.getElementById('e_letterheadUrl').value.trim()                         : '',
+        eyebrow:          isDispatch ? document.getElementById('e_eyebrow').value.trim()                               : '',
+        letterheadHeight: isDispatch ? parseInt(document.getElementById('e_letterheadHeight').value, 10) || ''         : '',
+        watermarkUrl:     isDispatch ? document.getElementById('e_watermarkUrl').value.trim()                          : '',
+        watermarkOpacity: isDispatch ? parseFloat(document.getElementById('e_watermarkOpacity').value) || 0.07         : '',
+        showDismiss:      document.getElementById('e_showDismiss').checked,
+        active:           document.getElementById('e_active').checked,
+        startDate:        document.getElementById('e_startDate').value  || '',
+        endDate:          document.getElementById('e_endDate').value    || '',
+        dismissBehavior:  document.getElementById('e_dismissBehavior').value,
+        autoDismiss:      document.getElementById('e_autoDismiss').checked,
+        autoDismissSecs:  parseInt(document.getElementById('e_autoDismissSecs').value, 10) || 10,
+      };
+
+      var list = loadList();
+      if (editingIdx === -1) { list.unshift(ann); }
+      else { list[editingIdx] = ann; }
+      saveList(list);
+      closeEditor();
+      renderList();
+      showToast(editingIdx === -1 ? '\u2713  Announcement created' : '\u2713  Announcement saved');
+    });
+
+    /* ── Boot ───────────────────────────────────────────── */
+    renderList();
+
+  } /* end initAdmin */
+
+  /* ── HTML escape helper ─────────────────────────────────── */
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g,  '&amp;')
+      .replace(/</g,  '&lt;')
+      .replace(/>/g,  '&gt;')
+      .replace(/"/g,  '&quot;');
+  }
+
+})();
+</script>
+
+</body>
+</html>

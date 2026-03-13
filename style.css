@@ -3330,3 +3330,639 @@ select.admin-input option {
   }
 }
 
+
+
+/* ============================================================
+   ANNOUNCEMENTS — Commissioner Broadcast System
+   Styles for Dispatch (modal), Ribbon (banner), Marquee (ticker)
+   z-index range: 200–210 (above drawer at 99)
+   ============================================================ */
+
+/* ── Shared: dismiss button ───────────────────────────────── */
+.ann-dismiss {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid rgba(232,232,232,0.12);
+  color: var(--accent-dim);
+  font-size: 0.65rem;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.ann-dismiss:hover {
+  color: var(--accent);
+  border-color: rgba(232,232,232,0.35);
+  background: rgba(232,232,232,0.06);
+}
+
+/* ── Shared: eyebrow ──────────────────────────────────────── */
+.ann-eyebrow {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 0.5rem;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+  margin-bottom: 0.85rem;
+}
+
+/* ── Shared: divider ──────────────────────────────────────── */
+.ann-divider {
+  width: 32px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent-dim), transparent);
+  margin: 0.9rem 0 1.1rem;
+  opacity: 0.5;
+}
+
+/* ── Shared: idle animations ──────────────────────────────── */
+@keyframes ann-border-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(232,232,232,0); border-color: rgba(232,232,232,0.1); }
+  50%       { box-shadow: 0 0 18px 2px rgba(232,232,232,0.07); border-color: rgba(232,232,232,0.28); }
+}
+@keyframes ann-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+.ann-idle-pulse {
+  animation: ann-border-pulse 3s ease-in-out infinite;
+}
+.ann-idle-shimmer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(232,232,232,0.05) 50%,
+    transparent 60%
+  );
+  background-size: 200% 100%;
+  animation: ann-shimmer 3.5s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Entry animations ─────────────────────────────────────── */
+@keyframes ann-fade-up-in {
+  0%   { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes ann-scale-in {
+  0%   { opacity: 0; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes ann-slide-down-in {
+  0%   { opacity: 0; transform: translateY(-100%); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes ann-slide-up-in {
+  0%   { opacity: 0; transform: translateY(100%); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Dismiss animation ────────────────────────────────────── */
+@keyframes ann-fade-out {
+  0%   { opacity: 1; transform: scale(1) translateY(0); }
+  100% { opacity: 0; transform: scale(0.96) translateY(-8px); }
+}
+@keyframes ann-slide-up-out {
+  0%   { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-100%); }
+}
+@keyframes ann-slide-down-out {
+  0%   { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(100%); }
+}
+
+/* ════════════════════════════════════════════════════════════
+   DISPATCH — Modal popup
+   ════════════════════════════════════════════════════════════ */
+.ann-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  z-index: 200;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+.ann-backdrop.ann-visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.ann-dispatch {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.96);
+  z-index: 201;
+  width: min(520px, 90vw);
+  background: rgba(13,13,13,0.92);
+  border: 1px solid rgba(232,232,232,0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 2.8rem 3rem 2.4rem;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+  transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+.ann-dispatch.ann-visible {
+  opacity: 1;
+  pointer-events: all;
+  transform: translate(-50%, -50%) scale(1);
+}
+.ann-dispatch.ann-dismissing {
+  animation: ann-fade-out 0.45s ease forwards;
+}
+
+/* Entry overrides for dispatch */
+.ann-dispatch.ann-entry-fade-up.ann-visible    { transform: translate(-50%, -50%) scale(1); }
+.ann-dispatch.ann-entry-scale-in               { }
+.ann-dispatch.ann-entry-none                   { transition: opacity 0.3s ease; }
+
+.ann-dispatch .ann-title {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 2rem;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--accent);
+}
+.ann-dispatch .ann-body {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 0.85rem;
+  line-height: 1.65;
+  letter-spacing: 0.02em;
+  color: rgba(232,232,232,0.75);
+}
+.ann-timer {
+  margin-top: 1.4rem;
+  font-family: var(--font-body);
+  font-size: 0.5rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+  opacity: 0.5;
+}
+
+/* ════════════════════════════════════════════════════════════
+   RIBBON — Top banner
+   ════════════════════════════════════════════════════════════ */
+.ann-ribbon {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 202;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  background: rgba(13,13,13,0.88);
+  border-bottom: 1px solid rgba(232,232,232,0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 0.6rem 3.5rem 0.6rem 1.6rem;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-100%);
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+.ann-ribbon.ann-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.ann-ribbon.ann-dismissing {
+  animation: ann-slide-up-out 0.4s ease forwards;
+}
+
+/* Float vs push handled by JS (padding-top on body) */
+.ann-ribbon-float {
+  /* Already position:fixed, no change needed */
+}
+.ann-ribbon-push {
+  /* Same — JS sets body padding-top */
+}
+
+.ann-ribbon-inner {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ann-ribbon-title {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.62rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.ann-ribbon-sep {
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  color: var(--accent-dim);
+  letter-spacing: 0.1em;
+}
+.ann-ribbon-body {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  color: rgba(232,232,232,0.65);
+}
+
+/* Position dismiss btn for ribbon */
+.ann-ribbon .ann-dismiss {
+  top: 50%;
+  right: 0.7rem;
+  transform: translateY(-50%);
+}
+
+/* ════════════════════════════════════════════════════════════
+   MARQUEE — Bottom ticker
+   ════════════════════════════════════════════════════════════ */
+.ann-marquee {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 202;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  background: rgba(10,10,10,0.9);
+  border-top: 1px solid rgba(232,232,232,0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(100%);
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+.ann-marquee.ann-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.ann-marquee.ann-dismissing {
+  animation: ann-slide-down-out 0.4s ease forwards;
+}
+
+.ann-marquee-label {
+  flex-shrink: 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.48rem;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+  padding: 0 1rem 0 1.2rem;
+  border-right: 1px solid rgba(232,232,232,0.1);
+  margin-right: 0;
+  white-space: nowrap;
+  opacity: 0.7;
+}
+.ann-marquee-track {
+  flex: 1;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  /* padding so text doesn't butt against label or dismiss btn */
+  padding: 0 2.4rem 0 1rem;
+}
+
+@keyframes ann-marquee-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ann-marquee-inner {
+  display: inline-block;
+  white-space: nowrap;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  color: rgba(232,232,232,0.7);
+  /* animation speed set inline by JS based on text length */
+  animation: ann-marquee-scroll 22s linear infinite;
+}
+
+/* Position dismiss for marquee */
+.ann-marquee .ann-dismiss {
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  font-size: 0.55rem;
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .ann-dispatch {
+    padding: 2rem 1.6rem 1.8rem;
+  }
+  .ann-dispatch .ann-title {
+    font-size: 1.5rem;
+  }
+  .ann-ribbon {
+    padding-right: 2.8rem;
+  }
+}
+
+/* ============================================================
+   ANNOUNCEMENTS ADMIN UI
+   Styles for announcements-admin.html list and editor
+   ============================================================ */
+
+/* ── Live status bar ──────────────────────────────────────── */
+.ann-admin-status {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(232,232,232,0.08);
+  background: rgba(232,232,232,0.02);
+  margin-bottom: 1.5rem;
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: rgba(232,232,232,0.6);
+}
+.ann-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.status-live-dot  { background: #4caf78; box-shadow: 0 0 6px rgba(76,175,120,0.6); }
+.status-none-dot  { background: rgba(232,232,232,0.2); }
+
+/* ── Announcement card list ───────────────────────────────── */
+.ann-admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ann-admin-empty {
+  padding: 3rem 1rem;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+  opacity: 0.5;
+}
+
+.ann-admin-card {
+  border: 1px solid rgba(232,232,232,0.08);
+  background: rgba(255,255,255,0.015);
+  padding: 1.2rem 1.4rem;
+  position: relative;
+  transition: border-color 0.2s ease;
+}
+.ann-admin-card:hover {
+  border-color: rgba(232,232,232,0.15);
+}
+
+.ann-admin-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.7rem;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+.ann-admin-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Status badges */
+.ann-admin-status-badge,
+.ann-admin-style-badge {
+  font-family: var(--font-body);
+  font-size: 0.48rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid;
+}
+.status-live      { color: #4caf78; border-color: rgba(76,175,120,0.35); background: rgba(76,175,120,0.07); }
+.status-inactive  { color: var(--accent-dim); border-color: rgba(232,232,232,0.12); background: transparent; }
+.status-scheduled { color: #7eb8d4; border-color: rgba(126,184,212,0.35); background: rgba(126,184,212,0.07); }
+.status-expired   { color: rgba(232,232,232,0.3); border-color: rgba(232,232,232,0.08); background: transparent; }
+.ann-admin-style-badge {
+  color: var(--accent-dim);
+  border-color: rgba(232,232,232,0.1);
+}
+
+.ann-admin-card-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.ann-admin-card-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.3rem;
+  color: var(--accent);
+  margin-bottom: 0.3rem;
+  letter-spacing: 0.01em;
+}
+.ann-admin-card-body {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  color: rgba(232,232,232,0.5);
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+.ann-admin-card-dates {
+  display: flex;
+  gap: 1.5rem;
+  font-family: var(--font-body);
+  font-size: 0.5rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+  opacity: 0.5;
+  margin-top: 0.6rem;
+  flex-wrap: wrap;
+}
+.ann-admin-card-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.9rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(232,232,232,0.06);
+}
+.ann-toggle-label {
+  font-family: var(--font-body);
+  font-size: 0.5rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+}
+
+/* ── Editor modal ─────────────────────────────────────────── */
+.ann-editor-modal {
+  max-width: 600px;
+  width: 90vw;
+}
+.ann-editor-body {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.ann-editor-section-label {
+  font-family: var(--font-body);
+  font-size: 0.5rem;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+  margin: 0.8rem 0 0.2rem;
+  opacity: 0.6;
+}
+
+
+/* ── Ribbon position variants ─────────────────────────────── */
+
+/* Bottom-fixed ribbon */
+.ann-ribbon-bottom {
+  position: fixed;
+  top: auto;
+  bottom: 0;
+  transform: translateY(100%);
+}
+.ann-ribbon-bottom.ann-visible {
+  transform: translateY(0);
+}
+.ann-ribbon-bottom.ann-dismissing {
+  animation: ann-slide-down-out 0.4s ease forwards;
+}
+
+/* Below-hero ribbon (inline, in page flow) */
+.ann-ribbon-below-hero {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  transform: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 14; /* just above landing content z-index 13 */
+  margin: 0;
+}
+.ann-ribbon-below-hero.ann-visible {
+  opacity: 1;
+  transform: none;
+}
+.ann-ribbon-below-hero.ann-dismissing {
+  animation: ann-fade-out 0.4s ease forwards;
+}
+
+/* ── Marquee position variants ────────────────────────────── */
+
+/* Top-fixed marquee */
+.ann-marquee-top {
+  top: 0;
+  bottom: auto;
+  transform: translateY(-100%);
+}
+.ann-marquee-top.ann-visible {
+  transform: translateY(0);
+}
+.ann-marquee-top.ann-dismissing {
+  animation: ann-slide-up-out 0.4s ease forwards;
+}
+
+/* Below-hero marquee (inline, in page flow) */
+.ann-marquee-below-hero {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  transform: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 14;
+  margin: 0;
+}
+.ann-marquee-below-hero.ann-visible {
+  opacity: 1;
+  transform: none;
+}
+.ann-marquee-below-hero.ann-dismissing {
+  animation: ann-fade-out 0.4s ease forwards;
+}
+
+
+/* ── Dispatch modal: letterhead & watermark ───────────────── */
+
+/* Letterhead — centered image above message content */
+.ann-letterhead {
+  display: block;
+  margin: 0 auto 1.4rem;
+  max-width: 100%;
+  height: 80px;       /* default — overridden by inline style */
+  width: auto;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+}
+
+/* Watermark — faint image centered behind all panel content */
+.ann-watermark {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 60%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Ensure dispatch panel content sits above watermark */
+.ann-dispatch .ann-eyebrow,
+.ann-dispatch .ann-title,
+.ann-dispatch .ann-divider,
+.ann-dispatch .ann-body,
+.ann-dispatch .ann-timer,
+.ann-dispatch .ann-letterhead,
+.ann-dispatch .ann-dismiss {
+  position: relative;
+  z-index: 2;
+}
+
+
+/* Dispatch eyebrow — centered */
+.ann-eyebrow-dispatch {
+  text-align: center;
+}
+
+/* Dispatch title — centered */
+.ann-dispatch .ann-title {
+  text-align: center;
+}
