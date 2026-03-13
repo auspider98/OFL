@@ -1,6 +1,6 @@
 /**
  * ofl-announcements.js — Commissioner Broadcast Data
- * Generated: 3/13/2026, 3:38:55 PM
+ * Generated: 3/13/2026, 4:31:12 PM
  *
  * Drop this file next to index.html and add:
  *   <script src="ofl-announcements.js"></script>
@@ -25,7 +25,7 @@ var OFL_ANNOUNCEMENTS = [
     "letterheadHeight": "",
     "watermarkUrl": "assets/logos/ofl-shield.png",
     "watermarkOpacity": 0.2,
-    "showDismiss": false,
+    "showDismiss": true,
     "active": true,
     "startDate": "2026-03-13T00:00",
     "endDate": "2026-03-18T00:00",
