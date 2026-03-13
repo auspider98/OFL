@@ -74,6 +74,7 @@
     </div>
     <div class="admin-hero-actions">
       <a href="index.html" target="_blank" class="btn">Preview Site &#x2197;</a>
+      <button class="btn" id="btnExportAnnouncements">&#x2193; Export JS</button>
       <button class="btn btn-primary" id="btnNewAnnouncement">+ New Announcement</button>
     </div>
   </header>
@@ -115,43 +116,30 @@
     </div>
     <div class="modal-body ann-editor-body">
 
-      <!-- ── Content ──────────────────────────────────────── -->
-      <p class="ann-editor-section-label" style="margin-top:0;">Content</p>
-
-      <div class="field-row">
-        <div class="field-label">Title<span class="field-hint">Headline shown in the announcement</span></div>
-        <input class="admin-input" type="text" id="e_title" placeholder="Draft Night is Friday" />
-      </div>
-
-      <div class="field-row">
-        <div class="field-label">Body<span class="field-hint">Supporting message — can be left blank for title-only</span></div>
-        <textarea class="admin-input" id="e_body" rows="3" placeholder="Report to the war room at 7 PM sharp. No excuses." style="resize:vertical;font-family:inherit;"></textarea>
-      </div>
-
-      <!-- ── Display ──────────────────────────────────────── -->
-      <div style="border-top:1px solid var(--drawer-border);margin:1.2rem 0 0.2rem;"></div>
-      <p class="ann-editor-section-label">Display</p>
+      <!-- ═══════════════════════════════════════════════
+           SECTION 1 — DISPLAY
+      ═══════════════════════════════════════════════ -->
+      <p class="ann-editor-section-label" style="margin-top:0;">Display</p>
 
       <div class="field-row">
         <div class="field-label">Style<span class="field-hint">How the announcement appears on the page</span></div>
         <select class="admin-input" id="e_style" style="max-width:220px;">
-          <option value="dispatch">Dispatch — Modal popup</option>
-          <option value="ribbon">Ribbon — Banner bar</option>
-          <option value="marquee">Marquee — Scrolling ticker</option>
+          <option value="dispatch">Dispatch — Modal Popup</option>
+          <option value="ribbon">Ribbon — Banner Bar</option>
+          <option value="marquee">Marquee — Scrolling Ticker</option>
         </select>
       </div>
 
-      <!-- Position — shown for ribbon and marquee -->
+      <!-- Position — ribbon and marquee only -->
       <div class="field-row" id="row_position" style="display:none;">
         <div class="field-label">Position<span class="field-hint">Where the announcement sits on screen</span></div>
         <select class="admin-input" id="e_position" style="max-width:220px;">
           <option value="top">Top of page</option>
           <option value="bottom">Bottom of page</option>
-          <option value="below-hero">Above league cards (inline)</option>
         </select>
       </div>
 
-      <!-- Ribbon layout — shown only for ribbon at top position -->
+      <!-- Ribbon layout — ribbon + top only -->
       <div class="field-row" id="row_ribbonLayout" style="display:none;">
         <div class="field-label">Top Ribbon Layout<span class="field-hint">Float over content, or push it down</span></div>
         <select class="admin-input" id="e_ribbonLayout" style="max-width:220px;">
@@ -160,18 +148,18 @@
         </select>
       </div>
 
-      <!-- Marquee label — shown only for marquee -->
-      <div class="field-row" id="row_marqueeLabel" style="display:none;">
-        <div class="field-label">
-          Ticker Label<span class="field-hint">Text in the fixed left tab — defaults to "COMMISSIONER"</span>
-          <label class="toggle-switch" style="margin-left:auto;" title="Show/hide the ticker label">
-            <input type="checkbox" id="e_showMarqueeLabel" checked />
-            <span class="toggle-track"></span>
-          </label>
-        </div>
-        <input class="admin-input" type="text" id="e_marqueeLabel" placeholder="COMMISSIONER" style="max-width:220px;" />
+      <!-- Scroll speed — marquee only -->
+      <div class="field-row" id="row_marqueeSpeed" style="display:none;">
+        <div class="field-label">Scroll Speed<span class="field-hint">How fast the ticker scrolls across the screen</span></div>
+        <select class="admin-input" id="e_marqueeSpeed" style="max-width:220px;">
+          <option value="slow">Slow</option>
+          <option value="medium" selected>Medium</option>
+          <option value="fast">Fast</option>
+          <option value="very-fast">Very Fast</option>
+        </select>
       </div>
 
+      <!-- Entry animation -->
       <div class="field-row">
         <div class="field-label">Entry Animation<span class="field-hint">How the announcement enters the screen</span></div>
         <select class="admin-input" id="e_entryAnimation" style="max-width:220px;">
@@ -183,6 +171,7 @@
         </select>
       </div>
 
+      <!-- Idle animation -->
       <div class="field-row">
         <div class="field-label">Idle Animation<span class="field-hint">Subtle effect while announcement is on screen</span></div>
         <select class="admin-input" id="e_idleAnimation" style="max-width:220px;">
@@ -192,9 +181,10 @@
         </select>
       </div>
 
-      <!-- Show dismiss button -->
-      <!-- ── Modal Images — Dispatch only ──────────────────── -->
-      <div style="border-top:1px solid var(--drawer-border);margin:1.2rem 0 0.2rem;" id="row_modalImagesDivider" style="display:none;"></div>
+      <!-- ═══════════════════════════════════════════════
+           SECTION 2 — MODAL IMAGES (dispatch only)
+      ═══════════════════════════════════════════════ -->
+      <div class="ann-editor-divider" id="row_modalImagesDivider" style="display:none;"></div>
       <p class="ann-editor-section-label" id="row_modalImagesLabel" style="display:none;">Modal Images</p>
 
       <div class="field-row" id="row_eyebrow" style="display:none;">
@@ -225,6 +215,67 @@
         <input class="admin-input" type="number" id="e_watermarkOpacity" min="0.01" max="1" step="0.01" placeholder="0.07" style="max-width:100px;" />
       </div>
 
+      <!-- ═══════════════════════════════════════════════
+           SECTION 3 — CONTENT
+      ═══════════════════════════════════════════════ -->
+      <div class="ann-editor-divider"></div>
+      <p class="ann-editor-section-label">Content</p>
+
+      <!-- Ticker label — marquee only, shown in Content -->
+      <div class="field-row" id="row_marqueeLabel" style="display:none;">
+        <div class="field-label">
+          Ticker Label<span class="field-hint">Text in the fixed left tab — defaults to "COMMISSIONER"</span>
+          <label class="toggle-switch" style="margin-left:auto;" title="Show/hide the ticker label">
+            <input type="checkbox" id="e_showMarqueeLabel" checked />
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <input class="admin-input" type="text" id="e_marqueeLabel" placeholder="COMMISSIONER" style="max-width:220px;" />
+      </div>
+
+      <!-- Title — hidden for marquee -->
+      <div class="field-row" id="row_title">
+        <div class="field-label">Title<span class="field-hint">Headline shown in the announcement</span></div>
+        <input class="admin-input" type="text" id="e_title" placeholder="Draft Night is Friday" />
+      </div>
+
+      <!-- Body — rich text editor -->
+      <div class="field-row">
+        <div class="field-label">Body<span class="field-hint">Supporting message — can be left blank for title-only</span></div>
+        <div class="rte-wrap">
+          <div class="rte-toolbar">
+            <button type="button" class="rte-btn" data-cmd="bold"        title="Bold"><strong>B</strong></button>
+            <button type="button" class="rte-btn" data-cmd="italic"      title="Italic"><em>I</em></button>
+            <button type="button" class="rte-btn" data-cmd="underline"   title="Underline"><u>U</u></button>
+            <span class="rte-sep"></span>
+            <select class="rte-select" id="rte_fontSize" title="Font size">
+              <option value="">Size</option>
+              <option value="1">10px</option>
+              <option value="2">13px</option>
+              <option value="3">16px</option>
+              <option value="4">18px</option>
+              <option value="5">24px</option>
+              <option value="6">32px</option>
+              <option value="7">48px</option>
+            </select>
+            <span class="rte-sep"></span>
+            <button type="button" class="rte-btn" data-cmd="justifyLeft"   title="Align left">&#x21A4;</button>
+            <button type="button" class="rte-btn" data-cmd="justifyCenter" title="Align center">&#x2194;</button>
+            <button type="button" class="rte-btn" data-cmd="justifyRight"  title="Align right">&#x21A6;</button>
+            <span class="rte-sep"></span>
+            <button type="button" class="rte-btn" data-cmd="insertUnorderedList" title="Bullet list">&#x2022; List</button>
+            <button type="button" class="rte-btn" data-cmd="removeFormat" title="Clear formatting">&#x2715; Clear</button>
+          </div>
+          <div class="rte-body admin-input" id="e_body" contenteditable="true" spellcheck="true"></div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════
+           SECTION 4 — DISMISS BEHAVIOR
+      ═══════════════════════════════════════════════ -->
+      <div class="ann-editor-divider"></div>
+      <p class="ann-editor-section-label">Dismiss Behavior</p>
+
       <div class="field-row">
         <div class="field-label">Show Dismiss Button<span class="field-hint">Display the ✕ close button on the announcement</span>
           <label class="toggle-switch" style="margin-left:auto;" title="Show/hide the dismiss button">
@@ -233,33 +284,6 @@
           </label>
         </div>
       </div>
-
-      <!-- ── Timing ─────────────────────────────────────── -->
-      <div style="border-top:1px solid var(--drawer-border);margin:1.2rem 0 0.2rem;"></div>
-      <p class="ann-editor-section-label">Timing</p>
-
-      <div class="field-row">
-        <div class="field-label">Active<span class="field-hint">Master switch — off overrides all dates</span>
-          <label class="toggle-switch" style="margin-left:auto;" title="Enable/disable this announcement">
-            <input type="checkbox" id="e_active" checked />
-            <span class="toggle-track"></span>
-          </label>
-        </div>
-      </div>
-
-      <div class="field-row">
-        <div class="field-label">Start Date &amp; Time<span class="field-hint">Leave blank to start immediately</span></div>
-        <input class="admin-input" type="datetime-local" id="e_startDate" style="max-width:260px;" />
-      </div>
-
-      <div class="field-row">
-        <div class="field-label">End Date &amp; Time<span class="field-hint">Leave blank to run indefinitely</span></div>
-        <input class="admin-input" type="datetime-local" id="e_endDate" style="max-width:260px;" />
-      </div>
-
-      <!-- ── Dismiss Behavior ───────────────────────────── -->
-      <div style="border-top:1px solid var(--drawer-border);margin:1.2rem 0 0.2rem;"></div>
-      <p class="ann-editor-section-label">Dismiss Behavior</p>
 
       <div class="field-row">
         <div class="field-label">Dismiss Mode<span class="field-hint">What happens after a visitor dismisses the announcement</span></div>
@@ -285,6 +309,31 @@
           <input class="admin-input" type="number" id="e_autoDismissSecs" min="2" max="300" step="1" value="10" style="max-width:100px;" />
           <span class="pt-label">SEC</span>
         </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════
+           SECTION 5 — TIMING
+      ═══════════════════════════════════════════════ -->
+      <div class="ann-editor-divider"></div>
+      <p class="ann-editor-section-label">Timing</p>
+
+      <div class="field-row">
+        <div class="field-label">Active<span class="field-hint">Master switch — off overrides all dates</span>
+          <label class="toggle-switch" style="margin-left:auto;" title="Enable/disable this announcement">
+            <input type="checkbox" id="e_active" checked />
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Start Date &amp; Time<span class="field-hint">Leave blank to start immediately</span></div>
+        <input class="admin-input" type="datetime-local" id="e_startDate" style="max-width:260px;" />
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">End Date &amp; Time<span class="field-hint">Leave blank to run indefinitely</span></div>
+        <input class="admin-input" type="datetime-local" id="e_endDate" style="max-width:260px;" />
       </div>
 
     </div><!-- /modal-body -->
@@ -442,7 +491,7 @@ document.addEventListener('DOMContentLoaded', function () {
       return { dispatch:'Dispatch', ribbon:'Ribbon', marquee:'Marquee' }[s] || s;
     }
     function posLabel(p) {
-      return { top:'Top', bottom:'Bottom', 'below-hero':'Above Cards' }[p] || '';
+      return { top:'Top', bottom:'Bottom' }[p] || '';
     }
 
     /* ── Confirm modal ──────────────────────────────────── */
@@ -469,17 +518,22 @@ document.addEventListener('DOMContentLoaded', function () {
        LIST RENDERER
     ══════════════════════════════════════════════════════ */
     function renderList() {
-      var list    = loadList();
+      var stored  = loadList();
       var listEl  = document.getElementById('annList');
       var emptyEl = document.getElementById('annEmpty');
       var statEl  = document.getElementById('liveStatus');
       listEl.innerHTML = '';
 
+      // Display in natural stored order — no sorting
+      var display = stored.map(function (ann, i) {
+        return { ann: ann, origIdx: i };
+      });
+
       // Live status bar
       var liveAnn = null;
       var now = Date.now();
-      for (var i = 0; i < list.length; i++) {
-        var a = list[i];
+      for (var i = 0; i < stored.length; i++) {
+        var a = stored[i];
         if (!a.active) continue;
         if (a.startDate && now < new Date(a.startDate).getTime()) continue;
         if (a.endDate   && now > new Date(a.endDate).getTime())   continue;
@@ -498,12 +552,14 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       statEl.style.display = 'flex';
 
-      if (!list.length) { emptyEl.style.display = 'block'; return; }
+      if (!display.length) { emptyEl.style.display = 'block'; return; }
       emptyEl.style.display = 'none';
 
-      list.forEach(function (ann, idx) {
-        var st   = getStatus(ann);
-        var card = document.createElement('div');
+      display.forEach(function (entry) {
+        var ann     = entry.ann;
+        var origIdx = entry.origIdx;
+        var st      = getStatus(ann);
+        var card    = document.createElement('div');
         card.className = 'ann-admin-card';
 
         var posMeta = ann.style !== 'dispatch' && ann.position ? ' · ' + posLabel(ann.position) : '';
@@ -515,19 +571,19 @@ document.addEventListener('DOMContentLoaded', function () {
               '<span class="ann-admin-style-badge">' + styleLabel(ann.style) + posMeta + '</span>',
             '</div>',
             '<div class="ann-admin-card-actions">',
-              '<button class="btn btn-sm" data-action="edit" data-idx="' + idx + '">Edit</button>',
-              '<button class="btn btn-sm btn-danger" data-action="delete" data-idx="' + idx + '">Delete</button>',
+              '<button class="btn btn-sm" data-action="edit" data-idx="' + origIdx + '">Edit</button>',
+              '<button class="btn btn-sm btn-danger" data-action="delete" data-idx="' + origIdx + '">Delete</button>',
             '</div>',
           '</div>',
           '<div class="ann-admin-card-title">' + escHtml(ann.title || '(no title)') + '</div>',
-          ann.body ? '<div class="ann-admin-card-body">' + escHtml(ann.body) + '</div>' : '',
+          ann.body ? '<div class="ann-admin-card-body">' + escHtml(stripHtml(ann.body)) + '</div>' : '',
           '<div class="ann-admin-card-dates">',
             '<span>Start: ' + formatDate(ann.startDate) + '</span>',
             '<span>End: '   + formatDate(ann.endDate)   + '</span>',
           '</div>',
         ].join('');
 
-        // Active toggle row
+        // Active toggle — independent per announcement
         var toggleRow = document.createElement('div');
         toggleRow.className = 'ann-admin-card-toggle-row';
         toggleRow.innerHTML = '<span class="ann-toggle-label">Active</span>';
@@ -544,7 +600,7 @@ document.addEventListener('DOMContentLoaded', function () {
             renderList();
             showToast(checkbox.checked ? '\u2713  Activated' : '\u2713  Deactivated');
           });
-        }(idx, cb));
+        }(origIdx, cb));
         var trk = document.createElement('span'); trk.className = 'toggle-track';
         lbl.appendChild(cb); lbl.appendChild(trk);
         toggleRow.appendChild(lbl);
@@ -581,28 +637,29 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('editorModalTitle').textContent =
         editingIdx === -1 ? 'New Announcement' : 'Edit Announcement';
 
-      // Populate all fields
-      document.getElementById('e_title').value            = ann.title            || '';
-      document.getElementById('e_body').value             = ann.body             || '';
-      document.getElementById('e_style').value            = ann.style            || 'dispatch';
-      document.getElementById('e_position').value         = ann.position         || 'top';
-      document.getElementById('e_ribbonLayout').value     = ann.ribbonLayout     || 'float';
-      document.getElementById('e_marqueeLabel').value     = ann.marqueeLabel     || '';
+      // Populate fields
+      document.getElementById('e_title').value              = ann.title            || '';
+      document.getElementById('e_body').innerHTML           = ann.body             || '';
+      document.getElementById('e_style').value              = ann.style            || 'dispatch';
+      document.getElementById('e_position').value           = ann.position         || 'top';
+      document.getElementById('e_ribbonLayout').value       = ann.ribbonLayout     || 'float';
+      document.getElementById('e_marqueeLabel').value       = ann.marqueeLabel     || '';
+      document.getElementById('e_marqueeSpeed').value       = ann.marqueeSpeed     || 'medium';
       document.getElementById('e_showMarqueeLabel').checked = ann.showMarqueeLabel !== false;
-      document.getElementById('e_entryAnimation').value   = ann.entryAnimation   || 'fade-up';
-      document.getElementById('e_idleAnimation').value    = ann.idleAnimation    || 'none';
-      document.getElementById('e_letterheadUrl').value     = ann.letterheadUrl    || '';
-      document.getElementById('e_eyebrow').value           = ann.eyebrow          || '';
-      document.getElementById('e_letterheadHeight').value  = ann.letterheadHeight || '';
-      document.getElementById('e_watermarkUrl').value      = ann.watermarkUrl     || '';
-      document.getElementById('e_watermarkOpacity').value  = ann.watermarkOpacity != null ? ann.watermarkOpacity : 0.07;
-      document.getElementById('e_showDismiss').checked     = ann.showDismiss      !== false;
-      document.getElementById('e_active').checked         = ann.active           !== false;
-      document.getElementById('e_startDate').value        = ann.startDate        || '';
-      document.getElementById('e_endDate').value          = ann.endDate          || '';
-      document.getElementById('e_dismissBehavior').value  = ann.dismissBehavior  || 'always';
-      document.getElementById('e_autoDismiss').checked    = !!ann.autoDismiss;
-      document.getElementById('e_autoDismissSecs').value  = ann.autoDismissSecs  || 10;
+      document.getElementById('e_entryAnimation').value     = ann.entryAnimation   || 'fade-up';
+      document.getElementById('e_idleAnimation').value      = ann.idleAnimation    || 'none';
+      document.getElementById('e_letterheadUrl').value      = ann.letterheadUrl    || '';
+      document.getElementById('e_eyebrow').value            = ann.eyebrow          || '';
+      document.getElementById('e_letterheadHeight').value   = ann.letterheadHeight || '';
+      document.getElementById('e_watermarkUrl').value       = ann.watermarkUrl     || '';
+      document.getElementById('e_watermarkOpacity').value   = ann.watermarkOpacity != null ? ann.watermarkOpacity : 0.07;
+      document.getElementById('e_showDismiss').checked      = ann.showDismiss      !== false;
+      document.getElementById('e_active').checked           = ann.active           !== false;
+      document.getElementById('e_startDate').value          = ann.startDate        || '';
+      document.getElementById('e_endDate').value            = ann.endDate          || '';
+      document.getElementById('e_dismissBehavior').value    = ann.dismissBehavior  || 'always';
+      document.getElementById('e_autoDismiss').checked      = !!ann.autoDismiss;
+      document.getElementById('e_autoDismissSecs').value    = ann.autoDismissSecs  || 10;
 
       syncConditionals();
       editorModal.classList.add('visible');
@@ -614,16 +671,14 @@ document.addEventListener('DOMContentLoaded', function () {
       var position = document.getElementById('e_position').value;
       var autoOn   = document.getElementById('e_autoDismiss').checked;
       var isDispatch = style === 'dispatch';
+      var isMarquee  = style === 'marquee';
 
-      // Position row — ribbon and marquee only
-      show('row_position',      style === 'ribbon' || style === 'marquee');
-      // Ribbon layout — only when ribbon is at top position
-      show('row_ribbonLayout',  style === 'ribbon' && position === 'top');
-      // Marquee label — marquee only
-      show('row_marqueeLabel',  style === 'marquee');
-      // Auto-dismiss seconds — when toggle is on
-      show('row_autoDismissSecs', autoOn);
-      // Modal images — dispatch only
+      // Display section
+      show('row_position',     style === 'ribbon' || isMarquee);
+      show('row_ribbonLayout', style === 'ribbon' && position === 'top');
+      show('row_marqueeSpeed', isMarquee);
+
+      // Modal Images section — dispatch only
       show('row_modalImagesDivider', isDispatch);
       show('row_modalImagesLabel',   isDispatch);
       show('row_eyebrow',            isDispatch);
@@ -631,15 +686,122 @@ document.addEventListener('DOMContentLoaded', function () {
       show('row_letterheadHeight',   isDispatch);
       show('row_watermarkUrl',       isDispatch);
       show('row_watermarkOpacity',   isDispatch);
+
+      // Content section
+      show('row_marqueeLabel', isMarquee);   // ticker label in content for marquee
+      show('row_title',        !isMarquee);  // title hidden for marquee
+
+      // Timing section
+      show('row_autoDismissSecs', autoOn);
     }
 
     function show(id, visible) {
-      document.getElementById(id).style.display = visible ? '' : 'none';
+      var el = document.getElementById(id);
+      if (el) el.style.display = visible ? '' : 'none';
     }
 
     document.getElementById('e_style').addEventListener('change', syncConditionals);
     document.getElementById('e_position').addEventListener('change', syncConditionals);
     document.getElementById('e_autoDismiss').addEventListener('change', syncConditionals);
+
+    /* ── Rich text toolbar ──────────────────────────────── */
+    var rteEditor  = document.getElementById('e_body');
+    var savedRange = null;
+
+    // Save selection the moment user presses down on anything in the toolbar —
+    // this fires before the editor can lose focus, guaranteeing we have the range.
+    document.querySelector('.rte-toolbar').addEventListener('mousedown', function () {
+      var sel = window.getSelection();
+      if (sel && sel.rangeCount > 0) {
+        var r = sel.getRangeAt(0);
+        // Only save if the range is actually inside the editor
+        if (rteEditor.contains(r.commonAncestorContainer)) {
+          savedRange = r.cloneRange();
+        }
+      }
+    });
+
+    function restoreSelection() {
+      rteEditor.focus();
+      if (savedRange) {
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(savedRange);
+      }
+    }
+
+    // Find nearest block-level ancestor inside the editor
+    function getBlock(node) {
+      while (node && node !== rteEditor) {
+        if (/^(P|DIV|H[1-6]|LI|BLOCKQUOTE)$/.test(node.nodeName)) return node;
+        node = node.parentNode;
+      }
+      return null;
+    }
+
+    function applyJustify(align) {
+      restoreSelection();
+      var sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return;
+      var range = sel.getRangeAt(0);
+
+      var startBlock = getBlock(range.startContainer);
+      var endBlock   = getBlock(range.endContainer);
+
+      // Bare text with no block wrapper — wrap in div first
+      if (!startBlock) {
+        document.execCommand('formatBlock', false, 'div');
+        sel = window.getSelection();
+        if (!sel || sel.rangeCount === 0) return;
+        range      = sel.getRangeAt(0);
+        startBlock = getBlock(range.startContainer);
+        endBlock   = getBlock(range.endContainer);
+      }
+      if (!startBlock) return;
+
+      if (startBlock === endBlock) {
+        startBlock.style.textAlign = align;
+      } else {
+        var allBlocks = rteEditor.querySelectorAll('p,div,h1,h2,h3,h4,h5,h6,li,blockquote');
+        var inRange = false;
+        for (var i = 0; i < allBlocks.length; i++) {
+          var b = allBlocks[i];
+          if (b === startBlock) inRange = true;
+          if (inRange) b.style.textAlign = align;
+          if (b === endBlock) break;
+        }
+      }
+    }
+
+    document.querySelectorAll('.rte-btn').forEach(function (btn) {
+      btn.addEventListener('mousedown', function (e) {
+        e.preventDefault(); // prevent editor losing focus
+      });
+      btn.addEventListener('click', function () {
+        var cmd = btn.getAttribute('data-cmd');
+        if (cmd === 'justifyLeft')   { applyJustify('left');   return; }
+        if (cmd === 'justifyCenter') { applyJustify('center'); return; }
+        if (cmd === 'justifyRight')  { applyJustify('right');  return; }
+        restoreSelection();
+        document.execCommand(cmd, false, null);
+      });
+    });
+
+    document.getElementById('rte_fontSize').addEventListener('mousedown', function () {
+      var sel = window.getSelection();
+      if (sel && sel.rangeCount > 0) {
+        var r = sel.getRangeAt(0);
+        if (rteEditor.contains(r.commonAncestorContainer)) savedRange = r.cloneRange();
+      }
+    });
+    document.getElementById('rte_fontSize').addEventListener('change', function (e) {
+      var size = e.target.value;
+      if (size) {
+        restoreSelection();
+        document.execCommand('fontSize', false, size);
+      }
+      e.target.value = '';
+    });
 
     function closeEditor() { editorModal.classList.remove('visible'); }
 
@@ -652,9 +814,12 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('btnNewAnnouncement').addEventListener('click', function () { openEditor(); });
 
     document.getElementById('btnSaveEditor').addEventListener('click', function () {
-      var title = document.getElementById('e_title').value.trim();
-      var body  = document.getElementById('e_body').value.trim();
-      if (!title && !body) {
+      var title   = document.getElementById('e_title').value.trim();
+      var bodyEl  = document.getElementById('e_body');
+      var bodyHtml = bodyEl.innerHTML.trim();
+      // Treat empty or whitespace-only rich text as blank
+      var bodyText = bodyEl.innerText.trim();
+      if (!title && !bodyText) {
         showToast('\u2717  Please add a title or body text', 3000);
         return;
       }
@@ -666,8 +831,8 @@ document.addEventListener('DOMContentLoaded', function () {
         id:               editingIdx === -1
                             ? generateId()
                             : ((loadList()[editingIdx] || {}).id || generateId()),
-        title:            title,
-        body:             body,
+        title:            style === 'marquee' ? '' : title,
+        body:             bodyHtml,
         style:            style,
         position:         style !== 'dispatch'
                             ? document.getElementById('e_position').value
@@ -675,13 +840,14 @@ document.addEventListener('DOMContentLoaded', function () {
         ribbonLayout:     document.getElementById('e_ribbonLayout').value,
         marqueeLabel:     document.getElementById('e_marqueeLabel').value.trim(),
         showMarqueeLabel: document.getElementById('e_showMarqueeLabel').checked,
+        marqueeSpeed:     document.getElementById('e_marqueeSpeed').value,
         entryAnimation:   document.getElementById('e_entryAnimation').value,
         idleAnimation:    document.getElementById('e_idleAnimation').value,
-        letterheadUrl:    isDispatch ? document.getElementById('e_letterheadUrl').value.trim()                         : '',
-        eyebrow:          isDispatch ? document.getElementById('e_eyebrow').value.trim()                               : '',
-        letterheadHeight: isDispatch ? parseInt(document.getElementById('e_letterheadHeight').value, 10) || ''         : '',
-        watermarkUrl:     isDispatch ? document.getElementById('e_watermarkUrl').value.trim()                          : '',
-        watermarkOpacity: isDispatch ? parseFloat(document.getElementById('e_watermarkOpacity').value) || 0.07         : '',
+        letterheadUrl:    isDispatch ? document.getElementById('e_letterheadUrl').value.trim()                        : '',
+        eyebrow:          isDispatch ? document.getElementById('e_eyebrow').value.trim()                              : '',
+        letterheadHeight: isDispatch ? parseInt(document.getElementById('e_letterheadHeight').value, 10) || ''        : '',
+        watermarkUrl:     isDispatch ? document.getElementById('e_watermarkUrl').value.trim()                         : '',
+        watermarkOpacity: isDispatch ? parseFloat(document.getElementById('e_watermarkOpacity').value) || 0.07        : '',
         showDismiss:      document.getElementById('e_showDismiss').checked,
         active:           document.getElementById('e_active').checked,
         startDate:        document.getElementById('e_startDate').value  || '',
@@ -700,6 +866,38 @@ document.addEventListener('DOMContentLoaded', function () {
       showToast(editingIdx === -1 ? '\u2713  Announcement created' : '\u2713  Announcement saved');
     });
 
+    /* ── Export ─────────────────────────────────────────── */
+    function exportJs() {
+      var list = loadList();
+      var json = JSON.stringify(list, null, 2);
+      var content = [
+        '/**',
+        ' * ofl-announcements.js — Commissioner Broadcast Data',
+        ' * Generated: ' + new Date().toLocaleString(),
+        ' *',
+        ' * Drop this file next to index.html and add:',
+        ' *   <script src="ofl-announcements.js"><\/script>',
+        ' * before announcements.js in index.html.',
+        ' * The renderer will use this data if localStorage is empty.',
+        ' */',
+        'var OFL_ANNOUNCEMENTS = ' + json + ';',
+        ''
+      ].join('\n');
+
+      var blob = new Blob([content], { type: 'text/javascript' });
+      var url  = URL.createObjectURL(blob);
+      var a    = document.createElement('a');
+      a.href     = url;
+      a.download = 'ofl-announcements.js';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('\u2713  Exported ofl-announcements.js');
+    }
+
+    document.getElementById('btnExportAnnouncements').addEventListener('click', exportJs);
+
     /* ── Boot ───────────────────────────────────────────── */
     renderList();
 
@@ -712,6 +910,13 @@ document.addEventListener('DOMContentLoaded', function () {
       .replace(/</g,  '&lt;')
       .replace(/>/g,  '&gt;')
       .replace(/"/g,  '&quot;');
+  }
+
+  /* ── Strip HTML tags to plain text ─────────────────────── */
+  function stripHtml(html) {
+    var tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
   }
 
 })();

@@ -22,8 +22,13 @@
   function loadAnnouncements() {
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
-    } catch (e) { return []; }
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    // Fall back to exported JS file variable if localStorage is empty
+    if (window.OFL_ANNOUNCEMENTS && Array.isArray(window.OFL_ANNOUNCEMENTS)) {
+      return window.OFL_ANNOUNCEMENTS;
+    }
+    return [];
   }
 
   /* ── Check dismiss state ──────────────────────────────── */
@@ -73,23 +78,21 @@
   ══════════════════════════════════════════════════════ */
 
   /* ── Shared: build dismiss button ────────────────────── */
-  // backdrop is optional — Dispatch passes it so the blur
-  // clears immediately when X is clicked.
-  function buildDismissBtn(ann, container, backdrop) {
+  // onDismiss: optional callback — if provided, called instead of
+  // the default mark+dismiss flow (used by Dispatch so closeDispatch
+  // handles both panel and backdrop cleanly).
+  function buildDismissBtn(ann, container, onDismiss) {
     var btn = document.createElement('button');
     btn.className = 'ann-dismiss';
     btn.innerHTML = '&#x2715;';
     btn.setAttribute('aria-label', 'Dismiss announcement');
     btn.addEventListener('click', function () {
-      markDismissed(ann);
-      // Remove backdrop before dismissing panel (fixes blur-stuck bug)
-      if (backdrop) {
-        backdrop.classList.remove('ann-visible');
-        setTimeout(function () {
-          if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop);
-        }, 500);
+      if (onDismiss) {
+        onDismiss();
+      } else {
+        markDismissed(ann);
+        dismiss(container, ann.style);
       }
-      dismiss(container, ann.style);
     });
     return btn;
   }
@@ -181,33 +184,34 @@
     divider.className = 'ann-divider';
 
     // Body
-    var body = document.createElement('p');
+    var body = document.createElement('div');
     body.className   = 'ann-body';
-    body.textContent = ann.body || '';
+    body.innerHTML   = ann.body || '';
 
     panel.appendChild(eyebrow);
     panel.appendChild(title);
     panel.appendChild(divider);
     panel.appendChild(body);
 
-    // Optional dismiss button — passes backdrop so blur clears on X click
-    if (ann.showDismiss !== false) {
-      panel.appendChild(buildDismissBtn(ann, panel, backdrop));
-    }
-
     applyIdle(panel, ann.idleAnimation);
 
+    // Backdrop is the full-screen flex container — panel sits inside it
     document.body.appendChild(backdrop);
-    document.body.appendChild(panel);
+    backdrop.appendChild(panel);
 
-    // Shared close — used by backdrop click and auto-dismiss
+    // Shared close — used by backdrop click, X button, and auto-dismiss
     function closeDispatch() {
       markDismissed(ann);
+      panel.classList.add('ann-dismissing');
       backdrop.classList.remove('ann-visible');
-      dismiss(panel, 'dispatch');
       setTimeout(function () {
         if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop);
       }, 500);
+    }
+
+    // Optional dismiss button — passes closeDispatch so it cleans up correctly
+    if (ann.showDismiss !== false) {
+      panel.appendChild(buildDismissBtn(ann, panel, closeDispatch));
     }
 
     // Animate in
@@ -216,7 +220,8 @@
       panel.classList.add('ann-visible');
     }, 80);
 
-    // Close on backdrop click
+    // Backdrop click closes — but stop panel clicks from bubbling up to it
+    panel.addEventListener('click', function (e) { e.stopPropagation(); });
     backdrop.addEventListener('click', closeDispatch);
 
     // Auto-dismiss
@@ -227,7 +232,9 @@
       timerEl.textContent = 'Closing in ' + remaining + 's';
       panel.appendChild(timerEl);
 
+      var cancelled = false;
       var countdown = setInterval(function () {
+        if (cancelled) { clearInterval(countdown); return; }
         remaining--;
         if (remaining <= 0) {
           clearInterval(countdown);
@@ -237,19 +244,18 @@
         }
       }, 1000);
 
-      // Cancel countdown if manually dismissed via X
-      if (ann.showDismiss !== false) {
-        var xBtn = panel.querySelector('.ann-dismiss');
-        if (xBtn) xBtn.addEventListener('click', function () { clearInterval(countdown); });
-      }
+      // Cancel countdown on any manual dismiss (X or backdrop click)
+      backdrop.addEventListener('click', function () { cancelled = true; clearInterval(countdown); });
+      var xBtn = panel.querySelector('.ann-dismiss');
+      if (xBtn) xBtn.addEventListener('click', function () { cancelled = true; clearInterval(countdown); });
     }
   }
 
   /* ──────────────────────────────────────────────────────
-     RIBBON (top / bottom / below-hero banner)
+     RIBBON (top / bottom banner)
   ────────────────────────────────────────────────────── */
   function renderRibbon(ann) {
-    var position = ann.position || 'top'; // 'top' | 'bottom' | 'below-hero'
+    var position = ann.position || 'top'; // 'top' | 'bottom'
 
     var ribbon = document.createElement('div');
     ribbon.className = 'ann-ribbon';
@@ -257,8 +263,6 @@
 
     if (position === 'bottom') {
       ribbon.classList.add('ann-ribbon-bottom');
-    } else if (position === 'below-hero') {
-      ribbon.classList.add('ann-ribbon-below-hero');
     } else {
       // top — fixed; optionally push body down
       ribbon.classList.add(ann.ribbonLayout === 'push' ? 'ann-ribbon-push' : 'ann-ribbon-float');
@@ -277,7 +281,7 @@
 
     var bodyEl = document.createElement('span');
     bodyEl.className   = 'ann-ribbon-body';
-    bodyEl.textContent = ann.body || '';
+    bodyEl.innerHTML   = ann.body || '';
 
     inner.appendChild(titleEl);
     inner.appendChild(sep);
@@ -290,11 +294,7 @@
 
     applyIdle(ribbon, ann.idleAnimation);
 
-    if (position === 'below-hero') {
-      insertBelowHero(ribbon);
-    } else {
-      document.body.appendChild(ribbon);
-    }
+    document.body.appendChild(ribbon);
 
     setTimeout(function () {
       ribbon.classList.add('ann-visible');
@@ -314,10 +314,10 @@
   }
 
   /* ──────────────────────────────────────────────────────
-     MARQUEE (top / bottom / below-hero ticker)
+     MARQUEE (top / bottom ticker)
   ────────────────────────────────────────────────────── */
   function renderMarquee(ann) {
-    var position = ann.position || 'bottom'; // 'top' | 'bottom' | 'below-hero'
+    var position = ann.position || 'bottom'; // 'top' | 'bottom'
 
     var bar = document.createElement('div');
     bar.className = 'ann-marquee';
@@ -325,8 +325,6 @@
 
     if (position === 'top') {
       bar.classList.add('ann-marquee-top');
-    } else if (position === 'below-hero') {
-      bar.classList.add('ann-marquee-below-hero');
     }
     // 'bottom' is default — no extra class needed
 
@@ -344,10 +342,16 @@
     track.className = 'ann-marquee-track';
 
     var text   = (ann.title ? ann.title + (ann.body ? ' · ' + ann.body : '') : ann.body) || '';
-    var padded = text + '  ·  ' + text + '  ·  ';
+    var unit   = text + '  ·  ';
+    var padded = unit + unit + unit + unit + unit + unit + unit + unit + unit + unit;
+
+    // Speed map — duration for the scroll animation
+    var speedMap = { slow: '60s', medium: '35s', fast: '22s', 'very-fast': '12s' };
+    var duration = speedMap[ann.marqueeSpeed] || '35s';
 
     var inner = document.createElement('div');
-    inner.className   = 'ann-marquee-inner';
+    inner.className = 'ann-marquee-inner';
+    inner.style.setProperty('--marquee-duration', duration);
     inner.textContent = padded;
 
     track.appendChild(inner);
@@ -359,11 +363,7 @@
 
     applyIdle(bar, ann.idleAnimation);
 
-    if (position === 'below-hero') {
-      insertBelowHero(bar);
-    } else {
-      document.body.appendChild(bar);
-    }
+    document.body.appendChild(bar);
 
     setTimeout(function () { bar.classList.add('ann-visible'); }, 80);
 
