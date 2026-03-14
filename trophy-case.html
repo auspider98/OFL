@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="OFL Trophy Case — All-time award winners across all leagues." />
+  <title>OFL — Trophy Case</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="admin-config.js"></script>
+  <script src="ofl-data.js"></script>
+  <script src="admin.js"></script>
+
+  <style>
+    /* ── Page layout ─────────────────────────────────────── */
+    .tc-page {
+      position: relative; width: 100%; min-height: 100vh;
+      display: flex; flex-direction: column; overflow-x: hidden;
+    }
+    .tc-page > .slide-layer      { position: fixed; inset: 0; z-index: 0; height: 100%; }
+    .tc-page > .landing-overlay  { position: fixed; inset: 0; z-index: 10; height: 100%; pointer-events: none; }
+    .tc-page > .landing-vignette { position: fixed; inset: 0; z-index: 11; height: 100%; pointer-events: none; }
+
+    /* ── Hero ────────────────────────────────────────────── */
+    .tc-hero {
+      position: relative; z-index: 20; width: 100%;
+      min-height: calc(28vh - 10px);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-start;
+      padding: 5rem 2rem 2rem;
+    }
+    .tc-hero .landing-rule { position: absolute; bottom: 0; left: 0; right: 0; z-index: 10; }
+    .tc-hero-eyebrow {
+      font-family: var(--font-body); font-weight: 300;
+      font-size: var(--size-eyebrow, 8pt); letter-spacing: 0.45em;
+      text-transform: uppercase; color: var(--accent-dim); margin-bottom: 1rem;
+      opacity: 0; animation: heroReveal 1.2s 0.2s ease forwards;
+    }
+    .tc-hero-title {
+      font-family: var(--font-display); font-weight: 300;
+      font-size: var(--size-title, 72pt); line-height: 0.92;
+      letter-spacing: -0.02em; color: var(--accent); margin-bottom: 1rem;
+      opacity: 0; animation: heroReveal 1.2s 0.4s ease forwards;
+    }
+    .tc-hero-subtitle {
+      font-family: var(--font-body); font-weight: 200;
+      font-size: var(--size-subtitle, 10pt); letter-spacing: 0.35em;
+      text-transform: uppercase; color: var(--accent-dim);
+      opacity: 0; animation: heroReveal 1.2s 0.55s ease forwards;
+    }
+
+    /* ── Body ────────────────────────────────────────────── */
+    .tc-body { position: relative; z-index: 20; flex: 1; padding: 0 0 5rem; }
+    .tc-wrap { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem 0; }
+
+    /* ── Controls / filter pills ─────────────────────────── */
+    .tc-controls {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 0.75rem;
+      margin-bottom: 1.4rem; padding-bottom: 0.9rem;
+      border-bottom: 1px solid var(--drawer-border);
+    }
+    .tc-filters { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .tc-filter-pill {
+      font-family: var(--font-body); font-size: 0.6rem; font-weight: 400;
+      letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--accent-dim); background: transparent;
+      border: 1px solid var(--drawer-border);
+      padding: 0.3rem 0.75rem; cursor: pointer;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+    .tc-filter-pill:hover { color: var(--accent); border-color: rgba(232,232,232,0.3); }
+    .tc-filter-pill.is-active {
+      color: var(--accent); border-color: var(--accent);
+      background: rgba(232,232,232,0.06);
+    }
+
+    /* ── Section heading ─────────────────────────────────── */
+    .tc-section { margin-bottom: 3rem; }
+    .tc-section-heading {
+      font-family: var(--font-body); font-weight: 300;
+      font-size: var(--size-section-heading, 7pt); letter-spacing: 0.4em;
+      text-transform: uppercase; color: var(--hint-color, var(--accent-dim));
+      margin-bottom: 1.4rem; padding-bottom: 0.6rem;
+      border-bottom: 1px solid var(--drawer-border);
+    }
+
+    /* ── Award card grids ────────────────────────────────── */
+    .tc-award-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.2rem;
+    }
+    .tc-award-grid.champion-grid {
+      grid-template-columns: 1fr;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── Award card base ─────────────────────────────────── */
+    .tc-award-card {
+      background: rgba(0,0,0,0.38);
+      border: 1px solid var(--drawer-border);
+      display: flex; flex-direction: column;
+      transition: border-color 0.25s, background 0.25s;
+    }
+    .tc-award-card:hover {
+      border-color: rgba(232,232,232,0.22);
+      background: rgba(0,0,0,0.5);
+    }
+    .tc-award-card.is-champion {
+      border-color: rgba(232,232,232,0.2);
+    }
+    .tc-award-card.is-champion:hover {
+      border-color: rgba(232,232,232,0.4);
+    }
+    .tc-award-card.is-expandable {
+      cursor: pointer;
+    }
+
+    /* ── Champion card two-col inner ─────────────────────── */
+    /* Default (portrait): stacked */
+    .tc-champ-inner {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+    .tc-champ-img-col { flex-shrink: 0; }
+    .tc-champ-history-col {
+      flex: 1; display: flex; flex-direction: column; overflow: hidden;
+    }
+
+    /* ── Award image ─────────────────────────────────────── */
+    .tc-award-img-wrap {
+      width: 100%; aspect-ratio: 1 / 1;
+      overflow: hidden; position: relative;
+      background: rgba(0,0,0,0.25);
+    }
+    .tc-award-img-wrap img {
+      width: 100%; height: 100%; object-fit: cover;
+      display: block; transition: transform 0.4s ease;
+    }
+    .tc-award-card:hover .tc-award-img-wrap img { transform: scale(1.04); }
+    .tc-award-img-placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.8rem; opacity: 0.18;
+    }
+
+    /* ── Award name & description (all cards) ────────────── */
+    .tc-award-name {
+      font-family: var(--font-body); font-weight: 400;
+      font-size: 0.62rem; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--accent);
+      padding: 0.7rem 0.9rem 0.25rem;
+    }
+    .tc-award-description {
+      font-family: var(--font-body); font-weight: 200;
+      font-size: 0.58rem; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--accent-dim);
+      padding: 0 0.9rem 0.55rem;
+      border-bottom: 1px solid var(--drawer-border);
+    }
+
+    /* ── History ─────────────────────────────────────────── */
+    .tc-award-history { flex: 1; overflow: hidden; }
+
+    /* Expandable past rows */
+    .tc-history-past {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.35s ease;
+    }
+    .tc-award-card.is-open .tc-history-past { max-height: 2000px; }
+
+    /* Expand/collapse indicator */
+    .tc-expand-indicator {
+      font-family: var(--font-body); font-size: 0.52rem;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent-dim); text-align: center;
+      padding: 0.4rem 0.9rem;
+      border-top: 1px solid var(--drawer-border);
+      opacity: 0.6; transition: opacity 0.2s;
+      user-select: none;
+    }
+    .tc-award-card:hover .tc-expand-indicator { opacity: 1; }
+    .tc-award-card.is-open .tc-expand-indicator { opacity: 0.5; }
+
+    /* Standard history row */
+    .tc-history-row {
+      display: grid;
+      grid-template-columns: 2.2rem 1fr 1fr;
+      padding: 0.3rem 0.9rem;
+      border-top: 1px solid var(--drawer-border);
+      transition: background 0.15s;
+    }
+    .tc-history-row:hover { background: rgba(255,255,255,0.03); }
+    .tc-history-year {
+      font-family: var(--font-body); font-size: 0.58rem;
+      letter-spacing: 0.08em; color: var(--accent-dim); line-height: 1.6;
+    }
+    .tc-history-name {
+      font-family: var(--font-body); font-size: 0.62rem;
+      letter-spacing: 0.05em; color: var(--accent);
+      line-height: 1.6; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .tc-history-team {
+      font-family: var(--font-body); font-size: 0.58rem;
+      letter-spacing: 0.04em; color: var(--accent-dim);
+      line-height: 1.6; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis; text-align: right;
+    }
+    .tc-history-extra {
+      font-family: var(--font-body); font-size: 0.55rem;
+      letter-spacing: 0.04em; color: var(--hint-color, var(--accent-dim));
+      line-height: 1.4; padding-bottom: 0.2rem;
+      grid-column: 2 / -1;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* Champion history row */
+    .tc-champ-history-row {
+      display: grid; grid-template-columns: 2.4rem 1fr;
+      padding: 0.32rem 0.9rem;
+      border-top: 1px solid var(--drawer-border);
+      transition: background 0.15s;
+    }
+    .tc-champ-history-row:hover { background: rgba(255,255,255,0.03); }
+    .tc-champ-detail { display: flex; flex-direction: column; }
+    .tc-champ-winner {
+      font-family: var(--font-body); font-size: 0.63rem;
+      letter-spacing: 0.05em; color: var(--accent); line-height: 1.5;
+    }
+    .tc-champ-team {
+      font-family: var(--font-body); font-size: 0.58rem;
+      letter-spacing: 0.04em; color: var(--accent-dim); line-height: 1.4;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .tc-champ-score {
+      font-family: var(--font-body); font-size: 0.52rem;
+      letter-spacing: 0.03em; color: var(--hint-color, var(--accent-dim));
+      line-height: 1.4; padding-bottom: 0.1rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .tc-empty {
+      font-family: var(--font-body); font-size: 0.65rem;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent-dim); opacity: 0.4;
+      text-align: center; padding: 2rem 1rem;
+    }
+
+    /* League badge */
+    .tc-league-badge {
+      position: absolute; top: 0.5rem; right: 0.5rem;
+      font-family: var(--font-body); font-size: 0.48rem;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      background: rgba(0,0,0,0.6); color: var(--accent-dim);
+      border: 1px solid var(--drawer-border);
+      padding: 0.15rem 0.4rem;
+    }
+
+    /* Section reveal */
+    .section-reveal { opacity: 0; animation: heroReveal 0.9s ease forwards; }
+
+    /* ── Footer ──────────────────────────────────────────── */
+    .tc-footer {
+      position: relative; z-index: 20;
+      font-family: var(--font-body); font-size: 0.6rem;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent-dim); text-align: center;
+      padding: 1.5rem 2rem 3rem;
+    }
+
+    /* ── LANDSCAPE: champion 2-col, awards 3-col ────────── */
+    @media (orientation: landscape) {
+      .tc-champ-inner { flex-direction: row; align-items: stretch; }
+      .tc-champ-img-col { width: 62%; max-width: 600px; }
+      .tc-champ-img-col .tc-award-img-wrap {
+        width: 100%; height: 100%; min-height: 220px; aspect-ratio: unset;
+      }
+      .tc-award-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    /* ── PORTRAIT: center hero/heading, 1-col awards ─────── */
+    @media (orientation: portrait) {
+      .tc-hero-eyebrow,
+      .tc-hero-title,
+      .tc-hero-subtitle { text-align: center; }
+      .tc-section-heading { text-align: center; }
+      .tc-champ-inner { flex-direction: column; }
+      .tc-award-grid { grid-template-columns: 1fr; gap: 0.8rem; }
+    }
+    @media (orientation: portrait) and (max-width: 600px) {
+      .tc-wrap { padding: 1.2rem 1rem 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── TOP NAV ─────────────────────────────────────────── -->
+  <nav class="topnav" role="navigation" aria-label="Site navigation">
+    <a href="index.html" class="topnav-logo" id="navLogo">OFL</a>
+    <button class="menu-trigger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="site-drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- ── DRAWER ──────────────────────────────────────────── -->
+  <div class="drawer-overlay" aria-hidden="true"></div>
+  <aside id="site-drawer" class="drawer" role="dialog" aria-modal="true" aria-label="Navigation">
+    <p class="drawer-label">Navigate</p>
+    <ul class="drawer-nav"></ul>
+    <div class="drawer-footer"></div>
+  </aside>
+
+  <!-- ── TROPHY CASE PAGE ────────────────────────────────── -->
+  <div class="tc-page">
+    <div class="slide-layer" id="slideA" aria-hidden="true"></div>
+    <div class="slide-layer" id="slideB" aria-hidden="true"></div>
+    <div class="landing-overlay" id="tcOverlay" aria-hidden="true"></div>
+    <div class="landing-vignette" aria-hidden="true"></div>
+
+    <div class="tc-hero">
+      <p class="tc-hero-eyebrow" id="heroEyebrow">Official Fantasy Commission</p>
+      <h1 class="tc-hero-title">Trophy Case</h1>
+      <p class="tc-hero-subtitle">Awards &middot; Champions &middot; Legends</p>
+      <div class="landing-rule" aria-hidden="true"></div>
+    </div>
+
+    <div class="tc-body">
+      <div class="tc-wrap section-reveal" id="tcWrap" style="animation-delay:0.3s">
+
+        <div class="tc-controls">
+          <div class="tc-filters" id="tcFilters">
+            <button class="tc-filter-pill is-active" data-league="all">All Leagues</button>
+            <button class="tc-filter-pill" data-league="OFC">OFC</button>
+            <button class="tc-filter-pill" data-league="BRC">BRC</button>
+          </div>
+        </div>
+
+        <div id="tcContent"></div>
+
+      </div>
+    </div>
+
+    <div class="tc-footer section-reveal" id="tcFooter" style="animation-delay:0.45s"></div>
+  </div>
+
+  <script src="sound.js"></script>
+  <script src="menu.js"></script>
+
+  <script>
+  (function () {
+    'use strict';
+
+    var state = { activeLeague: 'all' };
+
+    // ── Award display order per league sport ──────────────
+    var AWARD_ORDER = {
+      football: [
+        'champion', 'regularSeasonChamp', 'highestTeamGameScore',
+        'highestIndividualScore', 'seasonPointsLeader', 'mostPointsAgainst',
+        'closestWin'
+        // custom awards slot in here (isCustom)
+        // lastPlace always last
+      ],
+      madness: [
+        'champion', 'runnerUp', 'mostCorrectPicks', 'cinderellaPick',
+        'earliestBust', 'championshipCorrect', 'bestSingleRound',
+        'finalFourCorrect', 'perfectBracketThrough'
+        // custom awards slot in here (isCustom)
+        // lastPlace always last
+      ]
+    };
+
+    function sortAwardDefs(defs, sport) {
+      var order = AWARD_ORDER[sport] || [];
+      return defs.slice().sort(function(a, b) {
+        // lastPlace always dead last
+        if (a.key === 'lastPlace' && b.key !== 'lastPlace') return 1;
+        if (b.key === 'lastPlace' && a.key !== 'lastPlace') return -1;
+        // custom awards come after standard, before lastPlace
+        if (a.isCustom && !b.isCustom) return 1;
+        if (b.isCustom && !a.isCustom) return -1;
+        // both custom — preserve relative order
+        if (a.isCustom && b.isCustom) return 0;
+        // both standard — sort by order list
+        var ai = order.indexOf(a.key);
+        var bi = order.indexOf(b.key);
+        if (ai === -1 && bi === -1) return 0;
+        if (ai === -1) return 1;
+        if (bi === -1) return -1;
+        return ai - bi;
+      });
+    }
+
+    // ── Look up the schema hint for a standard award key ──
+    function getSchemaHint(sport, awardKey) {
+      var schemas = window.SPORT_STAT_SCHEMAS;
+      if (!schemas) return null;
+      var schema = schemas[sport] || schemas.other;
+      if (!schema || !schema.awards) return null;
+      var def = schema.awards.find(function(a) { return a.key === awardKey; });
+      return def ? (def.hint || null) : null;
+    }
+
+    // ── Build award definitions for a league ──────────────
+    function buildAwardDefs(league) {
+      var awardKeys = Object.keys(league.awards || {});
+      var awardImages = league.awardImages || {};
+      var customAwards = league.customAwards || [];
+
+      var defs = awardKeys.map(function(key) {
+        return {
+          key: key,
+          name: league.awards[key],
+          description: getSchemaHint(league.sport, key),
+          image: awardImages[key] || null,
+          isChampion: key === 'champion',
+          isCustom: false
+        };
+      });
+
+      customAwards.forEach(function(ca) {
+        defs.push({
+          key: ca.id,
+          name: ca.label,
+          description: ca.description || null,
+          image: ca.image || null,
+          isChampion: false,
+          isCustom: true,
+          customId: ca.id
+        });
+      });
+
+      return sortAwardDefs(defs, league.sport);
+    }
+
+    // ── Extract winner for a standard award key ───────────
+    function getWinnerForKey(season, awardKey) {
+      var stats = season.stats || {};
+
+      if (awardKey === 'champion') {
+        if (!season.championName) return null;
+        return {
+          name: season.championName,
+          team: season.championTeamName || '',
+          score: season.championshipScore || ''
+        };
+      }
+      if (awardKey === 'runnerUp') {
+        if (!season.runnerUpName) return null;
+        return { name: season.runnerUpName, team: season.runnerUpTeamName || '' };
+      }
+
+      var stat = stats[awardKey];
+      if (!stat) return null;
+
+      if (Array.isArray(stat)) {
+        if (!stat.length) return null;
+        var f = stat[0];
+        return { name: f.ownerName || f.owner || '', team: f.bracketName || f.teamName || '' };
+      }
+
+      var name = stat.ownerName || stat.owner || '';
+      var team = stat.teamName || stat.bracketName || stat.team || '';
+      var extra = '';
+
+      if (awardKey === 'highestTeamGameScore' && stat.score)       extra = stat.score + ' pts (Wk ' + (stat.week || '?') + ')';
+      if (awardKey === 'highestIndividualScore' && stat.playerName) extra = stat.playerName + ' \u2014 ' + (stat.points || '') + ' pts';
+      if (awardKey === 'seasonPointsLeader' && stat.playerName)     extra = stat.playerName + ' \u2014 ' + (stat.total || '') + ' pts';
+      if (awardKey === 'mostPointsAgainst' && stat.total)           extra = stat.total + ' pts against';
+      if (awardKey === 'lastPlace' && stat.record)                  extra = stat.record;
+      if (awardKey === 'closestWin' && stat.margin)                 extra = 'Margin: ' + stat.margin + ' pts (Wk ' + (stat.week || '?') + ')';
+      if (awardKey === 'regularSeasonChamp' && stat.record)         extra = stat.record;
+      if (awardKey === 'winningBracket' && stat.totalPoints)        extra = stat.totalPoints + ' pts';
+      if (awardKey === 'mostCorrectPicks' && stat.count)            extra = stat.count + ' correct';
+      if (awardKey === 'earliestBust' && stat.round)                extra = 'Round: ' + stat.round;
+      if (awardKey === 'cinderellaPick' && stat.team)               extra = stat.team + (stat.round ? ' (Round ' + stat.round + ')' : '');
+
+      if (!name) return null;
+      return { name: name, team: team, extra: extra };
+    }
+
+    // ── Extract custom award winner ───────────────────────
+    function getCustomWinner(season, customId) {
+      var c = (season.customStats || []).find(function(x) { return x.customAwardId === customId; });
+      if (!c || !c.ownerName) return null;
+      return { name: c.ownerName, team: c.teamName || '', extra: c.value ? String(c.value) : '' };
+    }
+
+    // ── Build history array — newest first ────────────────
+    // Seasons array in data is already newest-first
+    function buildHistory(league, awardDef) {
+      return (league.seasons || []).reduce(function(acc, season) {
+        var winner = awardDef.isCustom
+          ? getCustomWinner(season, awardDef.customId)
+          : getWinnerForKey(season, awardDef.key);
+        if (winner && winner.name) acc.push({ year: season.year, winner: winner });
+        return acc;
+      }, []);
+    }
+
+    // ── Build a standard history row (+ optional extra row) ─
+    function makeHistoryRow(h) {
+      var frag = document.createDocumentFragment();
+
+      var row = document.createElement('div');
+      row.className = 'tc-history-row';
+
+      var yearEl = document.createElement('div');
+      yearEl.className = 'tc-history-year';
+      yearEl.textContent = h.year;
+
+      var nameEl = document.createElement('div');
+      nameEl.className = 'tc-history-name';
+      nameEl.textContent = h.winner.name;
+
+      var teamEl = document.createElement('div');
+      teamEl.className = 'tc-history-team';
+      teamEl.textContent = h.winner.team || '';
+
+      row.appendChild(yearEl);
+      row.appendChild(nameEl);
+      row.appendChild(teamEl);
+      frag.appendChild(row);
+
+      if (h.winner.extra) {
+        var extraRow = document.createElement('div');
+        extraRow.className = 'tc-history-row';
+        extraRow.style.borderTop = 'none';
+        extraRow.style.paddingTop = '0';
+
+        var emptyYear = document.createElement('div');
+        emptyYear.className = 'tc-history-year';
+
+        var extraEl = document.createElement('div');
+        extraEl.className = 'tc-history-extra';
+        extraEl.style.gridColumn = '2 / -1';
+        extraEl.textContent = h.winner.extra;
+
+        extraRow.appendChild(emptyYear);
+        extraRow.appendChild(extraEl);
+        frag.appendChild(extraRow);
+      }
+
+      return frag;
+    }
+
+    // ── Build a champion history row ──────────────────────
+    function makeChampRow(h) {
+      var row = document.createElement('div');
+      row.className = 'tc-champ-history-row';
+
+      var yearEl = document.createElement('div');
+      yearEl.className = 'tc-history-year';
+      yearEl.textContent = h.year;
+
+      var detail = document.createElement('div');
+      detail.className = 'tc-champ-detail';
+
+      var winnerEl = document.createElement('div');
+      winnerEl.className = 'tc-champ-winner';
+      winnerEl.textContent = h.winner.name;
+      detail.appendChild(winnerEl);
+
+      if (h.winner.team) {
+        var teamEl = document.createElement('div');
+        teamEl.className = 'tc-champ-team';
+        teamEl.textContent = h.winner.team;
+        detail.appendChild(teamEl);
+      }
+      if (h.winner.score) {
+        var scoreEl = document.createElement('div');
+        scoreEl.className = 'tc-champ-score';
+        scoreEl.textContent = h.winner.score;
+        detail.appendChild(scoreEl);
+      }
+
+      row.appendChild(yearEl);
+      row.appendChild(detail);
+      return row;
+    }
+
+    // ── Render champion card ──────────────────────────────
+    function renderChampCard(league, awardDef) {
+      var history = buildHistory(league, awardDef);
+      var card = document.createElement('div');
+      card.className = 'tc-award-card is-champion';
+
+      var inner = document.createElement('div');
+      inner.className = 'tc-champ-inner';
+
+      // Left col: image
+      var imgCol = document.createElement('div');
+      imgCol.className = 'tc-champ-img-col';
+
+      var imgWrap = document.createElement('div');
+      imgWrap.className = 'tc-award-img-wrap';
+
+      var badge = document.createElement('span');
+      badge.className = 'tc-league-badge';
+      badge.textContent = league.name;
+      imgWrap.appendChild(badge);
+
+      if (awardDef.image) {
+        var img = document.createElement('img');
+        img.src = awardDef.image;
+        img.alt = awardDef.name;
+        img.loading = 'lazy';
+        img.onerror = function() {
+          imgWrap.innerHTML = '';
+          imgWrap.appendChild(badge);
+          var ph = document.createElement('div');
+          ph.className = 'tc-award-img-placeholder';
+          ph.textContent = '🏆';
+          imgWrap.appendChild(ph);
+        };
+        imgWrap.appendChild(img);
+      } else {
+        var ph = document.createElement('div');
+        ph.className = 'tc-award-img-placeholder';
+        ph.textContent = '🏆';
+        imgWrap.appendChild(ph);
+      }
+      imgCol.appendChild(imgWrap);
+      inner.appendChild(imgCol);
+
+      // Right col: name, description, full history (no expand)
+      var histCol = document.createElement('div');
+      histCol.className = 'tc-champ-history-col';
+
+      var nameEl = document.createElement('div');
+      nameEl.className = 'tc-award-name';
+      nameEl.textContent = awardDef.name;
+      histCol.appendChild(nameEl);
+
+      var descEl = document.createElement('div');
+      descEl.className = 'tc-award-description';
+      descEl.textContent = awardDef.description || 'League Champion';
+      histCol.appendChild(descEl);
+
+      var histEl = document.createElement('div');
+      histEl.className = 'tc-award-history';
+
+      if (history.length === 0) {
+        var empty = document.createElement('div');
+        empty.className = 'tc-empty';
+        empty.textContent = 'No data yet';
+        histEl.appendChild(empty);
+      } else {
+        history.forEach(function(h) { histEl.appendChild(makeChampRow(h)); });
+      }
+
+      histCol.appendChild(histEl);
+      inner.appendChild(histCol);
+      card.appendChild(inner);
+      return card;
+    }
+
+    // ── Render standard (expandable) award card ───────────
+    function renderAwardCard(league, awardDef) {
+      var history = buildHistory(league, awardDef);
+      var card = document.createElement('div');
+      card.className = 'tc-award-card is-expandable';
+
+      // Image
+      var imgWrap = document.createElement('div');
+      imgWrap.className = 'tc-award-img-wrap';
+
+      var badge = document.createElement('span');
+      badge.className = 'tc-league-badge';
+      badge.textContent = league.name;
+      imgWrap.appendChild(badge);
+
+      if (awardDef.image) {
+        var img = document.createElement('img');
+        img.src = awardDef.image;
+        img.alt = awardDef.name;
+        img.loading = 'lazy';
+        img.onerror = function() {
+          imgWrap.innerHTML = '';
+          imgWrap.appendChild(badge);
+          var ph2 = document.createElement('div');
+          ph2.className = 'tc-award-img-placeholder';
+          ph2.textContent = '🎖';
+          imgWrap.appendChild(ph2);
+        };
+        imgWrap.appendChild(img);
+      } else {
+        var ph3 = document.createElement('div');
+        ph3.className = 'tc-award-img-placeholder';
+        ph3.textContent = '🎖';
+        imgWrap.appendChild(ph3);
+      }
+      card.appendChild(imgWrap);
+
+      // Name — always visible
+      var nameEl = document.createElement('div');
+      nameEl.className = 'tc-award-name';
+      nameEl.textContent = awardDef.name;
+      card.appendChild(nameEl);
+
+      // Description — always visible
+      var descEl = document.createElement('div');
+      descEl.className = 'tc-award-description';
+      descEl.textContent = awardDef.description || '\u2014';
+      card.appendChild(descEl);
+
+      // History
+      var histEl = document.createElement('div');
+      histEl.className = 'tc-award-history';
+
+      if (history.length === 0) {
+        var empty = document.createElement('div');
+        empty.className = 'tc-empty';
+        empty.textContent = 'No data yet';
+        histEl.appendChild(empty);
+      } else {
+        // Pinned: most recent winner — always visible
+        var pinnedWrap = document.createElement('div');
+        pinnedWrap.appendChild(makeHistoryRow(history[0]));
+        histEl.appendChild(pinnedWrap);
+
+        // Past: remaining seasons — hidden until card clicked
+        if (history.length > 1) {
+          var pastWrap = document.createElement('div');
+          pastWrap.className = 'tc-history-past';
+          history.slice(1).forEach(function(h) {
+            pastWrap.appendChild(makeHistoryRow(h));
+          });
+          histEl.appendChild(pastWrap);
+
+          // Expand indicator
+          var indicator = document.createElement('div');
+          indicator.className = 'tc-expand-indicator';
+
+          function updateIndicator() {
+            var isOpen = card.classList.contains('is-open');
+            var past = history.length - 1;
+            indicator.textContent = isOpen
+              ? '\u25b4  Collapse'
+              : '\u25be  ' + past + ' more season' + (past === 1 ? '' : 's');
+          }
+          updateIndicator();
+          histEl.appendChild(indicator);
+
+          // Toggle on card click — other cards stay as-is
+          card.addEventListener('click', function() {
+            card.classList.toggle('is-open');
+            updateIndicator();
+          });
+        }
+      }
+
+      card.appendChild(histEl);
+      return card;
+    }
+
+    // ── Render all awards for one league ──────────────────
+    function renderLeagueSection(league) {
+      var section = document.createElement('div');
+      section.className = 'tc-section';
+
+      var heading = document.createElement('p');
+      heading.className = 'tc-section-heading';
+      heading.textContent = league.fullName + ' \u2014 ' + league.name;
+      section.appendChild(heading);
+
+      var awardDefs = buildAwardDefs(league);
+      var champDef  = awardDefs.find(function(d) { return d.key === 'champion'; });
+      var otherDefs = awardDefs.filter(function(d) { return d.key !== 'champion'; });
+
+      // Champion — full width, no expand/collapse
+      if (champDef) {
+        var champGrid = document.createElement('div');
+        champGrid.className = 'tc-award-grid champion-grid';
+        champGrid.appendChild(renderChampCard(league, champDef));
+        section.appendChild(champGrid);
+      }
+
+      // Other awards — 2-col, expandable
+      if (otherDefs.length) {
+        var grid = document.createElement('div');
+        grid.className = 'tc-award-grid';
+        otherDefs.forEach(function(def) {
+          grid.appendChild(renderAwardCard(league, def));
+        });
+        section.appendChild(grid);
+      }
+
+      return section;
+    }
+
+    // ── Main render ───────────────────────────────────────
+    function render() {
+      var content = document.getElementById('tcContent');
+      if (!content) return;
+      content.innerHTML = '';
+
+      var leagues = (OFL_DATA && OFL_DATA.leagueData) ? OFL_DATA.leagueData : [];
+      leagues.forEach(function(league) {
+        if (state.activeLeague !== 'all' && league.name !== state.activeLeague) return;
+        content.appendChild(renderLeagueSection(league));
+      });
+
+      if (!content.hasChildNodes()) {
+        var empty = document.createElement('div');
+        empty.className = 'tc-empty';
+        empty.textContent = 'No data available.';
+        content.appendChild(empty);
+      }
+    }
+
+    // ── Filter pills ──────────────────────────────────────
+    function initFilters() {
+      var pills = document.querySelectorAll('.tc-filter-pill');
+      pills.forEach(function(pill) {
+        pill.addEventListener('click', function() {
+          pills.forEach(function(p) { p.classList.remove('is-active'); });
+          pill.classList.add('is-active');
+          state.activeLeague = pill.getAttribute('data-league');
+          render();
+        });
+      });
+    }
+
+    // ── Slideshow ─────────────────────────────────────────
+    function initSlideshow(config) {
+      var slides = [];
+      if (config && config.slideshow && config.slideshow.slides) {
+        slides = config.slideshow.slides;
+      } else if (OFL_DATA && OFL_DATA.leagueData && OFL_DATA.leagueData[0]) {
+        var ss = OFL_DATA.leagueData[0].slideshow;
+        if (ss && ss.slides) slides = ss.slides;
+      }
+      if (!slides.length) return;
+
+      var slideA = document.getElementById('slideA');
+      var slideB = document.getElementById('slideB');
+      if (!slideA || !slideB) return;
+
+      var total = slides.length, idx = 0;
+      var displayMs = (config && config.slideshow && config.slideshow.displayDuration) || 8000;
+      var fadeMs    = (config && config.slideshow && config.slideshow.fadeDuration)    || 2000;
+      var cycleMs   = displayMs + fadeMs;
+      var act = slideA, inact = slideB;
+
+      slides.forEach(function(s) { var i = new Image(); i.src = s.image; });
+
+      function applySlide(layer, slide) {
+        layer.style.backgroundImage    = 'url("' + slide.image + '")';
+        layer.style.animationName      = slide.direction || 'kb-zoom-in';
+        layer.style.animationDuration  = cycleMs + 'ms';
+        layer.style.animationDelay     = '0ms';
+        layer.style.animationPlayState = 'paused';
+        layer.classList.add('kb-active');
+      }
+      function resetLayer(layer) {
+        layer.classList.remove('kb-active');
+        layer.style.animation = 'none';
+        void layer.offsetWidth;
+        layer.style.animation = '';
+      }
+      function showSlide(i) {
+        applySlide(inact, slides[i]);
+        act.style.zIndex = '1'; inact.style.zIndex = '2';
+        inact.style.animationPlayState = 'running';
+        inact.classList.add('is-active');
+        setTimeout(function() {
+          act.classList.remove('is-active');
+          var tmp = act; act = inact; inact = tmp;
+          setTimeout(function() { resetLayer(inact); }, 50);
+        }, fadeMs);
+      }
+      applySlide(slideA, slides[0]);
+      slideA.style.zIndex = '2'; slideB.style.zIndex = '1';
+      slideA.style.animationPlayState = 'running';
+      slideA.classList.add('is-active'); resetLayer(slideB);
+      if (total === 1) return;
+      function cycle() { idx = (idx + 1) % total; showSlide(idx); setTimeout(cycle, cycleMs); }
+      setTimeout(cycle, cycleMs);
+    }
+
+    // ── Init ──────────────────────────────────────────────
+    function init() {
+      var config = window.SITE_CONFIG;
+
+      var title = (config && config.landing && config.landing.title) || 'OFL';
+      document.title = title + ' \u2014 Trophy Case';
+
+      var eyebrow = document.getElementById('heroEyebrow');
+      if (eyebrow && config && config.landing && config.landing.eyebrow) {
+        eyebrow.textContent = config.landing.eyebrow;
+      }
+      var logo = document.getElementById('navLogo');
+      if (logo && config && config.landing) {
+        logo.textContent = config.landing.logoMark || config.landing.title;
+      }
+
+      var overlay = document.getElementById('tcOverlay');
+      if (overlay && config && config.slideshow) {
+        overlay.style.background = config.slideshow.overlay || '';
+      }
+
+      initSlideshow(config);
+      initFilters();
+      render();
+
+      var footer = document.getElementById('tcFooter');
+      if (footer) {
+        if (config && config.footer && config.footer.show !== false && config.footer.text) {
+          footer.textContent = config.footer.text;
+        } else {
+          footer.style.display = 'none';
+        }
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+
+  })();
+  </script>
+
+</body>
+</html>
