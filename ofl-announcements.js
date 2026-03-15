@@ -1,6 +1,6 @@
 /**
  * ofl-announcements.js — Commissioner Broadcast Data
- * Generated: 3/15/2026, 9:17:31 AM
+ * Generated: 3/15/2026, 4:41:19 PM
  *
  * Drop this file next to index.html and add:
  *   <script src="ofl-announcements.js"></script>
@@ -8,6 +8,35 @@
  * The renderer will use this data if localStorage is empty.
  */
 var OFL_ANNOUNCEMENTS = [
+  {
+    "id": "ann_mms3dbmz_162v",
+    "title": "Congratulations You're Invited",
+    "body": "We are please to announce that the BRC2026 season is open. To accept you're&nbsp; invitation, click the purple yahoo! link and join. Welcome to our new home...It's Blue Ribbon Time!<div><br></div><div>The Commish</div>",
+    "style": "dispatch",
+    "position": "",
+    "ribbonLayout": "float",
+    "marqueeLabel": "",
+    "showMarqueeLabel": true,
+    "marqueeLabelColor": "",
+    "marqueeSpeed": "medium",
+    "entryAnimation": "slide-up",
+    "idleAnimation": "pulse",
+    "letterheadUrl": "assets/logos/brc.png",
+    "eyebrow": "",
+    "letterheadHeight": 30,
+    "watermarkUrl": "assets/logos/brc.png",
+    "watermarkOpacity": 0.2,
+    "showDismiss": true,
+    "active": true,
+    "startDate": "",
+    "endDate": "2026-03-16T23:59",
+    "pages": [
+      "league-brc"
+    ],
+    "dismissBehavior": "session",
+    "autoDismiss": false,
+    "autoDismissSecs": 10
+  },
   {
     "id": "ann_mmr6esy8_7kjm",
     "title": "",
@@ -27,7 +56,7 @@ var OFL_ANNOUNCEMENTS = [
     "watermarkUrl": "",
     "watermarkOpacity": "",
     "showDismiss": false,
-    "active": true,
+    "active": false,
     "startDate": "",
     "endDate": "",
     "pages": [
