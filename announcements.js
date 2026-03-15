@@ -58,16 +58,39 @@
     }
   }
 
+  /* ── Detect current page key ──────────────────────────── */
+  function currentPageKey() {
+    var path   = window.location.pathname;
+    var search = window.location.search;
+    var file   = path.split('/').pop().toLowerCase().replace('.html', '');
+    if (file === 'index' || file === '') return 'home';
+    if (file === 'league') {
+      var m = search.match(/[?&]league=([^&]+)/i);
+      if (m) {
+        var lg = m[1].toLowerCase();
+        if (lg === 'ofc') return 'league-ofc';
+        if (lg === 'brc') return 'league-brc';
+      }
+      return 'league-ofc'; // fallback
+    }
+    return file; // other pages — won't match any page key
+  }
+
   /* ── Pick the active announcement ────────────────────── */
   function getActiveAnnouncement() {
-    var list = loadAnnouncements();
-    var now  = Date.now();
+    var list    = loadAnnouncements();
+    var now     = Date.now();
+    var pageKey = currentPageKey();
     for (var i = 0; i < list.length; i++) {
       var ann = list[i];
       if (!ann.active) continue;
       if (ann.startDate && now < new Date(ann.startDate).getTime()) continue;
       if (ann.endDate   && now > new Date(ann.endDate).getTime())   continue;
       if (isDismissed(ann)) continue;
+      // Page filter — empty/missing pages means show everywhere
+      if (Array.isArray(ann.pages) && ann.pages.length > 0) {
+        if (ann.pages.indexOf(pageKey) === -1) continue;
+      }
       return ann;
     }
     return null;

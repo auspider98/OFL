@@ -6,6 +6,40 @@
   <title>OFL — Announcements</title>
   <link rel="icon" type="image/png" href="assets/favicon.png" />
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── Page-selector checkboxes ─────────────────────────── */
+    .page-check-label {
+      display: flex; align-items: center; gap: 0.6rem;
+      cursor: pointer;
+      font-family: var(--font-body); font-size: 0.75rem;
+      letter-spacing: 0.1em; color: var(--accent);
+      user-select: none;
+    }
+    .page-check-label input[type="checkbox"] {
+      appearance: none; -webkit-appearance: none;
+      width: 14px; height: 14px; flex-shrink: 0;
+      background: #000;
+      border: 1.5px solid rgba(255,255,255,0.6);
+      cursor: pointer;
+      position: relative;
+      transition: border-color 0.15s;
+    }
+    .page-check-label input[type="checkbox"]:hover {
+      border-color: #fff;
+    }
+    .page-check-label input[type="checkbox"]:checked {
+      border-color: #fff;
+    }
+    .page-check-label input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      left: 3px; top: 0px;
+      width: 5px; height: 9px;
+      border: 2px solid #fff;
+      border-top: none; border-left: none;
+      transform: rotate(45deg);
+    }
+  </style>
   <script src="ofl-pin.js"></script>
   <script src="admin-config.js"></script>
   <script src="ofl-data.js"></script>
@@ -181,6 +215,25 @@
           <option value="pulse">Border Pulse</option>
           <option value="shimmer">Shimmer Sweep</option>
         </select>
+      </div>
+
+      <!-- Show On pages — all styles -->
+      <div class="field-row" id="row_pages">
+        <div class="field-label">Show On<span class="field-hint">Which pages this announcement appears on — leave all unchecked to show everywhere</span></div>
+        <div style="display:flex; flex-direction:column; gap:0.45rem; padding-top:0.15rem;">
+          <label class="page-check-label">
+            <input type="checkbox" id="e_page_home" />
+            Home
+          </label>
+          <label class="page-check-label">
+            <input type="checkbox" id="e_page_ofc" />
+            League — OFC
+          </label>
+          <label class="page-check-label">
+            <input type="checkbox" id="e_page_brc" />
+            League — BRC
+          </label>
+        </div>
       </div>
 
       <!-- ═══════════════════════════════════════════════
@@ -684,6 +737,10 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('e_active').checked           = ann.active           !== false;
       document.getElementById('e_startDate').value          = ann.startDate        || '';
       document.getElementById('e_endDate').value            = ann.endDate          || '';
+      var pages = Array.isArray(ann.pages) ? ann.pages : [];
+      document.getElementById('e_page_home').checked = pages.indexOf('home')       !== -1;
+      document.getElementById('e_page_ofc').checked  = pages.indexOf('league-ofc') !== -1;
+      document.getElementById('e_page_brc').checked  = pages.indexOf('league-brc') !== -1;
       document.getElementById('e_dismissBehavior').value    = ann.dismissBehavior  || 'always';
       document.getElementById('e_autoDismiss').checked      = !!ann.autoDismiss;
       document.getElementById('e_autoDismissSecs').value    = ann.autoDismissSecs  || 10;
@@ -881,6 +938,13 @@ document.addEventListener('DOMContentLoaded', function () {
         active:           document.getElementById('e_active').checked,
         startDate:        document.getElementById('e_startDate').value  || '',
         endDate:          document.getElementById('e_endDate').value    || '',
+        pages:            (function() {
+          var p = [];
+          if (document.getElementById('e_page_home').checked) p.push('home');
+          if (document.getElementById('e_page_ofc').checked)  p.push('league-ofc');
+          if (document.getElementById('e_page_brc').checked)  p.push('league-brc');
+          return p;
+        })(),
         dismissBehavior:  document.getElementById('e_dismissBehavior').value,
         autoDismiss:      document.getElementById('e_autoDismiss').checked,
         autoDismissSecs:  parseInt(document.getElementById('e_autoDismissSecs').value, 10) || 10,
