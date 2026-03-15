@@ -1,6 +1,6 @@
 /**
  * ofl-announcements.js — Commissioner Broadcast Data
- * Generated: 3/15/2026, 4:43:54 PM
+ * Generated: 3/15/2026, 4:47:45 PM
  *
  * Drop this file next to index.html and add:
  *   <script src="ofl-announcements.js"></script>
@@ -11,7 +11,7 @@ var OFL_ANNOUNCEMENTS = [
   {
     "id": "ann_mms3dbmz_162v",
     "title": "Congratulations You're Invited",
-    "body": "We are please to announce that the BRC2026 season is open. To accept you're&nbsp; invitation, click the purple yahoo! link and join. Welcome to our new home...It's Blue Ribbon Time!<div><br></div><div>The Commish</div>",
+    "body": "We are pleased to announce that the BRC2026 season is officially open. To accept you're&nbsp; invitation, close this window, click the purple yahoo! link and join today. Welcome to our new home...It's Blue Ribbon Time!<div><br></div><div>The Commish</div>",
     "style": "dispatch",
     "position": "",
     "ribbonLayout": "float",
