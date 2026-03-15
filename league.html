@@ -500,6 +500,21 @@
           }
         }
 
+        // mostPointsFor — highest pointsFor (team total)
+        if (!hasStored('mostPointsFor')) {
+          var unstoppable = standings.reduce(function (best, row) {
+            return parseFloat(row.pointsFor) > parseFloat(best.pointsFor) ? row : best;
+          }, standings[0]);
+          if (unstoppable && unstoppable.memberId) {
+            computed['mostPointsFor'] = {
+              memberId:  unstoppable.memberId,
+              ownerName: unstoppable.owner || unstoppable.ownerName || '',
+              teamName:  unstoppable.teamName || unstoppable.team || '',
+              total:     parseFloat(unstoppable.pointsFor)
+            };
+          }
+        }
+
         // lastPlace — last rank in standings
         if (!hasStored('lastPlace')) {
           var last = standings[standings.length - 1];
