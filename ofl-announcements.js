@@ -1,6 +1,6 @@
 /**
  * ofl-announcements.js — Commissioner Broadcast Data
- * Generated: 3/14/2026, 1:42:30 AM
+ * Generated: 3/15/2026, 9:17:31 AM
  *
  * Drop this file next to index.html and add:
  *   <script src="ofl-announcements.js"></script>
@@ -8,6 +8,35 @@
  * The renderer will use this data if localStorage is empty.
  */
 var OFL_ANNOUNCEMENTS = [
+  {
+    "id": "ann_mmr6esy8_7kjm",
+    "title": "",
+    "body": "The new BRC season is open for enrollment. To join this years tournament, please click the purple yahoo! and join the brc2026 league.",
+    "style": "marquee",
+    "position": "bottom",
+    "ribbonLayout": "float",
+    "marqueeLabel": "BREAKING NEWS",
+    "showMarqueeLabel": true,
+    "marqueeLabelColor": "#ab0000",
+    "marqueeSpeed": "slow",
+    "entryAnimation": "fade-up",
+    "idleAnimation": "none",
+    "letterheadUrl": "",
+    "eyebrow": "",
+    "letterheadHeight": "",
+    "watermarkUrl": "",
+    "watermarkOpacity": "",
+    "showDismiss": false,
+    "active": true,
+    "startDate": "",
+    "endDate": "",
+    "pages": [
+      "league-brc"
+    ],
+    "dismissBehavior": "always",
+    "autoDismiss": false,
+    "autoDismissSecs": 10
+  },
   {
     "id": "ann_mmp85oz4_fw9n",
     "title": "The Dawn of a New Era",
