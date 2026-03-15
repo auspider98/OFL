@@ -138,8 +138,9 @@ var SPORT_STAT_SCHEMAS = {
       { key: "regularSeasonChamp",    defaultLabel: "The Bye Week Trophy",   hint: "Regular Season #1 Seed" },
       { key: "highestTeamGameScore",  defaultLabel: "The Stiff Arm",         hint: "Highest Single-Week Team Score" },
       { key: "highestIndividualScore",defaultLabel: "The Heisman",           hint: "Highest Single Player Score" },
-      { key: "seasonPointsLeader",    defaultLabel: "The Cannon",            hint: "Most Season Points" },
-      { key: "mostPointsAgainst",     defaultLabel: "The Hard Luck Trophy",  hint: "Most Points Scored Against" },
+      { key: "seasonPointsLeader",    defaultLabel: "The Cannon",            hint: "Most Season Points By Player" },
+      { key: "mostPointsFor",         defaultLabel: "Unstoppable Trophy",    hint: "Most Season Points For" },
+      { key: "mostPointsAgainst",     defaultLabel: "The Hard Luck Trophy",  hint: "Most Season Points Against" },
       { key: "lastPlace",             defaultLabel: "The Toilet Bowl Crown", hint: "Last Place Finisher" },
       { key: "closestWin",            defaultLabel: "The Nail Biter",        hint: "Closest Win of the Season" }
     ],
@@ -267,13 +268,13 @@ var SPORT_STAT_SCHEMAS = {
       { key: "champion",              defaultLabel: "The Bracket King",        hint: "Winning Bracket" },
       { key: "runnerUp",              defaultLabel: "Runner-Up",               hint: "Season Runner-Up" },
       { key: "mostCorrectPicks",      defaultLabel: "The Oracle",              hint: "Most Correct Picks" },
-      { key: "cinderellaPick",        defaultLabel: "The Cinderella Chaser",   hint: "Best Upset Pick" },
-      { key: "earliestBust",          defaultLabel: "The First Out",           hint: "Earliest Bracket Bust" },
+      { key: "cinderellaPick",        defaultLabel: "The Cinderella Chaser",   hint: "Highest Seed in the Final Four" },
+      { key: "earliestBust",          defaultLabel: "The First Out",           hint: "Earliest to Lose Champion" },
       { key: "lastPlace",             defaultLabel: "The Participation Cup",   hint: "Last Place / Worst Bracket" },
-      { key: "championshipCorrect",   defaultLabel: "The Crystal Ball",        hint: "Correctly Predicted Champion" },
-      { key: "bestSingleRound",       defaultLabel: "The Round Dominator",     hint: "Most Points in a Single Round" },
-      { key: "finalFourCorrect",      defaultLabel: "The Prophet",             hint: "All Final Four Correctly Predicted" },
-      { key: "perfectBracketThrough", defaultLabel: "The Unblemished",         hint: "Perfect Bracket Longest" }
+      { key: "championshipCorrect",   defaultLabel: "The Crystal Ball",        hint: "Predicted the Most Upsets" },
+      { key: "bestSingleRound",       defaultLabel: "The Round Dominator",     hint: "Most Points in the First Round" },
+      { key: "finalFourCorrect",      defaultLabel: "The Prophet",             hint: "Most Final Four Teams" },
+      { key: "perfectBracketThrough", defaultLabel: "The Unblemished",         hint: "Longest Lasting Perfect Bracket" }
     ],
     standingsColumns: [
       { key: "rank",         label: "#" },

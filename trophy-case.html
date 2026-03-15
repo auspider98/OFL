@@ -360,8 +360,8 @@
     var AWARD_ORDER = {
       football: [
         'champion', 'regularSeasonChamp', 'highestTeamGameScore',
-        'highestIndividualScore', 'seasonPointsLeader', 'mostPointsAgainst',
-        'closestWin'
+        'highestIndividualScore', 'seasonPointsLeader', 'mostPointsFor',
+        'mostPointsAgainst', 'closestWin'
         // custom awards slot in here (isCustom)
         // lastPlace always last
       ],
@@ -411,10 +411,21 @@
       var awardImages = league.awardImages || {};
       var customAwards = league.customAwards || [];
 
+      // Also include any schema-defined awards not yet in league.awards
+      // (e.g. mostPointsFor added to schema but not yet in ofl-data.js)
+      var schemas = window.SPORT_STAT_SCHEMAS;
+      var schema = schemas ? (schemas[league.sport] || schemas.other) : null;
+      if (schema && schema.awards) {
+        schema.awards.forEach(function(a) {
+          if (awardKeys.indexOf(a.key) === -1) awardKeys.push(a.key);
+        });
+      }
+
       var defs = awardKeys.map(function(key) {
+        var schemaDef = (schema && schema.awards) ? schema.awards.find(function(a) { return a.key === key; }) : null;
         return {
           key: key,
-          name: league.awards[key],
+          name: (league.awards && league.awards[key]) || (schemaDef && schemaDef.defaultLabel) || key,
           description: getSchemaHint(league.sport, key),
           image: awardImages[key] || null,
           isChampion: key === 'champion',
@@ -454,8 +465,25 @@
         return { name: season.runnerUpName, team: season.runnerUpTeamName || '' };
       }
 
-      var stat = stats[awardKey];
-      if (!stat) return null;
+      if (awardKey === 'mostPointsFor') {
+        // Derive from standings — find the entry with the highest pointsFor
+        var standings = season.standings || [];
+        var best = null;
+        standings.forEach(function(row) {
+          var pf = parseFloat(row.pointsFor || 0);
+          if (!best || pf > parseFloat(best.pointsFor || 0)) best = row;
+        });
+        if (!best) return null;
+        return {
+          name: best.owner || best.ownerName || '',
+          team: best.teamName || best.team || '',
+          extra: best.pointsFor ? best.pointsFor + ' pts' : ''
+        };
+      }
+
+
+
+      var stat = (season.stats || {})[awardKey];
 
       if (Array.isArray(stat)) {
         if (!stat.length) return null;
@@ -463,8 +491,8 @@
         return { name: f.ownerName || f.owner || '', team: f.bracketName || f.teamName || '' };
       }
 
-      var name = stat.ownerName || stat.owner || '';
-      var team = stat.teamName || stat.bracketName || stat.team || '';
+      var name = stat ? (stat.ownerName || stat.owner || '') : '';
+      var team = stat ? (stat.teamName || stat.bracketName || stat.team || '') : '';
       var extra = '';
 
       if (awardKey === 'highestTeamGameScore' && stat.score)       extra = stat.score + ' pts (Wk ' + (stat.week || '?') + ')';
