@@ -235,6 +235,15 @@
         <input class="admin-input" type="text" id="e_marqueeLabel" placeholder="COMMISSIONER" style="max-width:220px;" />
       </div>
 
+      <!-- Ticker label color — marquee only -->
+      <div class="field-row" id="row_marqueeLabelColor" style="display:none;">
+        <div class="field-label">Label Color<span class="field-hint">Background color of the ticker label tab — leave blank for default</span></div>
+        <div class="color-field">
+          <input class="color-swatch" type="color" id="e_marqueeLabelColorSwatch" value="#cc0000" />
+          <input class="admin-input" type="text" id="e_marqueeLabelColor" placeholder="leave blank for default" style="max-width:220px;" />
+        </div>
+      </div>
+
       <!-- Title — hidden for marquee -->
       <div class="field-row" id="row_title">
         <div class="field-label">Title<span class="field-hint">Headline shown in the announcement</span></div>
@@ -385,6 +394,19 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!a.target || a.target !== '_blank') closeDrawer();
     });
   });
+
+  // ── Label color swatch ↔ hex two-way sync ──────────────
+  var lcSwatch = document.getElementById('e_marqueeLabelColorSwatch');
+  var lcHex    = document.getElementById('e_marqueeLabelColor');
+  if (lcSwatch && lcHex) {
+    lcSwatch.addEventListener('input', function () {
+      lcHex.value = lcSwatch.value;
+    });
+    lcHex.addEventListener('input', function () {
+      var v = lcHex.value.trim();
+      if (/^#[0-9a-fA-F]{6}$/.test(v)) lcSwatch.value = v;
+    });
+  }
 });
 </script>
 
@@ -648,6 +670,9 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('e_marqueeLabel').value       = ann.marqueeLabel     || '';
       document.getElementById('e_marqueeSpeed').value       = ann.marqueeSpeed     || 'medium';
       document.getElementById('e_showMarqueeLabel').checked = ann.showMarqueeLabel !== false;
+      var mlc = ann.marqueeLabelColor || '';
+      document.getElementById('e_marqueeLabelColor').value = mlc;
+      if (/^#[0-9a-fA-F]{6}$/.test(mlc)) document.getElementById('e_marqueeLabelColorSwatch').value = mlc;
       document.getElementById('e_entryAnimation').value     = ann.entryAnimation   || 'fade-up';
       document.getElementById('e_idleAnimation').value      = ann.idleAnimation    || 'none';
       document.getElementById('e_letterheadUrl').value      = ann.letterheadUrl    || '';
@@ -690,7 +715,8 @@ document.addEventListener('DOMContentLoaded', function () {
       show('row_watermarkOpacity',   isDispatch);
 
       // Content section
-      show('row_marqueeLabel', isMarquee);   // ticker label in content for marquee
+      show('row_marqueeLabel',      isMarquee);   // ticker label in content for marquee
+      show('row_marqueeLabelColor', isMarquee);   // label color for marquee
       show('row_title',        !isMarquee);  // title hidden for marquee
 
       // Timing section
@@ -842,6 +868,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ribbonLayout:     document.getElementById('e_ribbonLayout').value,
         marqueeLabel:     document.getElementById('e_marqueeLabel').value.trim(),
         showMarqueeLabel: document.getElementById('e_showMarqueeLabel').checked,
+        marqueeLabelColor: document.getElementById('e_marqueeLabelColor').value.trim(),
         marqueeSpeed:     document.getElementById('e_marqueeSpeed').value,
         entryAnimation:   document.getElementById('e_entryAnimation').value,
         idleAnimation:    document.getElementById('e_idleAnimation').value,

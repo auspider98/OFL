@@ -334,6 +334,9 @@
       var label = document.createElement('span');
       label.className   = 'ann-marquee-label';
       label.textContent = labelText;
+      if (ann.marqueeLabelColor && ann.marqueeLabelColor.trim()) {
+        label.style.background = ann.marqueeLabelColor.trim();
+      }
       bar.appendChild(label);
     }
 
