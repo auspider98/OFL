@@ -1,6 +1,6 @@
 /**
  * ofl-announcements.js — Commissioner Broadcast Data
- * Generated: 3/16/2026, 12:29:54 PM
+ * Generated: 3/16/2026, 12:39:53 PM
  *
  * Drop this file next to index.html and add:
  *   <script src="ofl-announcements.js"></script>
@@ -15,7 +15,7 @@ var OFL_ANNOUNCEMENTS = [
     "style": "marquee",
     "position": "bottom",
     "ribbonLayout": "float",
-    "marqueeLabel": "BRC SIGNUPS ARE LIVE",
+    "marqueeLabel": "BRC SIGNUPS",
     "showMarqueeLabel": true,
     "marqueeLabelColor": "#cc0000",
     "marqueeSpeed": "slow",
