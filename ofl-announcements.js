@@ -1,6 +1,6 @@
 /**
  * ofl-announcements.js — Commissioner Broadcast Data
- * Generated: 3/15/2026, 4:47:45 PM
+ * Generated: 3/16/2026, 11:25:13 AM
  *
  * Drop this file next to index.html and add:
  *   <script src="ofl-announcements.js"></script>
@@ -10,30 +10,31 @@
 var OFL_ANNOUNCEMENTS = [
   {
     "id": "ann_mms3dbmz_162v",
-    "title": "Congratulations You're Invited",
-    "body": "We are pleased to announce that the BRC2026 season is officially open. To accept you're&nbsp; invitation, close this window, click the purple yahoo! link and join today. Welcome to our new home...It's Blue Ribbon Time!<div><br></div><div>The Commish</div>",
-    "style": "dispatch",
-    "position": "",
+    "title": "",
+    "body": "To join the BRC2026 tournament, click the purple yahoo! link on the BRC page to accept the invitation and create your bracket. Brackets must be completed and saved by Thursday (3/19) 12.15pm EDT. Don't wait, join today!",
+    "style": "marquee",
+    "position": "bottom",
     "ribbonLayout": "float",
-    "marqueeLabel": "",
+    "marqueeLabel": "BRC SIGNUPS ARE LIVE",
     "showMarqueeLabel": true,
-    "marqueeLabelColor": "",
-    "marqueeSpeed": "medium",
+    "marqueeLabelColor": "#cc0000",
+    "marqueeSpeed": "slow",
     "entryAnimation": "slide-up",
-    "idleAnimation": "pulse",
-    "letterheadUrl": "assets/logos/brc.png",
+    "idleAnimation": "shimmer",
+    "letterheadUrl": "",
     "eyebrow": "",
     "letterheadHeight": "",
-    "watermarkUrl": "assets/logos/brc.png",
-    "watermarkOpacity": 0.2,
-    "showDismiss": true,
+    "watermarkUrl": "",
+    "watermarkOpacity": "",
+    "showDismiss": false,
     "active": true,
     "startDate": "",
     "endDate": "2026-03-16T23:59",
     "pages": [
+      "home",
       "league-brc"
     ],
-    "dismissBehavior": "session",
+    "dismissBehavior": "always",
     "autoDismiss": false,
     "autoDismissSecs": 10
   },
