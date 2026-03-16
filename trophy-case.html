@@ -521,7 +521,7 @@
     // ── Build history array — newest first ────────────────
     // Seasons array in data is already newest-first
     function buildHistory(league, awardDef) {
-      return (league.seasons || []).reduce(function(acc, season) {
+      return (league.seasons || []).filter(function(s) { return s.isFinal === true; }).reduce(function(acc, season) {
         var winner = awardDef.isCustom
           ? getCustomWinner(season, awardDef.customId)
           : getWinnerForKey(season, awardDef.key);
