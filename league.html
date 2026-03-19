@@ -205,7 +205,23 @@
       var showSubtitle = pl.showSubtitle !== false;
 
       el('leagueEyebrow').textContent  = showEyebrow  ? (league.heroEyebrow  || config.landing.eyebrow || '') : '';
-      el('leagueTitle').textContent    = showTitle    ? (league.heroTitle    || league.fullName || league.name || '') : '';
+
+      // Title — either logo image or text
+      var titleEl = el('leagueTitle');
+      titleEl.innerHTML = '';
+      if (showTitle) {
+        if (pl.useTitleImage && league.heroTitleImage) {
+          var logoImg = document.createElement('img');
+          logoImg.src   = league.heroTitleImage;
+          logoImg.alt   = league.heroTitle || league.fullName || league.name || '';
+          var logoWidth = league.heroTitleImageWidth ? league.heroTitleImageWidth + 'px' : '80%';
+          logoImg.style.cssText = 'max-width:' + logoWidth + ';width:auto;height:auto;object-fit:contain;display:block;margin:0 auto;';
+          titleEl.appendChild(logoImg);
+        } else {
+          titleEl.textContent = league.heroTitle || league.fullName || league.name || '';
+        }
+      }
+
       el('leagueSubtitle').textContent = showSubtitle ? (league.heroSubtitle || '') : '';
 
       // Adjust hero size based on visible fields
@@ -496,21 +512,6 @@
               ownerName: unlucky.owner || unlucky.ownerName || '',
               teamName:  unlucky.teamName || unlucky.team || '',
               total:     parseFloat(unlucky.pointsAgainst)
-            };
-          }
-        }
-
-        // mostPointsFor — highest pointsFor (team total)
-        if (!hasStored('mostPointsFor')) {
-          var unstoppable = standings.reduce(function (best, row) {
-            return parseFloat(row.pointsFor) > parseFloat(best.pointsFor) ? row : best;
-          }, standings[0]);
-          if (unstoppable && unstoppable.memberId) {
-            computed['mostPointsFor'] = {
-              memberId:  unstoppable.memberId,
-              ownerName: unstoppable.owner || unstoppable.ownerName || '',
-              teamName:  unstoppable.teamName || unstoppable.team || '',
-              total:     parseFloat(unstoppable.pointsFor)
             };
           }
         }
