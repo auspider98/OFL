@@ -2252,12 +2252,19 @@ document.addEventListener('DOMContentLoaded', function () {
             if (row.predictedScoreWinner === undefined) row.predictedScoreWinner = '';
             if (row.predictedScoreLoser  === undefined) row.predictedScoreLoser  = '';
 
-            /* Derive sums — only if round data has been entered */
+            /* Derive picksByRound from pointsByRound / pointsStructure, then sum totals */
             function calcSums() {
-              var hasPickRounds  = row.picksByRound.some(function (v)  { return (parseFloat(v)||0) > 0; });
+              var structure      = season.pointsStructure || [];
               var hasPointRounds = row.pointsByRound.some(function (v) { return (parseFloat(v)||0) > 0; });
-              if (hasPickRounds)  row.correctPicks = row.picksByRound.reduce(function (s, v)  { return s + (parseFloat(v)||0); }, 0);
-              if (hasPointRounds) row.totalPoints  = row.pointsByRound.reduce(function (s, v) { return s + (parseFloat(v)||0); }, 0);
+              if (hasPointRounds) {
+                row.pointsByRound.forEach(function (pts, i) {
+                  var ptsVal     = parseFloat(pts) || 0;
+                  var ptsPerPick = parseFloat(structure[i]) || 0;
+                  row.picksByRound[i] = (ptsPerPick > 0) ? Math.round(ptsVal / ptsPerPick) : 0;
+                });
+                row.totalPoints  = row.pointsByRound.reduce(function (s, v) { return s + (parseFloat(v)||0); }, 0);
+                row.correctPicks = row.picksByRound.reduce(function (s, v) { return s + (parseFloat(v)||0); }, 0);
+              }
             }
             calcSums();
 
@@ -2269,21 +2276,6 @@ document.addEventListener('DOMContentLoaded', function () {
             var fieldsHtml = isMadness
               ? /* ── BRC per-round grid ── */
                 '<div class="brc-standings-grid">' +
-                  /* Picks row */
-                  '<div class="brc-grid-section-label">Picks</div>' +
-                  '<div class="brc-round-inputs">' +
-                    ROUND_LABELS.map(function (lbl, i) {
-                      return '<div class="brc-round-col">' +
-                        '<label class="brc-round-label">'+lbl+'</label>' +
-                        '<input class="admin-input brc-picks-inp" type="number" min="0" step="1" ' +
-                          'data-ridx="'+i+'" value="'+esc(String(row.picksByRound[i]||''))+'" style="width:100%;" />' +
-                      '</div>';
-                    }).join('') +
-                    '<div class="brc-round-col brc-total-col">' +
-                      '<label class="brc-round-label">Total</label>' +
-                      '<input class="admin-input brc-total-display picks-total" type="number" min="0" step="1" value="'+esc(String(row.correctPicks||0))+'" style="width:100%;" />' +
-                    '</div>' +
-                  '</div>' +
                   /* Points row */
                   '<div class="brc-grid-section-label">Points</div>' +
                   '<div class="brc-round-inputs">' +
@@ -2295,8 +2287,12 @@ document.addEventListener('DOMContentLoaded', function () {
                       '</div>';
                     }).join('') +
                     '<div class="brc-round-col brc-total-col">' +
-                      '<label class="brc-round-label">Total</label>' +
-                      '<input class="admin-input brc-total-display points-total" type="number" min="0" step="0.01" value="'+esc(String(row.totalPoints||0))+'" style="width:100%;" />' +
+                      '<label class="brc-round-label">Total Pts</label>' +
+                      '<input class="admin-input brc-total-display points-total" type="number" min="0" step="0.01" value="'+esc(String(row.totalPoints||0))+'" style="width:100%;" readonly />' +
+                    '</div>' +
+                    '<div class="brc-round-col brc-total-col">' +
+                      '<label class="brc-round-label">Total Picks</label>' +
+                      '<input class="admin-input brc-total-display picks-total" type="number" min="0" step="1" value="'+esc(String(row.correctPicks||0))+'" style="width:100%;opacity:0.6;" readonly />' +
                     '</div>' +
                   '</div>' +
                   /* Predicted champion + score */
@@ -2330,39 +2326,20 @@ document.addEventListener('DOMContentLoaded', function () {
               '</div>' + fieldsHtml;
 
             if (isMadness) {
-              /* Picks inputs */
-              card.querySelectorAll('.brc-picks-inp').forEach(function (inp) {
-                inp.addEventListener('input', function () {
-                  var idx = parseInt(this.getAttribute('data-ridx'), 10);
-                  row.picksByRound[idx] = this.value !== '' ? parseFloat(this.value) || 0 : 0;
-                  calcSums();
-                  card.querySelector('.picks-total').value = String(row.correctPicks);
-                  deriveFromStandings(); markDirty();
-                });
-              });
-              /* Picks total — manual override */
-              card.querySelector('.picks-total').addEventListener('input', function () {
-                row.correctPicks = parseFloat(this.value) || 0;
-                deriveFromStandings(); markDirty();
-              });
-              /* Points inputs */
+              /* Points inputs — auto-derive picksByRound on entry */
               card.querySelectorAll('.brc-points-inp').forEach(function (inp) {
                 inp.addEventListener('input', function () {
                   var idx = parseInt(this.getAttribute('data-ridx'), 10);
                   row.pointsByRound[idx] = this.value !== '' ? parseFloat(this.value) || 0 : 0;
                   calcSums();
                   card.querySelector('.points-total').value = String(row.totalPoints);
+                  card.querySelector('.picks-total').value  = String(row.correctPicks);
                   deriveFromStandings(); markDirty();
                 });
                 inp.addEventListener('change', function () {
                   calcSums();
                   autoSortStandings(); renderStandings(); deriveFromStandings(); markDirty();
                 });
-              });
-              /* Points total — manual override */
-              card.querySelector('.points-total').addEventListener('change', function () {
-                row.totalPoints = parseFloat(this.value) || 0;
-                autoSortStandings(); renderStandings(); deriveFromStandings(); markDirty();
               });
               /* Predicted champion + score */
               card.querySelector('.brc-pred-champ').addEventListener('input', function () {

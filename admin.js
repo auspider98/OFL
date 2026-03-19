@@ -280,6 +280,7 @@ var SPORT_STAT_SCHEMAS = {
       { key: "rank",         label: "#" },
       { key: "owner",        label: "Owner" },
       { key: "bracketName",  label: "Bracket Name" },
+      { key: "rounds",       label: "Round Columns" },
       { key: "totalPoints",  label: "Total Points" },
       { key: "correctPicks", label: "Correct Picks" }
     ],

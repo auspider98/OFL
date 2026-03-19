@@ -48,6 +48,33 @@
       align-items: center;
       min-height: 1.2em;
     }
+
+    /* ── BRC standings table ────────────────────── */
+    .brc-standings-table { width: auto; min-width: 0; table-layout: auto; }
+    .brc-standings-table th,
+    .brc-standings-table td { vertical-align: middle; }
+
+    /* Column widths */
+    .brc-standings-table .standings-rank-cell { width: 2rem; }
+    .brc-ident-col  { width: auto; }
+    .brc-round-col  { width: 4.5rem; }
+    .brc-total-col  { width: 5rem; }
+
+    /* Identity cell */
+    .brc-ident-cell { text-align: left; }
+    .brc-ident-cell span { display: block; }
+    .brc-ident-owner   { font-size: 0.8rem; font-weight: 600; color: var(--accent); }
+    .brc-ident-bracket { font-size: 0.72rem; color: var(--accent-dim); }
+    .brc-ident-champ   { font-size: 0.65rem; color: var(--hint-color, var(--accent-dim)); font-style: italic; }
+
+    /* Round + Total cols */
+    .brc-round-col,
+    .brc-total-col  { text-align: center; white-space: nowrap; }
+    .brc-round-cell,
+    .brc-total-cell { font-size: 0.75rem; white-space: nowrap; }
+    .brc-cell-pts   { font-weight: 600; }
+    .brc-cell-sep   { margin: 0 0.15em; opacity: 0.45; font-size: 0.65rem; }
+    .brc-cell-picks { opacity: 0.7; }
   </style>
 </head>
 <body>
@@ -283,6 +310,94 @@
     function renderStandingsTable(season, league, config) {
       var schema     = window.SPORT_STAT_SCHEMAS[league.sport] || window.SPORT_STAT_SCHEMAS.other;
       var isFootball = league.sport === 'football';
+      var isMadness  = league.sport === 'madness';
+
+      var rows = season.standings || [];
+      if (!rows.length) return '<p style="color:var(--accent-dim);font-size:0.75rem;letter-spacing:0.15em;">No standings data yet.</p>';
+
+      // ── Madness-specific layout ──────────────────────────
+      if (isMadness) {
+        var savedCols = league.standingsColumns || [];
+        function colVisible(key) {
+          var entry = savedCols.find(function (c) { return c.key === key; });
+          return entry ? entry.show !== false : true;
+        }
+
+        var showRank   = colVisible('rank');
+        var showRounds = colVisible('rounds');
+        var showTotal  = colVisible('totalPoints') || colVisible('correctPicks');
+
+        // Abbreviated round labels (index 0–5)
+        var ROUND_LABELS = ['R64', 'R32', 'S16', 'E8', 'F4', 'Final'];
+
+        // Determine which round indices have any real data across all rows
+        var activeRoundIndices = [];
+        if (showRounds) {
+          ROUND_LABELS.forEach(function (_, rIdx) {
+            var hasData = rows.some(function (row) {
+              var pts  = (row.pointsByRound  || [])[rIdx];
+              var picks = (row.picksByRound  || [])[rIdx];
+              return (pts  !== undefined && pts  !== 0 && pts  !== '') ||
+                     (picks !== undefined && picks !== 0 && picks !== '');
+            });
+            if (hasData) activeRoundIndices.push(rIdx);
+          });
+        }
+
+        // Build thead
+        var thCells = '';
+        if (showRank) thCells += '<th class="standings-rank-cell">#</th>';
+        thCells += '<th class="brc-ident-col">Bracket</th>';
+        activeRoundIndices.forEach(function (rIdx) {
+          thCells += '<th class="brc-round-col">' + esc(ROUND_LABELS[rIdx]) + '</th>';
+        });
+        if (showTotal) thCells += '<th class="brc-total-col">Total</th>';
+
+        // Build tbody
+        var tbodyRows = rows.map(function (row, i) {
+          var tdCells = '';
+
+          // Rank
+          if (showRank) {
+            tdCells += '<td class="standings-rank-cell">' + esc(row.rank || (i + 1)) + '</td>';
+          }
+
+          // Identity cell — owner / bracket name / predicted champion stacked
+          var identLines = [];
+          if (row.owner || row.ownerName) identLines.push('<span class="brc-ident-owner">' + esc(row.owner || row.ownerName) + '</span>');
+          var bName = row.bracketName || row.teamName || '';
+          if (bName) identLines.push('<span class="brc-ident-bracket">' + esc(bName) + '</span>');
+          if (row.predictedChampion) identLines.push('<span class="brc-ident-champ">' + esc(row.predictedChampion) + '</span>');
+          tdCells += '<td class="brc-ident-cell">' + identLines.join('') + '</td>';
+
+          // Round cells
+          activeRoundIndices.forEach(function (rIdx) {
+            var pts   = (row.pointsByRound || [])[rIdx];
+            var ptsVal = (pts !== undefined && pts !== '' && pts !== 0) ? pts : '—';
+            tdCells += '<td class="brc-round-col brc-round-cell">' +
+              '<span class="brc-cell-pts">' + esc(ptsVal) + '</span>' +
+            '</td>';
+          });
+
+          // Total cell
+          if (showTotal) {
+            var totPts   = (row.totalPoints  !== undefined && row.totalPoints  !== '') ? row.totalPoints  : '—';
+            var totPicks = (row.correctPicks !== undefined && row.correctPicks !== '') ? row.correctPicks : '—';
+            tdCells += '<td class="brc-total-col brc-total-cell">' +
+              '<span class="brc-cell-pts">'   + esc(totPts)   + '</span>' +
+              '<span class="brc-cell-sep">/</span>' +
+              '<span class="brc-cell-picks">' + esc(totPicks) + '</span>' +
+            '</td>';
+          }
+
+          return '<tr>' + tdCells + '</tr>';
+        }).join('');
+
+        return '<table class="league-standings-table brc-standings-table"><thead><tr>' +
+          thCells + '</tr></thead><tbody>' + tbodyRows + '</tbody></table>';
+      }
+
+      // ── Football / other layout ──────────────────────────
 
       // Use league-level column config if saved, else fall back to schema defaults (all visible)
       var allCols = (league.standingsColumns && league.standingsColumns.length)
@@ -292,9 +407,6 @@
       // Separate rank (always first, fixed) from the rest
       var rankCol = allCols.find(function (c) { return c.key === 'rank'; });
       var cols    = allCols.filter(function (c) { return c.key !== 'rank'; });
-
-      var rows = season.standings || [];
-      if (!rows.length) return '<p style="color:var(--accent-dim);font-size:0.75rem;letter-spacing:0.15em;">No standings data yet.</p>';
 
       /* Some column keys in the schema differ from the actual stored key on the row */
       var keyAliases = { team: ['teamName', 'bracketName', 'team'] };
@@ -306,17 +418,9 @@
         return '';
       }
 
-      /* Build a roster-entry-like object from a standings row for logo lookup */
-      function logoForRow(row) {
-        if (!isFootball) return '';
-        var entry = { memberId: row.memberId || '', teamName: row.teamName || row.team || '' };
-        return resolveRosterLogo(entry, league);
-      }
-
       function teamCellHtml(row) {
         var teamName = resolveCell(row, 'team');
-        if (!isFootball) return esc(teamName);
-        var logo    = logoForRow(row);
+        var logo    = resolveRosterLogo({ memberId: row.memberId || '', teamName: row.teamName || row.team || '' }, league);
         var initial = teamName ? teamName.charAt(0).toUpperCase() : '?';
         var imgHtml = logo
           ? '<img class="standings-team-logo" src="' + esc(logo) + '" alt="' + esc(teamName) + '" />'
