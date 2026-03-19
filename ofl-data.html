@@ -1120,11 +1120,60 @@ document.addEventListener('DOMContentLoaded', function () {
         sec.innerHTML =
           heroRow('Eyebrow',  'Small text above title', 'lg-hero-eyebrow',  league.heroEyebrow  || '', 'e.g. Osborne Fantasy Commission', 'showEyebrow')  +
           heroRow('Title',    'Large hero title',       'lg-hero-title',    league.heroTitle    || '', 'e.g. OFC',                        'showTitle')    +
+          '<div class="field-row" id="row_heroTitleImage">' +
+            '<div class="field-label">Title Logo<span class="field-hint">Image shown instead of title text when enabled</span></div>' +
+            '<div style="display:flex;flex-direction:column;gap:0.5rem;flex:1;">' +
+              '<div style="display:flex;align-items:center;gap:0.75rem;">' +
+                '<input class="admin-input lg-hero-title-image" type="text" value="' + esc(league.heroTitleImage || '') + '" placeholder="assets/logos/ofc.png" style="flex:1;" />' +
+                '<input class="admin-input lg-hero-title-image-width" type="number" min="20" max="800" value="' + esc(league.heroTitleImageWidth || '') + '" placeholder="px" style="width:72px;" title="Logo width in pixels" />' +
+                '<label class="toggle-switch" title="Use logo instead of title text">' +
+                  '<input type="checkbox" class="lg-use-title-image"' + (pl.useTitleImage ? ' checked' : '') + ' />' +
+                  '<span class="toggle-track"></span>' +
+                '</label>' +
+              '</div>' +
+              '<div class="image-preview-placeholder lg-title-img-ph">Enter path above</div>' +
+              '<img class="image-preview lg-title-img-el" src="" alt="" style="max-height:80px;object-fit:contain;" />' +
+            '</div>' +
+          '</div>' +
           heroRow('Subtitle', 'Below the title',        'lg-hero-subtitle', league.heroSubtitle || '', 'e.g. Football League',             'showSubtitle');
 
         sec.querySelector('.lg-hero-eyebrow').addEventListener('input',  function () { league.heroEyebrow  = this.value; markDirty(); });
         sec.querySelector('.lg-hero-title').addEventListener('input',    function () { league.heroTitle    = this.value; markDirty(); });
         sec.querySelector('.lg-hero-subtitle').addEventListener('input', function () { league.heroSubtitle = this.value; markDirty(); });
+
+        // Title logo path + preview
+        var titleImgInput = sec.querySelector('.lg-hero-title-image');
+        var titleImgEl    = sec.querySelector('.lg-title-img-el');
+        var titleImgPh    = sec.querySelector('.lg-title-img-ph');
+        function refreshTitleLogoPreview(path) {
+          if (!path) {
+            titleImgEl.classList.remove('visible');
+            titleImgPh.style.display = '';
+            titleImgPh.textContent   = 'Enter path above';
+            return;
+          }
+          titleImgEl.src     = path;
+          titleImgEl.onload  = function () { titleImgEl.classList.add('visible'); titleImgPh.style.display = 'none'; };
+          titleImgEl.onerror = function () { titleImgEl.classList.remove('visible'); titleImgPh.style.display = ''; titleImgPh.textContent = 'Not found: ' + path; };
+        }
+        refreshTitleLogoPreview(league.heroTitleImage || '');
+        titleImgInput.addEventListener('input', function () {
+          league.heroTitleImage = this.value.trim();
+          refreshTitleLogoPreview(league.heroTitleImage);
+          markDirty();
+        });
+
+        // Use title image toggle
+        sec.querySelector('.lg-use-title-image').addEventListener('change', function () {
+          pl.useTitleImage = this.checked; markDirty();
+        });
+
+        // Logo width
+        sec.querySelector('.lg-hero-title-image-width').addEventListener('input', function () {
+          var v = parseInt(this.value, 10);
+          league.heroTitleImageWidth = v > 0 ? v : '';
+          markDirty();
+        });
         sec.querySelectorAll('.hero-show-toggle').forEach(function (cb) {
           cb.addEventListener('change', function () {
             pl[this.getAttribute('data-key')] = this.checked; markDirty();
@@ -2311,7 +2360,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
               });
               /* Points total — manual override */
-              card.querySelector('.points-total').addEventListener('input', function () {
+              card.querySelector('.points-total').addEventListener('change', function () {
                 row.totalPoints = parseFloat(this.value) || 0;
                 autoSortStandings(); renderStandings(); deriveFromStandings(); markDirty();
               });
