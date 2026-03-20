@@ -53,26 +53,31 @@
     .brc-standings-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .brc-standings-table { width: 100%; table-layout: auto; border-collapse: separate; border-spacing: 0; }
     .brc-standings-table th,
-    .brc-standings-table td { vertical-align: middle; }
+    .brc-standings-table td {
+      vertical-align: middle;
+      background: var(--table-row-bg, transparent);
+    }
+
+    /* All cells get an explicit base background so nothing is transparent */
+    .brc-standings-table thead th { background: var(--bg, #0a0a0a); }
+    .brc-standings-table tbody td { background: var(--bg, #0a0a0a); }
+    .brc-standings-table tbody tr:hover td { background: var(--table-row-hover, rgba(255,255,255,0.04)); }
 
     /* Sticky left: rank */
     .brc-standings-table .standings-rank-cell {
       position: sticky; left: 0; z-index: 2;
-      background: var(--bg, #0a0a0a);
       width: 2rem; min-width: 2rem;
     }
-    /* Sticky left: bracket identity col — offset set inline based on rank visibility */
+    /* Sticky left: bracket identity col — left offset set inline */
     .brc-ident-col,
     .brc-ident-cell {
       position: sticky; z-index: 2;
-      background: var(--bg, #0a0a0a);
       min-width: 8rem;
     }
     /* Sticky right: total col */
     .brc-total-col,
     .brc-total-cell {
       position: sticky; right: 0; z-index: 2;
-      background: var(--bg, #0a0a0a);
       width: 5rem; min-width: 5rem;
     }
 
@@ -87,7 +92,7 @@
     .brc-ident-champ   { font-size: 0.65rem; color: var(--hint-color, var(--accent)); font-style: italic; }
 
     /* Round + Total shared */
-    .brc-total-col  { text-align: center; white-space: nowrap; }
+    .brc-total-col { text-align: center; white-space: nowrap; }
     .brc-round-cell,
     .brc-total-cell { font-size: 0.75rem; white-space: nowrap; }
     .brc-cell-pts   { font-weight: 600; }
@@ -1009,6 +1014,7 @@
 
     // ── Render season roster grid ────────────────────────────
     function renderRoster(season, league, config) {
+      var isFootball = league.sport === 'football';
       var roster = season.roster || [];
       if (!roster.length) return '';
 
@@ -1033,7 +1039,7 @@
           ? '<img class="roster-card-logo" src="' + esc(logo) + '" alt="' + esc(name) + '" />'
           : '<div class="roster-card-initial">' + esc(initial) + '</div>';
 
-        var teamUrl = entry.memberId ? 'team.html?id=' + encodeURIComponent(entry.memberId) : null;
+        var teamUrl = (isFootball && entry.memberId) ? 'team.html?id=' + encodeURIComponent(entry.memberId) : null;
         return (teamUrl ? '<a class="roster-card" href="' + esc(teamUrl) + '">' : '<div class="roster-card">') +
           imgHtml +
           '<div class="roster-card-name">' + esc(name || entry.ownerName || '—') + '</div>' +
