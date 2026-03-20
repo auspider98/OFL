@@ -1,6 +1,6 @@
 /**
  * ofl-announcements.js — Commissioner Broadcast Data
- * Generated: 3/17/2026, 4:50:00 PM
+ * Generated: 3/20/2026, 9:45:17 AM
  *
  * Drop this file next to index.html and add:
  *   <script src="ofl-announcements.js"></script>
@@ -8,6 +8,35 @@
  * The renderer will use this data if localStorage is empty.
  */
 var OFL_ANNOUNCEMENTS = [
+  {
+    "id": "ann_mmyy6sdw_nt6p",
+    "title": "Round of 64 - Day 1",
+    "body": "<p data-path-to-node=\"1\">Well, BRC participants, the first 16 games of the 2026 Round of 64 are officially behind us. If your heart rate hasn't returned to normal yet, you aren't doing it right. From <b data-path-to-node=\"1\" data-index-in-node=\"175\">VCU’s</b> historic 19-point comeback over North Carolina to <b data-path-to-node=\"1\" data-index-in-node=\"231\">High Point</b> stunning Wisconsin by a single point, Day 1 reminded us why we clear our schedules for this.</p><p data-path-to-node=\"2\">Here is where we stand as we head into the second half of the Round of 64.</p><p data-path-to-node=\"2\"><br></p><h2 data-path-to-node=\"3\">The Leaderboard</h2><p data-path-to-node=\"4\">We have a three-way tie at the top with a near-perfect <b data-path-to-node=\"4\" data-index-in-node=\"55\">13/16</b> (81%) completion rate:</p><p data-path-to-node=\"4\"><br></p><ul data-path-to-node=\"5\"><li><p data-path-to-node=\"5,0,0\"><b data-path-to-node=\"5,0,0\" data-index-in-node=\"0\">emziemillions</b> (Emery)</p></li><li><p data-path-to-node=\"5,1,0\"><b data-path-to-node=\"5,1,0\" data-index-in-node=\"0\">TheChattanoogan</b> (Evan)</p></li><li><p data-path-to-node=\"5,2,0\"><b data-path-to-node=\"5,2,0\" data-index-in-node=\"0\">ans+One</b> (Ansley)</p></li></ul><span style=\"font-size: 13.6px;\"><br></span><p data-path-to-node=\"6\">While the leaders are currently riding high on those <b data-path-to-node=\"6\" data-index-in-node=\"53\">Michigan State</b> and <b data-path-to-node=\"6\" data-index-in-node=\"72\">Duke</b> wins, the \"Blue Devil heavy\" strategy at the top of the board is going to make the coming days very interesting.</p><p data-path-to-node=\"6\"><br></p><h2 data-path-to-node=\"7\">The \"Upset\" Damage</h2><p data-path-to-node=\"8\">It was a rough day for the chalk-pickers. <b data-path-to-node=\"8\" data-index-in-node=\"42\">North Carolina</b> falling in overtime to VCU and <b data-path-to-node=\"8\" data-index-in-node=\"88\">BYU</b> losing to Texas sent shockwaves through the middle of our pack.</p><p data-path-to-node=\"8\"><br></p><ul data-path-to-node=\"9\"><li><p data-path-to-node=\"9,0,0\"><b data-path-to-node=\"9,0,0\" data-index-in-node=\"0\">Auburn’s Time to Shine</b> is lurking just one point back at <b data-path-to-node=\"9,0,0\" data-index-in-node=\"57\">12/13</b>, hoping those Michigan Wolverines picks keep paying off.</p></li><li><p data-path-to-node=\"9,1,0\"><b data-path-to-node=\"9,1,0\" data-index-in-node=\"0\">The Pack (Ranks 7-11):</b> We have a massive logjam at 10 points. Whether you’re a <b data-path-to-node=\"9,1,0\" data-index-in-node=\"79\">Gangan Quilter</b> or a <b data-path-to-node=\"9,1,0\" data-index-in-node=\"99\">Molly Defender</b>, one big upset today could catapult you into the Top 5.</p></li><li><p data-path-to-node=\"9,2,0\"><b data-path-to-node=\"9,2,0\" data-index-in-node=\"0\">The \"Web\" and \"ATLiens\":</b> Don't lose hope! With 16 games left today and the high-value rounds still to come, an 8 or 9-point start is far from a death sentence.</p></li></ul><span style=\"font-size: 13.6px;\"><br></span><hr data-path-to-node=\"10\"><h2 data-path-to-node=\"11\"><br></h2><h2 data-path-to-node=\"11\">What to Watch for Today (Day 2)</h2><p data-path-to-node=\"12\">We have another 16 games on deck to fill out the Round of 32. Keep an eye on these potential bracket-busters:</p><p data-path-to-node=\"12\"><br></p><ul data-path-to-node=\"13\"><li><p data-path-to-node=\"13,0,0\"><b data-path-to-node=\"13,0,0\" data-index-in-node=\"0\">Kentucky vs. Santa Clara:</b> Can the Wildcats avoid the early exit bug?</p></li><li><p data-path-to-node=\"13,1,0\"><b data-path-to-node=\"13,1,0\" data-index-in-node=\"0\">Arizona &amp; Florida:</b> Both 1-seeds are looking to avoid the \"Siena scare\" that Duke survived yesterday.</p></li><li><p data-path-to-node=\"13,2,0\"><b data-path-to-node=\"13,2,0\" data-index-in-node=\"0\">Purdue vs. Queens:</b> Always keep an eye on those 2/15 matchups after what we've seen in recent years!</p></li></ul><span style=\"font-size: 13.6px;\"><br></span><p data-path-to-node=\"14\">Good luck to everyone on Day 2. May your upsets be intentional and your \"Cinderella\" teams actually win.</p><p data-path-to-node=\"14\"><br></p><p data-path-to-node=\"15\"><b data-path-to-node=\"15\" data-index-in-node=\"0\">— BRC Commissioner</b></p>",
+    "style": "dispatch",
+    "position": "",
+    "ribbonLayout": "float",
+    "marqueeLabel": "",
+    "showMarqueeLabel": true,
+    "marqueeLabelColor": "",
+    "marqueeSpeed": "medium",
+    "entryAnimation": "fade-up",
+    "idleAnimation": "none",
+    "letterheadUrl": "assets/logos/brc.png",
+    "eyebrow": "",
+    "letterheadHeight": 60,
+    "watermarkUrl": "",
+    "watermarkOpacity": 0.07,
+    "showDismiss": true,
+    "active": true,
+    "startDate": "",
+    "endDate": "2026-03-20T12:15",
+    "pages": [
+      "league-brc"
+    ],
+    "dismissBehavior": "session",
+    "autoDismiss": false,
+    "autoDismissSecs": 10
+  },
   {
     "id": "ann_mms3dbmz_162v",
     "title": "",
@@ -32,35 +61,6 @@ var OFL_ANNOUNCEMENTS = [
     "endDate": "2026-03-19T12:15",
     "pages": [
       "home",
-      "league-brc"
-    ],
-    "dismissBehavior": "always",
-    "autoDismiss": false,
-    "autoDismissSecs": 10
-  },
-  {
-    "id": "ann_mmr6esy8_7kjm",
-    "title": "",
-    "body": "The new BRC season is open for enrollment. To join this years tournament, please click the purple yahoo! and join the brc2026 league.",
-    "style": "marquee",
-    "position": "bottom",
-    "ribbonLayout": "float",
-    "marqueeLabel": "BREAKING NEWS",
-    "showMarqueeLabel": true,
-    "marqueeLabelColor": "#ab0000",
-    "marqueeSpeed": "slow",
-    "entryAnimation": "fade-up",
-    "idleAnimation": "none",
-    "letterheadUrl": "",
-    "eyebrow": "",
-    "letterheadHeight": "",
-    "watermarkUrl": "",
-    "watermarkOpacity": "",
-    "showDismiss": false,
-    "active": false,
-    "startDate": "",
-    "endDate": "",
-    "pages": [
       "league-brc"
     ],
     "dismissBehavior": "always",
