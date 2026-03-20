@@ -1,6 +1,6 @@
 /**
  * ofl-announcements.js — Commissioner Broadcast Data
- * Generated: 3/20/2026, 9:45:17 AM
+ * Generated: 3/20/2026, 1:25:59 PM
  *
  * Drop this file next to index.html and add:
  *   <script src="ofl-announcements.js"></script>
@@ -29,7 +29,7 @@ var OFL_ANNOUNCEMENTS = [
     "showDismiss": true,
     "active": true,
     "startDate": "",
-    "endDate": "2026-03-20T12:15",
+    "endDate": "2026-03-20T15:15",
     "pages": [
       "league-brc"
     ],
