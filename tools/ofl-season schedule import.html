@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OFL Schedule Import Tool</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a40;
+    --accent: #5b8cff;
+    --accent2: #ff5b8c;
+    --text: #e8e8f0;
+    --dim: #6b6b8a;
+    --success: #5bff9b;
+    --warn: #ff9b5b;
+    --mono: 'Space Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    min-height: 100vh;
+    padding: 40px 24px;
+  }
+
+  .container { max-width: 860px; margin: 0 auto; }
+
+  header { margin-bottom: 48px; }
+
+  .logo {
+    font-family: var(--display);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 800;
+    line-height: 1.05;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  h1 span { color: var(--accent2); }
+
+  .subtitle {
+    color: var(--dim);
+    font-size: 12px;
+    line-height: 1.7;
+    max-width: 560px;
+  }
+
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .step-num {
+    font-family: var(--display);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .step h2 {
+    font-family: var(--display);
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .step p { color: var(--dim); line-height: 1.7; font-size: 12px; }
+
+  code {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: var(--accent);
+    font-size: 11px;
+  }
+
+  /* Fields */
+  .fields-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .field-group { display: flex; flex-direction: column; gap: 5px; }
+  .field-group label { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--dim); }
+  .field-group input, .field-group select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 8px 10px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .field-group input:focus, .field-group select:focus { border-color: var(--accent); }
+  .field-group input::placeholder { color: var(--dim); }
+  select option { background: var(--surface2); }
+
+  /* Roster */
+  .roster-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr 90px;
+    gap: 8px;
+    margin: 12px 0 4px;
+  }
+  .roster-header span { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--dim); }
+
+  .roster-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 90px;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+  }
+  .roster-row input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 7px 10px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .roster-row input:focus { border-color: var(--accent); }
+  .roster-row input::placeholder { color: var(--dim); }
+
+  /* Upload */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    padding: 36px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    margin-top: 16px;
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--accent);
+    background: rgba(91,140,255,0.05);
+  }
+  .upload-zone input { display: none; }
+  .upload-icon { font-size: 32px; margin-bottom: 12px; display: block; }
+  .upload-label { font-family: var(--display); font-weight: 700; font-size: 14px; margin-bottom: 6px; display: block; }
+  .upload-hint { color: var(--dim); font-size: 11px; }
+  .upload-filename { margin-top: 12px; color: var(--success); font-size: 12px; }
+
+  /* Buttons */
+  .btn {
+    font-family: var(--display);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 12px 28px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover:not(:disabled) { opacity: 0.85; }
+  .btn-copy { background: var(--success); color: #0a0a0f; font-size: 12px; padding: 9px 20px; }
+  .btn-copy:hover { opacity: 0.85; }
+
+  /* Alerts */
+  .alert {
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    margin-top: 12px;
+    border-left: 3px solid;
+    white-space: pre-wrap;
+    line-height: 1.6;
+  }
+  .alert-warn  { background: rgba(255,155,91,0.08);  border-color: var(--warn);    color: var(--warn); }
+  .alert-error { background: rgba(255,91,140,0.08);  border-color: var(--accent2); color: var(--accent2); }
+  .alert-ok    { background: rgba(91,255,155,0.08);  border-color: var(--success); color: var(--success); }
+
+  /* Output */
+  .output-section { display: none; margin-top: 32px; }
+  .output-section.visible { display: block; }
+
+  .output-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .output-title { font-family: var(--display); font-weight: 700; font-size: 14px; }
+  .output-meta { font-size: 11px; color: var(--dim); margin-bottom: 16px; }
+  .output-meta span { color: var(--success); }
+
+  .week-previews { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .week-pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 5px 12px;
+    font-size: 11px;
+    color: var(--dim);
+    cursor: default;
+  }
+  .week-pill.ok   { border-color: var(--success); color: var(--success); }
+  .week-pill.warn { border-color: var(--warn);    color: var(--warn); }
+
+  pre {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    overflow-x: auto;
+    font-size: 11.5px;
+    line-height: 1.7;
+    color: #c8c8e0;
+    max-height: 500px;
+    overflow-y: auto;
+    margin-top: 16px;
+  }
+
+  .copied-flash {
+    display: inline-block;
+    color: var(--success);
+    font-size: 11px;
+    margin-left: 10px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .copied-flash.show { opacity: 1; }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+  /* Preview table */
+  .preview-table-wrap {
+    overflow-x: auto;
+    margin-top: 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+  table { border-collapse: collapse; width: 100%; font-size: 11px; }
+  th {
+    background: var(--surface2);
+    color: var(--dim);
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface2); }
+  .score-win  { color: var(--success); font-weight: 700; }
+  .score-loss { color: var(--dim); }
+  .hs-badge {
+    background: rgba(91,140,255,0.15);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    margin-left: 6px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo">OFL · Online Fantasy League</div>
+    <h1>Schedule<br><span>Import Tool</span></h1>
+    <p class="subtitle">Upload a spreadsheet with each team's full season schedule (col A = team, B = week, C = opponent, E = score). Games appear once per team — this tool deduplicates and outputs a ready-to-paste <code>weeks[]</code> block for <code>ofl-data.js</code>.</p>
+  </header>
+
+  <!-- Step 1 -->
+  <div class="step">
+    <div class="step-num">Step 01</div>
+    <h2>Season Info</h2>
+    <p>Enter the year and league for correct labeling in the output.</p>
+    <div class="fields-grid">
+      <div class="field-group">
+        <label>Season Year</label>
+        <input type="number" id="seasonYear" placeholder="e.g. 2024" min="2000" max="2099">
+      </div>
+      <div class="field-group">
+        <label>League</label>
+        <select id="leagueId">
+          <option value="lg_001">OFC (Football)</option>
+          <option value="lg_002">BRC (March Madness)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="step">
+    <div class="step-num">Step 02</div>
+    <h2>Team → Member Mapping</h2>
+    <p>Map each Yahoo team name to the OFL member ID and owner name. Names must match the spreadsheet exactly. The tool will auto-detect team names from the file — you can also add manually.</p>
+
+    <div class="roster-header">
+      <span>Yahoo Team Name</span>
+      <span>Owner Name</span>
+      <span>Member ID</span>
+    </div>
+    <div id="rosterRows"></div>
+    <button class="btn btn-primary" style="font-size:11px;padding:8px 18px;margin-top:4px;" onclick="addRosterRow()">+ Add Row</button>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="step">
+    <div class="step-num">Step 03</div>
+    <h2>Upload Spreadsheet</h2>
+    <p>
+      Expected columns: <code>A</code> team name (first row of block only) · <code>B</code> week # · <code>C</code> opponent · <code>E</code> score as <code>88.62 - 65.92</code>.<br>
+      Blank rows separate team blocks. Column D (result) is ignored.
+    </p>
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+      <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" onchange="handleFile(this.files[0])">
+      <span class="upload-icon">📋</span>
+      <span class="upload-label">Click to upload or drag & drop</span>
+      <span class="upload-hint">.xlsx, .xls, or .csv accepted</span>
+      <div class="upload-filename" id="uploadFilename"></div>
+    </div>
+    <div id="fileAlerts"></div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="step">
+    <div class="step-num">Step 04</div>
+    <h2>Parse & Generate</h2>
+    <p>Parse the schedule, deduplicate games, compute weekly high scorers, and generate the <code>weeks[]</code> output.</p>
+    <div style="margin-top:16px;">
+      <button class="btn btn-primary" id="parseBtn" onclick="parseAndGenerate()" disabled>Generate weeks[] output</button>
+    </div>
+    <div id="parseAlerts"></div>
+  </div>
+
+  <!-- Output -->
+  <div class="output-section" id="outputSection">
+    <hr class="divider">
+    <div class="output-header">
+      <span class="output-title">Generated Output</span>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="btn btn-copy" onclick="copyOutput()">Copy to clipboard</button>
+        <button class="btn btn-copy" style="background:#5b8cff;color:#fff;" onclick="downloadJS()">⬇ Download .js</button>
+        <span class="copied-flash" id="copiedFlash">✓ Copied!</span>
+      </div>
+    </div>
+    <div class="output-meta" id="outputMeta"></div>
+    <div class="week-previews" id="weekPreviews"></div>
+
+    <!-- Preview table -->
+    <div id="previewTableWrap"></div>
+
+    <pre id="outputPre"></pre>
+  </div>
+
+</div>
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+var rawRows = [];      // array of row arrays from spreadsheet
+var parsedWeeks = [];  // final weeks[] output
+
+// ─── Default roster ───────────────────────────────────────────────────────────
+var defaultTeams = [
+  ['Spiders',         'spider',   'mbr_001'],
+  ['ATLiens',         'Big Rob',  'mbr_002'],
+  ['Flying Bubbas',   'Bubba',    'mbr_003'],
+  ['Boknowsbest',     'Evan',     'mbr_004'],
+  ['Ozsome',          'William',  'mbr_005'],
+  ['Molly Defenders', 'Amy',      'mbr_006'],
+];
+defaultTeams.forEach(function(t) { addRosterRow(t[0], t[1], t[2]); });
+
+// ─── Roster helpers ───────────────────────────────────────────────────────────
+function addRosterRow(teamName, ownerName, memberId) {
+  var container = document.getElementById('rosterRows');
+  var div = document.createElement('div');
+  div.className = 'roster-row';
+  div.innerHTML =
+    '<input type="text" class="r-team"  placeholder="Yahoo team name" value="' + esc(teamName  || '') + '">' +
+    '<input type="text" class="r-owner" placeholder="Owner name"      value="' + esc(ownerName || '') + '">' +
+    '<input type="text" class="r-mid"   placeholder="mbr_001"         value="' + esc(memberId  || '') + '">';
+  container.appendChild(div);
+}
+
+function getRoster() {
+  var map = {};
+  document.querySelectorAll('.roster-row').forEach(function(row) {
+    var team  = row.querySelector('.r-team').value.trim();
+    var owner = row.querySelector('.r-owner').value.trim();
+    var mid   = row.querySelector('.r-mid').value.trim();
+    if (team) map[team.toLowerCase()] = { teamName: team, ownerName: owner, memberId: mid };
+  });
+  return map;
+}
+
+function lookupTeam(name, roster) {
+  var key = (name || '').toLowerCase().trim();
+  return roster[key] || { teamName: name || '?', ownerName: '?', memberId: '' };
+}
+
+// ─── Drag & drop ──────────────────────────────────────────────────────────────
+var zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover',  function(e) { e.preventDefault(); zone.classList.add('drag-over'); });
+zone.addEventListener('dragleave', function()  { zone.classList.remove('drag-over'); });
+zone.addEventListener('drop', function(e) {
+  e.preventDefault();
+  zone.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+
+// ─── File load ────────────────────────────────────────────────────────────────
+function handleFile(file) {
+  if (!file) return;
+  document.getElementById('uploadFilename').textContent = '✓ ' + file.name;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var wb  = XLSX.read(e.target.result, { type: 'binary' });
+      var ws  = wb.Sheets[wb.SheetNames[0]];
+      rawRows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+      // Auto-detect team names from col A and pre-fill any missing roster rows
+      autoFillRoster(rawRows);
+
+      document.getElementById('parseBtn').disabled = false;
+      clearAlerts('fileAlerts');
+      showAlert('fileAlerts', 'ok', '✓ File loaded: ' + rawRows.length + ' rows detected.');
+    } catch(err) {
+      showAlert('fileAlerts', 'error', 'Failed to read file: ' + err.message);
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+function autoFillRoster(rows) {
+  var existing = getRoster();
+  var found = {};
+  rows.forEach(function(r) {
+    var v = String(r[0] || '').trim();
+    if (v && !found[v.toLowerCase()] && !existing[v.toLowerCase()]) {
+      // looks like a team name (not a header word)
+      if (!/^(team|matchup|week|wk|opponent|result|score|recap)/i.test(v)) {
+        found[v.toLowerCase()] = v;
+      }
+    }
+  });
+  Object.values(found).forEach(function(name) { addRosterRow(name, '', ''); });
+}
+
+// ─── Parse score string ───────────────────────────────────────────────────────
+// Handles "88.62 - 65.92" or "88.62-65.92"
+function parseScoreString(s) {
+  s = String(s || '').trim();
+  var m = s.match(/^([\d.]+)\s*[-–]\s*([\d.]+)$/);
+  if (!m) return null;
+  return { teamScore: parseFloat(m[1]), oppScore: parseFloat(m[2]) };
+}
+
+// ─── Main parse ───────────────────────────────────────────────────────────────
+function parseAndGenerate() {
+  if (!rawRows.length) return;
+  clearAlerts('parseAlerts');
+
+  var roster   = getRoster();
+  var year     = document.getElementById('seasonYear').value.trim();
+  var league   = document.getElementById('leagueId').value;
+  var warnings = [];
+
+  // ── Segment rows into per-team blocks ──────────────────────────────────────
+  // A block starts when col A has a non-empty value that isn't a header word
+  var blocks = [];
+  var currentTeam = null;
+  var currentRows = [];
+
+  rawRows.forEach(function(row) {
+    var colA = String(row[0] || '').trim();
+    var colB = row[1];
+    var isBlank = !colA && !colB && !row[2] && !row[4];
+
+    if (isBlank) {
+      // Blank row — flush current block
+      if (currentTeam && currentRows.length) {
+        blocks.push({ team: currentTeam, rows: currentRows });
+        currentTeam = null;
+        currentRows = [];
+      }
+      return;
+    }
+
+    if (colA && !/^(wk|week|\d)/i.test(colA) && isNaN(Number(colA))) {
+      // Header row of a new block (col A has team name, col B = "Wk" header)
+      if (currentTeam && currentRows.length) {
+        blocks.push({ team: currentTeam, rows: currentRows });
+      }
+      currentTeam = colA;
+      currentRows = [];
+      return;
+    }
+
+    // Data row — col B should be week number
+    var wk = parseInt(colB, 10);
+    if (!isNaN(wk) && currentTeam) {
+      currentRows.push(row);
+    }
+  });
+
+  // Flush last block
+  if (currentTeam && currentRows.length) {
+    blocks.push({ team: currentTeam, rows: currentRows });
+  }
+
+  if (!blocks.length) {
+    showAlert('parseAlerts', 'error', 'No team blocks found. Check that column A contains team names and column B contains week numbers.');
+    return;
+  }
+
+  // ── Collect all games, deduplicate ────────────────────────────────────────
+  // Key: "weekNum|teamA_lower|teamB_lower" (sorted so order doesn't matter)
+  var gameMap = {}; // key → game object
+
+  blocks.forEach(function(block) {
+    var teamName = block.team;
+    block.rows.forEach(function(row) {
+      var wk      = parseInt(row[1], 10);
+      var oppName = String(row[2] || '').trim();
+      var scoreStr = row[4]; // col E (0-indexed)
+
+      if (!oppName || !scoreStr) return;
+
+      var scores = parseScoreString(scoreStr);
+      if (!scores) {
+        warnings.push('Could not parse score "' + scoreStr + '" (Week ' + wk + ', ' + teamName + ' vs ' + oppName + ')');
+        return;
+      }
+
+      var keyParts = [wk, teamName.toLowerCase(), oppName.toLowerCase()].sort();
+      // Sort only the two team names, keep wk separate
+      var teamKey  = [teamName.toLowerCase(), oppName.toLowerCase()].sort().join('|');
+      var key      = wk + '|' + teamKey;
+
+      if (!gameMap[key]) {
+        // teamName is "home" (their score first in col E)
+        gameMap[key] = {
+          week:     wk,
+          homeName: teamName,
+          homeScore: scores.teamScore,
+          awayName: oppName,
+          awayScore: scores.oppScore
+        };
+      }
+      // If already exists, we have a duplicate — skip
+    });
+  });
+
+  // ── Group into weeks ───────────────────────────────────────────────────────
+  var weekMap = {};
+  Object.values(gameMap).forEach(function(g) {
+    if (!weekMap[g.week]) weekMap[g.week] = [];
+    weekMap[g.week].push(g);
+  });
+
+  var weekNums = Object.keys(weekMap).map(Number).sort(function(a,b){ return a-b; });
+
+  parsedWeeks = weekNums.map(function(wn) {
+    var games = weekMap[wn];
+
+    // Resolve roster info
+    var resolvedGames = games.map(function(g) {
+      var homeInfo = lookupTeam(g.homeName, roster);
+      var awayInfo = lookupTeam(g.awayName, roster);
+
+      if (!roster[g.homeName.toLowerCase()]) warnings.push('Week ' + wn + ': team not in roster map: "' + g.homeName + '"');
+      if (!roster[g.awayName.toLowerCase()]) warnings.push('Week ' + wn + ': team not in roster map: "' + g.awayName + '"');
+
+      return {
+        home: { memberId: homeInfo.memberId, ownerName: homeInfo.ownerName, teamName: homeInfo.teamName, score: g.homeScore.toFixed(2) },
+        away: { memberId: awayInfo.memberId, ownerName: awayInfo.ownerName, teamName: awayInfo.teamName, score: g.awayScore.toFixed(2) }
+      };
+    });
+
+    return {
+      weekNumber: wn,
+      games: resolvedGames,
+      warnings: []
+    };
+  });
+
+  // Deduplicate warnings
+  warnings = warnings.filter(function(v, i, a){ return a.indexOf(v) === i; });
+
+  if (!parsedWeeks.length) {
+    showAlert('parseAlerts', 'error', 'No games could be parsed. Check column layout (A=team, B=week, C=opponent, E=score).');
+    return;
+  }
+
+  // ── Build JS output ────────────────────────────────────────────────────────
+  var js = buildJS(parsedWeeks, year, league);
+
+  // ── Show output ────────────────────────────────────────────────────────────
+  document.getElementById('outputSection').classList.add('visible');
+  document.getElementById('outputPre').textContent = js;
+
+  var totalGames = parsedWeeks.reduce(function(a, w) { return a + w.games.length; }, 0);
+  document.getElementById('outputMeta').innerHTML =
+    '<span>' + parsedWeeks.length + ' weeks</span> · ' +
+    '<span>' + totalGames + ' unique games</span>' +
+    (year   ? ' · Season <span>' + year   + '</span>' : '') +
+    ' · <span>' + league + '</span>';
+
+  // Week pills
+  var pillsEl = document.getElementById('weekPreviews');
+  pillsEl.innerHTML = '';
+  parsedWeeks.forEach(function(w) {
+    var pill = document.createElement('div');
+    pill.className = 'week-pill ok';
+    pill.textContent = 'Wk ' + w.weekNumber + ' · ' + w.games.length + 'g';
+    pillsEl.appendChild(pill);
+  });
+
+  // Preview table
+  buildPreviewTable(parsedWeeks);
+
+  if (warnings.length) {
+    showAlert('parseAlerts', 'warn', '⚠ ' + warnings.length + ' warning(s):\n' + warnings.join('\n'));
+  } else {
+    showAlert('parseAlerts', 'ok', '✓ Parsed with no warnings — ' + blocks.length + ' team blocks, ' + totalGames + ' unique games across ' + parsedWeeks.length + ' weeks.');
+  }
+
+  document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ─── Preview table ────────────────────────────────────────────────────────────
+function buildPreviewTable(weeks) {
+  var wrap = document.getElementById('previewTableWrap');
+  var rows = [];
+  weeks.forEach(function(w) {
+    w.games.forEach(function(g) {
+      var hs = parseFloat(g.home.score), as_ = parseFloat(g.away.score);
+      var homeWin = hs > as_;
+      rows.push(
+        '<tr>' +
+        '<td>Wk ' + w.weekNumber + '</td>' +
+        '<td>' + esc(g.home.teamName) + '</td>' +
+        '<td class="' + (homeWin ? 'score-win' : 'score-loss') + '">' + g.home.score + '</td>' +
+        '<td style="color:var(--dim);text-align:center;">vs</td>' +
+        '<td class="' + (!homeWin ? 'score-win' : 'score-loss') + '">' + g.away.score + '</td>' +
+        '<td>' + esc(g.away.teamName) + '</td>' +
+        '</tr>'
+      );
+    });
+  });
+
+  wrap.innerHTML =
+    '<div style="font-family:var(--display);font-size:12px;font-weight:700;margin-top:24px;margin-bottom:8px;">Game Preview</div>' +
+    '<div class="preview-table-wrap">' +
+    '<table><thead><tr><th>Week</th><th>Home</th><th>Score</th><th></th><th>Score</th><th>Away</th></tr></thead>' +
+    '<tbody>' + rows.join('') + '</tbody></table></div>';
+}
+
+// ─── JS builder ───────────────────────────────────────────────────────────────
+function buildJS(weeks, year, league) {
+  var data = {
+    leagueId: league,
+    year: year,
+    weeks: weeks.map(function(w) {
+      return {
+        weekNumber: w.weekNumber,
+        games: w.games.map(function(g) {
+          return {
+            home: { memberId: g.home.memberId, ownerName: g.home.ownerName, teamName: g.home.teamName, score: g.home.score },
+            away: { memberId: g.away.memberId, ownerName: g.away.ownerName, teamName: g.away.teamName, score: g.away.score }
+          };
+        })
+      };
+    })
+  };
+  return [
+    '/**',
+    ' * OFL Weeks Import · ' + league + (year ? ' ' + year : '') + ' · Generated ' + new Date().toLocaleDateString(),
+    ' * Import this file into ofl-data.html using the Import Config button.',
+    ' * It will overwrite the weeks[] for the matching league + year season.',
+    ' */',
+    '',
+    'window.OFL_WEEKS_IMPORT = ' + JSON.stringify(data, null, 2) + ';'
+  ].join('\n');
+}
+
+// ─── Utilities ────────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function showAlert(id, type, msg) {
+  var el  = document.getElementById(id);
+  var div = document.createElement('div');
+  div.className = 'alert alert-' + type;
+  div.textContent = msg;
+  el.appendChild(div);
+}
+
+function clearAlerts(id) { document.getElementById(id).innerHTML = ''; }
+
+function copyOutput() {
+  navigator.clipboard.writeText(document.getElementById('outputPre').textContent).then(function() {
+    var f = document.getElementById('copiedFlash');
+    f.classList.add('show');
+    setTimeout(function(){ f.classList.remove('show'); }, 2000);
+  });
+}
+
+function downloadJS() {
+  var text  = document.getElementById('outputPre').textContent;
+  var year  = document.getElementById('seasonYear').value.trim();
+  var league = document.getElementById('leagueId').value;
+  var filename = 'ofl-weeks-' + league.toLowerCase() + (year ? '-' + year : '') + '.js';
+  var blob  = new Blob([text], { type: 'text/javascript;charset=utf-8' });
+  var url   = URL.createObjectURL(blob);
+  var a     = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
