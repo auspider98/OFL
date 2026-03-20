@@ -63,9 +63,9 @@
     /* Identity cell */
     .brc-ident-cell { text-align: left; }
     .brc-ident-cell span { display: block; }
-    .brc-ident-owner   { font-size: 0.8rem; font-weight: 600; color: var(--accent); }
-    .brc-ident-bracket { font-size: 0.72rem; color: var(--accent-dim); }
-    .brc-ident-champ   { font-size: 0.65rem; color: var(--hint-color, var(--accent-dim)); font-style: italic; }
+    .brc-ident-bracket { font-size: 0.8rem; font-weight: 600; color: var(--accent); }
+    .brc-ident-owner   { font-size: 0.72rem; color: var(--accent-dim); }
+    .brc-ident-champ   { font-size: 0.65rem; color: var(--hint-color, var(--accent)); font-style: italic; }
 
     /* Round + Total cols */
     .brc-round-col,
@@ -364,9 +364,9 @@
 
           // Identity cell — owner / bracket name / predicted champion stacked
           var identLines = [];
-          if (row.owner || row.ownerName) identLines.push('<span class="brc-ident-owner">' + esc(row.owner || row.ownerName) + '</span>');
           var bName = row.bracketName || row.teamName || '';
           if (bName) identLines.push('<span class="brc-ident-bracket">' + esc(bName) + '</span>');
+          if (row.owner || row.ownerName) identLines.push('<span class="brc-ident-owner">' + esc(row.owner || row.ownerName) + '</span>');
           if (row.predictedChampion) identLines.push('<span class="brc-ident-champ">' + esc(row.predictedChampion) + '</span>');
           tdCells += '<td class="brc-ident-cell">' + identLines.join('') + '</td>';
 
