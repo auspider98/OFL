@@ -54,11 +54,30 @@
     .brc-standings-table {
       width: 100%; table-layout: auto;
       border-collapse: separate; border-spacing: 0;
+      font-family: var(--font-body);
+      font-size: 0.75rem;
     }
 
     /* Every cell — solid black, no exceptions, no hover */
     .brc-standings-table th,
     .brc-standings-table td { vertical-align: middle; background: #000 !important; }
+
+    /* Header cells */
+    .brc-standings-table th {
+      font-weight: 300; font-size: 0.58rem;
+      letter-spacing: 0.35em; text-transform: uppercase;
+      color: var(--accent-dim); text-align: left;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--drawer-border);
+      opacity: 0.7;
+    }
+
+    /* Body cells */
+    .brc-standings-table td {
+      padding: 0.65rem 0.75rem;
+      border-bottom: 1px solid rgba(232,232,232,0.04);
+      color: var(--accent); letter-spacing: 0.08em;
+    }
 
     /* Sticky left: rank */
     .brc-standings-table .standings-rank-cell {
@@ -413,7 +432,7 @@
           return '<tr>' + tdCells + '</tr>';
         }).join('');
 
-        return '<div class="brc-standings-wrap"><table class="league-standings-table brc-standings-table"><thead><tr>' +
+        return '<div class="brc-standings-wrap"><table class="brc-standings-table"><thead><tr>' +
           thCells + '</tr></thead><tbody>' + tbodyRows + '</tbody></table></div>';
       }
 
