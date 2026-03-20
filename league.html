@@ -50,7 +50,11 @@
     }
 
     /* ── BRC standings table ────────────────────── */
-    .brc-standings-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .brc-standings-wrap {
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
     .brc-standings-table {
       width: 100%; table-layout: auto;
       border-collapse: separate; border-spacing: 0;
@@ -1170,11 +1174,14 @@
         else if (key === 'standings') {
           if (!current) return;
           sectionEl = document.createElement('div');
+          var standingsHtml = renderStandingsTable(current, league, config);
+          var standingsWrap = (league.sport === 'madness')
+            ? standingsHtml
+            : '<div class="league-standings-wrap">' + standingsHtml + '</div>';
           sectionEl.innerHTML =
             '<div class="league-section-heading">' + (isFinal ? 'Final Standings' : 'Standings') +
               (current.year ? ' \u2014 ' + esc(current.year) : '') +
-            '</div>' +
-            '<div class="league-standings-wrap">' + renderStandingsTable(current, league, config) + '</div>';
+            '</div>' + standingsWrap;
         }
 
         // ── Playoff Bracket ───────────────────────────────
