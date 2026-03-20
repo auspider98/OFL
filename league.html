@@ -365,12 +365,13 @@
         // Build thead
         var thCells = '';
         var identLeft = showRank ? '2rem' : '0';
-        if (showRank) thCells += '<th class="standings-rank-cell">#</th>';
-        thCells += '<th class="brc-ident-col" style="left:' + identLeft + '">Bracket</th>';
+        var BG = 'background:#000;';
+        if (showRank) thCells += '<th class="standings-rank-cell" style="' + BG + '">#</th>';
+        thCells += '<th class="brc-ident-col" style="' + BG + 'left:' + identLeft + '">Bracket</th>';
         activeRoundIndices.forEach(function (rIdx) {
-          thCells += '<th class="brc-round-col">' + esc(ROUND_LABELS[rIdx]) + '</th>';
+          thCells += '<th class="brc-round-col" style="' + BG + '">' + esc(ROUND_LABELS[rIdx]) + '</th>';
         });
-        if (showTotal) thCells += '<th class="brc-total-col">Total</th>';
+        if (showTotal) thCells += '<th class="brc-total-col" style="' + BG + '">Total</th>';
 
         // Build tbody
         var tbodyRows = rows.map(function (row, i) {
@@ -378,7 +379,7 @@
 
           // Rank
           if (showRank) {
-            tdCells += '<td class="standings-rank-cell">' + esc(row.rank || (i + 1)) + '</td>';
+            tdCells += '<td class="standings-rank-cell" style="' + BG + '">' + esc(row.rank || (i + 1)) + '</td>';
           }
 
           // Identity cell — bracket name / owner / predicted champion stacked
@@ -387,13 +388,13 @@
           if (bName) identLines.push('<span class="brc-ident-bracket">' + esc(bName) + '</span>');
           if (row.owner || row.ownerName) identLines.push('<span class="brc-ident-owner">' + esc(row.owner || row.ownerName) + '</span>');
           if (row.predictedChampion) identLines.push('<span class="brc-ident-champ">' + esc(row.predictedChampion) + '</span>');
-          tdCells += '<td class="brc-ident-cell" style="left:' + identLeft + '">' + identLines.join('') + '</td>';
+          tdCells += '<td class="brc-ident-cell" style="' + BG + 'left:' + identLeft + '">' + identLines.join('') + '</td>';
 
           // Round cells
           activeRoundIndices.forEach(function (rIdx) {
             var pts   = (row.pointsByRound || [])[rIdx];
             var ptsVal = (pts !== undefined && pts !== '' && pts !== 0) ? pts : '—';
-            tdCells += '<td class="brc-round-col brc-round-cell">' +
+            tdCells += '<td class="brc-round-col brc-round-cell" style="' + BG + '">' +
               '<span class="brc-cell-pts">' + esc(ptsVal) + '</span>' +
             '</td>';
           });
@@ -402,7 +403,7 @@
           if (showTotal) {
             var totPts   = (row.totalPoints  !== undefined && row.totalPoints  !== '') ? row.totalPoints  : '—';
             var totPicks = (row.correctPicks !== undefined && row.correctPicks !== '') ? row.correctPicks : '—';
-            tdCells += '<td class="brc-total-col brc-total-cell">' +
+            tdCells += '<td class="brc-total-col brc-total-cell" style="' + BG + '">' +
               '<span class="brc-cell-pts">'   + esc(totPts)   + '</span>' +
               '<span class="brc-cell-sep">/</span>' +
               '<span class="brc-cell-picks">' + esc(totPicks) + '</span>' +
