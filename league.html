@@ -1243,6 +1243,16 @@
         revealDelay += 0.15;
         isFirst = false;
         body.appendChild(sectionEl);
+
+        // For BRC, scroll the wrap so the last active round is visible on load
+        if (key === 'standings' && league.sport === 'madness') {
+          requestAnimationFrame(function () {
+            var wrap = sectionEl.querySelector('.brc-standings-wrap');
+            if (!wrap) return;
+            // Scroll fully right so the latest round is visible before the Total col
+            wrap.scrollLeft = wrap.scrollWidth - wrap.clientWidth;
+          });
+        }
       });
 
       // ── Footer (always)
