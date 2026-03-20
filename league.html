@@ -54,19 +54,11 @@
     .brc-standings-table {
       width: 100%; table-layout: auto;
       border-collapse: separate; border-spacing: 0;
-      background: #111; /* opaque base — cells inherit this */
     }
 
-    /* All cells inherit the row/table background — critical for sticky cells on hover */
+    /* Every cell — solid black, no exceptions, no hover */
     .brc-standings-table th,
-    .brc-standings-table td { vertical-align: middle; background: inherit; }
-
-    /* thead sits on its own opaque surface */
-    .brc-standings-table thead tr { background: #111; }
-
-    /* tbody rows alternate/hover — all fully opaque */
-    .brc-standings-table tbody tr         { background: #111; }
-    .brc-standings-table tbody tr:hover   { background: #1c1c1c; }
+    .brc-standings-table td { vertical-align: middle; background: #000 !important; }
 
     /* Sticky left: rank */
     .brc-standings-table .standings-rank-cell {
