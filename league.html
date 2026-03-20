@@ -50,15 +50,34 @@
     }
 
     /* ── BRC standings table ────────────────────── */
-    .brc-standings-table { width: auto; min-width: 0; table-layout: auto; }
+    .brc-standings-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .brc-standings-table { width: 100%; table-layout: auto; border-collapse: separate; border-spacing: 0; }
     .brc-standings-table th,
     .brc-standings-table td { vertical-align: middle; }
 
-    /* Column widths */
-    .brc-standings-table .standings-rank-cell { width: 2rem; }
-    .brc-ident-col  { width: auto; }
-    .brc-round-col  { width: 4.5rem; }
-    .brc-total-col  { width: 5rem; }
+    /* Sticky left: rank */
+    .brc-standings-table .standings-rank-cell {
+      position: sticky; left: 0; z-index: 2;
+      background: var(--bg, #0a0a0a);
+      width: 2rem; min-width: 2rem;
+    }
+    /* Sticky left: bracket identity col — offset set inline based on rank visibility */
+    .brc-ident-col,
+    .brc-ident-cell {
+      position: sticky; z-index: 2;
+      background: var(--bg, #0a0a0a);
+      min-width: 8rem;
+    }
+    /* Sticky right: total col */
+    .brc-total-col,
+    .brc-total-cell {
+      position: sticky; right: 0; z-index: 2;
+      background: var(--bg, #0a0a0a);
+      width: 5rem; min-width: 5rem;
+    }
+
+    /* Round cols — not sticky, scroll freely */
+    .brc-round-col { width: 4.5rem; min-width: 4rem; text-align: center; white-space: nowrap; }
 
     /* Identity cell */
     .brc-ident-cell { text-align: left; }
@@ -67,8 +86,7 @@
     .brc-ident-owner   { font-size: 0.72rem; color: var(--accent-dim); }
     .brc-ident-champ   { font-size: 0.65rem; color: var(--hint-color, var(--accent)); font-style: italic; }
 
-    /* Round + Total cols */
-    .brc-round-col,
+    /* Round + Total shared */
     .brc-total-col  { text-align: center; white-space: nowrap; }
     .brc-round-cell,
     .brc-total-cell { font-size: 0.75rem; white-space: nowrap; }
@@ -346,8 +364,9 @@
 
         // Build thead
         var thCells = '';
+        var identLeft = showRank ? '2rem' : '0';
         if (showRank) thCells += '<th class="standings-rank-cell">#</th>';
-        thCells += '<th class="brc-ident-col">Bracket</th>';
+        thCells += '<th class="brc-ident-col" style="left:' + identLeft + '">Bracket</th>';
         activeRoundIndices.forEach(function (rIdx) {
           thCells += '<th class="brc-round-col">' + esc(ROUND_LABELS[rIdx]) + '</th>';
         });
@@ -362,13 +381,13 @@
             tdCells += '<td class="standings-rank-cell">' + esc(row.rank || (i + 1)) + '</td>';
           }
 
-          // Identity cell — owner / bracket name / predicted champion stacked
+          // Identity cell — bracket name / owner / predicted champion stacked
           var identLines = [];
           var bName = row.bracketName || row.teamName || '';
           if (bName) identLines.push('<span class="brc-ident-bracket">' + esc(bName) + '</span>');
           if (row.owner || row.ownerName) identLines.push('<span class="brc-ident-owner">' + esc(row.owner || row.ownerName) + '</span>');
           if (row.predictedChampion) identLines.push('<span class="brc-ident-champ">' + esc(row.predictedChampion) + '</span>');
-          tdCells += '<td class="brc-ident-cell">' + identLines.join('') + '</td>';
+          tdCells += '<td class="brc-ident-cell" style="left:' + identLeft + '">' + identLines.join('') + '</td>';
 
           // Round cells
           activeRoundIndices.forEach(function (rIdx) {
@@ -393,8 +412,8 @@
           return '<tr>' + tdCells + '</tr>';
         }).join('');
 
-        return '<table class="league-standings-table brc-standings-table"><thead><tr>' +
-          thCells + '</tr></thead><tbody>' + tbodyRows + '</tbody></table>';
+        return '<div class="brc-standings-wrap"><table class="league-standings-table brc-standings-table"><thead><tr>' +
+          thCells + '</tr></thead><tbody>' + tbodyRows + '</tbody></table></div>';
       }
 
       // ── Football / other layout ──────────────────────────
