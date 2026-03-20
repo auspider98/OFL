@@ -51,17 +51,22 @@
 
     /* ── BRC standings table ────────────────────── */
     .brc-standings-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .brc-standings-table { width: 100%; table-layout: auto; border-collapse: separate; border-spacing: 0; }
-    .brc-standings-table th,
-    .brc-standings-table td {
-      vertical-align: middle;
-      background: var(--table-row-bg, transparent);
+    .brc-standings-table {
+      width: 100%; table-layout: auto;
+      border-collapse: separate; border-spacing: 0;
+      background: #111; /* opaque base — cells inherit this */
     }
 
-    /* All cells get an explicit base background so nothing is transparent */
-    .brc-standings-table thead th { background: var(--bg, #0a0a0a); }
-    .brc-standings-table tbody td { background: var(--bg, #0a0a0a); }
-    .brc-standings-table tbody tr:hover td { background: var(--table-row-hover, rgba(255,255,255,0.04)); }
+    /* All cells inherit the row/table background — critical for sticky cells on hover */
+    .brc-standings-table th,
+    .brc-standings-table td { vertical-align: middle; background: inherit; }
+
+    /* thead sits on its own opaque surface */
+    .brc-standings-table thead tr { background: #111; }
+
+    /* tbody rows alternate/hover — all fully opaque */
+    .brc-standings-table tbody tr         { background: #111; }
+    .brc-standings-table tbody tr:hover   { background: #1c1c1c; }
 
     /* Sticky left: rank */
     .brc-standings-table .standings-rank-cell {
@@ -70,10 +75,8 @@
     }
     /* Sticky left: bracket identity col — left offset set inline */
     .brc-ident-col,
-    .brc-ident-cell {
-      position: sticky; z-index: 2;
-      min-width: 8rem;
-    }
+    .brc-ident-cell { position: sticky; z-index: 2; min-width: 8rem; }
+
     /* Sticky right: total col */
     .brc-total-col,
     .brc-total-cell {
