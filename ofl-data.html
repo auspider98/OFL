@@ -3072,7 +3072,54 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
           var text   = ev.target.result;
 
-          // Try ofl-data.js format first (OFL_DATA), then fall back to admin-config.js (SITE_CONFIG_DEFAULTS)
+          // ── Check for BRC Standings import first ──────────────
+          var brcImport = extractBrcStandingsImport(text);
+          if (brcImport) {
+            var brcLeague = (workingConfig.leagueData || []).find(function (lg) { return lg.id === brcImport.leagueId; });
+            if (!brcLeague) throw new Error('League "' + brcImport.leagueId + '" not found. Import ofl-data.js first.');
+            var brcSeason = (brcLeague.seasons || []).find(function (s) { return String(s.year) === String(brcImport.year); });
+            if (!brcSeason) throw new Error('No ' + brcImport.year + ' season found in league ' + brcImport.leagueId + '. Check the year in the import file.');
+            var matched = 0, unmatched = [];
+            (brcImport.entries || []).forEach(function (entry) {
+              var row = (brcSeason.standings || []).find(function (r) { return r.memberId === entry.memberId; });
+              if (row) {
+                row.pointsByRound = entry.pointsByRound;
+                matched++;
+              } else {
+                unmatched.push(entry.memberId);
+              }
+            });
+            // Recalculate totals and re-sort standings from pointsByRound + pointsStructure
+            var structure = brcSeason.pointsStructure || [];
+            (brcSeason.standings || []).forEach(function (row) {
+              if (!row.pointsByRound || !row.pointsByRound.some(function(v){ return (parseFloat(v)||0) > 0; })) return;
+              row.pointsByRound.forEach(function (pts, i) {
+                var ptsVal    = parseFloat(pts) || 0;
+                var ptsPerPick = parseFloat(structure[i]) || 0;
+                if (!row.picksByRound) row.picksByRound = [0,0,0,0,0,0];
+                row.picksByRound[i] = ptsPerPick > 0 ? Math.round(ptsVal / ptsPerPick) : 0;
+              });
+              row.totalPoints  = row.pointsByRound.reduce(function(s,v){ return s + (parseFloat(v)||0); }, 0);
+              row.correctPicks = row.picksByRound.reduce(function(s,v){ return s + (parseFloat(v)||0); }, 0);
+            });
+            brcSeason.standings.sort(function (a, b) {
+              return (parseFloat(b.totalPoints)||0) - (parseFloat(a.totalPoints)||0);
+            });
+            brcSeason.standings.forEach(function (r, i) { r.rank = i + 1; });
+            localStorage.setItem('ofc_data_config', JSON.stringify(workingConfig));
+            if (window.SITE_CONFIG) {
+              window.SITE_CONFIG.masterRoster = workingConfig.masterRoster;
+              window.SITE_CONFIG.leagueData   = workingConfig.leagueData;
+            }
+            populateAllFields(); markClean();
+            var msg = '✓  BRC scores imported — ' + matched + ' brackets updated for ' + brcImport.year;
+            if (unmatched.length) msg += ' (⚠ ' + unmatched.length + ' unmatched: ' + unmatched.join(', ') + ')';
+            showToast(msg, unmatched.length ? 5000 : 3000);
+            e.target.value = '';
+            return;
+          }
+
+          // ── Try ofl-data.js format (OFL_DATA), then admin-config.js fallback ──
           var parsed = extractDataConfig(text);
           var source = 'ofl-data.js';
           if (!parsed) {
@@ -3082,7 +3129,7 @@ document.addEventListener('DOMContentLoaded', function () {
               source = 'admin-config.js';
             }
           }
-          if (!parsed) throw new Error('Could not find roster/league data. Import either ofl-data.js or admin-config.js.');
+          if (!parsed) throw new Error('Could not find roster/league data. Import either ofl-data.js, admin-config.js, or a BRC standings import file.');
 
           if (parsed.masterRoster) workingConfig.masterRoster = parsed.masterRoster;
           if (parsed.leagueData)   workingConfig.leagueData   = parsed.leagueData;
@@ -3100,6 +3147,15 @@ document.addEventListener('DOMContentLoaded', function () {
       };
       reader.readAsText(file);
     });
+
+    function extractBrcStandingsImport(text) {
+      try {
+        var fn = new Function('var window = {}; var OFL_BRC_STANDINGS_IMPORT; ' + text + '; return typeof OFL_BRC_STANDINGS_IMPORT !== "undefined" ? OFL_BRC_STANDINGS_IMPORT : window.OFL_BRC_STANDINGS_IMPORT || null;');
+        var r = fn();
+        if (r && r.leagueId && r.year && Array.isArray(r.entries)) return r;
+      } catch (e) { /* fall through */ }
+      return null;
+    }
 
     function extractDataConfig(text) {
       try {
