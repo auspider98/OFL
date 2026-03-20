@@ -83,11 +83,14 @@
       color: var(--accent); letter-spacing: 0.08em;
     }
 
-    /* Sticky left: rank */
+    /* Sticky left: rank — override standings-rank-cell opacity:0.5 from style.css */
     .brc-standings-table .standings-rank-cell {
       position: sticky; left: 0; z-index: 2;
       width: 2rem; min-width: 2rem;
+      opacity: 1 !important;
     }
+    /* Override th opacity:0.7 from style.css on all BRC headers */
+    .brc-standings-table th { opacity: 1 !important; }
     /* Sticky left: bracket identity col — left offset set inline */
     .brc-ident-col,
     .brc-ident-cell { position: sticky; z-index: 2; min-width: 8rem; }
