@@ -371,6 +371,46 @@
         var showRounds = colVisible('rounds');
         var showTotal  = colVisible('totalPoints') || colVisible('correctPicks');
 
+        // ── Auto-sort rows by totalPoints, tiebreak by predicted score proximity
+        var actualTotal = null;
+        var fsw = parseFloat(season.finalScoreWinner);
+        var fsl = parseFloat(season.finalScoreLoser);
+        if (!isNaN(fsw) && !isNaN(fsl) && (fsw + fsl) > 0) {
+          actualTotal = fsw + fsl;
+        }
+
+        rows = rows.slice().sort(function (a, b) {
+          var ptsDiff = (parseFloat(b.totalPoints) || 0) - (parseFloat(a.totalPoints) || 0);
+          if (ptsDiff !== 0) return ptsDiff;
+          // Tiebreak: closest predicted combined score to actual
+          if (actualTotal !== null) {
+            var aPred = (parseFloat(a.predictedScoreWinner) || 0) + (parseFloat(a.predictedScoreLoser) || 0);
+            var bPred = (parseFloat(b.predictedScoreWinner) || 0) + (parseFloat(b.predictedScoreLoser) || 0);
+            var aDiff = Math.abs(aPred - actualTotal);
+            var bDiff = Math.abs(bPred - actualTotal);
+            return aDiff - bDiff;
+          }
+          return 0; // keep stored order on ties if no final scores
+        });
+
+        // ── Assign ranks with gaps on ties (1,1,3 style)
+        var rankedRows = rows.map(function (row, i) {
+          return { row: row, sortPts: parseFloat(row.totalPoints) || 0 };
+        });
+        var rankCounter = 1;
+        rankedRows.forEach(function (item, i) {
+          if (i === 0) {
+            item.displayRank = 1;
+          } else {
+            var prev = rankedRows[i - 1];
+            if (item.sortPts === prev.sortPts) {
+              item.displayRank = prev.displayRank; // tied — same rank
+            } else {
+              item.displayRank = i + 1; // gap after tie
+            }
+          }
+        });
+
         // Abbreviated round labels (index 0–5)
         var ROUND_LABELS = ['R64', 'R32', 'S16', 'E8', 'F4', 'Final'];
 
@@ -400,12 +440,13 @@
         if (showTotal) thCells += '<th class="brc-total-col" style="' + BG + '">Total</th>';
 
         // Build tbody
-        var tbodyRows = rows.map(function (row, i) {
+        var tbodyRows = rankedRows.map(function (item) {
+          var row = item.row;
           var tdCells = '';
 
           // Rank
           if (showRank) {
-            tdCells += '<td class="standings-rank-cell" style="' + BG + '">' + esc(row.rank || (i + 1)) + '</td>';
+            tdCells += '<td class="standings-rank-cell" style="' + BG + '">' + esc(item.displayRank) + '</td>';
           }
 
           // Identity cell — bracket name / owner / predicted champion stacked
