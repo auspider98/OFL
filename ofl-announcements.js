@@ -1,6 +1,6 @@
 /**
  * ofl-announcements.js — Commissioner Broadcast Data
- * Generated: 3/21/2026, 1:28:16 AM
+ * Generated: 3/21/2026, 11:05:47 AM
  *
  * Drop this file next to index.html and add:
  *   <script src="ofl-announcements.js"></script>
@@ -8,6 +8,35 @@
  * The renderer will use this data if localStorage is empty.
  */
 var OFL_ANNOUNCEMENTS = [
+  {
+    "id": "ann_mn0gihze_g41f",
+    "title": "Round of 32",
+    "body": "<font size=\"3\"><b>Champion Watch</b></font><div><br></div><div>Six brackets are riding Duke. If the Blue Devils go down at any point, we're looking at a full leaderboard explosion. The Michigan contingent (Auburn and Sonya) is the second biggest bet, and Emery's Michigan State pick remains the boldest swing in the pool. Sherry Beth and Spider are quietly holding down the Arizona flag, and Kayla's UConn pick is the kind of chaos pick that either looks genius or gets forgotten quickly.</div><div><br></div><div><font size=\"3\"><b>Games to Watch Today</b></font></div><div><br></div><div><span style=\"font-size: 0.85rem; letter-spacing: 0.02em;\"><b>Michigan vs. Saint Louis — 12:10 PM EDT</b></span></div><div><span style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">Saint Louis just knocked off Georgia in the Round of 64. Auburn and Sonya both need Michigan to survive for their championship hopes. If the Wolverines fall here, two title picks are toast before Saturday is over.</span></div><div><br></div><div><span style=\"font-size: 0.85rem; letter-spacing: 0.02em;\"><b>Michigan State vs. Louisville — 2:45 PM EDT</b></span></div><div>Emery's entire championship run depends on the Spartans staying alive. Louisville is no pushover, and this is the first real test for the Michigan State pick that could win Emery the whole pool.</div><div><br></div><div><span style=\"font-size: 0.85rem; letter-spacing: 0.02em;\"><b>Duke vs. TCU — 5:15 PM EDT</b></span></div><div>The biggest bracket-critical game of the day — and maybe the tournament. Six brackets have Duke winning it all. If the Blue Devils go down to TCU, Ansley, Evan, Bubba, William, Amy, and Big Rob all take a massive hit simultaneously. Must-watch TV.</div><div><br></div><div><b>Houston vs. Texas A&amp;M — 6:10 PM EDT</b></div><div><span style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">A battle of Texas schools that has real upset potential. Several brackets have Houston making a deep run — a loss here scrambles the South region picks in a hurry.</span></div><div><br></div><div><span style=\"font-size: 0.85rem; letter-spacing: 0.02em;\"><b>Gonzaga vs. Texas — 7:10 PM EDT</b></span></div><div><span style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">Gonzaga is a popular deep run pick across several brackets. Texas is dangerous. If the Bulldogs stumble here, a lot of West region paths get redrawn overnight.</span></div><div><br></div><div><span style=\"font-size: 0.85rem; letter-spacing: 0.02em;\"><b>Illinois vs. VCU — 7:50 PM EDT</b></span></div><div><span style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">VCU already pulled off the North Carolina upset in overtime. Can they do it again? Illinois is a solid 3-seed but VCU is battle-tested and peaking at the right time.</span></div><div><br></div><div><span style=\"font-size: 0.85rem; letter-spacing: 0.02em;\"><b>Nebraska vs. Vanderbilt — 8:45 PM EDT</b></span></div><div><span style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">Several brackets have Vanderbilt making noise in the South. Nebraska is the surprise here — this one could go either way and directly impacts South region picks.</span></div><div><br></div><div><span style=\"font-size: 0.85rem; letter-spacing: 0.02em;\"><b>Arkansas vs. High Point — 9:45 PM EDT</b></span></div><div><span style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">High Point already stunned Wisconsin by a single point. Can the Panthers keep the magic going against Arkansas? A second straight upset would be one of the stories of the tournament.</span></div><div><br></div><div><span style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">Good luck everyone. Duke tips off at 5:15 — clear your afternoon.</span></div><div><br></div><div><span style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">— Your BRC Commissioner</span></div>",
+    "style": "dispatch",
+    "position": "",
+    "ribbonLayout": "float",
+    "marqueeLabel": "",
+    "showMarqueeLabel": true,
+    "marqueeLabelColor": "",
+    "marqueeSpeed": "medium",
+    "entryAnimation": "slide-up",
+    "idleAnimation": "shimmer",
+    "letterheadUrl": "assets/logos/BRC.png",
+    "eyebrow": "",
+    "letterheadHeight": 60,
+    "watermarkUrl": "",
+    "watermarkOpacity": 0.07,
+    "showDismiss": true,
+    "active": true,
+    "startDate": "2026-03-21T12:30",
+    "endDate": "2026-03-21T23:59",
+    "pages": [
+      "league-brc"
+    ],
+    "dismissBehavior": "session",
+    "autoDismiss": false,
+    "autoDismissSecs": 10
+  },
   {
     "id": "ann_mmyy6sdw_nt6p",
     "title": "Into the Round of 32",
@@ -29,7 +58,7 @@ var OFL_ANNOUNCEMENTS = [
     "showDismiss": true,
     "active": true,
     "startDate": "",
-    "endDate": "2026-03-21T15:15",
+    "endDate": "2026-03-21T12:29",
     "pages": [
       "league-brc"
     ],
