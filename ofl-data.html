@@ -2013,6 +2013,7 @@ document.addEventListener('DOMContentLoaded', function () {
             '</label>';
           finalRow.querySelector('.s-is-final').addEventListener('change', function () {
             season.isFinal = this.checked;
+            if (this.checked) deriveFromStandings();
             markDirty();
           });
           sec.appendChild(finalRow);

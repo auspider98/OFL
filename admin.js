@@ -103,7 +103,7 @@ var SPORT_STAT_SCHEMAS = {
       },
       {
         key: "mostPointsAgainst",
-        label: "Most Points Against (Unluckiest)",
+        label: "Most Season Points Against",
         awardKey: "mostPointsAgainst",
         type: "owner",
         fromStandings: true,
@@ -113,7 +113,7 @@ var SPORT_STAT_SCHEMAS = {
       },
       {
         key: "lastPlace",
-        label: "Last Place",
+        label: "Last Place Finisher",
         awardKey: "lastPlace",
         type: "owner",
         fromStandings: true,
@@ -123,7 +123,7 @@ var SPORT_STAT_SCHEMAS = {
       },
       {
         key: "closestWin",
-        label: "Closest Win of Season",
+        label: "Closest Win of the Season",
         awardKey: "closestWin",
         type: "owner",
         subFields: [
@@ -199,7 +199,7 @@ var SPORT_STAT_SCHEMAS = {
       },
       {
         key: "perfectBracketThrough",
-        label: "Perfect Bracket Through Round",
+        label: "Longest Lasting Perfect Bracket",
         awardKey: "perfectBracketThrough",
         type: "owner",
         multiWinner: true,
@@ -209,7 +209,7 @@ var SPORT_STAT_SCHEMAS = {
       },
       {
         key: "earliestBust",
-        label: "Earliest Bracket Bust",
+        label: "Earliest to Lose Champion",
         awardKey: "earliestBust",
         type: "owner",
         subFields: [
@@ -218,28 +218,24 @@ var SPORT_STAT_SCHEMAS = {
       },
       {
         key: "cinderellaPick",
-        label: "Best Cinderella Pick",
+        label: "Highest Seed in the Elite Eight",
         awardKey: "cinderellaPick",
         type: "owner",
-        subFields: [
-          { key: "team", label: "Upset Team", type: "text" },
-          { key: "round", label: "Round", type: "roundDropdown" }
-        ]
+        subFields: []
       },
       {
         key: "bestSingleRound",
-        label: "Most Points — Single Round",
+        label: "Most Points in the First Round",
         awardKey: "bestSingleRound",
         type: "owner",
         multiWinner: true,
         subFields: [
-          { key: "round", label: "Round", type: "roundDropdown" },
           { key: "points", label: "Points", type: "number" }
         ]
       },
       {
         key: "finalFourCorrect",
-        label: "Final Four Correctly Predicted",
+        label: "Most Final Four Teams with Points",
         awardKey: "finalFourCorrect",
         type: "owner",
         multiWinner: true,
@@ -247,7 +243,7 @@ var SPORT_STAT_SCHEMAS = {
       },
       {
         key: "championshipCorrect",
-        label: "Championship Game Correctly Predicted",
+        label: "Predicted the Most Upsets",
         awardKey: "championshipCorrect",
         type: "owner",
         multiWinner: true,
@@ -268,19 +264,18 @@ var SPORT_STAT_SCHEMAS = {
       { key: "champion",              defaultLabel: "The Bracket King",        hint: "Winning Bracket" },
       { key: "runnerUp",              defaultLabel: "Runner-Up",               hint: "Season Runner-Up" },
       { key: "mostCorrectPicks",      defaultLabel: "The Oracle",              hint: "Most Correct Picks" },
-      { key: "cinderellaPick",        defaultLabel: "The Cinderella Chaser",   hint: "Highest Seed in the Final Four" },
+      { key: "cinderellaPick",        defaultLabel: "The Cinderella Chaser",   hint: "Highest Seed in the Elite Eight" },
       { key: "earliestBust",          defaultLabel: "The First Out",           hint: "Earliest to Lose Champion" },
       { key: "lastPlace",             defaultLabel: "The Participation Cup",   hint: "Last Place / Worst Bracket" },
       { key: "championshipCorrect",   defaultLabel: "The Crystal Ball",        hint: "Predicted the Most Upsets" },
       { key: "bestSingleRound",       defaultLabel: "The Round Dominator",     hint: "Most Points in the First Round" },
-      { key: "finalFourCorrect",      defaultLabel: "The Prophet",             hint: "Most Final Four Teams" },
+      { key: "finalFourCorrect",      defaultLabel: "The Prophet",             hint: "Most Final Four Teams with Points" },
       { key: "perfectBracketThrough", defaultLabel: "The Unblemished",         hint: "Longest Lasting Perfect Bracket" }
     ],
     standingsColumns: [
       { key: "rank",         label: "#" },
       { key: "owner",        label: "Owner" },
       { key: "bracketName",  label: "Bracket Name" },
-      { key: "rounds",       label: "Round Columns" },
       { key: "totalPoints",  label: "Total Points" },
       { key: "correctPicks", label: "Correct Picks" }
     ],
