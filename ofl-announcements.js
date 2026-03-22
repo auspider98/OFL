@@ -1,6 +1,6 @@
 /**
  * ofl-announcements.js — Commissioner Broadcast Data
- * Generated: 3/22/2026, 9:09:35 AM
+ * Generated: 3/22/2026, 9:15:55 AM
  *
  * Drop this file next to index.html and add:
  *   <script src="ofl-announcements.js"></script>
@@ -18,7 +18,7 @@ var OFL_ANNOUNCEMENTS = [
     "marqueeLabel": "R32 Games",
     "showMarqueeLabel": true,
     "marqueeLabelColor": "#1b2b8f",
-    "marqueeSpeed": "slow",
+    "marqueeSpeed": "medium",
     "entryAnimation": "slide-up",
     "idleAnimation": "shimmer",
     "letterheadUrl": "",
@@ -28,10 +28,11 @@ var OFL_ANNOUNCEMENTS = [
     "watermarkOpacity": "",
     "showDismiss": false,
     "active": true,
-    "startDate": "",
+    "startDate": "2026-03-22T15:31",
     "endDate": "2026-03-22T23:00",
     "pages": [
-      "home"
+      "home",
+      "league-brc"
     ],
     "dismissBehavior": "always",
     "autoDismiss": false,
