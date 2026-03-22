@@ -367,13 +367,19 @@
     var track = document.createElement('div');
     track.className = 'ann-marquee-track';
 
-    var text   = (ann.title ? ann.title + (ann.body ? ' · ' + ann.body : '') : ann.body) || '';
+    // Strip HTML tags from rich-text body to plain text
+    var bodyDiv = document.createElement('div');
+    bodyDiv.innerHTML = ann.body || '';
+    var bodyText = bodyDiv.textContent || bodyDiv.innerText || '';
+
+    var text   = (ann.title ? ann.title + (bodyText ? ' · ' + bodyText : '') : bodyText) || '';
     var unit   = text + '  ·  ';
     var padded = unit + unit + unit + unit + unit + unit + unit + unit + unit + unit;
 
-    // Speed map — duration for the scroll animation
-    var speedMap = { slow: '60s', medium: '35s', fast: '22s', 'very-fast': '12s' };
-    var duration = speedMap[ann.marqueeSpeed] || '35s';
+    // Speed map — chars per second at each setting, so duration scales with message length
+    var charsPerSec = { slow: 1, medium: 3, fast: 5, 'very-fast': 7 };
+    var rate     = charsPerSec[ann.marqueeSpeed] || 20;
+    var duration = Math.max(8, Math.round(text.length / rate)) + 's';
 
     var inner = document.createElement('div');
     inner.className = 'ann-marquee-inner';
