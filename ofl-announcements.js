@@ -1,6 +1,6 @@
 /**
  * ofl-announcements.js — Commissioner Broadcast Data
- * Generated: 3/21/2026, 11:05:47 AM
+ * Generated: 3/22/2026, 9:02:30 AM
  *
  * Drop this file next to index.html and add:
  *   <script src="ofl-announcements.js"></script>
@@ -8,6 +8,35 @@
  * The renderer will use this data if localStorage is empty.
  */
 var OFL_ANNOUNCEMENTS = [
+  {
+    "id": "ann_mn0v06k3_ue24",
+    "title": "",
+    "body": "<div><div><span style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">12:10 p.m.\t(7) Miami (FL) vs. (2) Purdue\tCBS&nbsp; -&nbsp;&nbsp;</span></div></div><div>2:45 p.m.\t(7) Kentucky vs. (2) Iowa State\tCBS&nbsp; -&nbsp;&nbsp;</div><div>5:15 p.m.\t(5) St. John's vs. (4) Kansas\tCBS&nbsp; -&nbsp;&nbsp;</div><div>6:10 p.m.\t(6) Tennessee vs. (3) Virginia\tTNT&nbsp; -&nbsp;&nbsp;</div><div>7:10 p.m.\t(9) Iowa vs. (1) Florida\tTBS&nbsp; -&nbsp;&nbsp;</div><div>7:50 p.m.\t(9) Utah State vs. (1) Arizona\ttruTV&nbsp; -&nbsp;&nbsp;</div><div>8:45 p.m.\t(7) UCLA vs. (2) UConn\tTNT&nbsp; -&nbsp;&nbsp;</div><div>9:45 p.m.\t(5) Texas Tech vs. (4) Alabama\tTBS&nbsp; -&nbsp;&nbsp;</div>",
+    "style": "marquee",
+    "position": "bottom",
+    "ribbonLayout": "float",
+    "marqueeLabel": "R32 Games",
+    "showMarqueeLabel": true,
+    "marqueeLabelColor": "#1b2b8f",
+    "marqueeSpeed": "medium",
+    "entryAnimation": "slide-up",
+    "idleAnimation": "shimmer",
+    "letterheadUrl": "",
+    "eyebrow": "",
+    "letterheadHeight": "",
+    "watermarkUrl": "",
+    "watermarkOpacity": "",
+    "showDismiss": false,
+    "active": true,
+    "startDate": "",
+    "endDate": "2026-03-22T23:00",
+    "pages": [
+      "home"
+    ],
+    "dismissBehavior": "always",
+    "autoDismiss": false,
+    "autoDismissSecs": 10
+  },
   {
     "id": "ann_mn0gihze_g41f",
     "title": "Round of 32",
@@ -39,8 +68,8 @@ var OFL_ANNOUNCEMENTS = [
   },
   {
     "id": "ann_mmyy6sdw_nt6p",
-    "title": "Into the Round of 32",
-    "body": "<p dir=\"ltr\">Day 2 is officially in the books, and if Day 1 was a heart attack, Day 2 was a marathon. We’ve trimmed the field from 64 to 32, and the BRC leaderboard has seen a bit of a shakeup. Some of you are looking like bracket architects, while others are currently holding a pile of digital confetti.</p><p dir=\"ltr\">​Here is the state of the league heading into the weekend:</p><p dir=\"ltr\"><br></p><h3 dir=\"ltr\">​The Leaderboard</h3><div><span style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">We have a new power duo at the top!</span></div><div><span style=\"font-size: 0.85rem; letter-spacing: 0.02em;\"><br></span></div><ul>\n<li dir=\"ltr\">​<b>ans+One (Ansley)</b> and <b>TheChattanoogan (Evan)</b> are officially elite, sitting tied for 1st with a staggering <b>27/32</b> correct picks.</li>\n<li dir=\"ltr\">​<b>Emery (emziemillions)</b>, <b>Bubba</b>, and <b>Auburn’s Time to Shine</b> are breathing down their necks just one point back at <b>26</b>.</li></ul><span style=\"font-size: 13.6px;\"><br></span><ul>\n</ul><h3 dir=\"ltr\">​The Day 2 Damage</h3><p dir=\"ltr\">​While <b>Duke</b> and <b>Purdue</b> took care of business to stabilize most brackets, the \"overtime heartbreaker\" of the day—<b>Kentucky vs. Santa Clara</b>—had fans everywhere questioning the meaning of life.</p><p dir=\"ltr\"><br></p><ul>\n<li dir=\"ltr\">​<b>Ozzies (William):</b> Sitting in a respectable 6th place with 25 points. You’re only two back from the lead—well within striking distance if the Round of 32 goes your way.</li>\n<li dir=\"ltr\">​<b>The \"Wait and See\" Crew:</b> We have a four-way tie for 7th at 24 points (<b>Sonya, Amy, Sherry Beth, and Kayla</b>). You guys are the wild cards; your \"big team\" picks like UConn and Arizona are still alive and kicking.</li>\n<li dir=\"ltr\">​<b>The Basement:</b> <b>Big Rob (ATLiens)</b> is currently pulling up the rear with 21. On the bright side, the only way to go is up!</li></ul><span style=\"font-size: 13.6px;\"><br></span><ul>\n</ul><h3 dir=\"ltr\">​Preview: Round of 32</h3><p dir=\"ltr\">​The stakes just doubled. Today, the points per win go up, and the \"safety net\" of having multiple teams in a region starts to disappear. Keep an eye on these massive matchups:</p><p dir=\"ltr\"><br></p><ul>\n<li dir=\"ltr\">​<b>#1 Michigan vs. #9 Saint Louis:</b> Can the Wolverines keep the momentum, or will the Billikens pull another \"Atlantic 10 surprise\"?</li>\n<li dir=\"ltr\">​<b>#1 Duke vs. #9 TCU:</b> The Blue Devils survived a scare against Siena—will they be more composed against a physical TCU squad that just bounced Ohio State?</li>\n<li dir=\"ltr\">​<b>#3 Michigan State vs. #6 Louisville:</b> A classic battle of blue bloods. This one is going to determine a lot of movement in our Top 5.</li>\n<li dir=\"ltr\">​<b>#4 Arkansas vs. #12 High Point:</b> The \"Cinderella\" story of the tournament. Most of the BRC has Arkansas, but a High Point win would be a total bracket nuker.</li></ul><span style=\"font-size: 13.6px;\"><br></span><ul>\n</ul><p dir=\"ltr\">​<b>Current Commissioner's Advice:</b> If your bracket is already \"bleeding,\" start rooting for the chaos. We need 10-seeds and 12-seeds to win tomorrow to keep the leaders from running away with it.</p><p dir=\"ltr\"><br></p><p dir=\"ltr\">​See you at tip-off!</p><p dir=\"ltr\"><br></p><p data-path-to-node=\"1\">\n\n\n\n\n\n\n\n\n\n\n\n\n</p><p dir=\"ltr\">​<b>— BRC Commissioner</b></p>",
+    "title": "Round of 32 - Day 2",
+    "body": "<p dir=\"ltr\">BRC participants, the Round of 32 is underway and Saturday delivered its own brand of madness — and some brackets felt every bit of it.</p><p dir=\"ltr\"><br></p><p dir=\"ltr\"><font size=\"3\">Saturday's Results</font></p><p dir=\"ltr\">The chalk mostly held today — mostly. Michigan survived Saint Louis, Michigan State handled Louisville, Duke dispatched TCU without drama, Houston took care of Texas A&amp;M, Illinois beat VCU, Nebraska edged out Vanderbilt, and Arkansas sent High Point home after their Cinderella run. But the upset of the day? Texas knocked off Gonzaga, sending shockwaves through the West region and scrambling several bracket paths in a hurry. If you had the Bulldogs making a deep run, today stung.</p><p dir=\"ltr\"><br></p><p dir=\"ltr\"><font size=\"3\">Biggest Movers</font></p><p dir=\"ltr\">The story of the day is the shakeup at the top. Evan's TheChattanoogan vaults into sole possession of 1st place after a perfect 12-point Saturday. Bubba and Auburn are right on his heels, making this a genuine three-way title race at the top.</p><p dir=\"ltr\">The biggest surprise of the day? theWeb (spider) — who started the tournament in the basement — put up a perfect 12-point Round of 32 day and has moved up to 8th, very much back in the conversation. Never count out the crawlers.</p><p dir=\"ltr\">On the flip side, emziemillions (Emery) had the toughest day of the contenders with only 8 points, dropping from 3rd into a 9th place tie. The Michigan State championship pick is still alive, but Emery needs a big Sunday to stay in the hunt.</p><p dir=\"ltr\">Ozzies (William) also stumbled with only 8 points, sliding from 6th down to a tie for 11th. The Gonzaga upset hurt William's bracket more than most.</p><p dir=\"ltr\"><span style=\"font-size: 0.85rem; letter-spacing: 0.02em;\"><br></span></p><p dir=\"ltr\"><span style=\"letter-spacing: 0.02em;\"><font size=\"3\">The Championship Picture</font></span></p><p dir=\"ltr\">The Duke coalition is still very much intact — Evan, Bubba, Amy, William, Big Rob, and Ansley are all riding the Blue Devils. But with Michigan, Arizona, UConn, Michigan State, and Florida all still alive, this pool is far from decided. Sonya and Auburn's Michigan picks are looking increasingly dangerous, and Kayla's UConn pick is quietly sitting in 5th place.</p><p dir=\"ltr\"><br></p><p dir=\"ltr\"><font size=\"3\">What to Watch Today</font></p><p dir=\"ltr\">Sunday's slate is loaded with bracket-critical matchups:</p><p dir=\"ltr\"><font size=\"2\"><b>Florida vs. Iowa — 7:10 PM EDT</b></font></p><p dir=\"ltr\">Christian needs Florida to keep rolling toward his championship pick. Iowa already upset Clemson — can they pull off another one?</p><p dir=\"ltr\"><font size=\"2\"><b>Arizona vs. Utah State — 7:50 PM EDT</b></font></p><p dir=\"ltr\">Utah State just knocked off Villanova in the Round of 64. Sherry Beth and Spider both need Arizona to survive for their championship hopes. Don't overlook the Aggies here.</p><p dir=\"ltr\"><font size=\"2\"><b>Purdue vs. Miami (FL) — 12:10 PM EDT</b></font> matchup — several brackets have Purdue making a deep run in the West.</p><p dir=\"ltr\"><font size=\"2\"><b>UConn vs. UCLA — 8:45 PM EDT</b></font></p><p dir=\"ltr\">Kayla's championship pick is on the line. UConn handled Furman in the first round but UCLA is a tougher test. This one has major standings implications.</p><p dir=\"ltr\"><font size=\"2\"><b>Alabama vs. Texas Tech — 9:45 PM EDT</b></font></p><p dir=\"ltr\">A heavyweight matchup in the Midwest that will shake up several bracket paths regardless of who wins.</p><p dir=\"ltr\"><font size=\"2\"><b>Iowa State vs. Kentucky — 2:45 PM EDT</b></font></p><p dir=\"ltr\">Kentucky survived Santa Clara by just 5 points. Iowa State is dangerous and well-coached. A Wildcats loss here reshuffles the Midwest region entirely.</p><p dir=\"ltr\"><br></p><p dir=\"ltr\">Good luck everyone. Sunday's games could completely redraw this leaderboard — don't touch that dial.</p><p dir=\"ltr\"><br></p><p dir=\"ltr\">— Your BRC Commissioner</p>",
     "style": "dispatch",
     "position": "",
     "ribbonLayout": "float",
@@ -58,7 +87,7 @@ var OFL_ANNOUNCEMENTS = [
     "showDismiss": true,
     "active": true,
     "startDate": "",
-    "endDate": "2026-03-21T12:29",
+    "endDate": "2026-03-22T15:30",
     "pages": [
       "league-brc"
     ],
