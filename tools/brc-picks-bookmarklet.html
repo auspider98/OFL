@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BRC Picks Bookmarklet Installer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0a0f; --surface: #12121a; --surface2: #1a1a26; --border: #2a2a40;
+    --accent: #5b8cff; --accent2: #ff5b8c; --text: #e8e8f0; --dim: #6b6b8a;
+    --success: #5bff9b; --warn: #ff9b5b;
+    --mono: 'Space Mono', monospace; --display: 'Syne', sans-serif;
+  }
+  body { background: var(--bg); color: var(--text); font-family: var(--mono); font-size: 13px; min-height: 100vh; padding: 40px 24px; }
+  .container { max-width: 700px; margin: 0 auto; }
+  header { margin-bottom: 48px; }
+  .logo { font-family: var(--display); font-size: 11px; font-weight: 800; letter-spacing: 0.5em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+  h1 { font-family: var(--display); font-size: clamp(28px, 5vw, 44px); font-weight: 800; line-height: 1.05; color: var(--text); margin-bottom: 12px; }
+  h1 span { color: var(--accent2); }
+  .subtitle { color: var(--dim); font-size: 12px; line-height: 1.7; max-width: 560px; }
+  .tabs { display: flex; gap: 4px; margin-bottom: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 4px; }
+  .tab { flex: 1; font-family: var(--display); font-size: 12px; font-weight: 700; padding: 10px 16px; border-radius: 5px; border: none; cursor: pointer; background: transparent; color: var(--dim); transition: background 0.15s, color 0.15s; text-align: center; }
+  .tab.active { background: var(--accent); color: #fff; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .step { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 16px; }
+  .step-num { font-family: var(--display); font-size: 10px; font-weight: 800; letter-spacing: 0.4em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  .step h2 { font-family: var(--display); font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .step p { color: var(--dim); font-size: 12px; line-height: 1.7; }
+  .step p + p { margin-top: 6px; }
+  code { background: var(--surface2); border: 1px solid var(--border); padding: 2px 6px; border-radius: 3px; color: var(--accent); font-size: 11px; }
+  .drag-target-wrap { margin-top: 16px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .bookmarklet-btn { display: inline-block; font-family: var(--display); font-size: 14px; font-weight: 800; padding: 14px 24px; border-radius: 8px; background: var(--accent2); color: #fff; text-decoration: none; cursor: grab; user-select: none; transition: transform 0.1s, box-shadow 0.1s; white-space: nowrap; }
+  .bookmarklet-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(255,91,140,0.35); }
+  .bookmarklet-btn:active { transform: scale(0.97); cursor: grabbing; }
+  .drag-hint { color: var(--dim); font-size: 11px; line-height: 1.6; max-width: 260px; }
+  .drag-hint strong { color: var(--text); }
+  .copy-block { margin-top: 14px; }
+  .copy-block textarea { width: 100%; height: 90px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--dim); font-family: var(--mono); font-size: 10px; padding: 12px; resize: none; outline: none; line-height: 1.5; }
+  .btn { font-family: var(--display); font-size: 12px; font-weight: 700; letter-spacing: 0.06em; padding: 10px 22px; border-radius: 6px; border: none; cursor: pointer; transition: opacity 0.15s, transform 0.1s; }
+  .btn:active { transform: scale(0.97); }
+  .btn-copy { background: var(--success); color: #0a0a0f; margin-top: 10px; }
+  .btn-copy:hover { opacity: 0.85; }
+  .copied-flash { display: inline-block; color: var(--success); font-size: 11px; margin-left: 10px; opacity: 0; transition: opacity 0.2s; }
+  .copied-flash.show { opacity: 1; }
+  .usage-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 16px; }
+  .usage-card h3 { font-family: var(--display); font-size: 13px; font-weight: 700; margin-bottom: 12px; color: var(--success); }
+  .inst-row { display: flex; align-items: flex-start; gap: 12px; font-size: 12px; color: var(--dim); line-height: 1.6; margin-bottom: 8px; }
+  .inst-num { font-family: var(--display); font-weight: 800; font-size: 10px; color: var(--accent); background: rgba(91,140,255,0.1); border: 1px solid rgba(91,140,255,0.2); border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .note { background: rgba(255,155,91,0.07); border: 1px solid rgba(255,155,91,0.2); border-radius: 6px; padding: 12px 16px; font-size: 11px; color: var(--warn); line-height: 1.6; margin-top: 14px; }
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+  .capture-grid { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .capture-row { display: flex; gap: 12px; align-items: flex-start; font-size: 11px; color: var(--dim); line-height: 1.6; }
+  .capture-badge { font-family: var(--display); font-weight: 800; font-size: 9px; letter-spacing: 0.15em; padding: 2px 8px; border-radius: 3px; background: rgba(91,140,255,0.1); border: 1px solid rgba(91,140,255,0.2); color: var(--accent); flex-shrink: 0; white-space: nowrap; margin-top: 1px; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo">OFL · Online Fantasy League</div>
+    <h1>BRC Picks<br><span>Bookmarklet v2</span></h1>
+    <p class="subtitle">One tap per bracket page. Captures all 63 picks across every round, actual game results, and per-pick status — ready for the BRC analysis utility.</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('desktop')">🖥 Desktop</button>
+    <button class="tab" onclick="showTab('mobile')">📱 Mobile</button>
+  </div>
+
+  <div class="tab-panel active" id="tab-desktop">
+    <div class="step">
+      <div class="step-num">Step 01</div>
+      <h2>Show your bookmarks bar</h2>
+      <p>Chrome / Firefox: <code>Ctrl+Shift+B</code> &nbsp;·&nbsp; Safari: <code>View → Show Favorites Bar</code></p>
+    </div>
+    <div class="step">
+      <div class="step-num">Step 02</div>
+      <h2>Drag to your bookmarks bar</h2>
+      <p>Drag the button below onto your bookmarks bar. Don't click it here — drag it.</p>
+      <div class="drag-target-wrap">
+        <a id="bookmarkletLink" class="bookmarklet-btn" href="#">🏀 BRC Picks</a>
+        <div class="drag-hint"><strong>Drag to bookmarks bar.</strong><br>Clicking it on this page is harmless — there's nothing to parse here.</div>
+      </div>
+    </div>
+    <hr class="divider">
+    <div class="usage-card">
+      <h3>✓ How to use it</h3>
+      <div class="inst-row"><div class="inst-num">1</div><div>Go to any bracket page while logged into Yahoo — e.g. <code>tournament.fantasysports.yahoo.com/mens-basketball-bracket/285292</code></div></div>
+      <div class="inst-row"><div class="inst-num">2</div><div>Click <strong>🏀 BRC Picks</strong> in your bookmarks bar. A <code>.js</code> file downloads immediately.</div></div>
+      <div class="inst-row"><div class="inst-num">3</div><div>Repeat for all 13 bracket pages. Each file is named by bracket.</div></div>
+      <div class="inst-row"><div class="inst-num">4</div><div>Load all files into the BRC analysis utility.</div></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-mobile">
+    <div class="step">
+      <div class="step-num">Step 01</div>
+      <h2>Copy the bookmarklet code</h2>
+      <div class="copy-block">
+        <textarea id="bookmarkletCode" readonly></textarea>
+        <br>
+        <button class="btn btn-copy" onclick="copyCode()">Copy bookmarklet code</button>
+        <span class="copied-flash" id="copiedFlash">✓ Copied!</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">Step 02</div>
+      <h2>Save any page as a bookmark</h2>
+      <p>Safari: Share → <strong>Add Bookmark</strong>, name it <strong>🏀 BRC Picks</strong>.</p>
+      <p>Chrome: ⋮ → <strong>Bookmark this page</strong>, name it <strong>🏀 BRC Picks</strong>.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">Step 03</div>
+      <h2>Replace the URL with the copied code</h2>
+      <p>Safari: tap address bar → Bookmarks → find <strong>🏀 BRC Picks</strong> → Edit → clear URL and paste.</p>
+      <p>Chrome: ⋮ → Bookmarks → long-press <strong>🏀 BRC Picks</strong> → Edit → clear URL and paste.</p>
+      <div class="note">⚠ The full code starting with <code>javascript:</code> must be pasted with nothing of the old URL remaining.</div>
+    </div>
+    <hr class="divider">
+    <div class="usage-card">
+      <h3>✓ How to use it</h3>
+      <div class="inst-row"><div class="inst-num">1</div><div>Go to a bracket page on Yahoo while logged in.</div></div>
+      <div class="inst-row"><div class="inst-num">2</div><div>Tap the address bar, type <strong>BRC</strong>, tap <strong>🏀 BRC Picks</strong>.</div></div>
+      <div class="inst-row"><div class="inst-num">3</div><div>File downloads. Repeat for all 13 brackets.</div></div>
+      <div class="note">📱 iOS: files go to <strong>Files → Downloads</strong>. You may get a share sheet — tap Save to Files.</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <div style="font-family:var(--display);font-size:11px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:var(--dim);margin-bottom:14px;">What each .js file contains</div>
+  <div class="capture-grid">
+    <div class="capture-row"><span class="capture-badge">PICKS</span><span>Every team picked to win per round (R64 → Final), with seed number and slot ID, across all 4 regions</span></div>
+    <div class="capture-row"><span class="capture-badge">STATUS</span><span>Per-pick status: <code>correct</code>, <code>incorrect</code>, or <code>pending</code> (game not yet played)</span></div>
+    <div class="capture-row"><span class="capture-badge">RESULTS</span><span>Actual game results extracted from the same page — winner, loser, both seeds, scores for every completed game</span></div>
+    <div class="capture-row"><span class="capture-badge">CHAMPION</span><span>National champion pick from the bracket's final championship slot</span></div>
+    <div class="capture-row"><span class="capture-badge">MEMBER ID</span><span>Bracket name matched to OFL member ID via the hardcoded roster map</span></div>
+    <div class="capture-row"><span class="capture-badge">SUMMARY</span><span>Quick stats: total picks, correct count, incorrect count, pending count</span></div>
+  </div>
+
+</div>
+<script>
+var ROSTER = [
+  ['ans+One',                'Ansley',      'mbr_mm1629iqfyaj'],
+  ['TheChattanoogan',        'Evan',        'mbr_004'],
+  ['emziemillions',          'Emery',       'mbr_mm164375ur1b'],
+  ["Auburn's Time to Shine", 'Auburn',      'mbr_mm7vmncz4gfs'],
+  ["Dribbling Bubbas",       'Bob O',       'mbr_003'],
+  ['Ozzies',                 'Ozzy',        'mbr_005'],
+  ['Gangan Quilters',        'Sherry Beth', 'mbr_mm161lj76qt7'],
+  ['bioluminescent bracket', 'Kayla',       'mbr_mm1635nfdqvt'],
+  ['Dirty Dolly',            'Sonya',       'mbr_007'],
+  ['Molly Defenders 2.0',    'Amy',         'mbr_006'],
+  ['CK Golden picks',        'Christian',   'mbr_mm7vlo5hx9hn'],
+  ['theWeb',                 'spider',      'mbr_001'],
+  ['ATLiens',                'Big Rob',     'mbr_002'],
+];
+var YEAR = '2026';
+
+function buildBookmarklet() {
+  var rosterJSON = JSON.stringify(ROSTER);
+
+  var fn = `(function(){
+var ROSTER=${rosterJSON};
+var YEAR="${YEAR}";
+
+function ak(s){return(s||'').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,4);}
+function lookupMember(name){
+  var k=(name||'').toLowerCase().trim();
+  for(var i=0;i<ROSTER.length;i++){if(ROSTER[i][0].toLowerCase()===k)return{memberId:ROSTER[i][2],bracketName:ROSTER[i][0]};}
+  var pk=ak(name);
+  for(var i=0;i<ROSTER.length;i++){if(ak(ROSTER[i][0])===pk)return{memberId:ROSTER[i][2],bracketName:ROSTER[i][0]};}
+  return{memberId:'',bracketName:name};
+}
+
+function getBracketName(){
+  var el=document.querySelector('[class*="Fz(30px)"][class*="Mend(6px)"]');
+  if(!el)return'Unknown';
+  var c=el.cloneNode(true);
+  c.querySelectorAll('svg,span').forEach(function(e){e.remove();});
+  return c.textContent.trim();
+}
+
+function getRound(region,idx){
+  var r=parseInt(region,10),n=parseInt(idx,10);
+  if(r===0){return n>=2?'F4':'Final';}
+  if(n>=8)return'R64';
+  if(n>=4)return'R32';
+  if(n>=2)return'S16';
+  if(n===1)return'E8';
+  return'Final';
+}
+
+function parseLabel(label){
+  var l=label.toLowerCase();
+  if(l.indexOf('incorrect pick')!==-1){var m=label.match(/^(.+?)\\s+incorrect pick/i);return{pickedName:m?m[1].trim():'',status:'incorrect'};}
+  if(l.indexOf('correct pick')!==-1){var m2=label.match(/^(.+?)\\s+correct pick/i);return{pickedName:m2?m2[1].trim():'',status:'correct'};}
+  if(l.indexOf(' picked')!==-1){var m3=label.match(/^(.+?)\\s+(?:seed\\s+\\d+\\s+)?picked/i);return{pickedName:m3?m3[1].trim():'',status:'pending'};}
+  return{pickedName:'',status:'played'};
+}
+
+function parseActualResult(slot){
+  var topEl=slot.querySelector('[data-tst="topTeam"],[data-tst="topTeam selected"]');
+  var botEl=slot.querySelector('[data-tst="bottomTeam"],[data-tst="bottomTeam selected"]');
+  if(!topEl||!botEl)return null;
+  var topLabel=(topEl.getAttribute('aria-label')||'').trim();
+  var botLabel=(botEl.getAttribute('aria-label')||'').trim();
+  var topWon=topLabel.toLowerCase().indexOf('winner')!==-1;
+  var botWon=botLabel.toLowerCase().indexOf('winner')!==-1;
+  if(!topWon&&!botWon)return null;
+
+  function extract(el,label,won){
+    var seeds=el.querySelectorAll('[class*="W(16px)"][class*="Fz(10px)"]');
+    var seed=seeds.length?parseInt(seeds[0].textContent.trim(),10)||0:0;
+    var isIncorrect=label.toLowerCase().indexOf('incorrect pick')!==-1;
+    var name='';
+    if(isIncorrect){
+      // actual winner name is after "incorrect pick, "
+      var m=label.match(/incorrect pick,\\s*(.+?)\\s+score/i);
+      name=m?m[1].trim():'';
+      if(seeds.length>1)seed=parseInt(seeds[1].textContent.trim(),10)||seed;
+    } else {
+      var m2=label.match(/^(.+?)\\s+(?:score|seed|correct|$)/i);
+      name=m2?m2[1].trim():'';
+    }
+    var sc=label.match(/score (\\d+)/i);
+    return{name:name,seed:seed,score:sc?parseInt(sc[1],10):null};
+  }
+
+  var top=extract(topEl,topLabel,topWon);
+  var bot=extract(botEl,botLabel,botWon);
+  return{
+    winner:topWon?top.name:bot.name,winnerSeed:topWon?top.seed:bot.seed,winnerScore:topWon?top.score:bot.score,
+    loser:topWon?bot.name:top.name,loserSeed:topWon?bot.seed:top.seed,loserScore:topWon?bot.score:top.score,
+    complete:true
+  };
+}
+
+var bracketName=getBracketName();
+var memberInfo=lookupMember(bracketName);
+var picks=[];
+var results=[];
+
+document.querySelectorAll('[data-slot-id]').forEach(function(slot){
+  if(!slot.querySelector('ul'))return;
+  var parts=slot.getAttribute('data-slot-id').split('_');
+  if(parts.length<2)return;
+  var region=parts[0],idx=parts[1];
+  var round=getRound(region,idx);
+
+  var result=parseActualResult(slot);
+  if(result)results.push({slotId:slot.getAttribute('data-slot-id'),round:round,result:result});
+
+  var sel=slot.querySelector('[data-tst*="selected"]');
+  if(!sel)return;
+  var label=(sel.getAttribute('aria-label')||'').trim();
+  var parsed=parseLabel(label);
+  var pickedName=parsed.pickedName;
+  if(!pickedName&&parsed.status==='played'){
+    var nd=sel.querySelector('[class*="Fxg(1)"][class*="Tov(e)"]');
+    pickedName=nd?nd.textContent.trim():'';
+  }
+  if(!pickedName)return;
+  var se=sel.querySelector('[class*="W(16px)"][class*="Fz(10px)"]');
+  var pickedSeed=se?parseInt(se.textContent.trim(),10)||0:0;
+  picks.push({slotId:slot.getAttribute('data-slot-id'),round:round,pickedTeam:pickedName,pickedSeed:pickedSeed,status:parsed.status});
+});
+
+// Championship slot
+var champPick='',champSeed=0;
+var cs=document.getElementById('champ-slot');
+if(cs){
+  var csel=cs.querySelector('[data-tst*="selected"]');
+  if(csel){
+    var cl=(csel.getAttribute('aria-label')||'').trim();
+    var cp=parseLabel(cl);
+    champPick=cp.pickedName;
+    if(!champPick){var cn=csel.querySelector('[class*="YahooSans-Medium"][class*="Fz(14px)"]');champPick=cn?cn.textContent.trim():'';}
+    var cse=csel.querySelector('[class*="Fz(10px)"][class*="C(overview-gray)"]');
+    champSeed=cse?parseInt(cse.textContent.trim(),10)||0:0;
+  }
+}
+
+var byRound={R64:[],R32:[],S16:[],E8:[],F4:[],Final:[]};
+picks.forEach(function(p){if(byRound[p.round])byRound[p.round].push({team:p.pickedTeam,seed:p.pickedSeed,status:p.status,slotId:p.slotId});});
+if(champPick&&!byRound.Final.length)byRound.Final.push({team:champPick,seed:champSeed,status:'pending',slotId:'champ'});
+
+// Deduplicate results
+var seen={};
+var uniqResults=results.filter(function(r){if(seen[r.slotId])return false;seen[r.slotId]=true;return true;});
+
+var correct=picks.filter(function(p){return p.status==='correct';}).length;
+var incorrect=picks.filter(function(p){return p.status==='incorrect';}).length;
+var pending=picks.filter(function(p){return p.status==='pending';}).length;
+var total=picks.length+(champPick&&!picks.some(function(p){return p.slotId==='champ';})?1:0);
+
+var importObj={
+  leagueId:'lg_002',year:YEAR,
+  memberId:memberInfo.memberId,
+  bracketName:memberInfo.bracketName||bracketName,
+  yahooUrl:window.location.href,
+  generatedAt:new Date().toISOString(),
+  summary:{total:total,correct:correct,incorrect:incorrect,pending:pending},
+  picks:byRound,
+  championPick:{team:champPick,seed:champSeed},
+  actualResults:uniqResults
+};
+
+var safeName=(memberInfo.bracketName||bracketName).replace(/[^a-z0-9]/gi,'-').toLowerCase().replace(/-+/g,'-');
+var out='/**\\n * BRC Bracket Picks \\u00b7 '+(memberInfo.bracketName||bracketName)+' \\u00b7 '+YEAR+'\\n * Member ID: '+(memberInfo.memberId||'UNMAPPED \\u26a0')+' \\n * Generated: '+new Date().toLocaleString()+'\\n * '+total+' picks (\\u2713'+correct+' correct \\u2717'+incorrect+' incorrect \\u29d6'+pending+' pending)\\n */\\n\\nwindow.OFL_BRC_PICKS_IMPORT = '+JSON.stringify(importObj,null,2)+';';
+
+var blob=new Blob([out],{type:'text/javascript;charset=utf-8'});
+var url=URL.createObjectURL(blob);
+var a=document.createElement('a');
+a.href=url;a.download='ofl-brc-picks-'+YEAR+'-'+safeName+'.js';
+document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+
+var msg='\\u2713 '+(memberInfo.bracketName||bracketName);
+if(!memberInfo.memberId)msg+='\\n\\u26a0 Bracket not in roster map.';
+msg+='\\n\\nPicks: '+total+' total';
+['R64','R32','S16','E8','F4','Final'].forEach(function(r){if(byRound[r].length)msg+='\\n  '+r+': '+byRound[r].length;});
+msg+='\\n\\nRecord: \\u2713 '+correct+' correct / \\u2717 '+incorrect+' incorrect / \\u29d6 '+pending+' pending';
+msg+='\\n\\nActual results captured: '+uniqResults.length+' games';
+setTimeout(function(){alert('BRC Picks\\n'+msg);},300);
+})();`;
+
+  return 'javascript:' + encodeURIComponent(fn);
+}
+
+var href = buildBookmarklet();
+document.getElementById('bookmarkletLink').href = href;
+document.getElementById('bookmarkletCode').value = href;
+
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+function copyCode() {
+  var ta = document.getElementById('bookmarkletCode');
+  ta.select(); ta.setSelectionRange(0, 99999);
+  navigator.clipboard.writeText(ta.value).then(flash).catch(function(){ document.execCommand('copy'); flash(); });
+}
+function flash() {
+  var f = document.getElementById('copiedFlash');
+  f.classList.add('show');
+  setTimeout(function(){ f.classList.remove('show'); }, 2000);
+}
+</script>
+</body>
+</html>
