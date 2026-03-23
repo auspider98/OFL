@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BRC Bookmarklet Installer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a40;
+    --accent: #5b8cff;
+    --accent2: #ff5b8c;
+    --text: #e8e8f0;
+    --dim: #6b6b8a;
+    --success: #5bff9b;
+    --warn: #ff9b5b;
+    --mono: 'Space Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    min-height: 100vh;
+    padding: 40px 24px;
+  }
+
+  .container { max-width: 700px; margin: 0 auto; }
+
+  header { margin-bottom: 48px; }
+
+  .logo {
+    font-family: var(--display);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 800;
+    line-height: 1.05;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  h1 span { color: var(--accent2); }
+
+  .subtitle {
+    color: var(--dim);
+    font-size: 12px;
+    line-height: 1.7;
+    max-width: 560px;
+  }
+
+  /* Tab switcher */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px;
+  }
+  .tab {
+    flex: 1;
+    font-family: var(--display);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 10px 16px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    color: var(--dim);
+    transition: background 0.15s, color 0.15s;
+    text-align: center;
+  }
+  .tab.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Steps */
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+
+  .step-num {
+    font-family: var(--display);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .step h2 {
+    font-family: var(--display);
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .step p {
+    color: var(--dim);
+    font-size: 12px;
+    line-height: 1.7;
+  }
+  .step p + p { margin-top: 6px; }
+
+  code {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: var(--accent);
+    font-size: 11px;
+  }
+
+  /* The drag target */
+  .drag-target-wrap {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .bookmarklet-btn {
+    display: inline-block;
+    font-family: var(--display);
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    padding: 14px 24px;
+    border-radius: 8px;
+    background: var(--accent2);
+    color: #fff;
+    text-decoration: none;
+    border: 2px solid transparent;
+    cursor: grab;
+    user-select: none;
+    transition: transform 0.1s, box-shadow 0.1s;
+    white-space: nowrap;
+  }
+  .bookmarklet-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(255,91,140,0.35);
+  }
+  .bookmarklet-btn:active { transform: scale(0.97); cursor: grabbing; }
+
+  .drag-hint {
+    color: var(--dim);
+    font-size: 11px;
+    line-height: 1.6;
+    max-width: 260px;
+  }
+  .drag-hint strong { color: var(--text); }
+
+  /* Mobile copy block */
+  .copy-block {
+    margin-top: 14px;
+    position: relative;
+  }
+  .copy-block textarea {
+    width: 100%;
+    height: 90px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--dim);
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 12px;
+    resize: none;
+    outline: none;
+    line-height: 1.5;
+  }
+
+  .btn {
+    font-family: var(--display);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 10px 22px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-copy { background: var(--success); color: #0a0a0f; margin-top: 10px; }
+  .btn-copy:hover { opacity: 0.85; }
+
+  .copied-flash {
+    display: inline-block;
+    color: var(--success);
+    font-size: 11px;
+    margin-left: 10px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .copied-flash.show { opacity: 1; }
+
+  /* Usage section */
+  .usage-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .usage-card h3 {
+    font-family: var(--display);
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--success);
+  }
+
+  .inst-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--dim);
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+  .inst-num {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 10px;
+    color: var(--accent);
+    background: rgba(91,140,255,0.1);
+    border: 1px solid rgba(91,140,255,0.2);
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+
+  .note {
+    background: rgba(255,155,91,0.07);
+    border: 1px solid rgba(255,155,91,0.2);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 11px;
+    color: var(--warn);
+    line-height: 1.6;
+    margin-top: 14px;
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo">OFL · Online Fantasy League</div>
+    <h1>BRC Bookmarklet<br><span>Installer</span></h1>
+    <p class="subtitle">Install this once. Then tap it on any Yahoo BRC standings page — logged in on any device — and it auto-downloads the <code>.js</code> import file.</p>
+  </header>
+
+  <!-- Tab switcher -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('desktop')">🖥 Desktop</button>
+    <button class="tab" onclick="showTab('mobile')">📱 Mobile (iOS / Android)</button>
+  </div>
+
+  <!-- DESKTOP PANEL -->
+  <div class="tab-panel active" id="tab-desktop">
+
+    <div class="step">
+      <div class="step-num">Step 01</div>
+      <h2>Make sure your bookmarks bar is visible</h2>
+      <p>In Chrome: <code>Ctrl+Shift+B</code> &nbsp;·&nbsp; In Firefox: <code>Ctrl+Shift+B</code> &nbsp;·&nbsp; In Safari: <code>View → Show Favorites Bar</code></p>
+    </div>
+
+    <div class="step">
+      <div class="step-num">Step 02</div>
+      <h2>Drag this button to your bookmarks bar</h2>
+      <p>Click and drag the button below directly onto your browser's bookmarks bar. That's it — it's installed.</p>
+      <div class="drag-target-wrap">
+        <a id="bookmarkletLink" class="bookmarklet-btn" href="#BOOKMARKLET_PLACEHOLDER#">🏀 BRC Import</a>
+        <div class="drag-hint"><strong>Drag me to the bookmarks bar.</strong><br>Don't click — drag. If you click it now it'll run on this page (harmlessly).</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="usage-card">
+      <h3>✓ How to use it</h3>
+      <div class="inst-row"><div class="inst-num">1</div><div>Go to your Yahoo BRC standings page while logged in.</div></div>
+      <div class="inst-row"><div class="inst-num">2</div><div>Click the <strong>🏀 BRC Import</strong> bookmark in your bar.</div></div>
+      <div class="inst-row"><div class="inst-num">3</div><div>A <code>.js</code> file downloads automatically. Load it into <code>ofl-data.html</code> via Import Config.</div></div>
+    </div>
+
+  </div>
+
+  <!-- MOBILE PANEL -->
+  <div class="tab-panel" id="tab-mobile">
+
+    <div class="step">
+      <div class="step-num">Step 01</div>
+      <h2>Copy the bookmarklet code</h2>
+      <p>Tap the button below to copy the full bookmarklet code to your clipboard.</p>
+      <div class="copy-block">
+        <textarea id="bookmarkletCode" readonly></textarea>
+        <br>
+        <button class="btn btn-copy" onclick="copyCode()">Copy bookmarklet code</button>
+        <span class="copied-flash" id="copiedFlash">✓ Copied!</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">Step 02</div>
+      <h2>Save any page as a bookmark</h2>
+      <p>In Safari: tap the Share button → <strong>Add Bookmark</strong>. Name it <strong>🏀 BRC Import</strong> and save it anywhere.</p>
+      <p>In Chrome (mobile): tap ⋮ → <strong>Bookmark this page</strong>. Name it <strong>🏀 BRC Import</strong>.</p>
+    </div>
+
+    <div class="step">
+      <div class="step-num">Step 03</div>
+      <h2>Replace the URL with the copied code</h2>
+      <p>In Safari: tap the address bar → tap <strong>Bookmarks</strong> → find <strong>🏀 BRC Import</strong> → tap Edit → clear the URL field and paste the copied code.</p>
+      <p>In Chrome (mobile): tap ⋮ → <strong>Bookmarks</strong> → long-press <strong>🏀 BRC Import</strong> → <strong>Edit</strong> → clear the URL and paste.</p>
+      <div class="note">⚠ Make sure the entire code starting with <code>javascript:</code> is pasted — don't leave any of the old URL behind.</div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="usage-card">
+      <h3>✓ How to use it</h3>
+      <div class="inst-row"><div class="inst-num">1</div><div>Go to your Yahoo BRC standings page while logged in.</div></div>
+      <div class="inst-row"><div class="inst-num">2</div><div>Tap the address bar and type <strong>BRC</strong> — the bookmark will appear. Tap it.</div></div>
+      <div class="inst-row"><div class="inst-num">3</div><div>A <code>.js</code> file downloads (or a share sheet appears). Load it into <code>ofl-data.html</code> via Import Config.</div></div>
+      <div class="note">📱 On iOS Safari, downloads go to <strong>Files → Downloads</strong>. You may get a share sheet instead of an auto-download — tap Save to Files.</div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+// ─── Bookmarklet source ─────────────────────────────────────────────────────
+// This is the full logic, minified and URI-encoded below.
+// Edit this object to update the roster for a new season.
+
+var ROSTER = [
+  ['ans+One',                'Ansley',      'mbr_mm1629iqfyaj'],
+  ['TheChattanoogan',        'Evan',        'mbr_004'],
+  ['emziemillions',          'Emery',       'mbr_mm164375ur1b'],
+  ["Auburn's Time to Shine", 'Auburn',      'mbr_mm7vmncz4gfs'],
+  ["Dribbling Bubbas",       'Bob O',       'mbr_003'],
+  ['Ozzies',                 'Ozzy',        'mbr_005'],
+  ['Gangan Quilters',        'Sherry Beth', 'mbr_mm161lj76qt7'],
+  ['bioluminescent bracket', 'Kayla',       'mbr_mm1635nfdqvt'],
+  ['Dirty Dolly',            'Sonya',       'mbr_007'],
+  ['Molly Defenders 2.0',    'Amy',         'mbr_006'],
+  ['CK Golden picks',        'Christian',   'mbr_mm7vlo5hx9hn'],
+  ['theWeb',                 'spider',      'mbr_001'],
+  ['ATLiens',                'Big Rob',     'mbr_002'],
+];
+
+var YEAR = '2026';
+
+// Build the bookmarklet as a self-contained function string
+function buildBookmarklet() {
+  var rosterJSON = JSON.stringify(ROSTER);
+  var year = YEAR;
+
+  // The bookmarklet runs on the Yahoo page, so it reads the live DOM directly
+  var fn = `(function(){
+var ROSTER=${rosterJSON};
+var YEAR="${year}";
+function ak(s){return(s||'').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,4);}
+function lookup(name){
+  var k=(name||'').toLowerCase().trim();
+  for(var i=0;i<ROSTER.length;i++){
+    var bn=ROSTER[i][0];
+    if(bn.toLowerCase()===k)return{memberId:ROSTER[i][2],bracketName:ROSTER[i][0]};
+  }
+  var pk=ak(name);
+  for(var i=0;i<ROSTER.length;i++){
+    if(ak(ROSTER[i][0])===pk)return{memberId:ROSTER[i][2],bracketName:ROSTER[i][0]};
+  }
+  return{memberId:'',bracketName:name};
+}
+var rows=document.querySelectorAll('tbody tr');
+if(!rows.length){alert('BRC Import: No standings table found. Make sure you are on the Yahoo BRC standings page.');return;}
+var entries=[];
+var warnings=[];
+rows.forEach(function(tr){
+  var cells=tr.querySelectorAll('td');
+  if(cells.length<8)return;
+  var ownerEl=cells[1].querySelector('[class*="Fz(14px)"]');
+  var bracketEls=cells[1].querySelectorAll('[class*="Fz(12px)"]');
+  var ownerName='';
+  if(ownerEl){
+    var c=ownerEl.cloneNode(true);
+    c.querySelectorAll('svg,span').forEach(function(e){e.remove();});
+    ownerName=c.textContent.trim();
+  }
+  var bracketName='';
+  for(var i=0;i<bracketEls.length;i++){
+    if(!bracketEls[i].querySelector('[aria-label]')){
+      var t=bracketEls[i].textContent.trim();
+      if(t){bracketName=t;break;}
+    }
+  }
+  if(!bracketName)return;
+  var pts=[];
+  for(var r=2;r<=7;r++){
+    var v=parseFloat((cells[r].textContent||'').trim());
+    pts.push(isNaN(v)?0:v);
+  }
+  var info=lookup(bracketName);
+  if(!info.memberId)warnings.push('Unmapped: "'+bracketName+'"');
+  entries.push({memberId:info.memberId,bracketName:info.bracketName||bracketName,pointsByRound:pts});
+});
+if(!entries.length){alert('BRC Import: Could not parse any bracket rows.');return;}
+var importObj={leagueId:'lg_002',year:YEAR,entries:entries};
+var out='/**\\n * BRC Round Scores Import \\u00b7 '+YEAR+' \\u00b7 Generated '+new Date().toLocaleDateString()+'\\n * Import via ofl-data.html Import Config.\\n */\\n\\nwindow.OFL_BRC_STANDINGS_IMPORT = '+JSON.stringify(importObj,null,2)+';';
+var blob=new Blob([out],{type:'text/javascript;charset=utf-8'});
+var url=URL.createObjectURL(blob);
+var a=document.createElement('a');
+a.href=url;
+a.download='ofl-brc-standings-'+YEAR+'.js';
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+URL.revokeObjectURL(url);
+if(warnings.length)setTimeout(function(){alert('BRC Import: Downloaded '+entries.length+' brackets.\\n\\n\u26a0 Unmapped brackets (check roster):\\n'+warnings.join('\\n'));},300);
+else setTimeout(function(){alert('BRC Import: \u2713 Downloaded '+entries.length+' brackets, no warnings.');},300);
+})();`;
+
+  // Encode as bookmarklet
+  return 'javascript:' + encodeURIComponent(fn);
+}
+
+var bookmarkletHref = buildBookmarklet();
+
+// Wire up the drag link
+document.getElementById('bookmarkletLink').href = bookmarkletHref;
+
+// Wire up the copy textarea
+document.getElementById('bookmarkletCode').value = bookmarkletHref;
+
+// Tab switching
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// Copy
+function copyCode() {
+  var ta = document.getElementById('bookmarkletCode');
+  ta.select();
+  ta.setSelectionRange(0, 99999);
+  navigator.clipboard.writeText(ta.value).then(function(){
+    var f = document.getElementById('copiedFlash');
+    f.classList.add('show');
+    setTimeout(function(){ f.classList.remove('show'); }, 2000);
+  }).catch(function(){
+    document.execCommand('copy');
+    var f = document.getElementById('copiedFlash');
+    f.classList.add('show');
+    setTimeout(function(){ f.classList.remove('show'); }, 2000);
+  });
+}
+</script>
+</body>
+</html>
