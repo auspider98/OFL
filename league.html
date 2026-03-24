@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="style.css" />
   <script src="admin-config.js"></script>
   <script src="ofl-data.js"></script>
+  <script src="ofl-brc-analysis.js"></script>
   <script src="admin.js"></script>
   <style>
     a.roster-card { text-decoration: none; cursor: pointer; }
@@ -119,6 +120,192 @@
     .brc-cell-pts   { font-weight: 600; }
     .brc-cell-sep   { margin: 0 0.15em; opacity: 0.45; font-size: 0.65rem; }
     .brc-cell-picks { opacity: 0.7; }
+
+    /* ── BRC View Pills ─────────────────────────────────────── */
+    .brc-view-pills {
+      display: flex; gap: 0.4rem; flex-wrap: wrap;
+      margin-bottom: 1.2rem; padding-bottom: 0.9rem;
+      border-bottom: 1px solid var(--drawer-border);
+    }
+    .brc-view-pill {
+      font-family: var(--font-body); font-size: 0.6rem; font-weight: 400;
+      letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--accent-dim); background: transparent;
+      border: 1px solid var(--drawer-border);
+      padding: 0.3rem 0.75rem; cursor: pointer;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+    .brc-view-pill:hover { color: var(--accent); border-color: rgba(232,232,232,0.3); }
+    .brc-view-pill.is-active {
+      color: var(--accent); border-color: var(--accent);
+      background: rgba(232,232,232,0.06);
+    }
+
+    /* ── BRC Live Race ──────────────────────────────────────── */
+    .brc-live-race { display: flex; flex-direction: column; gap: 0.6rem; }
+    .brc-race-row {
+      display: grid; grid-template-columns: 1.4rem 1fr auto;
+      gap: 0.5rem 0.75rem; align-items: center;
+    }
+    .brc-race-rank {
+      font-family: var(--font-body); font-size: 0.65rem; font-weight: 600;
+      letter-spacing: 0.1em; color: var(--accent-dim); text-align: right;
+    }
+    .brc-race-rank.top { color: var(--hint-color, var(--accent)); }
+    .brc-race-name {
+      font-family: var(--font-body); font-size: 0.78rem; font-weight: 600;
+      letter-spacing: 0.08em; color: var(--accent); margin-bottom: 0.25rem;
+    }
+    .brc-race-bar-wrap {
+      position: relative; height: 4px;
+      background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden;
+    }
+    .brc-race-bar-max {
+      position: absolute; left: 0; top: 0; bottom: 0;
+      background: rgba(255,255,255,0.1); border-radius: 2px;
+    }
+    .brc-race-bar-score {
+      position: absolute; left: 0; top: 0; bottom: 0;
+      background: var(--hint-color, var(--accent));
+      border-radius: 2px; transition: width 0.4s ease;
+    }
+    .brc-race-bar-score.eliminated { background: rgba(255,255,255,0.2); }
+    .brc-race-scores {
+      font-family: var(--font-body); font-size: 0.7rem;
+      letter-spacing: 0.08em; color: var(--accent); text-align: right; white-space: nowrap;
+    }
+    .brc-race-scores .score-main { font-weight: 600; }
+    .brc-race-scores .score-sep { opacity: 0.35; margin: 0 0.2em; }
+    .brc-race-scores .score-max { opacity: 0.45; font-size: 0.65rem; }
+
+    /* ── BRC Survival Strip ─────────────────────────────────── */
+    .brc-survival-strip { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .brc-survival-chip {
+      display: flex; flex-direction: column; gap: 0.1rem;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--drawer-border); background: rgba(255,255,255,0.02);
+    }
+    .brc-survival-chip.leading {
+      border-color: var(--hint-color, var(--accent)); background: rgba(255,255,255,0.04);
+    }
+    .brc-chip-name {
+      font-family: var(--font-body); font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.06em; color: var(--accent); white-space: nowrap;
+    }
+    .brc-chip-detail {
+      font-family: var(--font-body); font-size: 0.62rem;
+      letter-spacing: 0.1em; color: var(--accent-dim); white-space: nowrap;
+    }
+    .brc-chip-detail.needs { color: var(--hint-color, var(--accent-dim)); opacity: 0.8; }
+
+    /* ── BRC Scenario Generator ─────────────────────────────── */
+    .brc-scenario-label {
+      font-family: var(--font-body); font-size: 0.62rem; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--accent-dim);
+      margin-bottom: 0.4rem; display: block;
+    }
+    .brc-scenario-select {
+      width: 100%; background: rgba(255,255,255,0.03);
+      border: 1px solid var(--drawer-border);
+      color: var(--accent); font-family: var(--font-body);
+      font-size: 0.75rem; letter-spacing: 0.08em;
+      padding: 0.6rem 0.75rem; outline: none; cursor: pointer;
+      appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 0.75rem center;
+      padding-right: 2rem; transition: border-color 0.2s; margin-bottom: 1rem;
+    }
+    .brc-scenario-select:focus { border-color: var(--hint-color, var(--accent)); }
+    .brc-scenario-select option { background: #111; }
+    .brc-scenario-table { width: 100%; border-collapse: collapse; }
+    .brc-scenario-table th {
+      font-family: var(--font-body); font-size: 0.58rem; font-weight: 300;
+      letter-spacing: 0.35em; text-transform: uppercase; color: var(--accent-dim);
+      padding: 0.4rem 0.5rem; text-align: left;
+      border-bottom: 1px solid var(--drawer-border); opacity: 0.7;
+    }
+    .brc-scenario-table th.r { text-align: right; }
+    .brc-scenario-table td {
+      padding: 0.55rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-family: var(--font-body); font-size: 0.75rem;
+      letter-spacing: 0.06em; color: var(--accent);
+    }
+    .brc-scenario-table tr:last-child td { border-bottom: none; }
+    .brc-scenario-rank { font-size: 0.65rem; color: var(--accent-dim); text-align: center; width: 2rem; }
+    .brc-scenario-rank.top { color: var(--hint-color, var(--accent)); font-weight: 600; }
+    .brc-scenario-name { font-weight: 600; }
+    .brc-scenario-score { text-align: right; font-weight: 600; }
+    .brc-scenario-delta { text-align: right; font-size: 0.68rem; white-space: nowrap; }
+    .brc-scenario-delta.up { color: var(--hint-color, var(--accent)); }
+    .brc-scenario-delta.down { color: var(--accent-dim); opacity: 0.6; }
+    .brc-scenario-delta.same { color: var(--accent-dim); opacity: 0.4; }
+    .brc-scenario-hint {
+      font-family: var(--font-body); font-size: 0.65rem; letter-spacing: 0.12em;
+      color: var(--accent-dim); text-align: center; padding: 1.5rem 0 0.5rem; opacity: 0.6;
+    }
+
+    /* ── BRC H2H ────────────────────────────────────────────── */
+    .brc-h2h-selects {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1rem;
+    }
+    .brc-h2h-stat-cards {
+      display: grid; grid-template-columns: 1fr auto 1fr;
+      gap: 0.6rem; margin-bottom: 1rem; align-items: stretch;
+    }
+    .brc-h2h-card {
+      padding: 0.8rem 0.9rem; border: 1px solid var(--drawer-border);
+      background: rgba(255,255,255,0.02); display: flex; flex-direction: column; gap: 0.2rem;
+    }
+    .brc-h2h-card.center { align-items: center; justify-content: center; text-align: center; }
+    .brc-h2h-card-label {
+      font-family: var(--font-body); font-size: 0.55rem;
+      letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent-dim);
+    }
+    .brc-h2h-card-val {
+      font-family: var(--font-display); font-size: 1.4rem; font-weight: 300;
+      color: var(--accent); line-height: 1;
+    }
+    .brc-h2h-card-sub {
+      font-family: var(--font-body); font-size: 0.62rem;
+      letter-spacing: 0.1em; color: var(--accent-dim);
+    }
+    .brc-h2h-card-name {
+      font-family: var(--font-body); font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.06em; color: var(--hint-color, var(--accent)); margin-bottom: 0.2rem;
+    }
+    .brc-h2h-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .brc-h2h-table { width: 100%; border-collapse: collapse; font-family: var(--font-body); font-size: 0.72rem; }
+    .brc-h2h-table thead th {
+      font-weight: 300; font-size: 0.55rem; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--accent-dim); padding: 0.4rem 0.6rem;
+      border-bottom: 1px solid var(--drawer-border); white-space: nowrap;
+    }
+    .brc-h2h-table thead th.h2h-col-a { text-align: right; color: var(--hint-color, var(--accent-dim)); }
+    .brc-h2h-table thead th.h2h-col-b { text-align: left; }
+    .brc-h2h-table thead th.h2h-col-mid { text-align: center; width: 3rem; }
+    .brc-h2h-round-row td {
+      font-size: 0.52rem; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--hint-color, var(--accent-dim)); padding: 0.5rem 0.6rem 0.2rem;
+      border-top: 1px solid var(--drawer-border); background: rgba(255,255,255,0.01);
+    }
+    .brc-h2h-pick-row td {
+      padding: 0.35rem 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.03);
+      letter-spacing: 0.06em; vertical-align: middle;
+    }
+    .brc-h2h-pick-row:last-child td { border-bottom: none; }
+    .h2h-col-a { text-align: right; }
+    .h2h-col-b { text-align: left; }
+    .h2h-col-mid { text-align: center; font-size: 0.6rem; color: var(--drawer-border); }
+    .h2h-agree { color: var(--accent); }
+    .h2h-disagree-a { color: var(--hint-color, var(--accent)); }
+    .h2h-disagree-b { color: var(--accent-dim); }
+    .h2h-correct { font-weight: 600; }
+    .h2h-wrong { opacity: 0.35; text-decoration: line-through; }
+    .h2h-pending { color: var(--accent-dim); }
+    .brc-h2h-hint {
+      font-family: var(--font-body); font-size: 0.65rem; letter-spacing: 0.15em;
+      color: var(--accent-dim); text-align: center; padding: 2rem 0 1rem; opacity: 0.5;
+    }
   </style>
 </head>
 <body>
@@ -348,6 +535,46 @@
         (owner ? '<div class="champ-display-owner">' + esc(owner) + '</div>' : '') +
         (score ? '<div class="champ-display-score">' + esc(score) + '</div>' : '') +
       '</div>';
+    }
+
+    // ── BRC Live Race (also used as Projected Final Bracket) ─
+    function renderBrcLiveRace(analysis, projectedStandings) {
+      var standings = projectedStandings || (analysis.standings || []);
+      if (!standings.length) return '<p style="color:var(--accent-dim);font-size:0.75rem;letter-spacing:0.15em;">No data.</p>';
+
+      var maxVal = standings.reduce(function (m, s) {
+        return Math.max(m, projectedStandings ? (s.projected || s.score) : (s.maxPossible || s.score));
+      }, 1);
+
+      var html = '<div class="brc-live-race">';
+      standings.forEach(function (s, i) {
+        var rank      = i + 1;
+        var scoreVal  = projectedStandings ? (s.projected || s.score) : s.score;
+        var maxPosVal = projectedStandings ? (s.maxPossible || scoreVal) : (s.maxPossible || scoreVal);
+        var scorePct  = Math.round((scoreVal / maxVal) * 100);
+        var maxPct    = Math.round((maxPosVal / maxVal) * 100);
+        var isTop     = rank <= 3;
+        var isElim    = s.eliminated;
+
+        html +=
+          '<div class="brc-race-row">' +
+            '<div class="brc-race-rank' + (isTop ? ' top' : '') + '">' + rank + '</div>' +
+            '<div>' +
+              '<div class="brc-race-name">' + esc(s.bracketName) + '</div>' +
+              '<div class="brc-race-bar-wrap">' +
+                '<div class="brc-race-bar-max" style="width:' + maxPct + '%"></div>' +
+                '<div class="brc-race-bar-score' + (isElim ? ' eliminated' : '') + '" style="width:' + scorePct + '%"></div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="brc-race-scores">' +
+              '<span class="score-main">' + scoreVal + '</span>' +
+              '<span class="score-sep">/</span>' +
+              '<span class="score-max">max ' + maxPosVal + '</span>' +
+            '</div>' +
+          '</div>';
+      });
+      html += '</div>';
+      return html;
     }
 
     // ── Render standings table ───────────────────────────────
@@ -1218,14 +1445,240 @@
         else if (key === 'standings') {
           if (!current) return;
           sectionEl = document.createElement('div');
-          var standingsHtml = renderStandingsTable(current, league, config);
-          var standingsWrap = (league.sport === 'madness')
-            ? standingsHtml
-            : '<div class="league-standings-wrap">' + standingsHtml + '</div>';
-          sectionEl.innerHTML =
-            '<div class="league-section-heading">' + (isFinal ? 'Final Standings' : 'Standings') +
-              (current.year ? ' \u2014 ' + esc(current.year) : '') +
-            '</div>' + standingsWrap;
+
+          var analysis = window.OFL_BRC_ANALYSIS;
+          var isMadnessLive = (league.sport === 'madness' && !isFinal && analysis);
+
+          if (isMadnessLive) {
+            // ── BRC live mode: view pills + three views ──
+            var year = current.year ? ' \u2014 ' + esc(current.year) : '';
+            var pillsId   = 'brc-pills-' + (current.id || 'cur');
+            var viewId    = 'brc-view-'  + (current.id || 'cur');
+            var scenSelId = 'brc-ssel-'  + (current.id || 'cur');
+            var scenTblId = 'brc-stbl-'  + (current.id || 'cur');
+            var scenHntId = 'brc-shnt-'  + (current.id || 'cur');
+            var h2hSelAId = 'brc-h2ha-'  + (current.id || 'cur');
+            var h2hSelBId = 'brc-h2hb-'  + (current.id || 'cur');
+            var h2hBodyId = 'brc-h2hbd-' + (current.id || 'cur');
+
+            // Build bracket options for selects
+            var bracketOpts = '<option value="">— Select —</option>';
+            (analysis.standings || []).forEach(function(s) {
+              bracketOpts += '<option value="' + esc(s.memberId) + '">' + esc(s.bracketName) + '</option>';
+            });
+
+            sectionEl.innerHTML =
+              // Pills
+              '<div class="brc-view-pills" id="' + pillsId + '">' +
+                '<button class="brc-view-pill is-active" data-view="standings">Standings</button>' +
+                '<button class="brc-view-pill" data-view="scenario">Scenario Generator</button>' +
+                '<button class="brc-view-pill" data-view="h2h">Head to Head</button>' +
+              '</div>' +
+
+              // ── View: Standings ──────────────────────────
+              '<div data-brc-view="standings">' +
+                '<div class="league-section-heading">Standings' + year + '</div>' +
+                renderStandingsTable(current, league, config) +
+              '</div>' +
+
+              // ── View: Scenario Generator ─────────────────
+              '<div data-brc-view="scenario" style="display:none">' +
+                '<div class="league-section-heading">Scenario Generator' + year + '</div>' +
+                '<span class="brc-scenario-label">If this bracket\'s picks all come true&hellip;</span>' +
+                '<select class="brc-scenario-select" id="' + scenSelId + '">' + bracketOpts + '</select>' +
+                '<div class="league-section-heading" style="margin-top:0.5rem">Projected Final Bracket</div>' +
+                '<div id="' + scenTblId + '_race" class="brc-live-race">' + renderBrcLiveRace(analysis, null) + '</div>' +
+                '<table class="brc-scenario-table" id="' + scenTblId + '" style="display:none"></table>' +
+                '<div class="brc-scenario-hint" id="' + scenHntId + '" style="display:none"></div>' +
+              '</div>' +
+
+              // ── View: Head to Head ───────────────────────
+              '<div data-brc-view="h2h" style="display:none">' +
+                '<div class="league-section-heading">Head to Head' + year + '</div>' +
+                '<div class="brc-h2h-selects">' +
+                  '<select class="brc-scenario-select" id="' + h2hSelAId + '" style="margin-bottom:0">' + bracketOpts + '</select>' +
+                  '<select class="brc-scenario-select" id="' + h2hSelBId + '" style="margin-bottom:0">' + bracketOpts + '</select>' +
+                '</div>' +
+                '<div id="' + h2hBodyId + '">' +
+                  '<div class="brc-h2h-hint">Select two brackets above to compare</div>' +
+                '</div>' +
+              '</div>';
+
+            // Wire up interactivity via inline script
+            var inlineScript = document.createElement('script');
+            inlineScript.textContent = (function(
+              analysis, pillsId, viewId, scenSelId, scenTblId, scenHntId,
+              h2hSelAId, h2hSelBId, h2hBodyId
+            ){
+              return '(function(){\n' +
+              'var ANALYSIS=' + JSON.stringify(analysis) + ';\n' +
+              'var PTS=ANALYSIS.pointStructure||{R64:1,R32:2,S16:4,E8:8,F4:16,Final:32};\n' +
+              'var ROUNDS=["R64","R32","S16","E8","F4","Final"];\n' +
+
+              // ── Pill switching
+              'var pillsEl=document.getElementById("' + pillsId + '");\n' +
+              'if(pillsEl){pillsEl.addEventListener("click",function(e){\n' +
+              '  var btn=e.target.closest("button[data-view]");if(!btn)return;\n' +
+              '  var v=btn.getAttribute("data-view");\n' +
+              '  pillsEl.querySelectorAll(".brc-view-pill").forEach(function(p){p.classList.remove("is-active");});\n' +
+              '  btn.classList.add("is-active");\n' +
+              '  var wrap=pillsEl.parentElement;\n' +
+              '  wrap.querySelectorAll("[data-brc-view]").forEach(function(el){el.style.display=el.getAttribute("data-brc-view")===v?"block":"none";});\n' +
+              '});}\n' +
+
+              // ── Scenario select
+              'function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}\n' +
+              'var scenSel=document.getElementById("' + scenSelId + '");\n' +
+              'if(scenSel){scenSel.addEventListener("change",function(){\n' +
+              '  var mid=this.value;\n' +
+              '  var raceEl=document.getElementById("' + scenTblId + '_race");\n' +
+              '  var tblEl=document.getElementById("' + scenTblId + '");\n' +
+              '  var hntEl=document.getElementById("' + scenHntId + '");\n' +
+              '  if(!mid){\n' +
+              '    raceEl.innerHTML=' + JSON.stringify(renderBrcLiveRace(analysis, null)) + ';\n' +
+              '    tblEl.style.display="none";hntEl.style.display="none";\n' +
+              '    return;\n' +
+              '  }\n' +
+              '  var chosen=ANALYSIS.standings.find(function(s){return s.memberId===mid;});\n' +
+              '  if(!chosen)return;\n' +
+              '  // Build scenario winners from this bracket pending picks\n' +
+              '  var scenMap={};\n' +
+              '  (chosen.pendingPicks||[]).forEach(function(p){scenMap[p.slotId]=p.team;});\n' +
+              '  // Project scores\n' +
+              '  var proj=ANALYSIS.standings.map(function(s){\n' +
+              '    var extra=0;\n' +
+              '    (s.pendingPicks||[]).forEach(function(p){\n' +
+              '      if(scenMap[p.slotId]&&scenMap[p.slotId]===p.team)extra+=PTS[p.round]||0;\n' +
+              '    });\n' +
+              '    return{memberId:s.memberId,bracketName:s.bracketName,actual:s.score,projected:s.score+extra,maxPossible:s.maxPossible,eliminated:s.eliminated};\n' +
+              '  }).sort(function(a,b){return b.projected-a.projected;});\n' +
+              '  // Actual ranks\n' +
+              '  var actualRanks={};\n' +
+              '  ANALYSIS.standings.forEach(function(s,i){actualRanks[s.memberId]=i+1;});\n' +
+              '  // Render projected race bars\n' +
+              '  var maxProj=proj.reduce(function(m,s){return Math.max(m,s.projected);},1);\n' +
+              '  var raceHtml="";\n' +
+              '  proj.forEach(function(s,i){\n' +
+              '    var rank=i+1;\n' +
+              '    var sPct=Math.round((s.projected/maxProj)*100);\n' +
+              '    var mPct=Math.round(((s.maxPossible||s.projected)/maxProj)*100);\n' +
+              '    var isTop=rank<=3;\n' +
+              '    raceHtml+=\'<div class="brc-race-row">\'+\n' +
+              '      \'<div class="brc-race-rank\'+(isTop?\' top\':\'\')+\'">\'+(rank)+\'</div>\'+\n' +
+              '      \'<div><div class="brc-race-name">\'+esc(s.bracketName)+\'</div>\'+\n' +
+              '      \'<div class="brc-race-bar-wrap">\'+\n' +
+              '        \'<div class="brc-race-bar-max" style="width:\'+mPct+\'%"></div>\'+\n' +
+              '        \'<div class="brc-race-bar-score\'+(s.eliminated?\' eliminated\':\'\')+\'" style="width:\'+sPct+\'%"></div>\'+\n' +
+              '      \'</div></div>\'+\n' +
+              '      \'<div class="brc-race-scores"><span class="score-main">\'+s.projected+\'</span>\'+\n' +
+              '        \'<span class="score-sep">/</span>\'+\n' +
+              '        \'<span class="score-max">max \'+s.maxPossible+\'</span></div>\'+\n' +
+              '    \'</div>\';\n' +
+              '  });\n' +
+              '  raceEl.innerHTML=raceHtml;\n' +
+              '  tblEl.style.display="none"; hntEl.style.display="none";\n' +
+              '});}\n' +
+
+              // ── H2H selects
+              'function renderH2H(){\n' +
+              '  var midA=document.getElementById("' + h2hSelAId + '").value;\n' +
+              '  var midB=document.getElementById("' + h2hSelBId + '").value;\n' +
+              '  var body=document.getElementById("' + h2hBodyId + '");\n' +
+              '  if(!midA||!midB||midA===midB){body.innerHTML=\'<div class="brc-h2h-hint">Select two different brackets to compare</div>\';return;}\n' +
+              '  var bA=ANALYSIS.standings.find(function(s){return s.memberId===midA;});\n' +
+              '  var bB=ANALYSIS.standings.find(function(s){return s.memberId===midB;});\n' +
+              '  if(!bA||!bB)return;\n' +
+              '  var picksA={},picksB={};\n' +
+              '  (bA.allPicks||[]).forEach(function(p){picksA[p.slotId]=p;});\n' +
+              '  (bB.allPicks||[]).forEach(function(p){picksB[p.slotId]=p;});\n' +
+              '  // Count agreement\n' +
+              '  var agree=0,total=0;\n' +
+              '  var allSlots=Object.keys(Object.assign({},picksA,picksB));\n' +
+              '  allSlots.forEach(function(sid){\n' +
+              '    var pA=picksA[sid],pB=picksB[sid];\n' +
+              '    if(pA&&pB){total++;if(pA.team===pB.team)agree++;}\n' +
+              '  });\n' +
+              '  var pct=total>0?Math.round(agree/total*100):0;\n' +
+              '  // Stat cards\n' +
+              '  var cardsHtml=\'<div class="brc-h2h-stat-cards">\'+\n' +
+              '    \'<div class="brc-h2h-card">\'+\n' +
+              '      \'<div class="brc-h2h-card-name">\'+esc(bA.bracketName)+\'</div>\'+\n' +
+              '      \'<div class="brc-h2h-card-label">Current Score</div>\'+\n' +
+              '      \'<div class="brc-h2h-card-val">\'+bA.score+\'</div>\'+\n' +
+              '      \'<div class="brc-h2h-card-sub">pts</div>\'+\n' +
+              '    \'</div>\'+\n' +
+              '    \'<div class="brc-h2h-card center">\'+\n' +
+              '      \'<div class="brc-h2h-card-label">Agreement</div>\'+\n' +
+              '      \'<div class="brc-h2h-card-val">\'+agree+\'/\'+total+\'</div>\'+\n' +
+              '      \'<div class="brc-h2h-card-sub">\'+pct+\'% same picks</div>\'+\n' +
+              '    \'</div>\'+\n' +
+              '    \'<div class="brc-h2h-card">\'+\n' +
+              '      \'<div class="brc-h2h-card-name">\'+esc(bB.bracketName)+\'</div>\'+\n' +
+              '      \'<div class="brc-h2h-card-label">Current Score</div>\'+\n' +
+              '      \'<div class="brc-h2h-card-val">\'+bB.score+\'</div>\'+\n' +
+              '      \'<div class="brc-h2h-card-sub">pts</div>\'+\n' +
+              '    \'</div>\'+\n' +
+              '  \'</div>\';\n' +
+              '  // Pick table by round\n' +
+              '  var tblHtml=\'<div class="brc-h2h-table-wrap"><table class="brc-h2h-table"><thead><tr>\'+\n' +
+              '    \'<th class="h2h-col-a h2h-col-a">\'+esc(bA.bracketName)+\'</th>\'+\n' +
+              '    \'<th class="h2h-col-mid"></th>\'+\n' +
+              '    \'<th class="h2h-col-b">\'+esc(bB.bracketName)+\'</th>\'+\n' +
+              '  \'</tr></thead><tbody>\';\n' +
+              '  ROUNDS.forEach(function(round){\n' +
+              '    var rA=(bA.allPicks||[]).filter(function(p){return p.round===round;});\n' +
+              '    var rB=(bB.allPicks||[]).filter(function(p){return p.round===round;});\n' +
+              '    if(!rA.length&&!rB.length)return;\n' +
+              '    tblHtml+=\'<tr class="brc-h2h-round-row"><td colspan="3">\'+round+\' &middot; \'+((PTS[round]||0))+\' pts</td></tr>\';\n' +
+              '    var slots=[];\n' +
+              '    rA.forEach(function(p){if(slots.indexOf(p.slotId)===-1)slots.push(p.slotId);});\n' +
+              '    rB.forEach(function(p){if(slots.indexOf(p.slotId)===-1)slots.push(p.slotId);});\n' +
+              '    slots.sort();\n' +
+              '    slots.forEach(function(sid){\n' +
+              '      var pA=picksA[sid],pB=picksB[sid];\n' +
+              '      var tA=pA?pA.team:"—",tB=pB?pB.team:"—";\n' +
+              '      var sA=pA?pA.status:"pending",sB=pB?pB.status:"pending";\n' +
+              '      var same=tA===tB;\n' +
+              '      // Classes for A\n' +
+              '      var clsA=same?"h2h-agree h2h-col-a":"h2h-disagree-a h2h-col-a";\n' +
+              '      if(sA==="correct")clsA+=" h2h-correct";\n' +
+              '      if(sA==="incorrect")clsA+=" h2h-wrong";\n' +
+              '      if(sA==="pending")clsA+=" h2h-pending";\n' +
+              '      // Classes for B\n' +
+              '      var clsB=same?"h2h-agree h2h-col-b":"h2h-disagree-b h2h-col-b";\n' +
+              '      if(sB==="correct")clsB+=" h2h-correct";\n' +
+              '      if(sB==="incorrect")clsB+=" h2h-wrong";\n' +
+              '      if(sB==="pending")clsB+=" h2h-pending";\n' +
+              '      tblHtml+=\'<tr class="brc-h2h-pick-row">\'+\n' +
+              '        \'<td class="\'+clsA+\'">\'+esc(tA)+\'</td>\'+\n' +
+              '        \'<td class="h2h-col-mid">\'+( same?"=":"≠")+\'</td>\'+\n' +
+              '        \'<td class="\'+clsB+\'">\'+esc(tB)+\'</td>\'+\n' +
+              '      \'</tr>\';\n' +
+              '    });\n' +
+              '  });\n' +
+              '  tblHtml+=\'</tbody></table></div>\';\n' +
+              '  body.innerHTML=cardsHtml+tblHtml;\n' +
+              '}\n' +
+              'var selA=document.getElementById("' + h2hSelAId + '");\n' +
+              'var selB=document.getElementById("' + h2hSelBId + '");\n' +
+              'if(selA)selA.addEventListener("change",renderH2H);\n' +
+              'if(selB)selB.addEventListener("change",renderH2H);\n' +
+              '})();';
+            })(analysis, pillsId, viewId, scenSelId, scenTblId, scenHntId, h2hSelAId, h2hSelBId, h2hBodyId);
+
+            sectionEl.appendChild(inlineScript);
+
+          } else {
+            // ── Normal standings (preseason / no analysis / final)
+            var standingsHtml = renderStandingsTable(current, league, config);
+            var standingsWrap = (league.sport === 'madness')
+              ? standingsHtml
+              : '<div class="league-standings-wrap">' + standingsHtml + '</div>';
+            sectionEl.innerHTML =
+              '<div class="league-section-heading">' + (isFinal ? 'Final Standings' : 'Standings') +
+                (current.year ? ' \u2014 ' + esc(current.year) : '') +
+              '</div>' + standingsWrap;
+          }
         }
 
         // ── Playoff Bracket ───────────────────────────────
@@ -1243,6 +1696,8 @@
         // ── Season Roster ─────────────────────────────────
         else if (key === 'roster') {
           if (!current) return;
+          // BRC: hide roster during active season — only show preseason or final
+          if (league.sport === 'madness' && !isPreseason && !isFinal) return;
           var rosterHtml = renderRoster(current, league, config);
           if (!rosterHtml) return;
           sectionEl = document.createElement('div');
@@ -1286,11 +1741,10 @@
         body.appendChild(sectionEl);
 
         // For BRC, scroll the wrap so the last active round is visible on load
-        if (key === 'standings' && league.sport === 'madness') {
+        if (key === 'standings' && league.sport === 'madness' && isFinal) {
           requestAnimationFrame(function () {
             var wrap = sectionEl.querySelector('.brc-standings-wrap');
             if (!wrap) return;
-            // Scroll fully right so the latest round is visible before the Total col
             wrap.scrollLeft = wrap.scrollWidth - wrap.clientWidth;
           });
         }
