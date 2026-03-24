@@ -1,6 +1,6 @@
 /**
  * ofl-announcements.js — Commissioner Broadcast Data
- * Generated: 3/23/2026, 7:09:00 PM
+ * Generated: 3/24/2026, 1:49:51 PM
  *
  * Drop this file next to index.html and add:
  *   <script src="ofl-announcements.js"></script>
@@ -8,6 +8,35 @@
  * The renderer will use this data if localStorage is empty.
  */
 var OFL_ANNOUNCEMENTS = [
+  {
+    "id": "ann_mn4wohmz_x184",
+    "title": "NEW BRC FEATURES",
+    "body": "You didn't ask for them, but you're getting them anyway. The BRC and its parent company, OFL, are proud to announce the addition of two new features to this years tournament (in Beta).&nbsp;<div><br></div><div><b style=\"font-size: 0.85rem; letter-spacing: 0.272px;\"><font size=\"3\">Scenario Generator</font></b></div><div>This exciting new feature&nbsp;is geared to keep hope alive or crush it completely. Click Scenario Generator just above the Standings and then select your bracket from the drop-down list. And just like that, you're a stud, or a dud!</div><div><br></div><div><div style=\"letter-spacing: 0.272px;\"><b style=\"font-size: 0.85rem; letter-spacing: 0.272px;\"><font size=\"3\">Head to Head</font></b></div><div style=\"letter-spacing: 0.272px;\">So got some beef with another bracketeer or just want to know how you compare to the best of the rest? The tool allows you to compare brackets between 2 competitors. Click Head to Head, then select a bracket from each of the drop down menus. The display will show each brackets current score and how many picks they agree on. Each brackets picks will be shown side-by-side, by round, to compare where mistakes were made, or brilliance shined.</div></div><div style=\"letter-spacing: 0.272px;\"><br></div><div style=\"letter-spacing: 0.272px;\">Hope you enjoy the new features</div><div style=\"letter-spacing: 0.272px;\"><br></div><div style=\"letter-spacing: 0.272px;\">-BRC Commissioner</div>",
+    "style": "dispatch",
+    "position": "",
+    "ribbonLayout": "float",
+    "marqueeLabel": "",
+    "showMarqueeLabel": true,
+    "marqueeLabelColor": "",
+    "marqueeSpeed": "medium",
+    "entryAnimation": "slide-up",
+    "idleAnimation": "pulse",
+    "letterheadUrl": "assets/logos/brc.png",
+    "eyebrow": "",
+    "letterheadHeight": 60,
+    "watermarkUrl": "",
+    "watermarkOpacity": 0.07,
+    "showDismiss": true,
+    "active": true,
+    "startDate": "",
+    "endDate": "2026-03-25T12:00",
+    "pages": [
+      "league-brc"
+    ],
+    "dismissBehavior": "always",
+    "autoDismiss": false,
+    "autoDismissSecs": 10
+  },
   {
     "id": "ann_mn0v06k3_ue24",
     "title": "",
@@ -87,7 +116,7 @@ var OFL_ANNOUNCEMENTS = [
     "watermarkOpacity": 0.07,
     "showDismiss": true,
     "active": true,
-    "startDate": "",
+    "startDate": "2026-03-25T12:01",
     "endDate": "2026-03-26T18:30",
     "pages": [
       "league-brc"
