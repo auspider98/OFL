@@ -201,13 +201,15 @@
       letter-spacing: 0.06em; color: var(--accent);
     }
     .brc-upset-lb-table tr:last-child td { border-bottom: none; }
+    .brc-upset-lb-table th:last-child,
+    .brc-upset-lb-table td:last-child { padding-right: 1rem; }
     .brc-upset-lb-rank {
       font-family: var(--font-display); font-size: 0.9rem;
       color: var(--accent-dim); text-align: center; width: 2rem;
     }
     .brc-upset-lb-rank.top { color: var(--hint-color, var(--accent)); font-weight: 600; }
     .brc-upset-lb-name { font-weight: 600; }
-    .brc-upset-lb-num { text-align: right; }
+    .brc-upset-lb-num { text-align: center; }
     .brc-upset-lb-num.correct { color: var(--hint-color, var(--accent)); font-weight: 600; }
     .brc-upset-lb-rate { text-align: right; color: var(--accent-dim); font-size: 0.65rem; }
 
@@ -1888,7 +1890,7 @@
               '  });\n' +
               '  html+=\'<div class="league-section-heading" style="margin-bottom:0.8rem">Upset Leaderboard</div>\';\n' +
               '  html+=\'<table class="brc-upset-lb-table"><thead><tr>\';\n' +
-              '  html+=\'<th style="width:2rem;text-align:center">#</th><th>Bracket</th><th class="r">Predicted</th><th class="r">Correct</th><th class="r">%</th>\';\n' +
+              '  html+=\'<th style="width:2rem;text-align:center">#</th><th>Bracket</th><th style="text-align:center">Predicted</th><th style="text-align:center">Correct</th><th class="r">%</th>\';\n' +
               '  html+=\'</tr></thead><tbody>\';\n' +
               '  lbData.forEach(function(row){\n' +
               '    var isTop=row.displayRank<=3;\n' +
