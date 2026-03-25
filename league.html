@@ -1782,80 +1782,38 @@
               '  var body=document.getElementById("' + upsetsBodyId + '");\n' +
               '  if(!body)return;\n' +
               '  var standings=ANALYSIS.standings||[];\n' +
-              // Build slot→teams seed map from allPicks
-              '  var slotTeams={};\n' +
-              '  standings.forEach(function(s){\n' +
-              '    (s.allPicks||[]).forEach(function(p){\n' +
-              '      if(!slotTeams[p.slotId])slotTeams[p.slotId]={};\n' +
-              '      slotTeams[p.slotId][p.team]=p.seed;\n' +
-              '    });\n' +
-              '  });\n' +
-              // Build slot→actualWinner map
-              '  var slotWinner={};\n' +
-              '  standings.forEach(function(s){\n' +
-              '    (s.allPicks||[]).forEach(function(p){\n' +
-              '      if(p.actualWinner&&!slotWinner[p.slotId])slotWinner[p.slotId]={winner:p.actualWinner,round:p.round};\n' +
-              '    });\n' +
-              '  });\n' +
-              // Identify actual upsets (winner seed > any other team seed in same slot)
+              '  var gameResults=ANALYSIS.actualResults||{};\n' +
+              // If no actualResults in export, show a message
+              '  if(!Object.keys(gameResults).length){\n' +
+              '    body.innerHTML=\'<p style="color:var(--accent-dim);font-size:0.75rem;letter-spacing:0.15em;">Re-export ofl-brc-analysis.js from the BRC utility to enable Upsets data.</p>\';\n' +
+              '    return;\n' +
+              '  }\n' +
+              // Identify actual upsets from gameResults: winner seed > loser seed
               '  var actualUpsets={};\n' +
-              '  Object.keys(slotTeams).forEach(function(sid){\n' +
-              '    var teams=slotTeams[sid];\n' +
-              '    var sw=slotWinner[sid];\n' +
-              '    if(!sw||!sw.winner)return;\n' +
-              '    var wSeed=teams[sw.winner];\n' +
-              '    if(wSeed==null)return;\n' +
-              '    var loser=null,loserSeed=null;\n' +
-              '    Object.keys(teams).forEach(function(t){\n' +
-              '      if(t!==sw.winner&&teams[t]<wSeed){\n' +
-              '        if(loserSeed===null||teams[t]<loserSeed){loser=t;loserSeed=teams[t];}\n' +
-              '      }\n' +
-              '    });\n' +
-              '    if(!loser)return;\n' +
-              '    actualUpsets[sid]={slotId:sid,round:sw.round,winner:sw.winner,winnerSeed:wSeed,loser:loser,loserSeed:loserSeed,seedDiff:wSeed-loserSeed,predictors:[]};\n' +
+              '  Object.keys(gameResults).forEach(function(sid){\n' +
+              '    var r=gameResults[sid];\n' +
+              '    if(!r||!r.winner||r.winnerSeed==null||r.loserSeed==null)return;\n' +
+              '    if(r.winnerSeed>r.loserSeed){\n' +
+              '      actualUpsets[sid]={slotId:sid,round:r.round,winner:r.winner,winnerSeed:r.winnerSeed,loser:r.loser,loserSeed:r.loserSeed,seedDiff:r.winnerSeed-r.loserSeed,predictors:[]};\n' +
+              '    }\n' +
               '  });\n' +
-              // Find predictors — bracket picked the upset winner correctly
-              '  standings.forEach(function(s){\n' +
-              '    (s.allPicks||[]).forEach(function(p){\n' +
-              '      if(actualUpsets[p.slotId]&&p.team===actualUpsets[p.slotId].winner&&p.status==="correct"){\n' +
-              '        actualUpsets[p.slotId].predictors.push(s.bracketName);\n' +
-              '      }\n' +
-              '    });\n' +
-              '  });\n' +
-              // Per-bracket upset prediction tallies
+              // Find predictors and tally per bracket using gameResults for opponent seed
               '  var bracketTally={};\n' +
               '  standings.forEach(function(s){bracketTally[s.bracketName]={predicted:0,correct:0};});\n' +
-              // Build slot→{winnerSeed, loserSeed} from actualUpsets + non-upset completed games
-              // For any completed game, we know both seeds from the slotWinner + slotTeams data
-              // A prediction is an upset pick only if: picked team seed > opponent seed in THAT game
-              // We use actualUpsets to get the real seed matchup for completed games only
-              '  var slotMatchup={};\n' +
-              '  Object.keys(slotWinner).forEach(function(sid){\n' +
-              '    var sw=slotWinner[sid];\n' +
-              '    var teams=slotTeams[sid]||{};\n' +
-              '    var winnerSeed=teams[sw.winner];\n' +
-              '    if(winnerSeed==null)return;\n' +
-              // Find the loser seed — the team with the lowest seed number that isn\'t the winner
-              '    var loserSeed=null;\n' +
-              '    Object.keys(teams).forEach(function(t){\n' +
-              '      if(t!==sw.winner){\n' +
-              '        var s=teams[t];\n' +
-              '        if(loserSeed===null||s<loserSeed)loserSeed=s;\n' +
-              '      }\n' +
-              '    });\n' +
-              '    if(loserSeed===null)return;\n' +
-              '    slotMatchup[sid]={winnerSeed:winnerSeed,loserSeed:loserSeed,winner:sw.winner};\n' +
-              '  });\n' +
               '  standings.forEach(function(s){\n' +
               '    (s.allPicks||[]).forEach(function(p){\n' +
-              '      var matchup=slotMatchup[p.slotId];\n' +
-              '      if(!matchup)return;\n' +
-              // Determine opponent seed for this bracket\'s pick in this game
-              '      var pickedSeed=p.seed||slotTeams[p.slotId]&&slotTeams[p.slotId][p.team]||0;\n' +
-              '      var opponentSeed=p.team===matchup.winner?matchup.loserSeed:matchup.winnerSeed;\n' +
+              '      var r=gameResults[p.slotId];\n' +
+              '      if(!r)return;\n' +
+              // Determine picked seed and opponent seed from actual game result
+              '      var pickedSeed=p.seed||0;\n' +
+              '      var opponentSeed=p.team===r.winner?r.loserSeed:r.winnerSeed;\n' +
               '      if(pickedSeed>opponentSeed&&pickedSeed>0&&opponentSeed>0){\n' +
               '        bracketTally[s.bracketName].predicted++;\n' +
               '        if(p.status==="correct")bracketTally[s.bracketName].correct++;\n' +
+              '      }\n' +
+              // Track predictors of actual upsets
+              '      if(actualUpsets[p.slotId]&&p.team===actualUpsets[p.slotId].winner&&p.status==="correct"){\n' +
+              '        actualUpsets[p.slotId].predictors.push(s.bracketName);\n' +
               '      }\n' +
               '    });\n' +
               '  });\n' +
@@ -1874,8 +1832,6 @@
               '    var rate=totalActual>0?Math.round((t.correct/totalActual)*100):0;\n' +
               '    return{name:s.bracketName,predicted:t.predicted,correct:t.correct,rate:rate};\n' +
               '  }).sort(function(a,b){return b.correct-a.correct||b.predicted-a.predicted;});\n' +
-              // Assign ranks with gaps on ties (same correct = same rank)
-              '  var rankCounter=1;\n' +
               '  lbData.forEach(function(row,i){\n' +
               '    if(i===0){row.displayRank=1;}\n' +
               '    else if(lbData[i-1].correct===row.correct){row.displayRank=lbData[i-1].displayRank;}\n' +
@@ -1896,7 +1852,7 @@
               '    html+=\'</tr>\';\n' +
               '  });\n' +
               '  html+=\'</tbody></table>\';\n' +
-              // Upsets table
+              // Upsets that happened table
               '  html+=\'<div class="league-section-heading" style="margin-top:1.5rem;margin-bottom:0.8rem">Upsets That Happened</div>\';\n' +
               '  if(!upsetArr.length){\n' +
               '    html+=\'<p style="color:var(--accent-dim);font-size:0.75rem;letter-spacing:0.15em;">No upsets yet.</p>\';\n' +
