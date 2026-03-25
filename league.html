@@ -1847,16 +1847,17 @@
               '  var lbData=standings.map(function(s){\n' +
               '    var t=bracketTally[s.bracketName]||{predicted:0,correct:0};\n' +
               '    var rate=totalActual>0?Math.round((t.correct/totalActual)*100):0;\n' +
-              '    return{name:s.bracketName,predicted:t.predicted,correct:t.correct,rate:rate};\n' +
-              '  }).sort(function(a,b){return b.correct-a.correct||b.predicted-a.predicted;});\n' +
+              '    var predictPct=t.predicted>0?Math.round((t.correct/t.predicted)*100):0;\n' +
+              '    return{name:s.bracketName,predicted:t.predicted,correct:t.correct,rate:rate,predictPct:predictPct};\n' +
+              '  }).sort(function(a,b){return b.predictPct-a.predictPct||b.correct-a.correct||b.predicted-a.predicted;});\n' +
               '  lbData.forEach(function(row,i){\n' +
               '    if(i===0){row.displayRank=1;}\n' +
-              '    else if(lbData[i-1].correct===row.correct){row.displayRank=lbData[i-1].displayRank;}\n' +
+              '    else if(lbData[i-1].predictPct===row.predictPct&&lbData[i-1].correct===row.correct){row.displayRank=lbData[i-1].displayRank;}\n' +
               '    else{row.displayRank=i+1;}\n' +
               '  });\n' +
               '  html+=\'<div class="league-section-heading" style="margin-bottom:0.8rem">Upset Leaderboard</div>\';\n' +
               '  html+=\'<table class="brc-upset-lb-table"><thead><tr>\';\n' +
-              '  html+=\'<th style="width:2rem;text-align:center">#</th><th>Bracket</th><th class="r">Predicted</th><th class="r">Correct</th><th class="r">Hit %</th>\';\n' +
+              '  html+=\'<th style="width:2rem;text-align:center">#</th><th>Bracket</th><th class="r">Predicted</th><th class="r">Hit</th><th class="r">Hit %</th><th class="r">Predict %</th>\';\n' +
               '  html+=\'</tr></thead><tbody>\';\n' +
               '  lbData.forEach(function(row){\n' +
               '    var isTop=row.displayRank<=3;\n' +
@@ -1866,6 +1867,7 @@
               '    html+=\'<td class="brc-upset-lb-num">\'+row.predicted+\'</td>\';\n' +
               '    html+=\'<td class="brc-upset-lb-num correct">\'+row.correct+\'</td>\';\n' +
               '    html+=\'<td class="brc-upset-lb-rate">\'+row.rate+\'%</td>\';\n' +
+              '    html+=\'<td class="brc-upset-lb-rate" style="color:var(--hint-color,var(--accent));opacity:1">\'+row.predictPct+\'%</td>\';\n' +
               '    html+=\'</tr>\';\n' +
               '  });\n' +
               '  html+=\'</tbody></table>\';\n' +
@@ -1971,7 +1973,7 @@
         body.appendChild(sectionEl);
 
         // For BRC, scroll the wrap so the last active round is visible on load
-        if (key === 'standings' && league.sport === 'madness' && isFinal) {
+        if (key === 'standings' && league.sport === 'madness') {
           requestAnimationFrame(function () {
             var wrap = sectionEl.querySelector('.brc-standings-wrap');
             if (!wrap) return;
