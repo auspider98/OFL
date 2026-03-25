@@ -156,6 +156,9 @@
       padding: 0.9rem 1rem;
       border: 1px solid var(--drawer-border);
       background: rgba(255,255,255,0.02);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
     .brc-upset-card-label {
       font-family: var(--font-body); font-size: 0.55rem;
@@ -165,6 +168,7 @@
     .brc-upset-card-val {
       font-family: var(--font-display); font-size: 2rem;
       font-weight: 300; color: var(--accent); line-height: 1;
+      margin-top: auto;
     }
     .brc-upset-card-sub {
       font-family: var(--font-body); font-size: 0.6rem;
@@ -1868,7 +1872,7 @@
               '  html+=\'<div class="brc-upset-card-val">\'+totalPredicted+\'<span style="opacity:0.35;margin:0 0.15em;font-size:1.4rem">/</span>\'+totalGames+\'</div>\';\n' +
               '  html+=\'</div>\';\n' +
               '  html+=\'<div class="brc-upset-card"><div class="brc-upset-card-label">Upsets</div><div class="brc-upset-card-val">\'+totalActual+\'</div></div>\';\n' +
-              '  html+=\'<div class="brc-upset-card"><div class="brc-upset-card-label">Predict %</div><div class="brc-upset-card-val">\'+leaguePredictPct+\'%</div></div>\';\n' +
+              '  html+=\'<div class="brc-upset-card"><div class="brc-upset-card-label">League</div><div class="brc-upset-card-val">\'+leaguePredictPct+\'%</div></div>\';\n' +
               '  html+=\'</div>\';\n' +
               // Leaderboard
               '  var lbData=standings.map(function(s){\n' +
