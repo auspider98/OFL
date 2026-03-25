@@ -124,6 +124,7 @@
     /* ── BRC View Pills ─────────────────────────────────────── */
     .brc-view-pills {
       display: flex; gap: 0.4rem; flex-wrap: wrap;
+      justify-content: center;
       margin-bottom: 1.2rem; padding-bottom: 0.9rem;
       border-bottom: 1px solid var(--drawer-border);
     }
@@ -139,6 +140,107 @@
     .brc-view-pill.is-active {
       color: var(--accent); border-color: var(--accent);
       background: rgba(232,232,232,0.06);
+    }
+
+    /* ── BRC Upset Summary Cards ────────────────────────────── */
+    .brc-upset-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+      margin-bottom: 1.4rem;
+    }
+    .brc-upset-card {
+      padding: 0.9rem 1rem;
+      border: 1px solid var(--drawer-border);
+      background: rgba(255,255,255,0.02);
+    }
+    .brc-upset-card-label {
+      font-family: var(--font-body); font-size: 0.55rem;
+      letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--accent-dim); margin-bottom: 0.35rem;
+    }
+    .brc-upset-card-val {
+      font-family: var(--font-display); font-size: 2rem;
+      font-weight: 300; color: var(--accent); line-height: 1;
+    }
+
+    /* ── BRC Upset Leaderboard ──────────────────────────────── */
+    .brc-upset-lb-table {
+      width: 100%; border-collapse: collapse;
+      font-family: var(--font-body); font-size: 0.72rem;
+      margin-bottom: 1.8rem;
+    }
+    .brc-upset-lb-table thead th {
+      font-weight: 300; font-size: 0.55rem; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--accent-dim);
+      padding: 0.4rem 0.6rem; text-align: left;
+      border-bottom: 1px solid var(--drawer-border);
+    }
+    .brc-upset-lb-table thead th.r { text-align: right; }
+    .brc-upset-lb-table td {
+      padding: 0.5rem 0.6rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      letter-spacing: 0.06em; color: var(--accent);
+    }
+    .brc-upset-lb-table tr:last-child td { border-bottom: none; }
+    .brc-upset-lb-rank {
+      font-family: var(--font-display); font-size: 0.9rem;
+      color: var(--accent-dim); text-align: center; width: 2rem;
+    }
+    .brc-upset-lb-rank.top { color: var(--hint-color, var(--accent)); font-weight: 600; }
+    .brc-upset-lb-name { font-weight: 600; }
+    .brc-upset-lb-num { text-align: right; }
+    .brc-upset-lb-num.correct { color: var(--hint-color, var(--accent)); font-weight: 600; }
+    .brc-upset-lb-rate { text-align: right; color: var(--accent-dim); font-size: 0.65rem; }
+
+    /* ── BRC Upsets Table ───────────────────────────────────── */
+    .brc-upsets-table {
+      width: 100%; border-collapse: collapse;
+      font-family: var(--font-body); font-size: 0.72rem;
+    }
+    .brc-upsets-table thead th {
+      font-weight: 300; font-size: 0.55rem; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--accent-dim);
+      padding: 0.4rem 0.6rem; text-align: left;
+      border-bottom: 1px solid var(--drawer-border);
+    }
+    .brc-upsets-table thead th.r { text-align: right; }
+    .brc-upsets-table td {
+      padding: 0.55rem 0.6rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      vertical-align: top;
+    }
+    .brc-upsets-table tr:last-child td { border-bottom: none; }
+    .brc-upset-round {
+      font-size: 0.58rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--accent-dim);
+      white-space: nowrap; padding-top: 0.1rem;
+    }
+    .brc-upset-winner {
+      font-family: var(--font-body); font-weight: 600;
+      font-size: 0.78rem; letter-spacing: 0.06em;
+      color: var(--hint-color, var(--accent));
+    }
+    .brc-upset-winner-seed {
+      font-size: 0.6rem; opacity: 0.6; margin-left: 0.3em;
+    }
+    .brc-upset-loser {
+      font-family: var(--font-body); font-size: 0.68rem;
+      letter-spacing: 0.04em; color: var(--accent-dim);
+      text-decoration: line-through; opacity: 0.55;
+      margin-top: 0.15rem;
+    }
+    .brc-upset-loser-seed {
+      font-size: 0.58rem; margin-left: 0.25em;
+    }
+    .brc-upset-called {
+      text-align: right; font-family: var(--font-display);
+      font-size: 1rem; font-weight: 300;
+      color: var(--accent); white-space: nowrap;
+    }
+    .brc-upset-callers {
+      font-size: 0.62rem; letter-spacing: 0.05em;
+      color: var(--accent-dim); line-height: 1.6;
     }
 
     /* ── BRC Live Race ──────────────────────────────────────── */
@@ -1452,14 +1554,16 @@
           if (isMadnessLive) {
             // ── BRC live mode: view pills + three views ──
             var year = current.year ? ' \u2014 ' + esc(current.year) : '';
-            var pillsId   = 'brc-pills-' + (current.id || 'cur');
-            var viewId    = 'brc-view-'  + (current.id || 'cur');
-            var scenSelId = 'brc-ssel-'  + (current.id || 'cur');
-            var scenTblId = 'brc-stbl-'  + (current.id || 'cur');
-            var scenHntId = 'brc-shnt-'  + (current.id || 'cur');
-            var h2hSelAId = 'brc-h2ha-'  + (current.id || 'cur');
-            var h2hSelBId = 'brc-h2hb-'  + (current.id || 'cur');
-            var h2hBodyId = 'brc-h2hbd-' + (current.id || 'cur');
+            var pillsId      = 'brc-pills-' + (current.id || 'cur');
+            var viewId       = 'brc-view-'  + (current.id || 'cur');
+            var scenSelId    = 'brc-ssel-'  + (current.id || 'cur');
+            var scenTblId    = 'brc-stbl-'  + (current.id || 'cur');
+            var scenHntId    = 'brc-shnt-'  + (current.id || 'cur');
+            var h2hSelAId    = 'brc-h2ha-'  + (current.id || 'cur');
+            var h2hSelBId    = 'brc-h2hb-'  + (current.id || 'cur');
+            var h2hBodyId    = 'brc-h2hbd-' + (current.id || 'cur');
+            var upsetsViewId = 'brc-uv-'    + (current.id || 'cur');
+            var upsetsBodyId = 'brc-ub-'    + (current.id || 'cur');
 
             // Build bracket options for selects
             var bracketOpts = '<option value="">— Select —</option>';
@@ -1473,6 +1577,7 @@
                 '<button class="brc-view-pill is-active" data-view="standings">Standings</button>' +
                 '<button class="brc-view-pill" data-view="scenario">Scenario Generator</button>' +
                 '<button class="brc-view-pill" data-view="h2h">Head to Head</button>' +
+                '<button class="brc-view-pill" data-view="upsets">Upsets</button>' +
               '</div>' +
 
               // ── View: Standings ──────────────────────────
@@ -1502,13 +1607,19 @@
                 '<div id="' + h2hBodyId + '">' +
                   '<div class="brc-h2h-hint">Select two brackets above to compare</div>' +
                 '</div>' +
+              '</div>' +
+
+              // ── View: Upsets ─────────────────────────────
+              '<div data-brc-view="upsets" style="display:none" id="' + upsetsViewId + '">' +
+                '<div class="league-section-heading">Upsets' + year + '</div>' +
+                '<div id="' + upsetsBodyId + '"></div>' +
               '</div>';
 
             // Wire up interactivity via inline script
             var inlineScript = document.createElement('script');
             inlineScript.textContent = (function(
               analysis, pillsId, viewId, scenSelId, scenTblId, scenHntId,
-              h2hSelAId, h2hSelBId, h2hBodyId
+              h2hSelAId, h2hSelBId, h2hBodyId, upsetsBodyId
             ){
               return '(function(){\n' +
               'var ANALYSIS=' + JSON.stringify(analysis) + ';\n' +
@@ -1524,6 +1635,7 @@
               '  btn.classList.add("is-active");\n' +
               '  var wrap=pillsEl.parentElement;\n' +
               '  wrap.querySelectorAll("[data-brc-view]").forEach(function(el){el.style.display=el.getAttribute("data-brc-view")===v?"block":"none";});\n' +
+              '  if(v==="upsets")renderUpsets();\n' +
               '});}\n' +
 
               // ── Scenario select
@@ -1663,8 +1775,135 @@
               'var selB=document.getElementById("' + h2hSelBId + '");\n' +
               'if(selA)selA.addEventListener("change",renderH2H);\n' +
               'if(selB)selB.addEventListener("change",renderH2H);\n' +
+
+              // ── Upsets renderer
+              'function esc2(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}\n' +
+              'function renderUpsets(){\n' +
+              '  var body=document.getElementById("' + upsetsBodyId + '");\n' +
+              '  if(!body)return;\n' +
+              '  var standings=ANALYSIS.standings||[];\n' +
+              // Build slot→teams seed map from allPicks
+              '  var slotTeams={};\n' +
+              '  standings.forEach(function(s){\n' +
+              '    (s.allPicks||[]).forEach(function(p){\n' +
+              '      if(!slotTeams[p.slotId])slotTeams[p.slotId]={};\n' +
+              '      slotTeams[p.slotId][p.team]=p.seed;\n' +
+              '    });\n' +
+              '  });\n' +
+              // Build slot→actualWinner map
+              '  var slotWinner={};\n' +
+              '  standings.forEach(function(s){\n' +
+              '    (s.allPicks||[]).forEach(function(p){\n' +
+              '      if(p.actualWinner&&!slotWinner[p.slotId])slotWinner[p.slotId]={winner:p.actualWinner,round:p.round};\n' +
+              '    });\n' +
+              '  });\n' +
+              // Identify actual upsets (winner seed > any other team seed in same slot)
+              '  var actualUpsets={};\n' +
+              '  Object.keys(slotTeams).forEach(function(sid){\n' +
+              '    var teams=slotTeams[sid];\n' +
+              '    var sw=slotWinner[sid];\n' +
+              '    if(!sw||!sw.winner)return;\n' +
+              '    var wSeed=teams[sw.winner];\n' +
+              '    if(wSeed==null)return;\n' +
+              '    var loser=null,loserSeed=null;\n' +
+              '    Object.keys(teams).forEach(function(t){\n' +
+              '      if(t!==sw.winner&&teams[t]<wSeed){\n' +
+              '        if(loserSeed===null||teams[t]<loserSeed){loser=t;loserSeed=teams[t];}\n' +
+              '      }\n' +
+              '    });\n' +
+              '    if(!loser)return;\n' +
+              '    actualUpsets[sid]={slotId:sid,round:sw.round,winner:sw.winner,winnerSeed:wSeed,loser:loser,loserSeed:loserSeed,seedDiff:wSeed-loserSeed,predictors:[]};\n' +
+              '  });\n' +
+              // Find predictors — bracket picked the upset winner correctly
+              '  standings.forEach(function(s){\n' +
+              '    (s.allPicks||[]).forEach(function(p){\n' +
+              '      if(actualUpsets[p.slotId]&&p.team===actualUpsets[p.slotId].winner&&p.status==="correct"){\n' +
+              '        actualUpsets[p.slotId].predictors.push(s.bracketName);\n' +
+              '      }\n' +
+              '    });\n' +
+              '  });\n' +
+              // Per-bracket upset prediction tallies
+              '  var bracketTally={};\n' +
+              '  standings.forEach(function(s){bracketTally[s.bracketName]={predicted:0,correct:0};});\n' +
+              // Count total upset predictions per bracket (picked lower seed = higher seed number)
+              '  standings.forEach(function(s){\n' +
+              '    (s.allPicks||[]).forEach(function(p){\n' +
+              '      var teams=slotTeams[p.slotId]||{};\n' +
+              '      var pickedSeed=p.seed||teams[p.team]||0;\n' +
+              '      var opponentSeed=null;\n' +
+              '      // Find opponent — the other team picked by at least one bracket for this slot\n' +
+              '      Object.keys(teams).forEach(function(t){\n' +
+              '        if(t!==p.team&&teams[t]<pickedSeed&&(opponentSeed===null||teams[t]<opponentSeed))opponentSeed=teams[t];\n' +
+              '      });\n' +
+              '      if(opponentSeed!==null&&pickedSeed>opponentSeed){\n' +
+              '        bracketTally[s.bracketName].predicted++;\n' +
+              '        if(p.status==="correct")bracketTally[s.bracketName].correct++;\n' +
+              '      }\n' +
+              '    });\n' +
+              '  });\n' +
+              '  var upsetArr=Object.values(actualUpsets).sort(function(a,b){return b.seedDiff-a.seedDiff;});\n' +
+              '  var totalActual=upsetArr.length;\n' +
+              '  var totalPredicted=0;\n' +
+              '  Object.values(bracketTally).forEach(function(t){totalPredicted+=t.predicted;});\n' +
+              // Summary cards
+              '  var html=\'<div class="brc-upset-cards">\';\n' +
+              '  html+=\'<div class="brc-upset-card"><div class="brc-upset-card-label">Upsets Predicted</div><div class="brc-upset-card-val">\'+totalPredicted+\'</div></div>\';\n' +
+              '  html+=\'<div class="brc-upset-card"><div class="brc-upset-card-label">Total Upsets</div><div class="brc-upset-card-val">\'+totalActual+\'</div></div>\';\n' +
+              '  html+=\'</div>\';\n' +
+              // Leaderboard
+              '  var lbData=standings.map(function(s){\n' +
+              '    var t=bracketTally[s.bracketName]||{predicted:0,correct:0};\n' +
+              '    var rate=totalActual>0?Math.round((t.correct/totalActual)*100):0;\n' +
+              '    return{name:s.bracketName,predicted:t.predicted,correct:t.correct,rate:rate};\n' +
+              '  }).sort(function(a,b){return b.correct-a.correct||b.predicted-a.predicted;});\n' +
+              // Assign ranks with gaps on ties (same correct = same rank)
+              '  var rankCounter=1;\n' +
+              '  lbData.forEach(function(row,i){\n' +
+              '    if(i===0){row.displayRank=1;}\n' +
+              '    else if(lbData[i-1].correct===row.correct){row.displayRank=lbData[i-1].displayRank;}\n' +
+              '    else{row.displayRank=i+1;}\n' +
+              '  });\n' +
+              '  html+=\'<div class="league-section-heading" style="margin-bottom:0.8rem">Upset Leaderboard</div>\';\n' +
+              '  html+=\'<table class="brc-upset-lb-table"><thead><tr>\';\n' +
+              '  html+=\'<th style="width:2rem;text-align:center">#</th><th>Bracket</th><th class="r">Predicted</th><th class="r">Correct</th><th class="r">Hit %</th>\';\n' +
+              '  html+=\'</tr></thead><tbody>\';\n' +
+              '  lbData.forEach(function(row){\n' +
+              '    var isTop=row.displayRank<=3;\n' +
+              '    html+=\'<tr>\';\n' +
+              '    html+=\'<td class="brc-upset-lb-rank\'+(isTop?\' top\':\'\')+\'">\'+(row.displayRank)+\'</td>\';\n' +
+              '    html+=\'<td class="brc-upset-lb-name">\'+esc2(row.name)+\'</td>\';\n' +
+              '    html+=\'<td class="brc-upset-lb-num">\'+row.predicted+\'</td>\';\n' +
+              '    html+=\'<td class="brc-upset-lb-num correct">\'+row.correct+\'</td>\';\n' +
+              '    html+=\'<td class="brc-upset-lb-rate">\'+row.rate+\'%</td>\';\n' +
+              '    html+=\'</tr>\';\n' +
+              '  });\n' +
+              '  html+=\'</tbody></table>\';\n' +
+              // Upsets table
+              '  html+=\'<div class="league-section-heading" style="margin-top:1.5rem;margin-bottom:0.8rem">Upsets That Happened</div>\';\n' +
+              '  if(!upsetArr.length){\n' +
+              '    html+=\'<p style="color:var(--accent-dim);font-size:0.75rem;letter-spacing:0.15em;">No upsets yet.</p>\';\n' +
+              '  } else {\n' +
+              '    html+=\'<table class="brc-upsets-table"><thead><tr>\';\n' +
+              '    html+=\'<th>Round</th><th>Teams</th><th class="r">Called</th><th>By</th>\';\n' +
+              '    html+=\'</tr></thead><tbody>\';\n' +
+              '    upsetArr.forEach(function(u){\n' +
+              '      html+=\'<tr>\';\n' +
+              '      html+=\'<td class="brc-upset-round">\'+esc2(u.round)+\'</td>\';\n' +
+              '      html+=\'<td>\';\n' +
+              '      html+=\'<div class="brc-upset-winner">\'+esc2(u.winner)+\'<span class="brc-upset-winner-seed">(\'+u.winnerSeed+\')</span></div>\';\n' +
+              '      html+=\'<div class="brc-upset-loser">\'+esc2(u.loser)+\'<span class="brc-upset-loser-seed">(\'+u.loserSeed+\')</span></div>\';\n' +
+              '      html+=\'</td>\';\n' +
+              '      html+=\'<td class="brc-upset-called">\'+u.predictors.length+\'</td>\';\n' +
+              '      html+=\'<td class="brc-upset-callers">\'+(u.predictors.length?esc2(u.predictors.join(", ")):"—")+\'</td>\';\n' +
+              '      html+=\'</tr>\';\n' +
+              '    });\n' +
+              '    html+=\'</tbody></table>\';\n' +
+              '  }\n' +
+              '  body.innerHTML=html;\n' +
+              '}\n' +
+
               '})();';
-            })(analysis, pillsId, viewId, scenSelId, scenTblId, scenHntId, h2hSelAId, h2hSelBId, h2hBodyId);
+            })(analysis, pillsId, viewId, scenSelId, scenTblId, scenHntId, h2hSelAId, h2hSelBId, h2hBodyId, upsetsBodyId);
 
             sectionEl.appendChild(inlineScript);
 
