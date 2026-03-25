@@ -400,7 +400,7 @@
     .h2h-col-mid { text-align: center; font-size: 0.6rem; color: var(--drawer-border); }
     .h2h-agree { color: var(--accent); }
     .h2h-disagree-a { color: var(--hint-color, var(--accent)); }
-    .h2h-disagree-b { color: var(--accent-dim); }
+    .h2h-disagree-b { color: var(--hint-color, var(--accent)); }
     .h2h-correct { font-weight: 600; }
     .h2h-wrong { opacity: 0.35; text-decoration: line-through; }
     .h2h-pending { color: var(--accent-dim); }
@@ -1825,7 +1825,18 @@
               '  var totalActual=upsetArr.length;\n' +
               '  var totalPredicted=0;\n' +
               '  Object.values(bracketTally).forEach(function(t){totalPredicted+=t.predicted;});\n' +
-              '  var totalGames=Object.keys(actualUpsets).filter(function(sid){return actualUpsets[sid].predictors.length>0;}).length;\n' +
+              '  var totalGames=Object.keys(bracketTally).length>0?(function(){\n' +
+              '    var slots={};\n' +
+              '    standings.forEach(function(s){\n' +
+              '      (s.allPicks||[]).forEach(function(p){\n' +
+              '        var r=gameResults[p.slotId];if(!r)return;\n' +
+              '        var pickedSeed=p.seed||0;\n' +
+              '        var opponentSeed=p.team===r.winner?r.loserSeed:r.winnerSeed;\n' +
+              '        if(pickedSeed>opponentSeed&&pickedSeed>0&&opponentSeed>0)slots[p.slotId]=true;\n' +
+              '      });\n' +
+              '    });\n' +
+              '    return Object.keys(slots).length;\n' +
+              '  })():0;\n' +
               // Summary cards
               '  var html=\'<div class="brc-upset-cards">\';\n' +
               '  html+=\'<div class="brc-upset-card"><div class="brc-upset-card-label">Predicted</div><div class="brc-upset-card-val">\'+totalPredicted+\'</div></div>\';\n' +
