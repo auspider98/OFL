@@ -196,6 +196,12 @@
       border-bottom: 1px solid var(--drawer-border);
     }
     .brc-upset-lb-table thead th.r { text-align: right; }
+    @media (orientation: portrait) and (max-width: 600px) {
+      .brc-upset-lb-table thead th { letter-spacing: 0.1em; font-size: 0.5rem; padding: 0.4rem 0.4rem; }
+      .brc-upset-lb-table td { padding: 0.5rem 0.4rem; }
+      .brc-upset-lb-table th:last-child,
+      .brc-upset-lb-table td:last-child { padding-right: 0; }
+    }
     .brc-upset-lb-table td {
       padding: 0.5rem 0.6rem;
       border-bottom: 1px solid rgba(255,255,255,0.04);
