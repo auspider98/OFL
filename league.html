@@ -145,9 +145,12 @@
     /* ── BRC Upset Summary Cards ────────────────────────────── */
     .brc-upset-cards {
       display: grid;
-      grid-template-columns: auto 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 0.6rem;
       margin-bottom: 1.4rem;
+    }
+    @media (orientation: portrait) {
+      .brc-upset-cards { grid-template-columns: auto 1fr 1fr; }
     }
     .brc-upset-card {
       padding: 0.9rem 1rem;
