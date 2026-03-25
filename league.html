@@ -145,7 +145,7 @@
     /* ── BRC Upset Summary Cards ────────────────────────────── */
     .brc-upset-cards {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: auto 1fr 1fr;
       gap: 0.6rem;
       margin-bottom: 1.4rem;
     }
@@ -162,6 +162,17 @@
     .brc-upset-card-val {
       font-family: var(--font-display); font-size: 2rem;
       font-weight: 300; color: var(--accent); line-height: 1;
+    }
+    .brc-upset-card-sub {
+      font-family: var(--font-body); font-size: 0.6rem;
+      letter-spacing: 0.08em; color: var(--accent-dim);
+      margin-top: 0.5rem; padding-top: 0.4rem;
+      border-top: 1px solid var(--drawer-border);
+      display: flex; align-items: baseline; gap: 0.4rem;
+    }
+    .brc-upset-card-sub-val {
+      font-family: var(--font-display); font-size: 1.1rem;
+      font-weight: 300; color: var(--accent);
     }
 
     /* ── BRC Upset Leaderboard ──────────────────────────────── */
@@ -1825,23 +1836,36 @@
               '  var totalActual=upsetArr.length;\n' +
               '  var totalPredicted=0;\n' +
               '  Object.values(bracketTally).forEach(function(t){totalPredicted+=t.predicted;});\n' +
-              '  var totalGames=Object.keys(bracketTally).length>0?(function(){\n' +
+              '  var totalGames=(function(){\n' +
+              '    var slotTeams={};\n' +
+              '    standings.forEach(function(s){\n' +
+              '      (s.allPicks||[]).forEach(function(p){\n' +
+              '        if(!slotTeams[p.slotId])slotTeams[p.slotId]={};\n' +
+              '        slotTeams[p.slotId][p.team]=p.seed;\n' +
+              '      });\n' +
+              '    });\n' +
               '    var slots={};\n' +
               '    standings.forEach(function(s){\n' +
               '      (s.allPicks||[]).forEach(function(p){\n' +
-              '        var r=gameResults[p.slotId];if(!r)return;\n' +
               '        var pickedSeed=p.seed||0;\n' +
-              '        var opponentSeed=p.team===r.winner?r.loserSeed:r.winnerSeed;\n' +
+              '        var teams=slotTeams[p.slotId]||{};\n' +
+              '        var otherSeeds=Object.keys(teams).filter(function(t){return t!==p.team;}).map(function(t){return teams[t];});\n' +
+              '        if(!otherSeeds.length)return;\n' +
+              '        var opponentSeed=Math.min.apply(null,otherSeeds);\n' +
               '        if(pickedSeed>opponentSeed&&pickedSeed>0&&opponentSeed>0)slots[p.slotId]=true;\n' +
               '      });\n' +
               '    });\n' +
               '    return Object.keys(slots).length;\n' +
-              '  })():0;\n' +
+              '  })();\n' +
               // Summary cards
+              '  var leaguePredictPct=totalPredicted>0?Math.round((Object.values(bracketTally).reduce(function(s,t){return s+t.correct;},0)/totalPredicted)*100):0;\n' +
               '  var html=\'<div class="brc-upset-cards">\';\n' +
-              '  html+=\'<div class="brc-upset-card"><div class="brc-upset-card-label">Predicted</div><div class="brc-upset-card-val">\'+totalPredicted+\'</div></div>\';\n' +
-              '  html+=\'<div class="brc-upset-card"><div class="brc-upset-card-label">Games</div><div class="brc-upset-card-val">\'+totalGames+\'</div></div>\';\n' +
-              '  html+=\'<div class="brc-upset-card"><div class="brc-upset-card-label">Correct</div><div class="brc-upset-card-val">\'+totalActual+\'</div></div>\';\n' +
+              '  html+=\'<div class="brc-upset-card">\';\n' +
+              '  html+=\'<div class="brc-upset-card-label">Predictions / Games</div>\';\n' +
+              '  html+=\'<div class="brc-upset-card-val">\'+totalPredicted+\'<span style="opacity:0.35;margin:0 0.15em;font-size:1.4rem">/</span>\'+totalGames+\'</div>\';\n' +
+              '  html+=\'</div>\';\n' +
+              '  html+=\'<div class="brc-upset-card"><div class="brc-upset-card-label">Upsets</div><div class="brc-upset-card-val">\'+totalActual+\'</div></div>\';\n' +
+              '  html+=\'<div class="brc-upset-card"><div class="brc-upset-card-label">Predict %</div><div class="brc-upset-card-val">\'+leaguePredictPct+\'%</div></div>\';\n' +
               '  html+=\'</div>\';\n' +
               // Leaderboard
               '  var lbData=standings.map(function(s){\n' +
