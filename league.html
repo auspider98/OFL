@@ -145,7 +145,7 @@
     /* ── BRC Upset Summary Cards ────────────────────────────── */
     .brc-upset-cards {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 0.6rem;
       margin-bottom: 1.4rem;
     }
@@ -1817,14 +1817,20 @@
               '      }\n' +
               '    });\n' +
               '  });\n' +
-              '  var upsetArr=Object.values(actualUpsets).sort(function(a,b){return b.seedDiff-a.seedDiff;});\n' +
+              '  var upsetArr=Object.values(actualUpsets).sort(function(a,b){\n' +
+              '    var ro=["R64","R32","S16","E8","F4","Final"];\n' +
+              '    var ri=ro.indexOf(a.round)-ro.indexOf(b.round);\n' +
+              '    return ri!==0?ri:b.seedDiff-a.seedDiff;\n' +
+              '  });\n' +
               '  var totalActual=upsetArr.length;\n' +
               '  var totalPredicted=0;\n' +
               '  Object.values(bracketTally).forEach(function(t){totalPredicted+=t.predicted;});\n' +
+              '  var totalGames=Object.keys(actualUpsets).filter(function(sid){return actualUpsets[sid].predictors.length>0;}).length;\n' +
               // Summary cards
               '  var html=\'<div class="brc-upset-cards">\';\n' +
-              '  html+=\'<div class="brc-upset-card"><div class="brc-upset-card-label">Upsets Predicted</div><div class="brc-upset-card-val">\'+totalPredicted+\'</div></div>\';\n' +
-              '  html+=\'<div class="brc-upset-card"><div class="brc-upset-card-label">Total Upsets</div><div class="brc-upset-card-val">\'+totalActual+\'</div></div>\';\n' +
+              '  html+=\'<div class="brc-upset-card"><div class="brc-upset-card-label">Predicted</div><div class="brc-upset-card-val">\'+totalPredicted+\'</div></div>\';\n' +
+              '  html+=\'<div class="brc-upset-card"><div class="brc-upset-card-label">Games</div><div class="brc-upset-card-val">\'+totalGames+\'</div></div>\';\n' +
+              '  html+=\'<div class="brc-upset-card"><div class="brc-upset-card-label">Correct</div><div class="brc-upset-card-val">\'+totalActual+\'</div></div>\';\n' +
               '  html+=\'</div>\';\n' +
               // Leaderboard
               '  var lbData=standings.map(function(s){\n' +
