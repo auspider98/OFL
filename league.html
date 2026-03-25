@@ -202,7 +202,7 @@
     }
     .brc-upset-lb-table tr:last-child td { border-bottom: none; }
     .brc-upset-lb-table th:last-child,
-    .brc-upset-lb-table td:last-child { padding-right: 2rem; }
+    .brc-upset-lb-table td:last-child { padding-right: 0.6rem; }
     .brc-upset-lb-rank {
       font-family: var(--font-display); font-size: 0.9rem;
       color: var(--accent-dim); text-align: center; width: 2rem;
@@ -1889,7 +1889,7 @@
               '    else{row.displayRank=i+1;}\n' +
               '  });\n' +
               '  html+=\'<div class="league-section-heading" style="margin-bottom:0.8rem">Upset Leaderboard</div>\';\n' +
-              '  html+=\'<table class="brc-upset-lb-table"><thead><tr>\';\n' +
+              '  html+=\'<div style="padding-right:1rem"><table class="brc-upset-lb-table"><thead><tr>\';\n' +
               '  html+=\'<th style="width:2rem;text-align:center">#</th><th>Bracket</th><th style="text-align:center">Predicted</th><th style="text-align:center">Correct</th><th class="r">%</th>\';\n' +
               '  html+=\'</tr></thead><tbody>\';\n' +
               '  lbData.forEach(function(row){\n' +
@@ -1899,11 +1899,10 @@
               '    html+=\'<td class="brc-upset-lb-name">\'+esc2(row.name)+\'</td>\';\n' +
               '    html+=\'<td class="brc-upset-lb-num">\'+row.predicted+\'</td>\';\n' +
               '    html+=\'<td class="brc-upset-lb-num"><span style="color:var(--hint-color,var(--accent));font-weight:600">\'+row.correct+\'</span><span style="color:var(--accent-dim);opacity:0.6;margin:0 0.15em">/</span><span style="color:var(--accent-dim)">\'+totalActual+\'</span></td>\';\n' +
-              '    html+=\'<td class="brc-upset-lb-rate" style="color:var(--hint-color,var(--accent));opacity:1">\'+row.predictPct+\'%</td>\';\n' +
+              '    html+=\'<td class="brc-upset-lb-rate" style="color:#fff;font-weight:600">\'+row.predictPct+\'%</td>\';\n' +
               '    html+=\'</tr>\';\n' +
               '  });\n' +
-              '  html+=\'</tbody></table>\';\n' +
-              // Upsets that happened table
+              '  html+=\'</tbody></table></div>\';\n' +
               '  html+=\'<div class="league-section-heading" style="margin-top:1.5rem;margin-bottom:0.8rem">Upsets That Happened</div>\';\n' +
               '  if(!upsetArr.length){\n' +
               '    html+=\'<p style="color:var(--accent-dim);font-size:0.75rem;letter-spacing:0.15em;">No upsets yet.</p>\';\n' +
