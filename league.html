@@ -1825,19 +1825,23 @@
               // Per-bracket upset prediction tallies
               '  var bracketTally={};\n' +
               '  standings.forEach(function(s){bracketTally[s.bracketName]={predicted:0,correct:0};});\n' +
-              // Count total upset predictions per bracket (picked lower seed = higher seed number)
+              // Count upset predictions per bracket
+              // predicted = picked a lower seed (higher number) over a higher seed for any slot
+              // correct   = only if that specific slot was an actual upset (in actualUpsets map)
               '  standings.forEach(function(s){\n' +
               '    (s.allPicks||[]).forEach(function(p){\n' +
               '      var teams=slotTeams[p.slotId]||{};\n' +
               '      var pickedSeed=p.seed||teams[p.team]||0;\n' +
               '      var opponentSeed=null;\n' +
-              '      // Find opponent — the other team picked by at least one bracket for this slot\n' +
               '      Object.keys(teams).forEach(function(t){\n' +
               '        if(t!==p.team&&teams[t]<pickedSeed&&(opponentSeed===null||teams[t]<opponentSeed))opponentSeed=teams[t];\n' +
               '      });\n' +
               '      if(opponentSeed!==null&&pickedSeed>opponentSeed){\n' +
               '        bracketTally[s.bracketName].predicted++;\n' +
-              '        if(p.status==="correct")bracketTally[s.bracketName].correct++;\n' +
+              // Only count as correct if this specific slot was an actual upset AND the bracket called it
+              '        if(actualUpsets[p.slotId]&&p.status==="correct"){\n' +
+              '          bracketTally[s.bracketName].correct++;\n' +
+              '        }\n' +
               '      }\n' +
               '    });\n' +
               '  });\n' +
