@@ -377,15 +377,20 @@
     .brc-h2h-selects {
       display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1rem;
     }
+    .brc-h2h-selects select:first-child { text-align: right; direction: rtl; }
     .brc-h2h-stat-cards {
       display: grid; grid-template-columns: 1fr auto 1fr;
       gap: 0.6rem; margin-bottom: 1rem; align-items: stretch;
     }
     .brc-h2h-card {
       padding: 0.8rem 0.9rem; border: 1px solid var(--drawer-border);
-      background: rgba(255,255,255,0.02); display: flex; flex-direction: column; gap: 0.2rem;
+      background: rgba(255,255,255,0.02); display: flex; flex-direction: column;
+      justify-content: space-between; gap: 0;
     }
-    .brc-h2h-card.center { align-items: center; justify-content: center; text-align: center; }
+    .brc-h2h-card.center { align-items: center; justify-content: center; text-align: center; gap: 0.2rem; }
+    .brc-h2h-card.left { text-align: right; align-items: flex-end; }
+    .brc-h2h-card-header { display: flex; flex-direction: column; gap: 0.2rem; margin-bottom: 0.5rem; }
+    .brc-h2h-card-body { display: flex; flex-direction: column; gap: 0.2rem; }
     .brc-h2h-card-label {
       font-family: var(--font-body); font-size: 0.55rem;
       letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent-dim);
@@ -400,18 +405,18 @@
     }
     .brc-h2h-card-name {
       font-family: var(--font-body); font-size: 0.72rem; font-weight: 600;
-      letter-spacing: 0.06em; color: var(--hint-color, var(--accent)); margin-bottom: 0.2rem;
+      letter-spacing: 0.06em; color: var(--hint-color, var(--accent));
     }
     .brc-h2h-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .brc-h2h-table { width: 100%; border-collapse: collapse; font-family: var(--font-body); font-size: 0.72rem; }
+    .brc-h2h-table { width: 100%; border-collapse: collapse; font-family: var(--font-body); font-size: 0.72rem; table-layout: fixed; }
     .brc-h2h-table thead th {
       font-weight: 300; font-size: 0.55rem; letter-spacing: 0.3em; text-transform: uppercase;
       color: var(--accent-dim); padding: 0.4rem 0.6rem;
       border-bottom: 1px solid var(--drawer-border); white-space: nowrap;
     }
-    .brc-h2h-table thead th.h2h-col-a { text-align: right; color: var(--hint-color, var(--accent-dim)); }
-    .brc-h2h-table thead th.h2h-col-b { text-align: left; }
-    .brc-h2h-table thead th.h2h-col-mid { text-align: center; width: 3rem; }
+    .brc-h2h-table thead th.h2h-col-a { text-align: right; color: var(--hint-color, var(--accent-dim)); width: 46%; }
+    .brc-h2h-table thead th.h2h-col-b { text-align: left; width: 46%; }
+    .brc-h2h-table thead th.h2h-col-mid { text-align: center; width: 8%; }
     .brc-h2h-round-row td {
       font-size: 0.52rem; letter-spacing: 0.3em; text-transform: uppercase;
       color: var(--hint-color, var(--accent-dim)); padding: 0.5rem 0.6rem 0.2rem;
@@ -1773,11 +1778,15 @@
               '</div>';
 
             // Wire up interactivity via inline script
+            var defaultH2hMidA = (analysis.standings && analysis.standings[0]) ? analysis.standings[0].memberId : '';
+            var defaultH2hMidB = (analysis.standings && analysis.standings[1]) ? analysis.standings[1].memberId : '';
+
             var inlineScript = document.createElement('script');
             inlineScript.textContent = (function(
               analysis, pillsId, viewId, scenSelId, scenTblId, scenHntId,
               h2hSelAId, h2hSelBId, h2hBodyId, upsetsBodyId,
-              survivalSelId, survivalCardId, survivalBodyId, rosterMap, defaultSurvivalMid
+              survivalSelId, survivalCardId, survivalBodyId, rosterMap, defaultSurvivalMid,
+              defaultH2hMidA, defaultH2hMidB
             ){
               return '(function(){\n' +
               'var ANALYSIS=' + JSON.stringify(analysis) + ';\n' +
@@ -1796,6 +1805,7 @@
               '  wrap.querySelectorAll("[data-brc-view]").forEach(function(el){el.style.display=el.getAttribute("data-brc-view")===v?"block":"none";});\n' +
               '  if(v==="upsets")renderUpsets();\n' +
               '  if(v==="survival")initSurvival();\n' +
+              '  if(v==="h2h")initH2H();\n' +
               '});}\n' +
 
               // ── Scenario select
@@ -1872,12 +1882,19 @@
               '  });\n' +
               '  var pct=total>0?Math.round(agree/total*100):0;\n' +
               '  // Stat cards\n' +
+              '  var champA=(bA.allPicks||[]).find(function(p){return p.slotId==="champ";});\n' +
+              '  var champB=(bB.allPicks||[]).find(function(p){return p.slotId==="champ";});\n' +
               '  var cardsHtml=\'<div class="brc-h2h-stat-cards">\'+\n' +
-              '    \'<div class="brc-h2h-card">\'+\n' +
+              '    \'<div class="brc-h2h-card left">\'+\n' +
+              '      \'<div class="brc-h2h-card-header">\'+\n' +
               '      \'<div class="brc-h2h-card-name">\'+esc(bA.bracketName)+\'</div>\'+\n' +
+              '      (champA?\'<div class="brc-h2h-card-label" style="opacity:1;color:var(--hint-color,var(--accent-dim))">\'+esc(champA.team)+\'</div>\':"")+\n' +
+              '      \'</div>\'+\n' +
+              '      \'<div class="brc-h2h-card-body">\'+\n' +
               '      \'<div class="brc-h2h-card-label">Current Score</div>\'+\n' +
               '      \'<div class="brc-h2h-card-val">\'+bA.score+\'</div>\'+\n' +
               '      \'<div class="brc-h2h-card-sub">pts</div>\'+\n' +
+              '      \'</div>\'+\n' +
               '    \'</div>\'+\n' +
               '    \'<div class="brc-h2h-card center">\'+\n' +
               '      \'<div class="brc-h2h-card-label">Agreement</div>\'+\n' +
@@ -1885,10 +1902,15 @@
               '      \'<div class="brc-h2h-card-sub">\'+pct+\'% same picks</div>\'+\n' +
               '    \'</div>\'+\n' +
               '    \'<div class="brc-h2h-card">\'+\n' +
+              '      \'<div class="brc-h2h-card-header">\'+\n' +
               '      \'<div class="brc-h2h-card-name">\'+esc(bB.bracketName)+\'</div>\'+\n' +
+              '      (champB?\'<div class="brc-h2h-card-label" style="opacity:1;color:var(--hint-color,var(--accent-dim))">\'+esc(champB.team)+\'</div>\':"")+\n' +
+              '      \'</div>\'+\n' +
+              '      \'<div class="brc-h2h-card-body">\'+\n' +
               '      \'<div class="brc-h2h-card-label">Current Score</div>\'+\n' +
               '      \'<div class="brc-h2h-card-val">\'+bB.score+\'</div>\'+\n' +
               '      \'<div class="brc-h2h-card-sub">pts</div>\'+\n' +
+              '      \'</div>\'+\n' +
               '    \'</div>\'+\n' +
               '  \'</div>\';\n' +
               '  // Pick table by round\n' +
@@ -1931,10 +1953,20 @@
               '  tblHtml+=\'</tbody></table></div>\';\n' +
               '  body.innerHTML=cardsHtml+tblHtml;\n' +
               '}\n' +
-              'var selA=document.getElementById("' + h2hSelAId + '");\n' +
-              'var selB=document.getElementById("' + h2hSelBId + '");\n' +
-              'if(selA)selA.addEventListener("change",renderH2H);\n' +
-              'if(selB)selB.addEventListener("change",renderH2H);\n' +
+              'var _h2hInited=false;\n' +
+              'function initH2H(){\n' +
+              '  var selA=document.getElementById("' + h2hSelAId + '");\n' +
+              '  var selB=document.getElementById("' + h2hSelBId + '");\n' +
+              '  if(!selA||!selB)return;\n' +
+              '  if(!_h2hInited){\n' +
+              '    selA.addEventListener("change",renderH2H);\n' +
+              '    selB.addEventListener("change",renderH2H);\n' +
+              '    _h2hInited=true;\n' +
+              '  }\n' +
+              '  if(!selA.value&&"' + defaultH2hMidA + '")selA.value="' + defaultH2hMidA + '";\n' +
+              '  if(!selB.value&&"' + defaultH2hMidB + '")selB.value="' + defaultH2hMidB + '";\n' +
+              '  renderH2H();\n' +
+              '}\n' +
 
               // ── Upsets renderer
               'function esc2(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}\n' +
@@ -2122,18 +2154,13 @@
               '    if(p.round==="F4")myF4Set[p.team]=true;\n' +
               '  });\n' +
               '  var rivalDeepSet={};\n' +
-              '  var rivalDeepSameSet={};\n' +
               '  var rivalChampSet2={};\n' +
               '  ANALYSIS.standings.forEach(function(x){\n' +
               '    if(x.memberId===mid)return;\n' +
               '    var cp=(x.allPicks||[]).find(function(p){return p.slotId==="champ";});\n' +
               '    if(cp)rivalChampSet2[cp.team]=true;\n' +
-              '    var isSameChamp=cp&&cp.team===myChampTeam2;\n' +
               '    (x.allPicks||[]).forEach(function(p){\n' +
-              '      if(p.round==="E8"||p.round==="F4"||p.slotId==="champ"){\n' +
-              '        rivalDeepSet[p.team]=true;\n' +
-              '        if(isSameChamp)rivalDeepSameSet[p.team]=true;\n' +
-              '      }\n' +
+              '      if(p.round==="E8"||p.round==="F4"||p.slotId==="champ")rivalDeepSet[p.team]=true;\n' +
               '    });\n' +
               '  });\n' +
               '  var slotMap={};\n' +
@@ -2178,7 +2205,7 @@
               '      var againstTeam=teams.filter(function(t){return t.team!==myPick.team;})[0]||null;\n' +
               '      var isMyChamp=myPick.team===myChampTeam2;\n' +
               '      var inMyDeep=!!myE8Set[myPick.team]||!!myF4Set[myPick.team];\n' +
-              '      var inRivalDeep=!!rivalDeepSameSet[myPick.team];\n' +
+              '      var inRivalDeep=!!rivalDeepSet[myPick.team];\n' +
               '      var isRivalChamp=!!rivalChampSet2[myPick.team];\n' +
               '      var tier,pts,ptsLabel;\n' +
               '      if(isMyChamp){tier="t1";pts=myFuturePts(myPick.team);ptsLabel="your pts";}\n' +
@@ -2194,7 +2221,7 @@
               '        if(!best||rdmg>best.rdmg)best={forTeam:rootFor,againstTeam:losing[0]||null,rdmg:rdmg};\n' +
               '      });\n' +
               '      if(best){\n' +
-              '        var inRivalDeepFor=!!rivalDeepSameSet[best.forTeam.team];\n' +
+              '        var inRivalDeepFor=!!rivalDeepSet[best.forTeam.team];\n' +
               '        rows.push({tier:inRivalDeepFor?"t6":"t3",round:sl.round,forTeam:best.forTeam,againstTeam:best.againstTeam,pts:inRivalDeepFor?best.rdmg:myFuturePts(best.forTeam.team),ptsLabel:inRivalDeepFor?"rivals lose":"your pts"});\n' +
               '      }\n' +
               '    }\n' +
@@ -2257,7 +2284,7 @@
               '}\n' +
 
               '})();';
-            })(analysis, pillsId, viewId, scenSelId, scenTblId, scenHntId, h2hSelAId, h2hSelBId, h2hBodyId, upsetsBodyId, survivalSelId, survivalCardId, survivalBodyId, rosterMap, defaultSurvivalMid);
+            })(analysis, pillsId, viewId, scenSelId, scenTblId, scenHntId, h2hSelAId, h2hSelBId, h2hBodyId, upsetsBodyId, survivalSelId, survivalCardId, survivalBodyId, rosterMap, defaultSurvivalMid, defaultH2hMidA, defaultH2hMidB);
 
             sectionEl._brcScript = inlineScript;
 
