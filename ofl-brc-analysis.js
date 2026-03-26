@@ -9090,5 +9090,10 @@ window.OFL_BRC_ANALYSIS = {
       "loserSeed": 7,
       "round": "R32"
     }
+  },
+  "opponents": {
+    "3_3": { "team": "Texas",   "seed": 11 },
+    "4_2": { "team": "Alabama", "seed": 4  },
+    "2_2": { "team": "Iowa",    "seed": 9, "opponent": { "team": "Nebraska", "seed": 4 } }
   }
 };
