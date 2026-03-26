@@ -2122,13 +2122,18 @@
               '    if(p.round==="F4")myF4Set[p.team]=true;\n' +
               '  });\n' +
               '  var rivalDeepSet={};\n' +
+              '  var rivalDeepCrossSet={};\n' +
               '  var rivalChampSet2={};\n' +
               '  ANALYSIS.standings.forEach(function(x){\n' +
               '    if(x.memberId===mid)return;\n' +
               '    var cp=(x.allPicks||[]).find(function(p){return p.slotId==="champ";});\n' +
               '    if(cp)rivalChampSet2[cp.team]=true;\n' +
+              '    var isSameChamp=cp&&cp.team===myChampTeam2;\n' +
               '    (x.allPicks||[]).forEach(function(p){\n' +
-              '      if(p.round==="E8"||p.round==="F4"||p.slotId==="champ")rivalDeepSet[p.team]=true;\n' +
+              '      if(p.round==="F4"||p.slotId==="champ"){\n' +
+              '        rivalDeepSet[p.team]=true;\n' +
+              '        if(!isSameChamp)rivalDeepCrossSet[p.team]=true;\n' +
+              '      }\n' +
               '    });\n' +
               '  });\n' +
               '  var slotMap={};\n' +
@@ -2173,7 +2178,7 @@
               '      var againstTeam=teams.filter(function(t){return t.team!==myPick.team;})[0]||null;\n' +
               '      var isMyChamp=myPick.team===myChampTeam2;\n' +
               '      var inMyDeep=!!myE8Set[myPick.team]||!!myF4Set[myPick.team];\n' +
-              '      var inRivalDeep=!!rivalDeepSet[myPick.team];\n' +
+              '      var inRivalDeep=!!rivalDeepCrossSet[myPick.team];\n' +
               '      var isRivalChamp=!!rivalChampSet2[myPick.team];\n' +
               '      var tier,pts,ptsLabel;\n' +
               '      if(isMyChamp){tier="t1";pts=myFuturePts(myPick.team);ptsLabel="your pts";}\n' +
@@ -2189,7 +2194,7 @@
               '        if(!best||rdmg>best.rdmg)best={forTeam:rootFor,againstTeam:losing[0]||null,rdmg:rdmg};\n' +
               '      });\n' +
               '      if(best){\n' +
-              '        var inRivalDeepFor=!!rivalDeepSet[best.forTeam.team];\n' +
+              '        var inRivalDeepFor=!!rivalDeepCrossSet[best.forTeam.team];\n' +
               '        rows.push({tier:inRivalDeepFor?"t6":"t3",round:sl.round,forTeam:best.forTeam,againstTeam:best.againstTeam,pts:inRivalDeepFor?best.rdmg:myFuturePts(best.forTeam.team),ptsLabel:inRivalDeepFor?"rivals lose":"your pts"});\n' +
               '      }\n' +
               '    }\n' +
