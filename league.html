@@ -435,6 +435,104 @@
       font-family: var(--font-body); font-size: 0.65rem; letter-spacing: 0.15em;
       color: var(--accent-dim); text-align: center; padding: 2rem 0 1rem; opacity: 0.5;
     }
+
+    /* ── BRC Survival Card ────────────────────────────────── */
+    .brc-surv-card {
+      display: flex; gap: 0; overflow: hidden;
+      border: 1px solid var(--drawer-border);
+      background: rgba(255,255,255,0.02);
+      margin-bottom: 1.4rem;
+    }
+    .brc-surv-card-mug {
+      width: 90px; min-width: 90px; flex-shrink: 0;
+      overflow: hidden; position: relative;
+      background: rgba(255,255,255,0.04);
+    }
+    .brc-surv-card-mug img {
+      width: 100%; height: 100%; object-fit: cover; object-position: top; display: block;
+    }
+    .brc-surv-card-mug-init {
+      width: 100%; height: 100%; display: flex;
+      align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: 2rem; font-weight: 300;
+      color: var(--accent-dim);
+    }
+    .brc-surv-card-info {
+      flex: 1; min-width: 0; padding: 0.85rem 1rem;
+      display: flex; flex-direction: column; gap: 0.25rem;
+    }
+    .brc-surv-card-bracket {
+      font-family: var(--font-body); font-size: 0.85rem; font-weight: 700;
+      letter-spacing: 0.04em; color: var(--accent); line-height: 1.2;
+    }
+    .brc-surv-card-owner {
+      font-family: var(--font-body); font-size: 0.68rem;
+      letter-spacing: 0.12em; color: var(--accent-dim);
+    }
+    .brc-surv-card-row {
+      font-family: var(--font-body); font-size: 0.65rem;
+      letter-spacing: 0.06em; color: var(--accent-dim);
+      margin-top: 0.15rem; line-height: 1.5;
+    }
+    .brc-surv-card-row strong { color: var(--accent); font-weight: 600; }
+    .brc-surv-card-pts { display: flex; gap: 1rem; margin-top: 0.2rem; }
+    .brc-surv-card-pts-item { display: flex; flex-direction: column; gap: 0.1rem; }
+    .brc-surv-card-pts-label {
+      font-family: var(--font-body); font-size: 0.5rem;
+      letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--accent-dim); opacity: 0.7;
+    }
+    .brc-surv-card-pts-val {
+      font-family: var(--font-display); font-size: 1.3rem;
+      font-weight: 300; color: var(--accent); line-height: 1;
+    }
+    .brc-surv-card-rivals {
+      font-family: var(--font-body); font-size: 0.62rem;
+      letter-spacing: 0.05em; color: var(--accent-dim);
+      margin-top: 0.2rem; padding-top: 0.35rem;
+      border-top: 1px solid var(--drawer-border);
+    }
+    .brc-surv-card-rivals strong { color: var(--hint-color, var(--accent)); }
+
+    /* ── BRC Root-For Table ───────────────────────────────── */
+    .brc-rootfor-table {
+      width: 100%; border-collapse: collapse;
+      font-family: var(--font-body); font-size: 0.72rem;
+    }
+    .brc-rootfor-table thead th {
+      font-weight: 300; font-size: 0.52rem; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--accent-dim);
+      padding: 0.4rem 0.5rem; text-align: left;
+      border-bottom: 1px solid var(--drawer-border);
+    }
+    .brc-rootfor-table thead th.r { text-align: right; }
+    .brc-rootfor-table td {
+      padding: 0.5rem 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: var(--accent); letter-spacing: 0.05em; vertical-align: middle;
+    }
+    .brc-rootfor-table tr:last-child td { border-bottom: none; }
+    .brc-rootfor-round-row td {
+      font-size: 0.5rem; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--hint-color, var(--accent-dim));
+      padding: 0.6rem 0.5rem 0.2rem;
+      border-top: 1px solid var(--drawer-border);
+      background: rgba(255,255,255,0.01);
+    }
+    .brc-rootfor-teams { display: flex; flex-direction: column; gap: 0.15rem; }
+    .brc-rootfor-team-against {
+      font-size: 0.68rem; color: var(--accent);
+      letter-spacing: 0.04em; opacity: 0.55;
+    }
+    .brc-rootfor-seed { font-size: 0.6rem; opacity: 0.5; margin-left: 0.25em; font-weight: 300; }
+    .brc-rootfor-pts {
+      text-align: right; font-family: var(--font-display);
+      font-size: 1rem; font-weight: 300; white-space: nowrap; vertical-align: middle;
+    }
+    .brc-rootfor-pts-label {
+      font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent-dim); opacity: 0.6; display: block; text-align: right;
+    }
   </style>
 </head>
 <body>
@@ -1591,6 +1689,29 @@
             var h2hBodyId    = 'brc-h2hbd-' + (current.id || 'cur');
             var upsetsViewId = 'brc-uv-'    + (current.id || 'cur');
             var upsetsBodyId = 'brc-ub-'    + (current.id || 'cur');
+            var survivalSelId  = 'brc-svs-'  + (current.id || 'cur');
+            var survivalCardId = 'brc-svc-'  + (current.id || 'cur');
+            var survivalBodyId = 'brc-svb-'  + (current.id || 'cur');
+
+            // Build roster map: memberId → { name, mugshot }
+            var masterRoster = (window.OFL_DATA && window.OFL_DATA.masterRoster) || [];
+            var rosterMap = {};
+            (analysis.standings || []).forEach(function(s) {
+              var m = masterRoster.find(function(mr) { return mr.id === s.memberId; });
+              rosterMap[s.memberId] = { name: m ? m.name : s.bracketName, mugshot: m ? (m.mugshot || '') : '' };
+            });
+
+            // Default survival selection: rank 1 bracket
+            var defaultSurvivalMid = (analysis.standings && analysis.standings[0]) ? analysis.standings[0].memberId : '';
+
+            // Build survival bracket options: all brackets ranked, eliminated labeled
+            var survivalOpts = '';
+            var elimSet = {};
+            (analysis.standings || []).forEach(function(s) { if (s.eliminated) elimSet[s.memberId] = true; });
+            (analysis.standings || []).forEach(function(s) {
+              var label = s.bracketName + (elimSet[s.memberId] ? ' (eliminated)' : '');
+              survivalOpts += '<option value="' + esc(s.memberId) + '">' + esc(label) + '</option>';
+            });
 
             // Build bracket options for selects
             var bracketOpts = '<option value="">— Select —</option>';
@@ -1605,6 +1726,7 @@
                 '<button class="brc-view-pill" data-view="scenario">Scenario Generator</button>' +
                 '<button class="brc-view-pill" data-view="h2h">Head to Head</button>' +
                 '<button class="brc-view-pill" data-view="upsets">Upsets</button>' +
+                '<button class="brc-view-pill" data-view="survival">Survival</button>' +
               '</div>' +
 
               // ── View: Standings ──────────────────────────
@@ -1640,16 +1762,26 @@
               '<div data-brc-view="upsets" style="display:none" id="' + upsetsViewId + '">' +
                 '<div class="league-section-heading">Upsets' + year + '</div>' +
                 '<div id="' + upsetsBodyId + '"></div>' +
+              '</div>' +
+
+              // ── View: Survival ────────────────────────────
+              '<div data-brc-view="survival" style="display:none">' +
+                '<div class="league-section-heading">Survival' + year + '</div>' +
+                '<select class="brc-scenario-select" id="' + survivalSelId + '">' + survivalOpts + '</select>' +
+                '<div id="' + survivalCardId + '"></div>' +
+                '<div id="' + survivalBodyId + '"></div>' +
               '</div>';
 
             // Wire up interactivity via inline script
             var inlineScript = document.createElement('script');
             inlineScript.textContent = (function(
               analysis, pillsId, viewId, scenSelId, scenTblId, scenHntId,
-              h2hSelAId, h2hSelBId, h2hBodyId, upsetsBodyId
+              h2hSelAId, h2hSelBId, h2hBodyId, upsetsBodyId,
+              survivalSelId, survivalCardId, survivalBodyId, rosterMap, defaultSurvivalMid
             ){
               return '(function(){\n' +
               'var ANALYSIS=' + JSON.stringify(analysis) + ';\n' +
+              'var ROSTER=' + JSON.stringify(rosterMap) + ';\n' +
               'var PTS=ANALYSIS.pointStructure||{R64:1,R32:2,S16:4,E8:8,F4:16,Final:32};\n' +
               'var ROUNDS=["R64","R32","S16","E8","F4","Final"];\n' +
 
@@ -1663,6 +1795,7 @@
               '  var wrap=pillsEl.parentElement;\n' +
               '  wrap.querySelectorAll("[data-brc-view]").forEach(function(el){el.style.display=el.getAttribute("data-brc-view")===v?"block":"none";});\n' +
               '  if(v==="upsets")renderUpsets();\n' +
+              '  if(v==="survival")initSurvival();\n' +
               '});}\n' +
 
               // ── Scenario select
@@ -1933,10 +2066,195 @@
               '  body.innerHTML=html;\n' +
               '}\n' +
 
-              '})();';
-            })(analysis, pillsId, viewId, scenSelId, scenTblId, scenHntId, h2hSelAId, h2hSelBId, h2hBodyId, upsetsBodyId);
+              'function initSurvival(){\n' +
+              '  var sel=document.getElementById("' + survivalSelId + '");\n' +
+              '  if(!sel)return;\n' +
+              '  if("' + defaultSurvivalMid + '")sel.value="' + defaultSurvivalMid + '";\n' +
+              '  renderSurvivalFor(sel.value);\n' +
+              '  sel.addEventListener("change",function(){renderSurvivalFor(this.value);});\n' +
+              '}\n' +
 
-            sectionEl.appendChild(inlineScript);
+              'function renderSurvivalFor(mid){\n' +
+              '  var cardEl=document.getElementById("' + survivalCardId + '");\n' +
+              '  var bodyEl=document.getElementById("' + survivalBodyId + '");\n' +
+              '  if(!cardEl||!bodyEl)return;\n' +
+              '  if(!mid){cardEl.innerHTML="";bodyEl.innerHTML="";return;}\n' +
+              '  var s=ANALYSIS.standings.find(function(x){return x.memberId===mid;});\n' +
+              '  if(!s){cardEl.innerHTML="";bodyEl.innerHTML="";return;}\n' +
+              '  var r=ROSTER[mid]||{name:s.bracketName,mugshot:""};\n' +
+              '  var f4Picks=(s.allPicks||[]).filter(function(p){return p.round==="E8"&&p.status==="pending";}).map(function(p){return p.team;});\n' +
+              '  var finalsPicks=(s.allPicks||[]).filter(function(p){return p.round==="F4"&&p.status==="pending";}).map(function(p){return p.team;});\n' +
+              '  var champPick=(s.allPicks||[]).find(function(p){return p.slotId==="champ";});\n' +
+              '  var champTeam=champPick?champPick.team:"";\n' +
+              '  var champElim=champPick&&champPick.status==="incorrect";\n' +
+              '  var aliveEntry=(ANALYSIS.aliveBrackets||[]).find(function(b){return b.memberId===mid;});\n' +
+              '  var score=s.score;\n' +
+              '  var maxPoss=aliveEntry?aliveEntry.maxPossible:s.maxPossible;\n' +
+              '  var rivals=ANALYSIS.standings.filter(function(x){\n' +
+              '    if(x.memberId===mid)return false;\n' +
+              '    var cp=(x.allPicks||[]).find(function(p){return p.slotId==="champ";});\n' +
+              '    return cp&&cp.team===champTeam&&!x.eliminated;\n' +
+              '  }).map(function(x){return x.bracketName;});\n' +
+              '  var mugHtml=r.mugshot\n' +
+              '    ?\'<img src="\'+r.mugshot+\'" alt="\'+esc2(r.name)+\'" />\'\n' +
+              '    :\'<div class="brc-surv-card-mug-init">\'+esc2((r.name||"?").charAt(0).toUpperCase())+\'</div>\';\n' +
+              '  var cardHtml=\'<div class="brc-surv-card">\';\n' +
+              '  cardHtml+=\'<div class="brc-surv-card-mug">\'+mugHtml+\'</div>\';\n' +
+              '  cardHtml+=\'<div class="brc-surv-card-info">\';\n' +
+              '  cardHtml+=\'<div class="brc-surv-card-bracket">\'+esc2(s.bracketName)+\'</div>\';\n' +
+              '  cardHtml+=\'<div class="brc-surv-card-owner">\'+esc2(r.name)+\'</div>\';\n' +
+              '  if(f4Picks.length)cardHtml+=\'<div class="brc-surv-card-row"><strong>Final Four:</strong> \'+esc2(f4Picks.join(", "))+\'</div>\';\n' +
+              '  if(finalsPicks.length)cardHtml+=\'<div class="brc-surv-card-row"><strong>Finals:</strong> \'+esc2(finalsPicks.join(", "))+\'</div>\';\n' +
+              '  if(champTeam){var elimSpan=champElim?\' <span style="opacity:0.45;font-size:0.58rem">(eliminated)</span>\':"";cardHtml+=\'<div class="brc-surv-card-row"><strong>Champion:</strong> \'+esc2(champTeam)+elimSpan+\'</div>\';}\n' +
+              '  cardHtml+=\'<div class="brc-surv-card-pts">\';\n' +
+              '  cardHtml+=\'<div class="brc-surv-card-pts-item"><div class="brc-surv-card-pts-label">Current Pts</div><div class="brc-surv-card-pts-val">\'+score+\'</div></div>\';\n' +
+              '  cardHtml+=\'<div class="brc-surv-card-pts-item"><div class="brc-surv-card-pts-label">Max Pts</div><div class="brc-surv-card-pts-val">\'+maxPoss+\'</div></div>\';\n' +
+              '  cardHtml+=\'</div>\';\n' +
+              '  if(rivals.length)cardHtml+=\'<div class="brc-surv-card-rivals"><strong>Biggest Rivals:</strong> \'+esc2(rivals.join(", "))+\'</div>\';\n' +
+              '  cardHtml+=\'</div></div>\';\n' +
+              '  cardEl.innerHTML=cardHtml;\n' +
+              '  var myPendingSet={};\n' +
+              '  (s.pendingPicks||[]).forEach(function(p){myPendingSet[p.slotId]=p;});\n' +
+              '  var myChampTeam2=champPick?champPick.team:"";\n' +
+              '  var myE8Set={};var myF4Set={};\n' +
+              '  (s.allPicks||[]).forEach(function(p){\n' +
+              '    if(p.round==="E8")myE8Set[p.team]=true;\n' +
+              '    if(p.round==="F4")myF4Set[p.team]=true;\n' +
+              '  });\n' +
+              '  var rivalDeepSet={};\n' +
+              '  var rivalChampSet2={};\n' +
+              '  ANALYSIS.standings.forEach(function(x){\n' +
+              '    if(x.memberId===mid)return;\n' +
+              '    var cp=(x.allPicks||[]).find(function(p){return p.slotId==="champ";});\n' +
+              '    if(cp)rivalChampSet2[cp.team]=true;\n' +
+              '    (x.allPicks||[]).forEach(function(p){\n' +
+              '      if(p.round==="E8"||p.round==="F4"||p.slotId==="champ")rivalDeepSet[p.team]=true;\n' +
+              '    });\n' +
+              '  });\n' +
+              '  var slotMap={};\n' +
+              '  ANALYSIS.standings.forEach(function(x){\n' +
+              '    (x.pendingPicks||[]).forEach(function(p){\n' +
+              '      if(!slotMap[p.slotId])slotMap[p.slotId]={round:p.round,slotId:p.slotId,teams:{}};\n' +
+              '      if(!slotMap[p.slotId].teams[p.team])slotMap[p.slotId].teams[p.team]={team:p.team,seed:p.seed};\n' +
+              '    });\n' +
+              '  });\n' +
+              '  var oppMap=ANALYSIS.opponents||{};\n' +
+              '  Object.keys(oppMap).forEach(function(sid){\n' +
+              '    var opp=oppMap[sid];\n' +
+              '    if(!slotMap[sid]){\n' +
+              '      var round=null;\n' +
+              '      ANALYSIS.standings.forEach(function(x){var p=(x.allPicks||[]).find(function(p){return p.slotId===sid;});if(p&&!round)round=p.round;});\n' +
+              '      if(round)slotMap[sid]={round:round,slotId:sid,teams:{}};\n' +
+              '    }\n' +
+              '    if(slotMap[sid]){\n' +
+              '      if(!slotMap[sid].teams[opp.team])slotMap[sid].teams[opp.team]={team:opp.team,seed:opp.seed};\n' +
+              '      if(opp.opponent&&!slotMap[sid].teams[opp.opponent.team])slotMap[sid].teams[opp.opponent.team]={team:opp.opponent.team,seed:opp.opponent.seed};\n' +
+              '    }\n' +
+              '  });\n' +
+              '  function rivalFuturePts(team){\n' +
+              '    var total=0;\n' +
+              '    ANALYSIS.standings.forEach(function(x){\n' +
+              '      if(x.memberId===mid)return;\n' +
+              '      (x.pendingPicks||[]).forEach(function(p){if(p.team===team)total+=PTS[p.round]||0;});\n' +
+              '    });\n' +
+              '    return total;\n' +
+              '  }\n' +
+              '  function myFuturePts(team){\n' +
+              '    var total=0;\n' +
+              '    (s.pendingPicks||[]).forEach(function(p){if(p.team===team)total+=PTS[p.round]||0;});\n' +
+              '    return total;\n' +
+              '  }\n' +
+              '  var rows=[];\n' +
+              '  Object.values(slotMap).forEach(function(sl){\n' +
+              '    var teams=Object.values(sl.teams);\n' +
+              '    var myPick=myPendingSet[sl.slotId];\n' +
+              '    if(myPick){\n' +
+              '      var forTeam=sl.teams[myPick.team];\n' +
+              '      var againstTeam=teams.filter(function(t){return t.team!==myPick.team;})[0]||null;\n' +
+              '      var isMyChamp=myPick.team===myChampTeam2;\n' +
+              '      var inMyDeep=!!myE8Set[myPick.team]||!!myF4Set[myPick.team];\n' +
+              '      var inRivalDeep=!!rivalDeepSet[myPick.team];\n' +
+              '      var isRivalChamp=!!rivalChampSet2[myPick.team];\n' +
+              '      var tier,pts,ptsLabel;\n' +
+              '      if(isMyChamp){tier="t1";pts=myFuturePts(myPick.team);ptsLabel="your pts";}\n' +
+              '      else if(inMyDeep&&inRivalDeep){tier="t4";pts=rivalFuturePts(myPick.team);ptsLabel="rivals lose";}\n' +
+              '      else if(!inMyDeep&&inRivalDeep){tier="t5";pts=rivalFuturePts(myPick.team);ptsLabel="rivals lose";}\n' +
+              '      else{tier="t2";pts=myFuturePts(myPick.team);ptsLabel="your pts";}\n' +
+              '      rows.push({tier:tier,round:sl.round,forTeam:forTeam,againstTeam:againstTeam,pts:pts,ptsLabel:ptsLabel});\n' +
+              '    } else {\n' +
+              '      var best=null;\n' +
+              '      teams.forEach(function(rootFor){\n' +
+              '        var losing=teams.filter(function(t){return t.team!==rootFor.team;});\n' +
+              '        var rdmg=0;losing.forEach(function(lt){rdmg+=rivalFuturePts(lt.team);});\n' +
+              '        if(!best||rdmg>best.rdmg)best={forTeam:rootFor,againstTeam:losing[0]||null,rdmg:rdmg};\n' +
+              '      });\n' +
+              '      if(best){\n' +
+              '        var inRivalDeepFor=!!rivalDeepSet[best.forTeam.team];\n' +
+              '        rows.push({tier:inRivalDeepFor?"t6":"t3",round:sl.round,forTeam:best.forTeam,againstTeam:best.againstTeam,pts:inRivalDeepFor?best.rdmg:myFuturePts(best.forTeam.team),ptsLabel:inRivalDeepFor?"rivals lose":"your pts"});\n' +
+              '      }\n' +
+              '    }\n' +
+              '  });\n' +
+              '  var ROUND_ORDER=["R64","R32","S16","E8","F4","Final"];\n' +
+              '  function tierColor(t){if(t==="t1"||t==="t2")return"#4a9d6f";if(t==="t3")return"var(--hint-color,#98b8ec)";if(t==="t4")return"#c9a227";if(t==="t5")return"#c97a27";return"#c94040";}\n' +
+              '  var sorted=[];\n' +
+              '  ROUND_ORDER.forEach(function(r){\n' +
+              '    var rRows=rows.filter(function(x){return x.round===r;});\n' +
+              '    var t1=rRows.filter(function(x){return x.tier==="t1";}).sort(function(a,b){return b.pts-a.pts;});\n' +
+              '    var t2=rRows.filter(function(x){return x.tier==="t2";}).sort(function(a,b){return b.pts-a.pts;});\n' +
+              '    var t3=rRows.filter(function(x){return x.tier==="t3";}).sort(function(a,b){return b.pts-a.pts;});\n' +
+              '    var t4=rRows.filter(function(x){return x.tier==="t4";}).sort(function(a,b){return a.pts-b.pts;});\n' +
+              '    var t5=rRows.filter(function(x){return x.tier==="t5";}).sort(function(a,b){return a.pts-b.pts;});\n' +
+              '    var t6=rRows.filter(function(x){return x.tier==="t6";}).sort(function(a,b){return a.pts-b.pts;});\n' +
+              '    t1.concat(t2,t3,t4,t5,t6).forEach(function(x){sorted.push(x);});\n' +
+              '  });\n' +
+              '  if(!sorted.length){bodyEl.innerHTML=\'<p style="color:var(--accent-dim);font-size:0.75rem;letter-spacing:0.15em;padding-top:0.5rem">No pending games.</p>\';return;}\n' +
+              '  var nextRound=sorted[0].round;\n' +
+              '  sorted=sorted.filter(function(r){return r.round===nextRound;});\n' +
+              '  var html=\'<div class="league-section-heading" style="margin-bottom:0.5rem">Rooting Picks Chart</div>\';\n' +
+              '  html+=\'<div style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;margin-bottom:0.9rem;padding-bottom:0.7rem;border-bottom:1px solid var(--drawer-border);justify-content:center">\';\n' +
+              '  html+=\'<span style="font-family:var(--font-body);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:#4a9d6f;white-space:nowrap">\u25CF Root Hardest For</span>\';\n' +
+              '  html+=\'<span style="font-family:var(--font-body);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--hint-color,#98b8ec);white-space:nowrap">\u25CF Fun Game</span>\';\n' +
+              '  html+=\'<span style="font-family:var(--font-body);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:#c9a227;white-space:nowrap">\u25CF Rivals Riding Too</span>\';\n' +
+              '  html+=\'<span style="font-family:var(--font-body);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:#c97a27;white-space:nowrap">\u25CF Big Rival Points</span>\';\n' +
+              '  html+=\'<span style="font-family:var(--font-body);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:#c94040;white-space:nowrap">\u25CF Root Against</span>\';\n' +
+              '  html+=\'</div>\';\n' +
+              '  html+=\'<table class="brc-rootfor-table"><thead><tr>\';\n' +
+              '  html+=\'<th>Round</th><th>Teams</th><th class="r">Pts</th>\';\n' +
+              '  html+=\'</tr></thead><tbody>\';\n' +
+              '  var lastRound="";\n' +
+              '  sorted.forEach(function(row){\n' +
+              '    if(row.round!==lastRound){\n' +
+              '      if(lastRound!=="")html+=\'<tr><td colspan="3" style="padding:0;border-bottom:none"><div style="height:1px;background:var(--drawer-border);margin:0.5rem 0"></div></td></tr>\';\n' +
+              '      lastRound=row.round;\n' +
+              '    }\n' +
+              '    var color=tierColor(row.tier);\n' +
+              '    var isBold=row.tier!=="t3";\n' +
+              '    var forStyle="color:"+color+";font-weight:"+(isBold?"700":"400")+";";\n' +
+              '    var topTeam,topSeed,botTeam,botSeed;\n' +
+              '    if(row.tier==="t6"){\n' +
+              '      topTeam=row.againstTeam?esc2(row.againstTeam.team):"";topSeed=row.againstTeam?row.againstTeam.seed:"";\n' +
+              '      botTeam=row.forTeam?esc2(row.forTeam.team):"";botSeed=row.forTeam?row.forTeam.seed:"";\n' +
+              '    } else {\n' +
+              '      topTeam=esc2(row.forTeam?row.forTeam.team:"");topSeed=row.forTeam?row.forTeam.seed:"";\n' +
+              '      botTeam=row.againstTeam?esc2(row.againstTeam.team):"";botSeed=row.againstTeam?row.againstTeam.seed:"";\n' +
+              '    }\n' +
+              '    html+=\'<tr>\';\n' +
+              '    html+=\'<td style="font-size:0.58rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent-dim);white-space:nowrap">\'+esc2(row.round)+\'</td>\';\n' +
+              '    html+=\'<td><div class="brc-rootfor-teams">\';\n' +
+              '    html+=\'<div style="\'+forStyle+\'letter-spacing:0.05em">\'+topTeam+\'<span class="brc-rootfor-seed">(\'+topSeed+\')</span></div>\';\n' +
+              '    if(botTeam)html+=\'<div class="brc-rootfor-team-against">\'+botTeam+\'<span class="brc-rootfor-seed">(\'+botSeed+\')</span></div>\';\n' +
+              '    html+=\'</div></td>\';\n' +
+              '    html+=\'<td class="brc-rootfor-pts" style="color:\'+color+\'">\'+row.pts+\'<span class="brc-rootfor-pts-label">\'+row.ptsLabel+\'</span></td>\';\n' +
+              '    html+=\'</tr>\';\n' +
+              '  });\n' +
+              '  html+=\'</tbody></table>\';\n' +
+              '  bodyEl.innerHTML=html;\n' +
+              '}\n' +
+
+              '})();';
+            })(analysis, pillsId, viewId, scenSelId, scenTblId, scenHntId, h2hSelAId, h2hSelBId, h2hBodyId, upsetsBodyId, survivalSelId, survivalCardId, survivalBodyId, rosterMap, defaultSurvivalMid);
+
+            sectionEl._brcScript = inlineScript;
 
           } else {
             // ── Normal standings (preseason / no analysis / final)
@@ -2009,6 +2327,12 @@
         revealDelay += 0.15;
         isFirst = false;
         body.appendChild(sectionEl);
+
+        // BRC inline script must run after sectionEl is in the DOM
+        if (sectionEl._brcScript) {
+          sectionEl.appendChild(sectionEl._brcScript);
+          delete sectionEl._brcScript;
+        }
 
         // For BRC, scroll the wrap so the last active round is visible on load
         if (key === 'standings' && league.sport === 'madness') {
