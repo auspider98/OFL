@@ -998,7 +998,6 @@ function scoreBracket(bracket, useScenario) {
     var pts = ROUND_PTS[round];
     picks.forEach(function(pick){
       var actual = winners[pick.slotId];
-      // For R64 "played" status we compare directly
       if(actual && actual === pick.team) {
         score += pts;
         byRound[round] += pts;
@@ -1007,7 +1006,6 @@ function scoreBracket(bracket, useScenario) {
   });
   return { score: score, byRound: byRound };
 }
-
 function maxPossible(bracket) {
   var winners = getEffectiveWinners(false);
   var score = 0;
@@ -1707,9 +1705,7 @@ function exportToOFL() {
       score:       s.score,
       maxPossible: s.maxPossible,
       eliminated:  eliminated,
-      // All picks (every round) for H2H comparison
       allPicks:    getAllPicks(s.bracket),
-      // Pending picks only for scenario simulation
       pendingPicks: getPendingPicks(s.bracket)
     };
   });
@@ -1791,21 +1787,22 @@ function exportToOFL() {
 }
 
 function getPendingPicks(bracket) {
-  // Returns all picks for games that haven't been completed yet
-  // and where the team is still alive
   var picks = [];
   ROUND_ORDER.forEach(function(round) {
     (bracket.picks[round] || []).forEach(function(pick) {
-      var hasResult = results[pick.slotId] &&
-                      results[pick.slotId].result &&
-                      results[pick.slotId].result.complete;
-      if(!hasResult && isTeamAlive(pick.team)) {
-        picks.push({
-          slotId: pick.slotId,
-          round:  round,
-          team:   pick.team,
-          seed:   pick.seed || 0
-        });
+      if(pick.status === 'pending' || pick.status === 'played') {
+        // If actualResults now has this slot, the game is done — not pending
+        var hasResult = results[pick.slotId] &&
+                        results[pick.slotId].result &&
+                        results[pick.slotId].result.complete;
+        if(!hasResult) {
+          picks.push({
+            slotId: pick.slotId,
+            round:  round,
+            team:   pick.team,
+            seed:   pick.seed || 0
+          });
+        }
       }
     });
   });
@@ -1813,26 +1810,27 @@ function getPendingPicks(bracket) {
 }
 
 function getAllPicks(bracket) {
-  // Returns ALL picks across every round with status and actual winner info
-  // Used for H2H comparison on league page
   var picks = [];
   ROUND_ORDER.forEach(function(round) {
     (bracket.picks[round] || []).forEach(function(pick) {
       var result = results[pick.slotId];
       var actualWinner = (result && result.result && result.result.complete)
         ? result.result.winner : null;
-      var status = pick.status || 'played';
-      // Always normalise status against actual results — overrides any stale bookmarklet status
-      if(actualWinner) {
-        status = actualWinner === pick.team ? 'correct' : 'incorrect';
+      var status = pick.status || 'pending';
+      if(status === 'played') {
+        // R64 picks come through as 'played' — normalize against actualResults
+        if(actualWinner) status = actualWinner === pick.team ? 'correct' : 'incorrect';
+      } else if(status === 'pending') {
+        // R32+ pending picks — check actualResults to see if game is now done
+        if(actualWinner) status = actualWinner === pick.team ? 'correct' : 'incorrect';
       }
+      // 'incorrect' status from Yahoo is always kept as-is — reliable signal
       picks.push({
-        slotId:       pick.slotId,
-        round:        round,
-        team:         pick.team,
-        seed:         pick.seed || 0,
-        status:       status,
-        actualWinner: actualWinner
+        slotId:  pick.slotId,
+        round:   round,
+        team:    pick.team,
+        seed:    pick.seed || 0,
+        status:  status
       });
     });
   });
