@@ -1,16 +1,16 @@
 /**
  * OFL BRC Analysis Export · 2026
- * Generated: 3/24/2026, 11:36:29 PM
- * 13 brackets · 48 games tracked
+ * Generated: 3/27/2026, 12:33:23 AM
+ * 13 brackets · 52 games tracked
  * Load as <script src="ofl-brc-analysis.js"></script> in league.html
  */
 
 window.OFL_BRC_ANALYSIS = {
   "meta": {
-    "generated": "2026-03-25T03:36:29.911Z",
+    "generated": "2026-03-27T04:33:23.275Z",
     "year": "2026",
     "bracketsLoaded": 13,
-    "gamesTracked": 48,
+    "gamesTracked": 52,
     "roundProgress": {
       "R64": {
         "complete": 32,
@@ -21,7 +21,7 @@ window.OFL_BRC_ANALYSIS = {
         "total": 16
       },
       "S16": {
-        "complete": 0,
+        "complete": 4,
         "total": 8
       },
       "E8": {
@@ -49,609 +49,9 @@ window.OFL_BRC_ANALYSIS = {
   "standings": [
     {
       "rank": 1,
-      "memberId": "mbr_mm7vmncz4gfs",
-      "bracketName": "Auburn's Time to Shine",
-      "score": 50,
-      "maxPossible": 174,
-      "eliminated": false,
-      "allPicks": [
-        {
-          "slotId": "1_8",
-          "round": "R64",
-          "team": "Duke",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": "Duke"
-        },
-        {
-          "slotId": "1_9",
-          "round": "R64",
-          "team": "Ohio St.",
-          "seed": 8,
-          "status": "incorrect",
-          "actualWinner": "TCU"
-        },
-        {
-          "slotId": "1_10",
-          "round": "R64",
-          "team": "St. John's",
-          "seed": 5,
-          "status": "correct",
-          "actualWinner": "St. John's"
-        },
-        {
-          "slotId": "1_11",
-          "round": "R64",
-          "team": "Kansas",
-          "seed": 4,
-          "status": "correct",
-          "actualWinner": "Kansas"
-        },
-        {
-          "slotId": "1_12",
-          "round": "R64",
-          "team": "Louisville",
-          "seed": 6,
-          "status": "correct",
-          "actualWinner": "Louisville"
-        },
-        {
-          "slotId": "1_13",
-          "round": "R64",
-          "team": "Michigan St.",
-          "seed": 3,
-          "status": "correct",
-          "actualWinner": "Michigan St."
-        },
-        {
-          "slotId": "1_14",
-          "round": "R64",
-          "team": "UCF",
-          "seed": 10,
-          "status": "incorrect",
-          "actualWinner": "UCLA"
-        },
-        {
-          "slotId": "1_15",
-          "round": "R64",
-          "team": "Connecticut",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": "Connecticut"
-        },
-        {
-          "slotId": "2_8",
-          "round": "R64",
-          "team": "Florida",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": "Florida"
-        },
-        {
-          "slotId": "2_9",
-          "round": "R64",
-          "team": "Clemson",
-          "seed": 8,
-          "status": "incorrect",
-          "actualWinner": "Iowa"
-        },
-        {
-          "slotId": "2_10",
-          "round": "R64",
-          "team": "Vanderbilt",
-          "seed": 5,
-          "status": "correct",
-          "actualWinner": "Vanderbilt"
-        },
-        {
-          "slotId": "2_11",
-          "round": "R64",
-          "team": "Nebraska",
-          "seed": 4,
-          "status": "correct",
-          "actualWinner": "Nebraska"
-        },
-        {
-          "slotId": "2_12",
-          "round": "R64",
-          "team": "N. Carolina",
-          "seed": 6,
-          "status": "incorrect",
-          "actualWinner": "VCU"
-        },
-        {
-          "slotId": "2_13",
-          "round": "R64",
-          "team": "Illinois",
-          "seed": 3,
-          "status": "correct",
-          "actualWinner": "Illinois"
-        },
-        {
-          "slotId": "2_14",
-          "round": "R64",
-          "team": "Texas A&M",
-          "seed": 10,
-          "status": "correct",
-          "actualWinner": "Texas A&M"
-        },
-        {
-          "slotId": "2_15",
-          "round": "R64",
-          "team": "Houston",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": "Houston"
-        },
-        {
-          "slotId": "3_8",
-          "round": "R64",
-          "team": "Arizona",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": "Arizona"
-        },
-        {
-          "slotId": "3_9",
-          "round": "R64",
-          "team": "Utah St.",
-          "seed": 9,
-          "status": "correct",
-          "actualWinner": "Utah St."
-        },
-        {
-          "slotId": "3_10",
-          "round": "R64",
-          "team": "Wisconsin",
-          "seed": 5,
-          "status": "incorrect",
-          "actualWinner": "High Point"
-        },
-        {
-          "slotId": "3_11",
-          "round": "R64",
-          "team": "Arkansas",
-          "seed": 4,
-          "status": "correct",
-          "actualWinner": "Arkansas"
-        },
-        {
-          "slotId": "3_12",
-          "round": "R64",
-          "team": "Texas",
-          "seed": 11,
-          "status": "correct",
-          "actualWinner": "Texas"
-        },
-        {
-          "slotId": "3_13",
-          "round": "R64",
-          "team": "Gonzaga",
-          "seed": 3,
-          "status": "correct",
-          "actualWinner": "Gonzaga"
-        },
-        {
-          "slotId": "3_14",
-          "round": "R64",
-          "team": "Miami (FL)",
-          "seed": 7,
-          "status": "correct",
-          "actualWinner": "Miami (FL)"
-        },
-        {
-          "slotId": "3_15",
-          "round": "R64",
-          "team": "Purdue",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": "Purdue"
-        },
-        {
-          "slotId": "4_8",
-          "round": "R64",
-          "team": "Michigan",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": "Michigan"
-        },
-        {
-          "slotId": "4_9",
-          "round": "R64",
-          "team": "Georgia",
-          "seed": 8,
-          "status": "incorrect",
-          "actualWinner": "Saint Louis"
-        },
-        {
-          "slotId": "4_10",
-          "round": "R64",
-          "team": "Texas Tech",
-          "seed": 5,
-          "status": "correct",
-          "actualWinner": "Texas Tech"
-        },
-        {
-          "slotId": "4_11",
-          "round": "R64",
-          "team": "Alabama",
-          "seed": 4,
-          "status": "correct",
-          "actualWinner": "Alabama"
-        },
-        {
-          "slotId": "4_12",
-          "round": "R64",
-          "team": "Tennessee",
-          "seed": 6,
-          "status": "correct",
-          "actualWinner": "Tennessee"
-        },
-        {
-          "slotId": "4_13",
-          "round": "R64",
-          "team": "Virginia",
-          "seed": 3,
-          "status": "correct",
-          "actualWinner": "Virginia"
-        },
-        {
-          "slotId": "4_14",
-          "round": "R64",
-          "team": "Kentucky",
-          "seed": 7,
-          "status": "correct",
-          "actualWinner": "Kentucky"
-        },
-        {
-          "slotId": "4_15",
-          "round": "R64",
-          "team": "Iowa St.",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": "Iowa St."
-        },
-        {
-          "slotId": "1_4",
-          "round": "R32",
-          "team": "Duke",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": "Duke"
-        },
-        {
-          "slotId": "1_5",
-          "round": "R32",
-          "team": "St. John's",
-          "seed": 5,
-          "status": "correct",
-          "actualWinner": "St. John's"
-        },
-        {
-          "slotId": "1_6",
-          "round": "R32",
-          "team": "Michigan St.",
-          "seed": 3,
-          "status": "correct",
-          "actualWinner": "Michigan St."
-        },
-        {
-          "slotId": "1_7",
-          "round": "R32",
-          "team": "Connecticut",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": "Connecticut"
-        },
-        {
-          "slotId": "2_4",
-          "round": "R32",
-          "team": "Florida",
-          "seed": 1,
-          "status": "incorrect",
-          "actualWinner": "Iowa"
-        },
-        {
-          "slotId": "2_5",
-          "round": "R32",
-          "team": "Vanderbilt",
-          "seed": 5,
-          "status": "incorrect",
-          "actualWinner": "Nebraska"
-        },
-        {
-          "slotId": "2_6",
-          "round": "R32",
-          "team": "Illinois",
-          "seed": 3,
-          "status": "correct",
-          "actualWinner": "Illinois"
-        },
-        {
-          "slotId": "2_7",
-          "round": "R32",
-          "team": "Houston",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": "Houston"
-        },
-        {
-          "slotId": "3_4",
-          "round": "R32",
-          "team": "Arizona",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": "Arizona"
-        },
-        {
-          "slotId": "3_5",
-          "round": "R32",
-          "team": "Arkansas",
-          "seed": 4,
-          "status": "correct",
-          "actualWinner": "Arkansas"
-        },
-        {
-          "slotId": "3_6",
-          "round": "R32",
-          "team": "Gonzaga",
-          "seed": 3,
-          "status": "incorrect",
-          "actualWinner": "Texas"
-        },
-        {
-          "slotId": "3_7",
-          "round": "R32",
-          "team": "Purdue",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": "Purdue"
-        },
-        {
-          "slotId": "4_4",
-          "round": "R32",
-          "team": "Michigan",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": "Michigan"
-        },
-        {
-          "slotId": "4_5",
-          "round": "R32",
-          "team": "Texas Tech",
-          "seed": 5,
-          "status": "incorrect",
-          "actualWinner": "Alabama"
-        },
-        {
-          "slotId": "4_6",
-          "round": "R32",
-          "team": "Tennessee",
-          "seed": 6,
-          "status": "correct",
-          "actualWinner": "Tennessee"
-        },
-        {
-          "slotId": "4_7",
-          "round": "R32",
-          "team": "Iowa St.",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": "Iowa St."
-        },
-        {
-          "slotId": "1_2",
-          "round": "S16",
-          "team": "Duke",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": null
-        },
-        {
-          "slotId": "1_3",
-          "round": "S16",
-          "team": "Connecticut",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": null
-        },
-        {
-          "slotId": "2_2",
-          "round": "S16",
-          "team": "Vanderbilt",
-          "seed": 5,
-          "status": "incorrect",
-          "actualWinner": null
-        },
-        {
-          "slotId": "2_3",
-          "round": "S16",
-          "team": "Houston",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": null
-        },
-        {
-          "slotId": "3_2",
-          "round": "S16",
-          "team": "Arizona",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": null
-        },
-        {
-          "slotId": "3_3",
-          "round": "S16",
-          "team": "Purdue",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": null
-        },
-        {
-          "slotId": "4_2",
-          "round": "S16",
-          "team": "Michigan",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": null
-        },
-        {
-          "slotId": "4_3",
-          "round": "S16",
-          "team": "Iowa St.",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": null
-        },
-        {
-          "slotId": "1_1",
-          "round": "E8",
-          "team": "Duke",
-          "seed": 1,
-          "status": "pending",
-          "actualWinner": null
-        },
-        {
-          "slotId": "2_1",
-          "round": "E8",
-          "team": "Houston",
-          "seed": 2,
-          "status": "pending",
-          "actualWinner": null
-        },
-        {
-          "slotId": "3_1",
-          "round": "E8",
-          "team": "Arizona",
-          "seed": 1,
-          "status": "pending",
-          "actualWinner": null
-        },
-        {
-          "slotId": "4_1",
-          "round": "E8",
-          "team": "Michigan",
-          "seed": 1,
-          "status": "pending",
-          "actualWinner": null
-        },
-        {
-          "slotId": "0_2",
-          "round": "F4",
-          "team": "Duke",
-          "seed": 1,
-          "status": "pending",
-          "actualWinner": null
-        },
-        {
-          "slotId": "0_3",
-          "round": "F4",
-          "team": "Michigan",
-          "seed": 1,
-          "status": "pending",
-          "actualWinner": null
-        },
-        {
-          "slotId": "champ",
-          "round": "Final",
-          "team": "Michigan",
-          "seed": 1,
-          "status": "pending",
-          "actualWinner": null
-        }
-      ],
-      "pendingPicks": [
-        {
-          "slotId": "1_2",
-          "round": "S16",
-          "team": "Duke",
-          "seed": 1
-        },
-        {
-          "slotId": "1_3",
-          "round": "S16",
-          "team": "Connecticut",
-          "seed": 2
-        },
-        {
-          "slotId": "2_3",
-          "round": "S16",
-          "team": "Houston",
-          "seed": 2
-        },
-        {
-          "slotId": "3_2",
-          "round": "S16",
-          "team": "Arizona",
-          "seed": 1
-        },
-        {
-          "slotId": "3_3",
-          "round": "S16",
-          "team": "Purdue",
-          "seed": 2
-        },
-        {
-          "slotId": "4_2",
-          "round": "S16",
-          "team": "Michigan",
-          "seed": 1
-        },
-        {
-          "slotId": "4_3",
-          "round": "S16",
-          "team": "Iowa St.",
-          "seed": 2
-        },
-        {
-          "slotId": "1_1",
-          "round": "E8",
-          "team": "Duke",
-          "seed": 1
-        },
-        {
-          "slotId": "2_1",
-          "round": "E8",
-          "team": "Houston",
-          "seed": 2
-        },
-        {
-          "slotId": "3_1",
-          "round": "E8",
-          "team": "Arizona",
-          "seed": 1
-        },
-        {
-          "slotId": "4_1",
-          "round": "E8",
-          "team": "Michigan",
-          "seed": 1
-        },
-        {
-          "slotId": "0_2",
-          "round": "F4",
-          "team": "Duke",
-          "seed": 1
-        },
-        {
-          "slotId": "0_3",
-          "round": "F4",
-          "team": "Michigan",
-          "seed": 1
-        },
-        {
-          "slotId": "champ",
-          "round": "Final",
-          "team": "Michigan",
-          "seed": 1
-        }
-      ]
-    },
-    {
-      "rank": 2,
       "memberId": "mbr_007",
       "bracketName": "Dirty Dolly",
-      "score": 48,
+      "score": 60,
       "maxPossible": 172,
       "eliminated": false,
       "allPicks": [
@@ -1058,10 +458,10 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_2",
           "round": "S16",
-          "team": "Vanderbilt",
+          "team": "Nebraska",
           "seed": 5,
           "status": "incorrect",
-          "actualWinner": null
+          "actualWinner": "Iowa"
         },
         {
           "slotId": "2_3",
@@ -1069,7 +469,7 @@ window.OFL_BRC_ANALYSIS = {
           "team": "Illinois",
           "seed": 3,
           "status": "correct",
-          "actualWinner": null
+          "actualWinner": "Illinois"
         },
         {
           "slotId": "3_2",
@@ -1077,7 +477,7 @@ window.OFL_BRC_ANALYSIS = {
           "team": "Arizona",
           "seed": 1,
           "status": "correct",
-          "actualWinner": null
+          "actualWinner": "Arizona"
         },
         {
           "slotId": "3_3",
@@ -1085,7 +485,7 @@ window.OFL_BRC_ANALYSIS = {
           "team": "Purdue",
           "seed": 2,
           "status": "correct",
-          "actualWinner": null
+          "actualWinner": "Purdue"
         },
         {
           "slotId": "4_2",
@@ -1116,7 +516,7 @@ window.OFL_BRC_ANALYSIS = {
           "round": "E8",
           "team": "Illinois",
           "seed": 3,
-          "status": "pending",
+          "status": "correct",
           "actualWinner": null
         },
         {
@@ -1124,7 +524,7 @@ window.OFL_BRC_ANALYSIS = {
           "round": "E8",
           "team": "Arizona",
           "seed": 1,
-          "status": "pending",
+          "status": "correct",
           "actualWinner": null
         },
         {
@@ -1171,24 +571,6 @@ window.OFL_BRC_ANALYSIS = {
           "slotId": "1_3",
           "round": "S16",
           "team": "Connecticut",
-          "seed": 2
-        },
-        {
-          "slotId": "2_3",
-          "round": "S16",
-          "team": "Illinois",
-          "seed": 3
-        },
-        {
-          "slotId": "3_2",
-          "round": "S16",
-          "team": "Arizona",
-          "seed": 1
-        },
-        {
-          "slotId": "3_3",
-          "round": "S16",
-          "team": "Purdue",
           "seed": 2
         },
         {
@@ -1248,593 +630,11 @@ window.OFL_BRC_ANALYSIS = {
       ]
     },
     {
-      "rank": 3,
-      "memberId": "mbr_mm1635nfdqvt",
-      "bracketName": "bioluminescent bracket",
-      "score": 48,
-      "maxPossible": 156,
-      "eliminated": false,
-      "allPicks": [
-        {
-          "slotId": "1_8",
-          "round": "R64",
-          "team": "Duke",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": "Duke"
-        },
-        {
-          "slotId": "1_9",
-          "round": "R64",
-          "team": "Ohio St.",
-          "seed": 8,
-          "status": "incorrect",
-          "actualWinner": "TCU"
-        },
-        {
-          "slotId": "1_10",
-          "round": "R64",
-          "team": "St. John's",
-          "seed": 5,
-          "status": "correct",
-          "actualWinner": "St. John's"
-        },
-        {
-          "slotId": "1_11",
-          "round": "R64",
-          "team": "Kansas",
-          "seed": 4,
-          "status": "correct",
-          "actualWinner": "Kansas"
-        },
-        {
-          "slotId": "1_12",
-          "round": "R64",
-          "team": "South Florida",
-          "seed": 11,
-          "status": "incorrect",
-          "actualWinner": "Louisville"
-        },
-        {
-          "slotId": "1_13",
-          "round": "R64",
-          "team": "Michigan St.",
-          "seed": 3,
-          "status": "correct",
-          "actualWinner": "Michigan St."
-        },
-        {
-          "slotId": "1_14",
-          "round": "R64",
-          "team": "UCLA",
-          "seed": 7,
-          "status": "correct",
-          "actualWinner": "UCLA"
-        },
-        {
-          "slotId": "1_15",
-          "round": "R64",
-          "team": "Connecticut",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": "Connecticut"
-        },
-        {
-          "slotId": "2_8",
-          "round": "R64",
-          "team": "Florida",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": "Florida"
-        },
-        {
-          "slotId": "2_9",
-          "round": "R64",
-          "team": "Clemson",
-          "seed": 8,
-          "status": "incorrect",
-          "actualWinner": "Iowa"
-        },
-        {
-          "slotId": "2_10",
-          "round": "R64",
-          "team": "Vanderbilt",
-          "seed": 5,
-          "status": "correct",
-          "actualWinner": "Vanderbilt"
-        },
-        {
-          "slotId": "2_11",
-          "round": "R64",
-          "team": "Nebraska",
-          "seed": 4,
-          "status": "correct",
-          "actualWinner": "Nebraska"
-        },
-        {
-          "slotId": "2_12",
-          "round": "R64",
-          "team": "VCU",
-          "seed": 11,
-          "status": "correct",
-          "actualWinner": "VCU"
-        },
-        {
-          "slotId": "2_13",
-          "round": "R64",
-          "team": "Illinois",
-          "seed": 3,
-          "status": "correct",
-          "actualWinner": "Illinois"
-        },
-        {
-          "slotId": "2_14",
-          "round": "R64",
-          "team": "St. Mary's",
-          "seed": 7,
-          "status": "incorrect",
-          "actualWinner": "Texas A&M"
-        },
-        {
-          "slotId": "2_15",
-          "round": "R64",
-          "team": "Houston",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": "Houston"
-        },
-        {
-          "slotId": "3_8",
-          "round": "R64",
-          "team": "Arizona",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": "Arizona"
-        },
-        {
-          "slotId": "3_9",
-          "round": "R64",
-          "team": "Utah St.",
-          "seed": 9,
-          "status": "correct",
-          "actualWinner": "Utah St."
-        },
-        {
-          "slotId": "3_10",
-          "round": "R64",
-          "team": "Wisconsin",
-          "seed": 5,
-          "status": "incorrect",
-          "actualWinner": "High Point"
-        },
-        {
-          "slotId": "3_11",
-          "round": "R64",
-          "team": "Arkansas",
-          "seed": 4,
-          "status": "correct",
-          "actualWinner": "Arkansas"
-        },
-        {
-          "slotId": "3_12",
-          "round": "R64",
-          "team": "BYU",
-          "seed": 6,
-          "status": "incorrect",
-          "actualWinner": "Texas"
-        },
-        {
-          "slotId": "3_13",
-          "round": "R64",
-          "team": "Gonzaga",
-          "seed": 3,
-          "status": "correct",
-          "actualWinner": "Gonzaga"
-        },
-        {
-          "slotId": "3_14",
-          "round": "R64",
-          "team": "Miami (FL)",
-          "seed": 7,
-          "status": "correct",
-          "actualWinner": "Miami (FL)"
-        },
-        {
-          "slotId": "3_15",
-          "round": "R64",
-          "team": "Purdue",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": "Purdue"
-        },
-        {
-          "slotId": "4_8",
-          "round": "R64",
-          "team": "Michigan",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": "Michigan"
-        },
-        {
-          "slotId": "4_9",
-          "round": "R64",
-          "team": "Georgia",
-          "seed": 8,
-          "status": "incorrect",
-          "actualWinner": "Saint Louis"
-        },
-        {
-          "slotId": "4_10",
-          "round": "R64",
-          "team": "Texas Tech",
-          "seed": 5,
-          "status": "correct",
-          "actualWinner": "Texas Tech"
-        },
-        {
-          "slotId": "4_11",
-          "round": "R64",
-          "team": "Alabama",
-          "seed": 4,
-          "status": "correct",
-          "actualWinner": "Alabama"
-        },
-        {
-          "slotId": "4_12",
-          "round": "R64",
-          "team": "Tennessee",
-          "seed": 6,
-          "status": "correct",
-          "actualWinner": "Tennessee"
-        },
-        {
-          "slotId": "4_13",
-          "round": "R64",
-          "team": "Virginia",
-          "seed": 3,
-          "status": "correct",
-          "actualWinner": "Virginia"
-        },
-        {
-          "slotId": "4_14",
-          "round": "R64",
-          "team": "Santa Clara",
-          "seed": 10,
-          "status": "incorrect",
-          "actualWinner": "Kentucky"
-        },
-        {
-          "slotId": "4_15",
-          "round": "R64",
-          "team": "Iowa St.",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": "Iowa St."
-        },
-        {
-          "slotId": "1_4",
-          "round": "R32",
-          "team": "Duke",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": "Duke"
-        },
-        {
-          "slotId": "1_5",
-          "round": "R32",
-          "team": "St. John's",
-          "seed": 5,
-          "status": "correct",
-          "actualWinner": "St. John's"
-        },
-        {
-          "slotId": "1_6",
-          "round": "R32",
-          "team": "Michigan St.",
-          "seed": 3,
-          "status": "correct",
-          "actualWinner": "Michigan St."
-        },
-        {
-          "slotId": "1_7",
-          "round": "R32",
-          "team": "Connecticut",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": "Connecticut"
-        },
-        {
-          "slotId": "2_4",
-          "round": "R32",
-          "team": "Florida",
-          "seed": 1,
-          "status": "incorrect",
-          "actualWinner": "Iowa"
-        },
-        {
-          "slotId": "2_5",
-          "round": "R32",
-          "team": "Nebraska",
-          "seed": 4,
-          "status": "correct",
-          "actualWinner": "Nebraska"
-        },
-        {
-          "slotId": "2_6",
-          "round": "R32",
-          "team": "VCU",
-          "seed": 11,
-          "status": "incorrect",
-          "actualWinner": "Illinois"
-        },
-        {
-          "slotId": "2_7",
-          "round": "R32",
-          "team": "Houston",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": "Houston"
-        },
-        {
-          "slotId": "3_4",
-          "round": "R32",
-          "team": "Arizona",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": "Arizona"
-        },
-        {
-          "slotId": "3_5",
-          "round": "R32",
-          "team": "Arkansas",
-          "seed": 4,
-          "status": "correct",
-          "actualWinner": "Arkansas"
-        },
-        {
-          "slotId": "3_6",
-          "round": "R32",
-          "team": "Gonzaga",
-          "seed": 3,
-          "status": "incorrect",
-          "actualWinner": "Texas"
-        },
-        {
-          "slotId": "3_7",
-          "round": "R32",
-          "team": "Purdue",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": "Purdue"
-        },
-        {
-          "slotId": "4_4",
-          "round": "R32",
-          "team": "Michigan",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": "Michigan"
-        },
-        {
-          "slotId": "4_5",
-          "round": "R32",
-          "team": "Alabama",
-          "seed": 4,
-          "status": "correct",
-          "actualWinner": "Alabama"
-        },
-        {
-          "slotId": "4_6",
-          "round": "R32",
-          "team": "Virginia",
-          "seed": 3,
-          "status": "incorrect",
-          "actualWinner": "Tennessee"
-        },
-        {
-          "slotId": "4_7",
-          "round": "R32",
-          "team": "Iowa St.",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": "Iowa St."
-        },
-        {
-          "slotId": "1_2",
-          "round": "S16",
-          "team": "Duke",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": null
-        },
-        {
-          "slotId": "1_3",
-          "round": "S16",
-          "team": "Connecticut",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": null
-        },
-        {
-          "slotId": "2_2",
-          "round": "S16",
-          "team": "Florida",
-          "seed": 1,
-          "status": "incorrect",
-          "actualWinner": null
-        },
-        {
-          "slotId": "2_3",
-          "round": "S16",
-          "team": "Houston",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": null
-        },
-        {
-          "slotId": "3_2",
-          "round": "S16",
-          "team": "Arkansas",
-          "seed": 4,
-          "status": "correct",
-          "actualWinner": null
-        },
-        {
-          "slotId": "3_3",
-          "round": "S16",
-          "team": "Gonzaga",
-          "seed": 3,
-          "status": "incorrect",
-          "actualWinner": null
-        },
-        {
-          "slotId": "4_2",
-          "round": "S16",
-          "team": "Michigan",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": null
-        },
-        {
-          "slotId": "4_3",
-          "round": "S16",
-          "team": "Virginia",
-          "seed": 3,
-          "status": "incorrect",
-          "actualWinner": null
-        },
-        {
-          "slotId": "1_1",
-          "round": "E8",
-          "team": "Connecticut",
-          "seed": 2,
-          "status": "pending",
-          "actualWinner": null
-        },
-        {
-          "slotId": "2_1",
-          "round": "E8",
-          "team": "Houston",
-          "seed": 2,
-          "status": "pending",
-          "actualWinner": null
-        },
-        {
-          "slotId": "3_1",
-          "round": "E8",
-          "team": "Gonzaga",
-          "seed": 3,
-          "status": "pending",
-          "actualWinner": null
-        },
-        {
-          "slotId": "4_1",
-          "round": "E8",
-          "team": "Michigan",
-          "seed": 1,
-          "status": "pending",
-          "actualWinner": null
-        },
-        {
-          "slotId": "0_2",
-          "round": "F4",
-          "team": "Connecticut",
-          "seed": 2,
-          "status": "pending",
-          "actualWinner": null
-        },
-        {
-          "slotId": "0_3",
-          "round": "F4",
-          "team": "Michigan",
-          "seed": 1,
-          "status": "pending",
-          "actualWinner": null
-        },
-        {
-          "slotId": "champ",
-          "round": "Final",
-          "team": "Connecticut",
-          "seed": 2,
-          "status": "pending",
-          "actualWinner": null
-        }
-      ],
-      "pendingPicks": [
-        {
-          "slotId": "1_2",
-          "round": "S16",
-          "team": "Duke",
-          "seed": 1
-        },
-        {
-          "slotId": "1_3",
-          "round": "S16",
-          "team": "Connecticut",
-          "seed": 2
-        },
-        {
-          "slotId": "2_3",
-          "round": "S16",
-          "team": "Houston",
-          "seed": 2
-        },
-        {
-          "slotId": "3_2",
-          "round": "S16",
-          "team": "Arkansas",
-          "seed": 4
-        },
-        {
-          "slotId": "4_2",
-          "round": "S16",
-          "team": "Michigan",
-          "seed": 1
-        },
-        {
-          "slotId": "1_1",
-          "round": "E8",
-          "team": "Connecticut",
-          "seed": 2
-        },
-        {
-          "slotId": "2_1",
-          "round": "E8",
-          "team": "Houston",
-          "seed": 2
-        },
-        {
-          "slotId": "4_1",
-          "round": "E8",
-          "team": "Michigan",
-          "seed": 1
-        },
-        {
-          "slotId": "0_2",
-          "round": "F4",
-          "team": "Connecticut",
-          "seed": 2
-        },
-        {
-          "slotId": "0_3",
-          "round": "F4",
-          "team": "Michigan",
-          "seed": 1
-        },
-        {
-          "slotId": "champ",
-          "round": "Final",
-          "team": "Connecticut",
-          "seed": 2
-        }
-      ]
-    },
-    {
-      "rank": 4,
-      "memberId": "mbr_004",
-      "bracketName": "TheChattanoogan",
-      "score": 47,
-      "maxPossible": 167,
+      "rank": 2,
+      "memberId": "mbr_003",
+      "bracketName": "Dribbling Bubbas",
+      "score": 58,
+      "maxPossible": 170,
       "eliminated": false,
       "allPicks": [
         {
@@ -1936,9 +736,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_12",
           "round": "R64",
-          "team": "VCU",
-          "seed": 11,
-          "status": "correct",
+          "team": "N. Carolina",
+          "seed": 6,
+          "status": "incorrect",
           "actualWinner": "VCU"
         },
         {
@@ -2000,9 +800,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "3_12",
           "round": "R64",
-          "team": "Texas",
-          "seed": 11,
-          "status": "correct",
+          "team": "BYU",
+          "seed": 6,
+          "status": "incorrect",
           "actualWinner": "Texas"
         },
         {
@@ -2048,9 +848,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "4_10",
           "round": "R64",
-          "team": "Akron",
-          "seed": 12,
-          "status": "incorrect",
+          "team": "Texas Tech",
+          "seed": 5,
+          "status": "correct",
           "actualWinner": "Texas Tech"
         },
         {
@@ -2200,8 +1000,8 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "4_5",
           "round": "R32",
-          "team": "Akron",
-          "seed": 12,
+          "team": "Texas Tech",
+          "seed": 5,
           "status": "incorrect",
           "actualWinner": "Alabama"
         },
@@ -2240,18 +1040,18 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_2",
           "round": "S16",
-          "team": "Florida",
+          "team": "Iowa",
           "seed": 1,
-          "status": "incorrect",
-          "actualWinner": null
+          "status": "correct",
+          "actualWinner": "Iowa"
         },
         {
           "slotId": "2_3",
           "round": "S16",
           "team": "Houston",
           "seed": 2,
-          "status": "correct",
-          "actualWinner": null
+          "status": "incorrect",
+          "actualWinner": "Illinois"
         },
         {
           "slotId": "3_2",
@@ -2259,15 +1059,15 @@ window.OFL_BRC_ANALYSIS = {
           "team": "Arizona",
           "seed": 1,
           "status": "correct",
-          "actualWinner": null
+          "actualWinner": "Arizona"
         },
         {
           "slotId": "3_3",
           "round": "S16",
-          "team": "Gonzaga",
-          "seed": 3,
-          "status": "incorrect",
-          "actualWinner": null
+          "team": "Purdue",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Purdue"
         },
         {
           "slotId": "4_2",
@@ -2280,9 +1080,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "4_3",
           "round": "S16",
-          "team": "Iowa St.",
-          "seed": 2,
-          "status": "correct",
+          "team": "Tennessee",
+          "seed": 3,
+          "status": "incorrect",
           "actualWinner": null
         },
         {
@@ -2296,9 +1096,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_1",
           "round": "E8",
-          "team": "Houston",
-          "seed": 2,
-          "status": "pending",
+          "team": "Iowa",
+          "seed": 1,
+          "status": "incorrect",
           "actualWinner": null
         },
         {
@@ -2356,18 +1156,6 @@ window.OFL_BRC_ANALYSIS = {
           "seed": 3
         },
         {
-          "slotId": "2_3",
-          "round": "S16",
-          "team": "Houston",
-          "seed": 2
-        },
-        {
-          "slotId": "3_2",
-          "round": "S16",
-          "team": "Arizona",
-          "seed": 1
-        },
-        {
           "slotId": "4_2",
           "round": "S16",
           "team": "Michigan",
@@ -2376,8 +1164,8 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "4_3",
           "round": "S16",
-          "team": "Iowa St.",
-          "seed": 2
+          "team": "Tennessee",
+          "seed": 3
         },
         {
           "slotId": "1_1",
@@ -2388,8 +1176,8 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_1",
           "round": "E8",
-          "team": "Houston",
-          "seed": 2
+          "team": "Iowa",
+          "seed": 1
         },
         {
           "slotId": "3_1",
@@ -2424,11 +1212,11 @@ window.OFL_BRC_ANALYSIS = {
       ]
     },
     {
-      "rank": 5,
+      "rank": 3,
       "memberId": "mbr_mm161lj76qt7",
       "bracketName": "Gangan Quilters",
-      "score": 46,
-      "maxPossible": 162,
+      "score": 58,
+      "maxPossible": 170,
       "eliminated": false,
       "allPicks": [
         {
@@ -2834,18 +1622,18 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_2",
           "round": "S16",
-          "team": "Florida",
+          "team": "Iowa",
           "seed": 1,
-          "status": "incorrect",
-          "actualWinner": null
+          "status": "correct",
+          "actualWinner": "Iowa"
         },
         {
           "slotId": "2_3",
           "round": "S16",
           "team": "Houston",
           "seed": 2,
-          "status": "correct",
-          "actualWinner": null
+          "status": "incorrect",
+          "actualWinner": "Illinois"
         },
         {
           "slotId": "3_2",
@@ -2853,7 +1641,7 @@ window.OFL_BRC_ANALYSIS = {
           "team": "Arizona",
           "seed": 1,
           "status": "correct",
-          "actualWinner": null
+          "actualWinner": "Arizona"
         },
         {
           "slotId": "3_3",
@@ -2861,7 +1649,7 @@ window.OFL_BRC_ANALYSIS = {
           "team": "Purdue",
           "seed": 2,
           "status": "correct",
-          "actualWinner": null
+          "actualWinner": "Purdue"
         },
         {
           "slotId": "4_2",
@@ -2890,9 +1678,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_1",
           "round": "E8",
-          "team": "Florida",
+          "team": "Iowa",
           "seed": 1,
-          "status": "pending",
+          "status": "incorrect",
           "actualWinner": null
         },
         {
@@ -2950,24 +1738,6 @@ window.OFL_BRC_ANALYSIS = {
           "seed": 2
         },
         {
-          "slotId": "2_3",
-          "round": "S16",
-          "team": "Houston",
-          "seed": 2
-        },
-        {
-          "slotId": "3_2",
-          "round": "S16",
-          "team": "Arizona",
-          "seed": 1
-        },
-        {
-          "slotId": "3_3",
-          "round": "S16",
-          "team": "Purdue",
-          "seed": 2
-        },
-        {
           "slotId": "4_2",
           "round": "S16",
           "team": "Michigan",
@@ -2983,6 +1753,12 @@ window.OFL_BRC_ANALYSIS = {
           "slotId": "1_1",
           "round": "E8",
           "team": "Duke",
+          "seed": 1
+        },
+        {
+          "slotId": "2_1",
+          "round": "E8",
+          "team": "Iowa",
           "seed": 1
         },
         {
@@ -3018,11 +1794,11 @@ window.OFL_BRC_ANALYSIS = {
       ]
     },
     {
-      "rank": 6,
+      "rank": 4,
       "memberId": "mbr_006",
       "bracketName": "Molly Defenders 2.0",
-      "score": 46,
-      "maxPossible": 158,
+      "score": 58,
+      "maxPossible": 170,
       "eliminated": false,
       "allPicks": [
         {
@@ -3356,7 +2132,7 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "3_5",
           "round": "R32",
-          "team": "Wisconsin",
+          "team": "High Point",
           "seed": 5,
           "status": "incorrect",
           "actualWinner": "Arkansas"
@@ -3428,10 +2204,10 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_2",
           "round": "S16",
-          "team": "Florida",
+          "team": "Iowa",
           "seed": 1,
-          "status": "incorrect",
-          "actualWinner": null
+          "status": "correct",
+          "actualWinner": "Iowa"
         },
         {
           "slotId": "2_3",
@@ -3439,7 +2215,7 @@ window.OFL_BRC_ANALYSIS = {
           "team": "Illinois",
           "seed": 3,
           "status": "correct",
-          "actualWinner": null
+          "actualWinner": "Illinois"
         },
         {
           "slotId": "3_2",
@@ -3447,15 +2223,15 @@ window.OFL_BRC_ANALYSIS = {
           "team": "Arizona",
           "seed": 1,
           "status": "correct",
-          "actualWinner": null
+          "actualWinner": "Arizona"
         },
         {
           "slotId": "3_3",
           "round": "S16",
-          "team": "Gonzaga",
+          "team": "Texas",
           "seed": 3,
           "status": "incorrect",
-          "actualWinner": null
+          "actualWinner": "Purdue"
         },
         {
           "slotId": "4_2",
@@ -3484,9 +2260,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_1",
           "round": "E8",
-          "team": "Florida",
+          "team": "Iowa",
           "seed": 1,
-          "status": "pending",
+          "status": "incorrect",
           "actualWinner": null
         },
         {
@@ -3544,18 +2320,6 @@ window.OFL_BRC_ANALYSIS = {
           "seed": 3
         },
         {
-          "slotId": "2_3",
-          "round": "S16",
-          "team": "Illinois",
-          "seed": 3
-        },
-        {
-          "slotId": "3_2",
-          "round": "S16",
-          "team": "Arizona",
-          "seed": 1
-        },
-        {
           "slotId": "4_2",
           "round": "S16",
           "team": "Michigan",
@@ -3571,6 +2335,12 @@ window.OFL_BRC_ANALYSIS = {
           "slotId": "1_1",
           "round": "E8",
           "team": "Duke",
+          "seed": 1
+        },
+        {
+          "slotId": "2_1",
+          "round": "E8",
+          "team": "Iowa",
           "seed": 1
         },
         {
@@ -3606,11 +2376,11 @@ window.OFL_BRC_ANALYSIS = {
       ]
     },
     {
-      "rank": 7,
-      "memberId": "mbr_003",
-      "bracketName": "Dribbling Bubbas",
-      "score": 46,
-      "maxPossible": 158,
+      "rank": 5,
+      "memberId": "mbr_mm7vmncz4gfs",
+      "bracketName": "Auburn's Time to Shine",
+      "score": 58,
+      "maxPossible": 162,
       "eliminated": false,
       "allPicks": [
         {
@@ -3664,9 +2434,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "1_14",
           "round": "R64",
-          "team": "UCLA",
-          "seed": 7,
-          "status": "correct",
+          "team": "UCF",
+          "seed": 10,
+          "status": "incorrect",
           "actualWinner": "UCLA"
         },
         {
@@ -3688,9 +2458,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_9",
           "round": "R64",
-          "team": "Iowa",
-          "seed": 9,
-          "status": "correct",
+          "team": "Clemson",
+          "seed": 8,
+          "status": "incorrect",
           "actualWinner": "Iowa"
         },
         {
@@ -3776,9 +2546,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "3_12",
           "round": "R64",
-          "team": "BYU",
-          "seed": 6,
-          "status": "incorrect",
+          "team": "Texas",
+          "seed": 11,
+          "status": "correct",
           "actualWinner": "Texas"
         },
         {
@@ -3792,9 +2562,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "3_14",
           "round": "R64",
-          "team": "Missouri",
-          "seed": 10,
-          "status": "incorrect",
+          "team": "Miami (FL)",
+          "seed": 7,
+          "status": "correct",
           "actualWinner": "Miami (FL)"
         },
         {
@@ -3880,9 +2650,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "1_5",
           "round": "R32",
-          "team": "Kansas",
-          "seed": 4,
-          "status": "incorrect",
+          "team": "St. John's",
+          "seed": 5,
+          "status": "correct",
           "actualWinner": "St. John's"
         },
         {
@@ -3984,9 +2754,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "4_6",
           "round": "R32",
-          "team": "Virginia",
-          "seed": 3,
-          "status": "incorrect",
+          "team": "Tennessee",
+          "seed": 6,
+          "status": "correct",
           "actualWinner": "Tennessee"
         },
         {
@@ -4008,26 +2778,26 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "1_3",
           "round": "S16",
-          "team": "Michigan St.",
-          "seed": 3,
+          "team": "Connecticut",
+          "seed": 2,
           "status": "correct",
           "actualWinner": null
         },
         {
           "slotId": "2_2",
           "round": "S16",
-          "team": "Florida",
-          "seed": 1,
+          "team": "Nebraska",
+          "seed": 5,
           "status": "incorrect",
-          "actualWinner": null
+          "actualWinner": "Iowa"
         },
         {
           "slotId": "2_3",
           "round": "S16",
           "team": "Houston",
           "seed": 2,
-          "status": "correct",
-          "actualWinner": null
+          "status": "incorrect",
+          "actualWinner": "Illinois"
         },
         {
           "slotId": "3_2",
@@ -4035,7 +2805,7 @@ window.OFL_BRC_ANALYSIS = {
           "team": "Arizona",
           "seed": 1,
           "status": "correct",
-          "actualWinner": null
+          "actualWinner": "Arizona"
         },
         {
           "slotId": "3_3",
@@ -4043,7 +2813,7 @@ window.OFL_BRC_ANALYSIS = {
           "team": "Purdue",
           "seed": 2,
           "status": "correct",
-          "actualWinner": null
+          "actualWinner": "Purdue"
         },
         {
           "slotId": "4_2",
@@ -4056,9 +2826,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "4_3",
           "round": "S16",
-          "team": "Virginia",
-          "seed": 3,
-          "status": "incorrect",
+          "team": "Iowa St.",
+          "seed": 2,
+          "status": "correct",
           "actualWinner": null
         },
         {
@@ -4072,8 +2842,8 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_1",
           "round": "E8",
-          "team": "Florida",
-          "seed": 1,
+          "team": "Houston",
+          "seed": 2,
           "status": "pending",
           "actualWinner": null
         },
@@ -4104,7 +2874,7 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "0_3",
           "round": "F4",
-          "team": "Arizona",
+          "team": "Michigan",
           "seed": 1,
           "status": "pending",
           "actualWinner": null
@@ -4112,7 +2882,7 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "champ",
           "round": "Final",
-          "team": "Duke",
+          "team": "Michigan",
           "seed": 1,
           "status": "pending",
           "actualWinner": null
@@ -4128,25 +2898,7 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "1_3",
           "round": "S16",
-          "team": "Michigan St.",
-          "seed": 3
-        },
-        {
-          "slotId": "2_3",
-          "round": "S16",
-          "team": "Houston",
-          "seed": 2
-        },
-        {
-          "slotId": "3_2",
-          "round": "S16",
-          "team": "Arizona",
-          "seed": 1
-        },
-        {
-          "slotId": "3_3",
-          "round": "S16",
-          "team": "Purdue",
+          "team": "Connecticut",
           "seed": 2
         },
         {
@@ -4154,6 +2906,12 @@ window.OFL_BRC_ANALYSIS = {
           "round": "S16",
           "team": "Michigan",
           "seed": 1
+        },
+        {
+          "slotId": "4_3",
+          "round": "S16",
+          "team": "Iowa St.",
+          "seed": 2
         },
         {
           "slotId": "1_1",
@@ -4182,23 +2940,23 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "0_3",
           "round": "F4",
-          "team": "Arizona",
+          "team": "Michigan",
           "seed": 1
         },
         {
           "slotId": "champ",
           "round": "Final",
-          "team": "Duke",
+          "team": "Michigan",
           "seed": 1
         }
       ]
     },
     {
-      "rank": 8,
+      "rank": 6,
       "memberId": "mbr_002",
       "bracketName": "ATLiens",
-      "score": 45,
-      "maxPossible": 161,
+      "score": 57,
+      "maxPossible": 169,
       "eliminated": false,
       "allPicks": [
         {
@@ -4604,18 +3362,18 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_2",
           "round": "S16",
-          "team": "Florida",
+          "team": "Iowa",
           "seed": 1,
-          "status": "incorrect",
-          "actualWinner": null
+          "status": "correct",
+          "actualWinner": "Iowa"
         },
         {
           "slotId": "2_3",
           "round": "S16",
           "team": "Houston",
           "seed": 2,
-          "status": "correct",
-          "actualWinner": null
+          "status": "incorrect",
+          "actualWinner": "Illinois"
         },
         {
           "slotId": "3_2",
@@ -4623,7 +3381,7 @@ window.OFL_BRC_ANALYSIS = {
           "team": "Arizona",
           "seed": 1,
           "status": "correct",
-          "actualWinner": null
+          "actualWinner": "Arizona"
         },
         {
           "slotId": "3_3",
@@ -4631,7 +3389,7 @@ window.OFL_BRC_ANALYSIS = {
           "team": "Purdue",
           "seed": 2,
           "status": "correct",
-          "actualWinner": null
+          "actualWinner": "Purdue"
         },
         {
           "slotId": "4_2",
@@ -4660,8 +3418,590 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_1",
           "round": "E8",
+          "team": "Iowa",
+          "seed": 1,
+          "status": "incorrect",
+          "actualWinner": null
+        },
+        {
+          "slotId": "3_1",
+          "round": "E8",
+          "team": "Arizona",
+          "seed": 1,
+          "status": "pending",
+          "actualWinner": null
+        },
+        {
+          "slotId": "4_1",
+          "round": "E8",
+          "team": "Michigan",
+          "seed": 1,
+          "status": "pending",
+          "actualWinner": null
+        },
+        {
+          "slotId": "0_2",
+          "round": "F4",
+          "team": "Duke",
+          "seed": 1,
+          "status": "pending",
+          "actualWinner": null
+        },
+        {
+          "slotId": "0_3",
+          "round": "F4",
+          "team": "Arizona",
+          "seed": 1,
+          "status": "pending",
+          "actualWinner": null
+        },
+        {
+          "slotId": "champ",
+          "round": "Final",
+          "team": "Duke",
+          "seed": 1,
+          "status": "pending",
+          "actualWinner": null
+        }
+      ],
+      "pendingPicks": [
+        {
+          "slotId": "1_2",
+          "round": "S16",
+          "team": "Duke",
+          "seed": 1
+        },
+        {
+          "slotId": "1_3",
+          "round": "S16",
+          "team": "Connecticut",
+          "seed": 2
+        },
+        {
+          "slotId": "4_2",
+          "round": "S16",
+          "team": "Michigan",
+          "seed": 1
+        },
+        {
+          "slotId": "4_3",
+          "round": "S16",
+          "team": "Tennessee",
+          "seed": 6
+        },
+        {
+          "slotId": "1_1",
+          "round": "E8",
+          "team": "Duke",
+          "seed": 1
+        },
+        {
+          "slotId": "2_1",
+          "round": "E8",
+          "team": "Iowa",
+          "seed": 1
+        },
+        {
+          "slotId": "3_1",
+          "round": "E8",
+          "team": "Arizona",
+          "seed": 1
+        },
+        {
+          "slotId": "4_1",
+          "round": "E8",
+          "team": "Michigan",
+          "seed": 1
+        },
+        {
+          "slotId": "0_2",
+          "round": "F4",
+          "team": "Duke",
+          "seed": 1
+        },
+        {
+          "slotId": "0_3",
+          "round": "F4",
+          "team": "Arizona",
+          "seed": 1
+        },
+        {
+          "slotId": "champ",
+          "round": "Final",
+          "team": "Duke",
+          "seed": 1
+        }
+      ]
+    },
+    {
+      "rank": 7,
+      "memberId": "mbr_005",
+      "bracketName": "Ozzies",
+      "score": 57,
+      "maxPossible": 161,
+      "eliminated": false,
+      "allPicks": [
+        {
+          "slotId": "1_8",
+          "round": "R64",
+          "team": "Duke",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Duke"
+        },
+        {
+          "slotId": "1_9",
+          "round": "R64",
+          "team": "Ohio St.",
+          "seed": 8,
+          "status": "incorrect",
+          "actualWinner": "TCU"
+        },
+        {
+          "slotId": "1_10",
+          "round": "R64",
+          "team": "St. John's",
+          "seed": 5,
+          "status": "correct",
+          "actualWinner": "St. John's"
+        },
+        {
+          "slotId": "1_11",
+          "round": "R64",
+          "team": "Kansas",
+          "seed": 4,
+          "status": "correct",
+          "actualWinner": "Kansas"
+        },
+        {
+          "slotId": "1_12",
+          "round": "R64",
+          "team": "Louisville",
+          "seed": 6,
+          "status": "correct",
+          "actualWinner": "Louisville"
+        },
+        {
+          "slotId": "1_13",
+          "round": "R64",
+          "team": "Michigan St.",
+          "seed": 3,
+          "status": "correct",
+          "actualWinner": "Michigan St."
+        },
+        {
+          "slotId": "1_14",
+          "round": "R64",
+          "team": "UCLA",
+          "seed": 7,
+          "status": "correct",
+          "actualWinner": "UCLA"
+        },
+        {
+          "slotId": "1_15",
+          "round": "R64",
+          "team": "Connecticut",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Connecticut"
+        },
+        {
+          "slotId": "2_8",
+          "round": "R64",
           "team": "Florida",
           "seed": 1,
+          "status": "correct",
+          "actualWinner": "Florida"
+        },
+        {
+          "slotId": "2_9",
+          "round": "R64",
+          "team": "Clemson",
+          "seed": 8,
+          "status": "incorrect",
+          "actualWinner": "Iowa"
+        },
+        {
+          "slotId": "2_10",
+          "round": "R64",
+          "team": "Vanderbilt",
+          "seed": 5,
+          "status": "correct",
+          "actualWinner": "Vanderbilt"
+        },
+        {
+          "slotId": "2_11",
+          "round": "R64",
+          "team": "Nebraska",
+          "seed": 4,
+          "status": "correct",
+          "actualWinner": "Nebraska"
+        },
+        {
+          "slotId": "2_12",
+          "round": "R64",
+          "team": "N. Carolina",
+          "seed": 6,
+          "status": "incorrect",
+          "actualWinner": "VCU"
+        },
+        {
+          "slotId": "2_13",
+          "round": "R64",
+          "team": "Illinois",
+          "seed": 3,
+          "status": "correct",
+          "actualWinner": "Illinois"
+        },
+        {
+          "slotId": "2_14",
+          "round": "R64",
+          "team": "Texas A&M",
+          "seed": 10,
+          "status": "correct",
+          "actualWinner": "Texas A&M"
+        },
+        {
+          "slotId": "2_15",
+          "round": "R64",
+          "team": "Houston",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Houston"
+        },
+        {
+          "slotId": "3_8",
+          "round": "R64",
+          "team": "Arizona",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Arizona"
+        },
+        {
+          "slotId": "3_9",
+          "round": "R64",
+          "team": "Villanova",
+          "seed": 8,
+          "status": "incorrect",
+          "actualWinner": "Utah St."
+        },
+        {
+          "slotId": "3_10",
+          "round": "R64",
+          "team": "Wisconsin",
+          "seed": 5,
+          "status": "incorrect",
+          "actualWinner": "High Point"
+        },
+        {
+          "slotId": "3_11",
+          "round": "R64",
+          "team": "Arkansas",
+          "seed": 4,
+          "status": "correct",
+          "actualWinner": "Arkansas"
+        },
+        {
+          "slotId": "3_12",
+          "round": "R64",
+          "team": "BYU",
+          "seed": 6,
+          "status": "incorrect",
+          "actualWinner": "Texas"
+        },
+        {
+          "slotId": "3_13",
+          "round": "R64",
+          "team": "Gonzaga",
+          "seed": 3,
+          "status": "correct",
+          "actualWinner": "Gonzaga"
+        },
+        {
+          "slotId": "3_14",
+          "round": "R64",
+          "team": "Miami (FL)",
+          "seed": 7,
+          "status": "correct",
+          "actualWinner": "Miami (FL)"
+        },
+        {
+          "slotId": "3_15",
+          "round": "R64",
+          "team": "Purdue",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Purdue"
+        },
+        {
+          "slotId": "4_8",
+          "round": "R64",
+          "team": "Michigan",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Michigan"
+        },
+        {
+          "slotId": "4_9",
+          "round": "R64",
+          "team": "Georgia",
+          "seed": 8,
+          "status": "incorrect",
+          "actualWinner": "Saint Louis"
+        },
+        {
+          "slotId": "4_10",
+          "round": "R64",
+          "team": "Texas Tech",
+          "seed": 5,
+          "status": "correct",
+          "actualWinner": "Texas Tech"
+        },
+        {
+          "slotId": "4_11",
+          "round": "R64",
+          "team": "Alabama",
+          "seed": 4,
+          "status": "correct",
+          "actualWinner": "Alabama"
+        },
+        {
+          "slotId": "4_12",
+          "round": "R64",
+          "team": "Tennessee",
+          "seed": 6,
+          "status": "correct",
+          "actualWinner": "Tennessee"
+        },
+        {
+          "slotId": "4_13",
+          "round": "R64",
+          "team": "Virginia",
+          "seed": 3,
+          "status": "correct",
+          "actualWinner": "Virginia"
+        },
+        {
+          "slotId": "4_14",
+          "round": "R64",
+          "team": "Kentucky",
+          "seed": 7,
+          "status": "correct",
+          "actualWinner": "Kentucky"
+        },
+        {
+          "slotId": "4_15",
+          "round": "R64",
+          "team": "Iowa St.",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Iowa St."
+        },
+        {
+          "slotId": "1_4",
+          "round": "R32",
+          "team": "Duke",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Duke"
+        },
+        {
+          "slotId": "1_5",
+          "round": "R32",
+          "team": "Kansas",
+          "seed": 4,
+          "status": "incorrect",
+          "actualWinner": "St. John's"
+        },
+        {
+          "slotId": "1_6",
+          "round": "R32",
+          "team": "Louisville",
+          "seed": 6,
+          "status": "incorrect",
+          "actualWinner": "Michigan St."
+        },
+        {
+          "slotId": "1_7",
+          "round": "R32",
+          "team": "Connecticut",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Connecticut"
+        },
+        {
+          "slotId": "2_4",
+          "round": "R32",
+          "team": "Florida",
+          "seed": 1,
+          "status": "incorrect",
+          "actualWinner": "Iowa"
+        },
+        {
+          "slotId": "2_5",
+          "round": "R32",
+          "team": "Vanderbilt",
+          "seed": 5,
+          "status": "incorrect",
+          "actualWinner": "Nebraska"
+        },
+        {
+          "slotId": "2_6",
+          "round": "R32",
+          "team": "VCU",
+          "seed": 6,
+          "status": "incorrect",
+          "actualWinner": "Illinois"
+        },
+        {
+          "slotId": "2_7",
+          "round": "R32",
+          "team": "Houston",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Houston"
+        },
+        {
+          "slotId": "3_4",
+          "round": "R32",
+          "team": "Arizona",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Arizona"
+        },
+        {
+          "slotId": "3_5",
+          "round": "R32",
+          "team": "Arkansas",
+          "seed": 4,
+          "status": "correct",
+          "actualWinner": "Arkansas"
+        },
+        {
+          "slotId": "3_6",
+          "round": "R32",
+          "team": "Texas",
+          "seed": 6,
+          "status": "correct",
+          "actualWinner": "Texas"
+        },
+        {
+          "slotId": "3_7",
+          "round": "R32",
+          "team": "Purdue",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Purdue"
+        },
+        {
+          "slotId": "4_4",
+          "round": "R32",
+          "team": "Michigan",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Michigan"
+        },
+        {
+          "slotId": "4_5",
+          "round": "R32",
+          "team": "Texas Tech",
+          "seed": 5,
+          "status": "incorrect",
+          "actualWinner": "Alabama"
+        },
+        {
+          "slotId": "4_6",
+          "round": "R32",
+          "team": "Tennessee",
+          "seed": 6,
+          "status": "correct",
+          "actualWinner": "Tennessee"
+        },
+        {
+          "slotId": "4_7",
+          "round": "R32",
+          "team": "Iowa St.",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Iowa St."
+        },
+        {
+          "slotId": "1_2",
+          "round": "S16",
+          "team": "Duke",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": null
+        },
+        {
+          "slotId": "1_3",
+          "round": "S16",
+          "team": "Connecticut",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": null
+        },
+        {
+          "slotId": "2_2",
+          "round": "S16",
+          "team": "Iowa",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Iowa"
+        },
+        {
+          "slotId": "2_3",
+          "round": "S16",
+          "team": "Houston",
+          "seed": 2,
+          "status": "incorrect",
+          "actualWinner": "Illinois"
+        },
+        {
+          "slotId": "3_2",
+          "round": "S16",
+          "team": "Arizona",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Arizona"
+        },
+        {
+          "slotId": "3_3",
+          "round": "S16",
+          "team": "Purdue",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Purdue"
+        },
+        {
+          "slotId": "4_2",
+          "round": "S16",
+          "team": "Michigan",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": null
+        },
+        {
+          "slotId": "4_3",
+          "round": "S16",
+          "team": "Iowa St.",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": null
+        },
+        {
+          "slotId": "1_1",
+          "round": "E8",
+          "team": "Duke",
+          "seed": 1,
+          "status": "pending",
+          "actualWinner": null
+        },
+        {
+          "slotId": "2_1",
+          "round": "E8",
+          "team": "Houston",
+          "seed": 2,
           "status": "pending",
           "actualWinner": null
         },
@@ -4720,24 +4060,6 @@ window.OFL_BRC_ANALYSIS = {
           "seed": 2
         },
         {
-          "slotId": "2_3",
-          "round": "S16",
-          "team": "Houston",
-          "seed": 2
-        },
-        {
-          "slotId": "3_2",
-          "round": "S16",
-          "team": "Arizona",
-          "seed": 1
-        },
-        {
-          "slotId": "3_3",
-          "round": "S16",
-          "team": "Purdue",
-          "seed": 2
-        },
-        {
           "slotId": "4_2",
           "round": "S16",
           "team": "Michigan",
@@ -4746,8 +4068,8 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "4_3",
           "round": "S16",
-          "team": "Tennessee",
-          "seed": 6
+          "team": "Iowa St.",
+          "seed": 2
         },
         {
           "slotId": "1_1",
@@ -4788,11 +4110,11 @@ window.OFL_BRC_ANALYSIS = {
       ]
     },
     {
-      "rank": 9,
+      "rank": 8,
       "memberId": "mbr_001",
       "bracketName": "theWeb",
-      "score": 45,
-      "maxPossible": 145,
+      "score": 57,
+      "maxPossible": 153,
       "eliminated": false,
       "allPicks": [
         {
@@ -5094,7 +4416,7 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_5",
           "round": "R32",
-          "team": "McNeese",
+          "team": "Vanderbilt",
           "seed": 12,
           "status": "incorrect",
           "actualWinner": "Nebraska"
@@ -5158,7 +4480,7 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "4_5",
           "round": "R32",
-          "team": "Akron",
+          "team": "Texas Tech",
           "seed": 12,
           "status": "incorrect",
           "actualWinner": "Alabama"
@@ -5198,18 +4520,18 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_2",
           "round": "S16",
-          "team": "Florida",
+          "team": "Iowa",
           "seed": 1,
-          "status": "incorrect",
-          "actualWinner": null
+          "status": "correct",
+          "actualWinner": "Iowa"
         },
         {
           "slotId": "2_3",
           "round": "S16",
           "team": "Houston",
           "seed": 2,
-          "status": "correct",
-          "actualWinner": null
+          "status": "incorrect",
+          "actualWinner": "Illinois"
         },
         {
           "slotId": "3_2",
@@ -5217,7 +4539,7 @@ window.OFL_BRC_ANALYSIS = {
           "team": "Arizona",
           "seed": 1,
           "status": "correct",
-          "actualWinner": null
+          "actualWinner": "Arizona"
         },
         {
           "slotId": "3_3",
@@ -5225,7 +4547,7 @@ window.OFL_BRC_ANALYSIS = {
           "team": "Purdue",
           "seed": 2,
           "status": "correct",
-          "actualWinner": null
+          "actualWinner": "Purdue"
         },
         {
           "slotId": "4_2",
@@ -5254,9 +4576,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_1",
           "round": "E8",
-          "team": "Florida",
+          "team": "Iowa",
           "seed": 1,
-          "status": "pending",
+          "status": "incorrect",
           "actualWinner": null
         },
         {
@@ -5314,24 +4636,6 @@ window.OFL_BRC_ANALYSIS = {
           "seed": 3
         },
         {
-          "slotId": "2_3",
-          "round": "S16",
-          "team": "Houston",
-          "seed": 2
-        },
-        {
-          "slotId": "3_2",
-          "round": "S16",
-          "team": "Arizona",
-          "seed": 1
-        },
-        {
-          "slotId": "3_3",
-          "round": "S16",
-          "team": "Purdue",
-          "seed": 2
-        },
-        {
           "slotId": "4_2",
           "round": "S16",
           "team": "Michigan",
@@ -5347,6 +4651,12 @@ window.OFL_BRC_ANALYSIS = {
           "slotId": "1_1",
           "round": "E8",
           "team": "Duke",
+          "seed": 1
+        },
+        {
+          "slotId": "2_1",
+          "round": "E8",
+          "team": "Iowa",
           "seed": 1
         },
         {
@@ -5376,11 +4686,11 @@ window.OFL_BRC_ANALYSIS = {
       ]
     },
     {
-      "rank": 10,
+      "rank": 9,
       "memberId": "mbr_mm7vlo5hx9hn",
       "bracketName": "CK Golden picks",
-      "score": 45,
-      "maxPossible": 109,
+      "score": 57,
+      "maxPossible": 121,
       "eliminated": false,
       "allPicks": [
         {
@@ -5714,17 +5024,17 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "3_5",
           "round": "R32",
-          "team": "Hawaii",
+          "team": "Arkansas",
           "seed": 13,
-          "status": "incorrect",
+          "status": "correct",
           "actualWinner": "Arkansas"
         },
         {
           "slotId": "3_6",
           "round": "R32",
-          "team": "BYU",
+          "team": "Texas",
           "seed": 6,
-          "status": "incorrect",
+          "status": "correct",
           "actualWinner": "Texas"
         },
         {
@@ -5786,18 +5096,18 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_2",
           "round": "S16",
-          "team": "Florida",
+          "team": "Iowa",
           "seed": 1,
-          "status": "incorrect",
-          "actualWinner": null
+          "status": "correct",
+          "actualWinner": "Iowa"
         },
         {
           "slotId": "2_3",
           "round": "S16",
           "team": "Houston",
           "seed": 2,
-          "status": "correct",
-          "actualWinner": null
+          "status": "incorrect",
+          "actualWinner": "Illinois"
         },
         {
           "slotId": "3_2",
@@ -5805,15 +5115,15 @@ window.OFL_BRC_ANALYSIS = {
           "team": "Arizona",
           "seed": 1,
           "status": "correct",
-          "actualWinner": null
+          "actualWinner": "Arizona"
         },
         {
           "slotId": "3_3",
           "round": "S16",
-          "team": "BYU",
+          "team": "Texas",
           "seed": 6,
           "status": "incorrect",
-          "actualWinner": null
+          "actualWinner": "Purdue"
         },
         {
           "slotId": "4_2",
@@ -5842,9 +5152,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_1",
           "round": "E8",
-          "team": "Florida",
+          "team": "Iowa",
           "seed": 1,
-          "status": "pending",
+          "status": "incorrect",
           "actualWinner": null
         },
         {
@@ -5894,18 +5204,6 @@ window.OFL_BRC_ANALYSIS = {
           "seed": 2
         },
         {
-          "slotId": "2_3",
-          "round": "S16",
-          "team": "Houston",
-          "seed": 2
-        },
-        {
-          "slotId": "3_2",
-          "round": "S16",
-          "team": "Arizona",
-          "seed": 1
-        },
-        {
           "slotId": "4_2",
           "round": "S16",
           "team": "Michigan",
@@ -5922,6 +5220,12 @@ window.OFL_BRC_ANALYSIS = {
           "round": "E8",
           "team": "Connecticut",
           "seed": 2
+        },
+        {
+          "slotId": "2_1",
+          "round": "E8",
+          "team": "Iowa",
+          "seed": 1
         },
         {
           "slotId": "3_1",
@@ -5944,11 +5248,11 @@ window.OFL_BRC_ANALYSIS = {
       ]
     },
     {
-      "rank": 11,
-      "memberId": "mbr_005",
-      "bracketName": "Ozzies",
-      "score": 43,
-      "maxPossible": 167,
+      "rank": 10,
+      "memberId": "mbr_004",
+      "bracketName": "TheChattanoogan",
+      "score": 55,
+      "maxPossible": 159,
       "eliminated": false,
       "allPicks": [
         {
@@ -6026,9 +5330,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_9",
           "round": "R64",
-          "team": "Clemson",
-          "seed": 8,
-          "status": "incorrect",
+          "team": "Iowa",
+          "seed": 9,
+          "status": "correct",
           "actualWinner": "Iowa"
         },
         {
@@ -6050,9 +5354,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_12",
           "round": "R64",
-          "team": "N. Carolina",
-          "seed": 6,
-          "status": "incorrect",
+          "team": "VCU",
+          "seed": 11,
+          "status": "correct",
           "actualWinner": "VCU"
         },
         {
@@ -6090,9 +5394,585 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "3_9",
           "round": "R64",
-          "team": "Villanova",
+          "team": "Utah St.",
+          "seed": 9,
+          "status": "correct",
+          "actualWinner": "Utah St."
+        },
+        {
+          "slotId": "3_10",
+          "round": "R64",
+          "team": "Wisconsin",
+          "seed": 5,
+          "status": "incorrect",
+          "actualWinner": "High Point"
+        },
+        {
+          "slotId": "3_11",
+          "round": "R64",
+          "team": "Arkansas",
+          "seed": 4,
+          "status": "correct",
+          "actualWinner": "Arkansas"
+        },
+        {
+          "slotId": "3_12",
+          "round": "R64",
+          "team": "Texas",
+          "seed": 11,
+          "status": "correct",
+          "actualWinner": "Texas"
+        },
+        {
+          "slotId": "3_13",
+          "round": "R64",
+          "team": "Gonzaga",
+          "seed": 3,
+          "status": "correct",
+          "actualWinner": "Gonzaga"
+        },
+        {
+          "slotId": "3_14",
+          "round": "R64",
+          "team": "Missouri",
+          "seed": 10,
+          "status": "incorrect",
+          "actualWinner": "Miami (FL)"
+        },
+        {
+          "slotId": "3_15",
+          "round": "R64",
+          "team": "Purdue",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Purdue"
+        },
+        {
+          "slotId": "4_8",
+          "round": "R64",
+          "team": "Michigan",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Michigan"
+        },
+        {
+          "slotId": "4_9",
+          "round": "R64",
+          "team": "Georgia",
           "seed": 8,
           "status": "incorrect",
+          "actualWinner": "Saint Louis"
+        },
+        {
+          "slotId": "4_10",
+          "round": "R64",
+          "team": "Akron",
+          "seed": 12,
+          "status": "incorrect",
+          "actualWinner": "Texas Tech"
+        },
+        {
+          "slotId": "4_11",
+          "round": "R64",
+          "team": "Alabama",
+          "seed": 4,
+          "status": "correct",
+          "actualWinner": "Alabama"
+        },
+        {
+          "slotId": "4_12",
+          "round": "R64",
+          "team": "Tennessee",
+          "seed": 6,
+          "status": "correct",
+          "actualWinner": "Tennessee"
+        },
+        {
+          "slotId": "4_13",
+          "round": "R64",
+          "team": "Virginia",
+          "seed": 3,
+          "status": "correct",
+          "actualWinner": "Virginia"
+        },
+        {
+          "slotId": "4_14",
+          "round": "R64",
+          "team": "Kentucky",
+          "seed": 7,
+          "status": "correct",
+          "actualWinner": "Kentucky"
+        },
+        {
+          "slotId": "4_15",
+          "round": "R64",
+          "team": "Iowa St.",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Iowa St."
+        },
+        {
+          "slotId": "1_4",
+          "round": "R32",
+          "team": "Duke",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Duke"
+        },
+        {
+          "slotId": "1_5",
+          "round": "R32",
+          "team": "Kansas",
+          "seed": 4,
+          "status": "incorrect",
+          "actualWinner": "St. John's"
+        },
+        {
+          "slotId": "1_6",
+          "round": "R32",
+          "team": "Michigan St.",
+          "seed": 3,
+          "status": "correct",
+          "actualWinner": "Michigan St."
+        },
+        {
+          "slotId": "1_7",
+          "round": "R32",
+          "team": "Connecticut",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Connecticut"
+        },
+        {
+          "slotId": "2_4",
+          "round": "R32",
+          "team": "Florida",
+          "seed": 1,
+          "status": "incorrect",
+          "actualWinner": "Iowa"
+        },
+        {
+          "slotId": "2_5",
+          "round": "R32",
+          "team": "Vanderbilt",
+          "seed": 5,
+          "status": "incorrect",
+          "actualWinner": "Nebraska"
+        },
+        {
+          "slotId": "2_6",
+          "round": "R32",
+          "team": "Illinois",
+          "seed": 3,
+          "status": "correct",
+          "actualWinner": "Illinois"
+        },
+        {
+          "slotId": "2_7",
+          "round": "R32",
+          "team": "Houston",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Houston"
+        },
+        {
+          "slotId": "3_4",
+          "round": "R32",
+          "team": "Arizona",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Arizona"
+        },
+        {
+          "slotId": "3_5",
+          "round": "R32",
+          "team": "Arkansas",
+          "seed": 4,
+          "status": "correct",
+          "actualWinner": "Arkansas"
+        },
+        {
+          "slotId": "3_6",
+          "round": "R32",
+          "team": "Gonzaga",
+          "seed": 3,
+          "status": "incorrect",
+          "actualWinner": "Texas"
+        },
+        {
+          "slotId": "3_7",
+          "round": "R32",
+          "team": "Purdue",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Purdue"
+        },
+        {
+          "slotId": "4_4",
+          "round": "R32",
+          "team": "Michigan",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Michigan"
+        },
+        {
+          "slotId": "4_5",
+          "round": "R32",
+          "team": "Texas Tech",
+          "seed": 12,
+          "status": "incorrect",
+          "actualWinner": "Alabama"
+        },
+        {
+          "slotId": "4_6",
+          "round": "R32",
+          "team": "Virginia",
+          "seed": 3,
+          "status": "incorrect",
+          "actualWinner": "Tennessee"
+        },
+        {
+          "slotId": "4_7",
+          "round": "R32",
+          "team": "Iowa St.",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Iowa St."
+        },
+        {
+          "slotId": "1_2",
+          "round": "S16",
+          "team": "Duke",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": null
+        },
+        {
+          "slotId": "1_3",
+          "round": "S16",
+          "team": "Michigan St.",
+          "seed": 3,
+          "status": "correct",
+          "actualWinner": null
+        },
+        {
+          "slotId": "2_2",
+          "round": "S16",
+          "team": "Iowa",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Iowa"
+        },
+        {
+          "slotId": "2_3",
+          "round": "S16",
+          "team": "Houston",
+          "seed": 2,
+          "status": "incorrect",
+          "actualWinner": "Illinois"
+        },
+        {
+          "slotId": "3_2",
+          "round": "S16",
+          "team": "Arizona",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Arizona"
+        },
+        {
+          "slotId": "3_3",
+          "round": "S16",
+          "team": "Texas",
+          "seed": 3,
+          "status": "incorrect",
+          "actualWinner": "Purdue"
+        },
+        {
+          "slotId": "4_2",
+          "round": "S16",
+          "team": "Michigan",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": null
+        },
+        {
+          "slotId": "4_3",
+          "round": "S16",
+          "team": "Iowa St.",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": null
+        },
+        {
+          "slotId": "1_1",
+          "round": "E8",
+          "team": "Duke",
+          "seed": 1,
+          "status": "pending",
+          "actualWinner": null
+        },
+        {
+          "slotId": "2_1",
+          "round": "E8",
+          "team": "Houston",
+          "seed": 2,
+          "status": "pending",
+          "actualWinner": null
+        },
+        {
+          "slotId": "3_1",
+          "round": "E8",
+          "team": "Arizona",
+          "seed": 1,
+          "status": "pending",
+          "actualWinner": null
+        },
+        {
+          "slotId": "4_1",
+          "round": "E8",
+          "team": "Michigan",
+          "seed": 1,
+          "status": "pending",
+          "actualWinner": null
+        },
+        {
+          "slotId": "0_2",
+          "round": "F4",
+          "team": "Duke",
+          "seed": 1,
+          "status": "pending",
+          "actualWinner": null
+        },
+        {
+          "slotId": "0_3",
+          "round": "F4",
+          "team": "Arizona",
+          "seed": 1,
+          "status": "pending",
+          "actualWinner": null
+        },
+        {
+          "slotId": "champ",
+          "round": "Final",
+          "team": "Duke",
+          "seed": 1,
+          "status": "pending",
+          "actualWinner": null
+        }
+      ],
+      "pendingPicks": [
+        {
+          "slotId": "1_2",
+          "round": "S16",
+          "team": "Duke",
+          "seed": 1
+        },
+        {
+          "slotId": "1_3",
+          "round": "S16",
+          "team": "Michigan St.",
+          "seed": 3
+        },
+        {
+          "slotId": "4_2",
+          "round": "S16",
+          "team": "Michigan",
+          "seed": 1
+        },
+        {
+          "slotId": "4_3",
+          "round": "S16",
+          "team": "Iowa St.",
+          "seed": 2
+        },
+        {
+          "slotId": "1_1",
+          "round": "E8",
+          "team": "Duke",
+          "seed": 1
+        },
+        {
+          "slotId": "3_1",
+          "round": "E8",
+          "team": "Arizona",
+          "seed": 1
+        },
+        {
+          "slotId": "4_1",
+          "round": "E8",
+          "team": "Michigan",
+          "seed": 1
+        },
+        {
+          "slotId": "0_2",
+          "round": "F4",
+          "team": "Duke",
+          "seed": 1
+        },
+        {
+          "slotId": "0_3",
+          "round": "F4",
+          "team": "Arizona",
+          "seed": 1
+        },
+        {
+          "slotId": "champ",
+          "round": "Final",
+          "team": "Duke",
+          "seed": 1
+        }
+      ]
+    },
+    {
+      "rank": 11,
+      "memberId": "mbr_mm1635nfdqvt",
+      "bracketName": "bioluminescent bracket",
+      "score": 52,
+      "maxPossible": 156,
+      "eliminated": false,
+      "allPicks": [
+        {
+          "slotId": "1_8",
+          "round": "R64",
+          "team": "Duke",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Duke"
+        },
+        {
+          "slotId": "1_9",
+          "round": "R64",
+          "team": "Ohio St.",
+          "seed": 8,
+          "status": "incorrect",
+          "actualWinner": "TCU"
+        },
+        {
+          "slotId": "1_10",
+          "round": "R64",
+          "team": "St. John's",
+          "seed": 5,
+          "status": "correct",
+          "actualWinner": "St. John's"
+        },
+        {
+          "slotId": "1_11",
+          "round": "R64",
+          "team": "Kansas",
+          "seed": 4,
+          "status": "correct",
+          "actualWinner": "Kansas"
+        },
+        {
+          "slotId": "1_12",
+          "round": "R64",
+          "team": "South Florida",
+          "seed": 11,
+          "status": "incorrect",
+          "actualWinner": "Louisville"
+        },
+        {
+          "slotId": "1_13",
+          "round": "R64",
+          "team": "Michigan St.",
+          "seed": 3,
+          "status": "correct",
+          "actualWinner": "Michigan St."
+        },
+        {
+          "slotId": "1_14",
+          "round": "R64",
+          "team": "UCLA",
+          "seed": 7,
+          "status": "correct",
+          "actualWinner": "UCLA"
+        },
+        {
+          "slotId": "1_15",
+          "round": "R64",
+          "team": "Connecticut",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Connecticut"
+        },
+        {
+          "slotId": "2_8",
+          "round": "R64",
+          "team": "Florida",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Florida"
+        },
+        {
+          "slotId": "2_9",
+          "round": "R64",
+          "team": "Clemson",
+          "seed": 8,
+          "status": "incorrect",
+          "actualWinner": "Iowa"
+        },
+        {
+          "slotId": "2_10",
+          "round": "R64",
+          "team": "Vanderbilt",
+          "seed": 5,
+          "status": "correct",
+          "actualWinner": "Vanderbilt"
+        },
+        {
+          "slotId": "2_11",
+          "round": "R64",
+          "team": "Nebraska",
+          "seed": 4,
+          "status": "correct",
+          "actualWinner": "Nebraska"
+        },
+        {
+          "slotId": "2_12",
+          "round": "R64",
+          "team": "VCU",
+          "seed": 11,
+          "status": "correct",
+          "actualWinner": "VCU"
+        },
+        {
+          "slotId": "2_13",
+          "round": "R64",
+          "team": "Illinois",
+          "seed": 3,
+          "status": "correct",
+          "actualWinner": "Illinois"
+        },
+        {
+          "slotId": "2_14",
+          "round": "R64",
+          "team": "St. Mary's",
+          "seed": 7,
+          "status": "incorrect",
+          "actualWinner": "Texas A&M"
+        },
+        {
+          "slotId": "2_15",
+          "round": "R64",
+          "team": "Houston",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Houston"
+        },
+        {
+          "slotId": "3_8",
+          "round": "R64",
+          "team": "Arizona",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Arizona"
+        },
+        {
+          "slotId": "3_9",
+          "round": "R64",
+          "team": "Utah St.",
+          "seed": 9,
+          "status": "correct",
           "actualWinner": "Utah St."
         },
         {
@@ -6194,6 +6074,582 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "4_14",
           "round": "R64",
+          "team": "Santa Clara",
+          "seed": 10,
+          "status": "incorrect",
+          "actualWinner": "Kentucky"
+        },
+        {
+          "slotId": "4_15",
+          "round": "R64",
+          "team": "Iowa St.",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Iowa St."
+        },
+        {
+          "slotId": "1_4",
+          "round": "R32",
+          "team": "Duke",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Duke"
+        },
+        {
+          "slotId": "1_5",
+          "round": "R32",
+          "team": "St. John's",
+          "seed": 5,
+          "status": "correct",
+          "actualWinner": "St. John's"
+        },
+        {
+          "slotId": "1_6",
+          "round": "R32",
+          "team": "Michigan St.",
+          "seed": 3,
+          "status": "correct",
+          "actualWinner": "Michigan St."
+        },
+        {
+          "slotId": "1_7",
+          "round": "R32",
+          "team": "Connecticut",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Connecticut"
+        },
+        {
+          "slotId": "2_4",
+          "round": "R32",
+          "team": "Florida",
+          "seed": 1,
+          "status": "incorrect",
+          "actualWinner": "Iowa"
+        },
+        {
+          "slotId": "2_5",
+          "round": "R32",
+          "team": "Nebraska",
+          "seed": 4,
+          "status": "correct",
+          "actualWinner": "Nebraska"
+        },
+        {
+          "slotId": "2_6",
+          "round": "R32",
+          "team": "VCU",
+          "seed": 11,
+          "status": "incorrect",
+          "actualWinner": "Illinois"
+        },
+        {
+          "slotId": "2_7",
+          "round": "R32",
+          "team": "Houston",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Houston"
+        },
+        {
+          "slotId": "3_4",
+          "round": "R32",
+          "team": "Arizona",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Arizona"
+        },
+        {
+          "slotId": "3_5",
+          "round": "R32",
+          "team": "Arkansas",
+          "seed": 4,
+          "status": "correct",
+          "actualWinner": "Arkansas"
+        },
+        {
+          "slotId": "3_6",
+          "round": "R32",
+          "team": "Gonzaga",
+          "seed": 3,
+          "status": "incorrect",
+          "actualWinner": "Texas"
+        },
+        {
+          "slotId": "3_7",
+          "round": "R32",
+          "team": "Purdue",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Purdue"
+        },
+        {
+          "slotId": "4_4",
+          "round": "R32",
+          "team": "Michigan",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Michigan"
+        },
+        {
+          "slotId": "4_5",
+          "round": "R32",
+          "team": "Alabama",
+          "seed": 4,
+          "status": "correct",
+          "actualWinner": "Alabama"
+        },
+        {
+          "slotId": "4_6",
+          "round": "R32",
+          "team": "Virginia",
+          "seed": 3,
+          "status": "incorrect",
+          "actualWinner": "Tennessee"
+        },
+        {
+          "slotId": "4_7",
+          "round": "R32",
+          "team": "Iowa St.",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Iowa St."
+        },
+        {
+          "slotId": "1_2",
+          "round": "S16",
+          "team": "Duke",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": null
+        },
+        {
+          "slotId": "1_3",
+          "round": "S16",
+          "team": "Connecticut",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": null
+        },
+        {
+          "slotId": "2_2",
+          "round": "S16",
+          "team": "Iowa",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Iowa"
+        },
+        {
+          "slotId": "2_3",
+          "round": "S16",
+          "team": "Houston",
+          "seed": 2,
+          "status": "incorrect",
+          "actualWinner": "Illinois"
+        },
+        {
+          "slotId": "3_2",
+          "round": "S16",
+          "team": "Arkansas",
+          "seed": 4,
+          "status": "incorrect",
+          "actualWinner": "Arizona"
+        },
+        {
+          "slotId": "3_3",
+          "round": "S16",
+          "team": "Texas",
+          "seed": 3,
+          "status": "incorrect",
+          "actualWinner": "Purdue"
+        },
+        {
+          "slotId": "4_2",
+          "round": "S16",
+          "team": "Michigan",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": null
+        },
+        {
+          "slotId": "4_3",
+          "round": "S16",
+          "team": "Tennessee",
+          "seed": 3,
+          "status": "incorrect",
+          "actualWinner": null
+        },
+        {
+          "slotId": "1_1",
+          "round": "E8",
+          "team": "Connecticut",
+          "seed": 2,
+          "status": "pending",
+          "actualWinner": null
+        },
+        {
+          "slotId": "2_1",
+          "round": "E8",
+          "team": "Houston",
+          "seed": 2,
+          "status": "pending",
+          "actualWinner": null
+        },
+        {
+          "slotId": "3_1",
+          "round": "E8",
+          "team": "Purdue",
+          "seed": 3,
+          "status": "incorrect",
+          "actualWinner": null
+        },
+        {
+          "slotId": "4_1",
+          "round": "E8",
+          "team": "Michigan",
+          "seed": 1,
+          "status": "pending",
+          "actualWinner": null
+        },
+        {
+          "slotId": "0_2",
+          "round": "F4",
+          "team": "Connecticut",
+          "seed": 2,
+          "status": "pending",
+          "actualWinner": null
+        },
+        {
+          "slotId": "0_3",
+          "round": "F4",
+          "team": "Michigan",
+          "seed": 1,
+          "status": "pending",
+          "actualWinner": null
+        },
+        {
+          "slotId": "champ",
+          "round": "Final",
+          "team": "Connecticut",
+          "seed": 2,
+          "status": "pending",
+          "actualWinner": null
+        }
+      ],
+      "pendingPicks": [
+        {
+          "slotId": "1_2",
+          "round": "S16",
+          "team": "Duke",
+          "seed": 1
+        },
+        {
+          "slotId": "1_3",
+          "round": "S16",
+          "team": "Connecticut",
+          "seed": 2
+        },
+        {
+          "slotId": "4_2",
+          "round": "S16",
+          "team": "Michigan",
+          "seed": 1
+        },
+        {
+          "slotId": "4_3",
+          "round": "S16",
+          "team": "Tennessee",
+          "seed": 3
+        },
+        {
+          "slotId": "1_1",
+          "round": "E8",
+          "team": "Connecticut",
+          "seed": 2
+        },
+        {
+          "slotId": "3_1",
+          "round": "E8",
+          "team": "Purdue",
+          "seed": 3
+        },
+        {
+          "slotId": "4_1",
+          "round": "E8",
+          "team": "Michigan",
+          "seed": 1
+        },
+        {
+          "slotId": "0_2",
+          "round": "F4",
+          "team": "Connecticut",
+          "seed": 2
+        },
+        {
+          "slotId": "0_3",
+          "round": "F4",
+          "team": "Michigan",
+          "seed": 1
+        },
+        {
+          "slotId": "champ",
+          "round": "Final",
+          "team": "Connecticut",
+          "seed": 2
+        }
+      ]
+    },
+    {
+      "rank": 12,
+      "memberId": "mbr_mm1629iqfyaj",
+      "bracketName": "ans+One",
+      "score": 49,
+      "maxPossible": 129,
+      "eliminated": false,
+      "allPicks": [
+        {
+          "slotId": "1_8",
+          "round": "R64",
+          "team": "Duke",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Duke"
+        },
+        {
+          "slotId": "1_9",
+          "round": "R64",
+          "team": "TCU",
+          "seed": 9,
+          "status": "correct",
+          "actualWinner": "TCU"
+        },
+        {
+          "slotId": "1_10",
+          "round": "R64",
+          "team": "St. John's",
+          "seed": 5,
+          "status": "correct",
+          "actualWinner": "St. John's"
+        },
+        {
+          "slotId": "1_11",
+          "round": "R64",
+          "team": "Kansas",
+          "seed": 4,
+          "status": "correct",
+          "actualWinner": "Kansas"
+        },
+        {
+          "slotId": "1_12",
+          "round": "R64",
+          "team": "South Florida",
+          "seed": 11,
+          "status": "incorrect",
+          "actualWinner": "Louisville"
+        },
+        {
+          "slotId": "1_13",
+          "round": "R64",
+          "team": "Michigan St.",
+          "seed": 3,
+          "status": "correct",
+          "actualWinner": "Michigan St."
+        },
+        {
+          "slotId": "1_14",
+          "round": "R64",
+          "team": "UCLA",
+          "seed": 7,
+          "status": "correct",
+          "actualWinner": "UCLA"
+        },
+        {
+          "slotId": "1_15",
+          "round": "R64",
+          "team": "Connecticut",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Connecticut"
+        },
+        {
+          "slotId": "2_8",
+          "round": "R64",
+          "team": "Florida",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Florida"
+        },
+        {
+          "slotId": "2_9",
+          "round": "R64",
+          "team": "Clemson",
+          "seed": 8,
+          "status": "incorrect",
+          "actualWinner": "Iowa"
+        },
+        {
+          "slotId": "2_10",
+          "round": "R64",
+          "team": "Vanderbilt",
+          "seed": 5,
+          "status": "correct",
+          "actualWinner": "Vanderbilt"
+        },
+        {
+          "slotId": "2_11",
+          "round": "R64",
+          "team": "Nebraska",
+          "seed": 4,
+          "status": "correct",
+          "actualWinner": "Nebraska"
+        },
+        {
+          "slotId": "2_12",
+          "round": "R64",
+          "team": "VCU",
+          "seed": 11,
+          "status": "correct",
+          "actualWinner": "VCU"
+        },
+        {
+          "slotId": "2_13",
+          "round": "R64",
+          "team": "Illinois",
+          "seed": 3,
+          "status": "correct",
+          "actualWinner": "Illinois"
+        },
+        {
+          "slotId": "2_14",
+          "round": "R64",
+          "team": "Texas A&M",
+          "seed": 10,
+          "status": "correct",
+          "actualWinner": "Texas A&M"
+        },
+        {
+          "slotId": "2_15",
+          "round": "R64",
+          "team": "Houston",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Houston"
+        },
+        {
+          "slotId": "3_8",
+          "round": "R64",
+          "team": "Arizona",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Arizona"
+        },
+        {
+          "slotId": "3_9",
+          "round": "R64",
+          "team": "Utah St.",
+          "seed": 9,
+          "status": "correct",
+          "actualWinner": "Utah St."
+        },
+        {
+          "slotId": "3_10",
+          "round": "R64",
+          "team": "Wisconsin",
+          "seed": 5,
+          "status": "incorrect",
+          "actualWinner": "High Point"
+        },
+        {
+          "slotId": "3_11",
+          "round": "R64",
+          "team": "Arkansas",
+          "seed": 4,
+          "status": "correct",
+          "actualWinner": "Arkansas"
+        },
+        {
+          "slotId": "3_12",
+          "round": "R64",
+          "team": "BYU",
+          "seed": 6,
+          "status": "incorrect",
+          "actualWinner": "Texas"
+        },
+        {
+          "slotId": "3_13",
+          "round": "R64",
+          "team": "Gonzaga",
+          "seed": 3,
+          "status": "correct",
+          "actualWinner": "Gonzaga"
+        },
+        {
+          "slotId": "3_14",
+          "round": "R64",
+          "team": "Missouri",
+          "seed": 10,
+          "status": "incorrect",
+          "actualWinner": "Miami (FL)"
+        },
+        {
+          "slotId": "3_15",
+          "round": "R64",
+          "team": "Purdue",
+          "seed": 2,
+          "status": "correct",
+          "actualWinner": "Purdue"
+        },
+        {
+          "slotId": "4_8",
+          "round": "R64",
+          "team": "Michigan",
+          "seed": 1,
+          "status": "correct",
+          "actualWinner": "Michigan"
+        },
+        {
+          "slotId": "4_9",
+          "round": "R64",
+          "team": "Saint Louis",
+          "seed": 9,
+          "status": "correct",
+          "actualWinner": "Saint Louis"
+        },
+        {
+          "slotId": "4_10",
+          "round": "R64",
+          "team": "Texas Tech",
+          "seed": 5,
+          "status": "correct",
+          "actualWinner": "Texas Tech"
+        },
+        {
+          "slotId": "4_11",
+          "round": "R64",
+          "team": "Alabama",
+          "seed": 4,
+          "status": "correct",
+          "actualWinner": "Alabama"
+        },
+        {
+          "slotId": "4_12",
+          "round": "R64",
+          "team": "Tennessee",
+          "seed": 6,
+          "status": "correct",
+          "actualWinner": "Tennessee"
+        },
+        {
+          "slotId": "4_13",
+          "round": "R64",
+          "team": "Virginia",
+          "seed": 3,
+          "status": "correct",
+          "actualWinner": "Virginia"
+        },
+        {
+          "slotId": "4_14",
+          "round": "R64",
           "team": "Kentucky",
           "seed": 7,
           "status": "correct",
@@ -6226,17 +6682,17 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "1_6",
           "round": "R32",
-          "team": "Louisville",
-          "seed": 6,
-          "status": "incorrect",
+          "team": "Michigan St.",
+          "seed": 3,
+          "status": "correct",
           "actualWinner": "Michigan St."
         },
         {
           "slotId": "1_7",
           "round": "R32",
-          "team": "Connecticut",
-          "seed": 2,
-          "status": "correct",
+          "team": "UCLA",
+          "seed": 7,
+          "status": "incorrect",
           "actualWinner": "Connecticut"
         },
         {
@@ -6258,17 +6714,17 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_6",
           "round": "R32",
-          "team": "N. Carolina",
-          "seed": 6,
-          "status": "incorrect",
+          "team": "Illinois",
+          "seed": 3,
+          "status": "correct",
           "actualWinner": "Illinois"
         },
         {
           "slotId": "2_7",
           "round": "R32",
-          "team": "Houston",
-          "seed": 2,
-          "status": "correct",
+          "team": "Texas A&M",
+          "seed": 10,
+          "status": "incorrect",
           "actualWinner": "Houston"
         },
         {
@@ -6290,17 +6746,17 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "3_6",
           "round": "R32",
-          "team": "BYU",
-          "seed": 6,
+          "team": "Gonzaga",
+          "seed": 3,
           "status": "incorrect",
           "actualWinner": "Texas"
         },
         {
           "slotId": "3_7",
           "round": "R32",
-          "team": "Purdue",
-          "seed": 2,
-          "status": "correct",
+          "team": "Miami (FL)",
+          "seed": 10,
+          "status": "incorrect",
           "actualWinner": "Purdue"
         },
         {
@@ -6330,9 +6786,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "4_7",
           "round": "R32",
-          "team": "Iowa St.",
-          "seed": 2,
-          "status": "correct",
+          "team": "Kentucky",
+          "seed": 7,
+          "status": "incorrect",
           "actualWinner": "Iowa St."
         },
         {
@@ -6346,57 +6802,57 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "1_3",
           "round": "S16",
-          "team": "Connecticut",
-          "seed": 2,
+          "team": "Michigan St.",
+          "seed": 3,
           "status": "correct",
           "actualWinner": null
         },
         {
           "slotId": "2_2",
           "round": "S16",
-          "team": "Florida",
+          "team": "Iowa",
           "seed": 1,
-          "status": "incorrect",
-          "actualWinner": null
+          "status": "correct",
+          "actualWinner": "Iowa"
         },
         {
           "slotId": "2_3",
           "round": "S16",
           "team": "Houston",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": null
+          "seed": 10,
+          "status": "incorrect",
+          "actualWinner": "Illinois"
         },
         {
           "slotId": "3_2",
           "round": "S16",
-          "team": "Arizona",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": null
+          "team": "Arkansas",
+          "seed": 4,
+          "status": "incorrect",
+          "actualWinner": "Arizona"
         },
         {
           "slotId": "3_3",
           "round": "S16",
           "team": "Purdue",
-          "seed": 2,
+          "seed": 10,
           "status": "correct",
-          "actualWinner": null
+          "actualWinner": "Purdue"
         },
         {
           "slotId": "4_2",
           "round": "S16",
-          "team": "Michigan",
-          "seed": 1,
-          "status": "correct",
+          "team": "Alabama",
+          "seed": 5,
+          "status": "incorrect",
           "actualWinner": null
         },
         {
           "slotId": "4_3",
           "round": "S16",
           "team": "Iowa St.",
-          "seed": 2,
-          "status": "correct",
+          "seed": 7,
+          "status": "incorrect",
           "actualWinner": null
         },
         {
@@ -6410,24 +6866,24 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_1",
           "round": "E8",
-          "team": "Houston",
-          "seed": 2,
-          "status": "pending",
+          "team": "Iowa",
+          "seed": 1,
+          "status": "incorrect",
           "actualWinner": null
         },
         {
           "slotId": "3_1",
           "round": "E8",
-          "team": "Arizona",
-          "seed": 1,
+          "team": "Arkansas",
+          "seed": 4,
           "status": "pending",
           "actualWinner": null
         },
         {
           "slotId": "4_1",
           "round": "E8",
-          "team": "Michigan",
-          "seed": 1,
+          "team": "Kentucky",
+          "seed": 7,
           "status": "pending",
           "actualWinner": null
         },
@@ -6442,8 +6898,8 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "0_3",
           "round": "F4",
-          "team": "Arizona",
-          "seed": 1,
+          "team": "Arkansas",
+          "seed": 4,
           "status": "pending",
           "actualWinner": null
         },
@@ -6466,38 +6922,20 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "1_3",
           "round": "S16",
-          "team": "Connecticut",
-          "seed": 2
-        },
-        {
-          "slotId": "2_3",
-          "round": "S16",
-          "team": "Houston",
-          "seed": 2
-        },
-        {
-          "slotId": "3_2",
-          "round": "S16",
-          "team": "Arizona",
-          "seed": 1
-        },
-        {
-          "slotId": "3_3",
-          "round": "S16",
-          "team": "Purdue",
-          "seed": 2
+          "team": "Michigan St.",
+          "seed": 3
         },
         {
           "slotId": "4_2",
           "round": "S16",
-          "team": "Michigan",
-          "seed": 1
+          "team": "Alabama",
+          "seed": 5
         },
         {
           "slotId": "4_3",
           "round": "S16",
           "team": "Iowa St.",
-          "seed": 2
+          "seed": 7
         },
         {
           "slotId": "1_1",
@@ -6508,31 +6946,13 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_1",
           "round": "E8",
-          "team": "Houston",
-          "seed": 2
-        },
-        {
-          "slotId": "3_1",
-          "round": "E8",
-          "team": "Arizona",
-          "seed": 1
-        },
-        {
-          "slotId": "4_1",
-          "round": "E8",
-          "team": "Michigan",
+          "team": "Iowa",
           "seed": 1
         },
         {
           "slotId": "0_2",
           "round": "F4",
           "team": "Duke",
-          "seed": 1
-        },
-        {
-          "slotId": "0_3",
-          "round": "F4",
-          "team": "Arizona",
           "seed": 1
         },
         {
@@ -6544,11 +6964,11 @@ window.OFL_BRC_ANALYSIS = {
       ]
     },
     {
-      "rank": 12,
+      "rank": 13,
       "memberId": "mbr_mm164375ur1b",
       "bracketName": "emziemillions",
-      "score": 42,
-      "maxPossible": 150,
+      "score": 44,
+      "maxPossible": 116,
       "eliminated": false,
       "allPicks": [
         {
@@ -6858,9 +7278,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_6",
           "round": "R32",
-          "team": "Pennsylvania",
+          "team": "Illinois",
           "seed": 14,
-          "status": "incorrect",
+          "status": "correct",
           "actualWinner": "Illinois"
         },
         {
@@ -6874,7 +7294,7 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "3_4",
           "round": "R32",
-          "team": "Villanova",
+          "team": "Utah St.",
           "seed": 8,
           "status": "incorrect",
           "actualWinner": "Arizona"
@@ -6906,7 +7326,7 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "4_4",
           "round": "R32",
-          "team": "Georgia",
+          "team": "Saint Louis",
           "seed": 8,
           "status": "incorrect",
           "actualWinner": "Michigan"
@@ -6954,39 +7374,39 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "2_2",
           "round": "S16",
-          "team": "Vanderbilt",
+          "team": "Nebraska",
           "seed": 5,
           "status": "incorrect",
-          "actualWinner": null
+          "actualWinner": "Iowa"
         },
         {
           "slotId": "2_3",
           "round": "S16",
           "team": "Houston",
           "seed": 2,
-          "status": "correct",
-          "actualWinner": null
+          "status": "incorrect",
+          "actualWinner": "Illinois"
         },
         {
           "slotId": "3_2",
           "round": "S16",
           "team": "Arkansas",
           "seed": 4,
-          "status": "correct",
-          "actualWinner": null
+          "status": "incorrect",
+          "actualWinner": "Arizona"
         },
         {
           "slotId": "3_3",
           "round": "S16",
-          "team": "Gonzaga",
+          "team": "Texas",
           "seed": 3,
           "status": "incorrect",
-          "actualWinner": null
+          "actualWinner": "Purdue"
         },
         {
           "slotId": "4_2",
           "round": "S16",
-          "team": "Texas Tech",
+          "team": "Alabama",
           "seed": 5,
           "status": "incorrect",
           "actualWinner": null
@@ -7070,16 +7490,10 @@ window.OFL_BRC_ANALYSIS = {
           "seed": 3
         },
         {
-          "slotId": "2_3",
+          "slotId": "4_2",
           "round": "S16",
-          "team": "Houston",
-          "seed": 2
-        },
-        {
-          "slotId": "3_2",
-          "round": "S16",
-          "team": "Arkansas",
-          "seed": 4
+          "team": "Alabama",
+          "seed": 5
         },
         {
           "slotId": "4_3",
@@ -7094,697 +7508,115 @@ window.OFL_BRC_ANALYSIS = {
           "seed": 3
         },
         {
-          "slotId": "2_1",
-          "round": "E8",
-          "team": "Houston",
-          "seed": 2
-        },
-        {
-          "slotId": "3_1",
-          "round": "E8",
-          "team": "Arkansas",
-          "seed": 4
-        },
-        {
           "slotId": "0_2",
           "round": "F4",
           "team": "Michigan St.",
           "seed": 3
         },
         {
-          "slotId": "0_3",
-          "round": "F4",
-          "team": "Arkansas",
-          "seed": 4
-        },
-        {
           "slotId": "champ",
           "round": "Final",
           "team": "Michigan St.",
           "seed": 3
-        }
-      ]
-    },
-    {
-      "rank": 13,
-      "memberId": "mbr_mm1629iqfyaj",
-      "bracketName": "ans+One",
-      "score": 41,
-      "maxPossible": 133,
-      "eliminated": false,
-      "allPicks": [
-        {
-          "slotId": "1_8",
-          "round": "R64",
-          "team": "Duke",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": "Duke"
-        },
-        {
-          "slotId": "1_9",
-          "round": "R64",
-          "team": "TCU",
-          "seed": 9,
-          "status": "correct",
-          "actualWinner": "TCU"
-        },
-        {
-          "slotId": "1_10",
-          "round": "R64",
-          "team": "St. John's",
-          "seed": 5,
-          "status": "correct",
-          "actualWinner": "St. John's"
-        },
-        {
-          "slotId": "1_11",
-          "round": "R64",
-          "team": "Kansas",
-          "seed": 4,
-          "status": "correct",
-          "actualWinner": "Kansas"
-        },
-        {
-          "slotId": "1_12",
-          "round": "R64",
-          "team": "South Florida",
-          "seed": 11,
-          "status": "incorrect",
-          "actualWinner": "Louisville"
-        },
-        {
-          "slotId": "1_13",
-          "round": "R64",
-          "team": "Michigan St.",
-          "seed": 3,
-          "status": "correct",
-          "actualWinner": "Michigan St."
-        },
-        {
-          "slotId": "1_14",
-          "round": "R64",
-          "team": "UCLA",
-          "seed": 7,
-          "status": "correct",
-          "actualWinner": "UCLA"
-        },
-        {
-          "slotId": "1_15",
-          "round": "R64",
-          "team": "Connecticut",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": "Connecticut"
-        },
-        {
-          "slotId": "2_8",
-          "round": "R64",
-          "team": "Florida",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": "Florida"
-        },
-        {
-          "slotId": "2_9",
-          "round": "R64",
-          "team": "Clemson",
-          "seed": 8,
-          "status": "incorrect",
-          "actualWinner": "Iowa"
-        },
-        {
-          "slotId": "2_10",
-          "round": "R64",
-          "team": "Vanderbilt",
-          "seed": 5,
-          "status": "correct",
-          "actualWinner": "Vanderbilt"
-        },
-        {
-          "slotId": "2_11",
-          "round": "R64",
-          "team": "Nebraska",
-          "seed": 4,
-          "status": "correct",
-          "actualWinner": "Nebraska"
-        },
-        {
-          "slotId": "2_12",
-          "round": "R64",
-          "team": "VCU",
-          "seed": 11,
-          "status": "correct",
-          "actualWinner": "VCU"
-        },
-        {
-          "slotId": "2_13",
-          "round": "R64",
-          "team": "Illinois",
-          "seed": 3,
-          "status": "correct",
-          "actualWinner": "Illinois"
-        },
-        {
-          "slotId": "2_14",
-          "round": "R64",
-          "team": "Texas A&M",
-          "seed": 10,
-          "status": "correct",
-          "actualWinner": "Texas A&M"
-        },
-        {
-          "slotId": "2_15",
-          "round": "R64",
-          "team": "Houston",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": "Houston"
-        },
-        {
-          "slotId": "3_8",
-          "round": "R64",
-          "team": "Arizona",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": "Arizona"
-        },
-        {
-          "slotId": "3_9",
-          "round": "R64",
-          "team": "Utah St.",
-          "seed": 9,
-          "status": "correct",
-          "actualWinner": "Utah St."
-        },
-        {
-          "slotId": "3_10",
-          "round": "R64",
-          "team": "Wisconsin",
-          "seed": 5,
-          "status": "incorrect",
-          "actualWinner": "High Point"
-        },
-        {
-          "slotId": "3_11",
-          "round": "R64",
-          "team": "Arkansas",
-          "seed": 4,
-          "status": "correct",
-          "actualWinner": "Arkansas"
-        },
-        {
-          "slotId": "3_12",
-          "round": "R64",
-          "team": "BYU",
-          "seed": 6,
-          "status": "incorrect",
-          "actualWinner": "Texas"
-        },
-        {
-          "slotId": "3_13",
-          "round": "R64",
-          "team": "Gonzaga",
-          "seed": 3,
-          "status": "correct",
-          "actualWinner": "Gonzaga"
-        },
-        {
-          "slotId": "3_14",
-          "round": "R64",
-          "team": "Missouri",
-          "seed": 10,
-          "status": "incorrect",
-          "actualWinner": "Miami (FL)"
-        },
-        {
-          "slotId": "3_15",
-          "round": "R64",
-          "team": "Purdue",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": "Purdue"
-        },
-        {
-          "slotId": "4_8",
-          "round": "R64",
-          "team": "Michigan",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": "Michigan"
-        },
-        {
-          "slotId": "4_9",
-          "round": "R64",
-          "team": "Saint Louis",
-          "seed": 9,
-          "status": "correct",
-          "actualWinner": "Saint Louis"
-        },
-        {
-          "slotId": "4_10",
-          "round": "R64",
-          "team": "Texas Tech",
-          "seed": 5,
-          "status": "correct",
-          "actualWinner": "Texas Tech"
-        },
-        {
-          "slotId": "4_11",
-          "round": "R64",
-          "team": "Alabama",
-          "seed": 4,
-          "status": "correct",
-          "actualWinner": "Alabama"
-        },
-        {
-          "slotId": "4_12",
-          "round": "R64",
-          "team": "Tennessee",
-          "seed": 6,
-          "status": "correct",
-          "actualWinner": "Tennessee"
-        },
-        {
-          "slotId": "4_13",
-          "round": "R64",
-          "team": "Virginia",
-          "seed": 3,
-          "status": "correct",
-          "actualWinner": "Virginia"
-        },
-        {
-          "slotId": "4_14",
-          "round": "R64",
-          "team": "Kentucky",
-          "seed": 7,
-          "status": "correct",
-          "actualWinner": "Kentucky"
-        },
-        {
-          "slotId": "4_15",
-          "round": "R64",
-          "team": "Iowa St.",
-          "seed": 2,
-          "status": "correct",
-          "actualWinner": "Iowa St."
-        },
-        {
-          "slotId": "1_4",
-          "round": "R32",
-          "team": "Duke",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": "Duke"
-        },
-        {
-          "slotId": "1_5",
-          "round": "R32",
-          "team": "Kansas",
-          "seed": 4,
-          "status": "incorrect",
-          "actualWinner": "St. John's"
-        },
-        {
-          "slotId": "1_6",
-          "round": "R32",
-          "team": "Michigan St.",
-          "seed": 3,
-          "status": "correct",
-          "actualWinner": "Michigan St."
-        },
-        {
-          "slotId": "1_7",
-          "round": "R32",
-          "team": "UCLA",
-          "seed": 7,
-          "status": "incorrect",
-          "actualWinner": "Connecticut"
-        },
-        {
-          "slotId": "2_4",
-          "round": "R32",
-          "team": "Florida",
-          "seed": 1,
-          "status": "incorrect",
-          "actualWinner": "Iowa"
-        },
-        {
-          "slotId": "2_5",
-          "round": "R32",
-          "team": "Vanderbilt",
-          "seed": 5,
-          "status": "incorrect",
-          "actualWinner": "Nebraska"
-        },
-        {
-          "slotId": "2_6",
-          "round": "R32",
-          "team": "Illinois",
-          "seed": 3,
-          "status": "correct",
-          "actualWinner": "Illinois"
-        },
-        {
-          "slotId": "2_7",
-          "round": "R32",
-          "team": "Texas A&M",
-          "seed": 10,
-          "status": "incorrect",
-          "actualWinner": "Houston"
-        },
-        {
-          "slotId": "3_4",
-          "round": "R32",
-          "team": "Arizona",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": "Arizona"
-        },
-        {
-          "slotId": "3_5",
-          "round": "R32",
-          "team": "Arkansas",
-          "seed": 4,
-          "status": "correct",
-          "actualWinner": "Arkansas"
-        },
-        {
-          "slotId": "3_6",
-          "round": "R32",
-          "team": "Gonzaga",
-          "seed": 3,
-          "status": "incorrect",
-          "actualWinner": "Texas"
-        },
-        {
-          "slotId": "3_7",
-          "round": "R32",
-          "team": "Missouri",
-          "seed": 10,
-          "status": "incorrect",
-          "actualWinner": "Purdue"
-        },
-        {
-          "slotId": "4_4",
-          "round": "R32",
-          "team": "Michigan",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": "Michigan"
-        },
-        {
-          "slotId": "4_5",
-          "round": "R32",
-          "team": "Texas Tech",
-          "seed": 5,
-          "status": "incorrect",
-          "actualWinner": "Alabama"
-        },
-        {
-          "slotId": "4_6",
-          "round": "R32",
-          "team": "Tennessee",
-          "seed": 6,
-          "status": "correct",
-          "actualWinner": "Tennessee"
-        },
-        {
-          "slotId": "4_7",
-          "round": "R32",
-          "team": "Kentucky",
-          "seed": 7,
-          "status": "incorrect",
-          "actualWinner": "Iowa St."
-        },
-        {
-          "slotId": "1_2",
-          "round": "S16",
-          "team": "Duke",
-          "seed": 1,
-          "status": "correct",
-          "actualWinner": null
-        },
-        {
-          "slotId": "1_3",
-          "round": "S16",
-          "team": "Michigan St.",
-          "seed": 3,
-          "status": "correct",
-          "actualWinner": null
-        },
-        {
-          "slotId": "2_2",
-          "round": "S16",
-          "team": "Florida",
-          "seed": 1,
-          "status": "incorrect",
-          "actualWinner": null
-        },
-        {
-          "slotId": "2_3",
-          "round": "S16",
-          "team": "Texas A&M",
-          "seed": 10,
-          "status": "incorrect",
-          "actualWinner": null
-        },
-        {
-          "slotId": "3_2",
-          "round": "S16",
-          "team": "Arkansas",
-          "seed": 4,
-          "status": "correct",
-          "actualWinner": null
-        },
-        {
-          "slotId": "3_3",
-          "round": "S16",
-          "team": "Missouri",
-          "seed": 10,
-          "status": "incorrect",
-          "actualWinner": null
-        },
-        {
-          "slotId": "4_2",
-          "round": "S16",
-          "team": "Texas Tech",
-          "seed": 5,
-          "status": "incorrect",
-          "actualWinner": null
-        },
-        {
-          "slotId": "4_3",
-          "round": "S16",
-          "team": "Kentucky",
-          "seed": 7,
-          "status": "incorrect",
-          "actualWinner": null
-        },
-        {
-          "slotId": "1_1",
-          "round": "E8",
-          "team": "Duke",
-          "seed": 1,
-          "status": "pending",
-          "actualWinner": null
-        },
-        {
-          "slotId": "2_1",
-          "round": "E8",
-          "team": "Florida",
-          "seed": 1,
-          "status": "pending",
-          "actualWinner": null
-        },
-        {
-          "slotId": "3_1",
-          "round": "E8",
-          "team": "Arkansas",
-          "seed": 4,
-          "status": "pending",
-          "actualWinner": null
-        },
-        {
-          "slotId": "4_1",
-          "round": "E8",
-          "team": "Kentucky",
-          "seed": 7,
-          "status": "pending",
-          "actualWinner": null
-        },
-        {
-          "slotId": "0_2",
-          "round": "F4",
-          "team": "Duke",
-          "seed": 1,
-          "status": "pending",
-          "actualWinner": null
-        },
-        {
-          "slotId": "0_3",
-          "round": "F4",
-          "team": "Arkansas",
-          "seed": 4,
-          "status": "pending",
-          "actualWinner": null
-        },
-        {
-          "slotId": "champ",
-          "round": "Final",
-          "team": "Duke",
-          "seed": 1,
-          "status": "pending",
-          "actualWinner": null
-        }
-      ],
-      "pendingPicks": [
-        {
-          "slotId": "1_2",
-          "round": "S16",
-          "team": "Duke",
-          "seed": 1
-        },
-        {
-          "slotId": "1_3",
-          "round": "S16",
-          "team": "Michigan St.",
-          "seed": 3
-        },
-        {
-          "slotId": "3_2",
-          "round": "S16",
-          "team": "Arkansas",
-          "seed": 4
-        },
-        {
-          "slotId": "1_1",
-          "round": "E8",
-          "team": "Duke",
-          "seed": 1
-        },
-        {
-          "slotId": "3_1",
-          "round": "E8",
-          "team": "Arkansas",
-          "seed": 4
-        },
-        {
-          "slotId": "0_2",
-          "round": "F4",
-          "team": "Duke",
-          "seed": 1
-        },
-        {
-          "slotId": "0_3",
-          "round": "F4",
-          "team": "Arkansas",
-          "seed": 4
-        },
-        {
-          "slotId": "champ",
-          "round": "Final",
-          "team": "Duke",
-          "seed": 1
         }
       ]
     }
   ],
   "aliveBrackets": [
     {
-      "memberId": "mbr_mm7vmncz4gfs",
-      "bracketName": "Auburn's Time to Shine",
-      "score": 50,
-      "maxPossible": 174,
-      "ptsNeeded": 0
-    },
-    {
       "memberId": "mbr_007",
       "bracketName": "Dirty Dolly",
-      "score": 48,
+      "score": 60,
       "maxPossible": 172,
-      "ptsNeeded": 2
-    },
-    {
-      "memberId": "mbr_mm1635nfdqvt",
-      "bracketName": "bioluminescent bracket",
-      "score": 48,
-      "maxPossible": 156,
-      "ptsNeeded": 2
-    },
-    {
-      "memberId": "mbr_004",
-      "bracketName": "TheChattanoogan",
-      "score": 47,
-      "maxPossible": 167,
-      "ptsNeeded": 3
-    },
-    {
-      "memberId": "mbr_mm161lj76qt7",
-      "bracketName": "Gangan Quilters",
-      "score": 46,
-      "maxPossible": 162,
-      "ptsNeeded": 4
-    },
-    {
-      "memberId": "mbr_006",
-      "bracketName": "Molly Defenders 2.0",
-      "score": 46,
-      "maxPossible": 158,
-      "ptsNeeded": 4
+      "ptsNeeded": 0
     },
     {
       "memberId": "mbr_003",
       "bracketName": "Dribbling Bubbas",
-      "score": 46,
-      "maxPossible": 158,
-      "ptsNeeded": 4
+      "score": 58,
+      "maxPossible": 170,
+      "ptsNeeded": 2
+    },
+    {
+      "memberId": "mbr_mm161lj76qt7",
+      "bracketName": "Gangan Quilters",
+      "score": 58,
+      "maxPossible": 170,
+      "ptsNeeded": 2
+    },
+    {
+      "memberId": "mbr_006",
+      "bracketName": "Molly Defenders 2.0",
+      "score": 58,
+      "maxPossible": 170,
+      "ptsNeeded": 2
+    },
+    {
+      "memberId": "mbr_mm7vmncz4gfs",
+      "bracketName": "Auburn's Time to Shine",
+      "score": 58,
+      "maxPossible": 162,
+      "ptsNeeded": 2
     },
     {
       "memberId": "mbr_002",
       "bracketName": "ATLiens",
-      "score": 45,
-      "maxPossible": 161,
-      "ptsNeeded": 5
-    },
-    {
-      "memberId": "mbr_001",
-      "bracketName": "theWeb",
-      "score": 45,
-      "maxPossible": 145,
-      "ptsNeeded": 5
-    },
-    {
-      "memberId": "mbr_mm7vlo5hx9hn",
-      "bracketName": "CK Golden picks",
-      "score": 45,
-      "maxPossible": 109,
-      "ptsNeeded": 5
+      "score": 57,
+      "maxPossible": 169,
+      "ptsNeeded": 3
     },
     {
       "memberId": "mbr_005",
       "bracketName": "Ozzies",
-      "score": 43,
-      "maxPossible": 167,
-      "ptsNeeded": 7
+      "score": 57,
+      "maxPossible": 161,
+      "ptsNeeded": 3
     },
     {
-      "memberId": "mbr_mm164375ur1b",
-      "bracketName": "emziemillions",
-      "score": 42,
-      "maxPossible": 150,
+      "memberId": "mbr_001",
+      "bracketName": "theWeb",
+      "score": 57,
+      "maxPossible": 153,
+      "ptsNeeded": 3
+    },
+    {
+      "memberId": "mbr_mm7vlo5hx9hn",
+      "bracketName": "CK Golden picks",
+      "score": 57,
+      "maxPossible": 121,
+      "ptsNeeded": 3
+    },
+    {
+      "memberId": "mbr_004",
+      "bracketName": "TheChattanoogan",
+      "score": 55,
+      "maxPossible": 159,
+      "ptsNeeded": 5
+    },
+    {
+      "memberId": "mbr_mm1635nfdqvt",
+      "bracketName": "bioluminescent bracket",
+      "score": 52,
+      "maxPossible": 156,
       "ptsNeeded": 8
     },
     {
       "memberId": "mbr_mm1629iqfyaj",
       "bracketName": "ans+One",
-      "score": 41,
-      "maxPossible": 133,
-      "ptsNeeded": 9
+      "score": 49,
+      "maxPossible": 129,
+      "ptsNeeded": 11
+    },
+    {
+      "memberId": "mbr_mm164375ur1b",
+      "bracketName": "emziemillions",
+      "score": 44,
+      "maxPossible": 116,
+      "ptsNeeded": 16
     }
   ],
   "pendingPicks": {
-    "mbr_mm7vmncz4gfs": [
+    "mbr_001": [
       {
         "slotId": "1_2",
         "round": "S16",
@@ -7794,26 +7626,8 @@ window.OFL_BRC_ANALYSIS = {
       {
         "slotId": "1_3",
         "round": "S16",
-        "team": "Connecticut",
-        "seed": 2
-      },
-      {
-        "slotId": "2_3",
-        "round": "S16",
-        "team": "Houston",
-        "seed": 2
-      },
-      {
-        "slotId": "3_2",
-        "round": "S16",
-        "team": "Arizona",
-        "seed": 1
-      },
-      {
-        "slotId": "3_3",
-        "round": "S16",
-        "team": "Purdue",
-        "seed": 2
+        "team": "Michigan St.",
+        "seed": 3
       },
       {
         "slotId": "4_2",
@@ -7836,8 +7650,8 @@ window.OFL_BRC_ANALYSIS = {
       {
         "slotId": "2_1",
         "round": "E8",
-        "team": "Houston",
-        "seed": 2
+        "team": "Iowa",
+        "seed": 1
       },
       {
         "slotId": "3_1",
@@ -7852,90 +7666,16 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 1
       },
       {
-        "slotId": "0_2",
-        "round": "F4",
-        "team": "Duke",
-        "seed": 1
-      },
-      {
         "slotId": "0_3",
         "round": "F4",
-        "team": "Michigan",
+        "team": "Arizona",
         "seed": 1
       },
       {
         "slotId": "champ",
         "round": "Final",
-        "team": "Michigan",
+        "team": "Arizona",
         "seed": 1
-      }
-    ],
-    "mbr_mm1635nfdqvt": [
-      {
-        "slotId": "1_2",
-        "round": "S16",
-        "team": "Duke",
-        "seed": 1
-      },
-      {
-        "slotId": "1_3",
-        "round": "S16",
-        "team": "Connecticut",
-        "seed": 2
-      },
-      {
-        "slotId": "2_3",
-        "round": "S16",
-        "team": "Houston",
-        "seed": 2
-      },
-      {
-        "slotId": "3_2",
-        "round": "S16",
-        "team": "Arkansas",
-        "seed": 4
-      },
-      {
-        "slotId": "4_2",
-        "round": "S16",
-        "team": "Michigan",
-        "seed": 1
-      },
-      {
-        "slotId": "1_1",
-        "round": "E8",
-        "team": "Connecticut",
-        "seed": 2
-      },
-      {
-        "slotId": "2_1",
-        "round": "E8",
-        "team": "Houston",
-        "seed": 2
-      },
-      {
-        "slotId": "4_1",
-        "round": "E8",
-        "team": "Michigan",
-        "seed": 1
-      },
-      {
-        "slotId": "0_2",
-        "round": "F4",
-        "team": "Connecticut",
-        "seed": 2
-      },
-      {
-        "slotId": "0_3",
-        "round": "F4",
-        "team": "Michigan",
-        "seed": 1
-      },
-      {
-        "slotId": "champ",
-        "round": "Final",
-        "team": "Connecticut",
-        "seed": 2
       }
     ],
     "mbr_002": [
@@ -7949,24 +7689,6 @@ window.OFL_BRC_ANALYSIS = {
         "slotId": "1_3",
         "round": "S16",
         "team": "Connecticut",
-        "seed": 2
-      },
-      {
-        "slotId": "2_3",
-        "round": "S16",
-        "team": "Houston",
-        "seed": 2
-      },
-      {
-        "slotId": "3_2",
-        "round": "S16",
-        "team": "Arizona",
-        "seed": 1
-      },
-      {
-        "slotId": "3_3",
-        "round": "S16",
-        "team": "Purdue",
         "seed": 2
       },
       {
@@ -7988,6 +7710,12 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 1
       },
       {
+        "slotId": "2_1",
+        "round": "E8",
+        "team": "Iowa",
+        "seed": 1
+      },
+      {
         "slotId": "3_1",
         "round": "E8",
         "team": "Arizona",
@@ -8015,6 +7743,68 @@ window.OFL_BRC_ANALYSIS = {
         "slotId": "champ",
         "round": "Final",
         "team": "Duke",
+        "seed": 1
+      }
+    ],
+    "mbr_mm7vmncz4gfs": [
+      {
+        "slotId": "1_2",
+        "round": "S16",
+        "team": "Duke",
+        "seed": 1
+      },
+      {
+        "slotId": "1_3",
+        "round": "S16",
+        "team": "Connecticut",
+        "seed": 2
+      },
+      {
+        "slotId": "4_2",
+        "round": "S16",
+        "team": "Michigan",
+        "seed": 1
+      },
+      {
+        "slotId": "4_3",
+        "round": "S16",
+        "team": "Iowa St.",
+        "seed": 2
+      },
+      {
+        "slotId": "1_1",
+        "round": "E8",
+        "team": "Duke",
+        "seed": 1
+      },
+      {
+        "slotId": "3_1",
+        "round": "E8",
+        "team": "Arizona",
+        "seed": 1
+      },
+      {
+        "slotId": "4_1",
+        "round": "E8",
+        "team": "Michigan",
+        "seed": 1
+      },
+      {
+        "slotId": "0_2",
+        "round": "F4",
+        "team": "Duke",
+        "seed": 1
+      },
+      {
+        "slotId": "0_3",
+        "round": "F4",
+        "team": "Michigan",
+        "seed": 1
+      },
+      {
+        "slotId": "champ",
+        "round": "Final",
+        "team": "Michigan",
         "seed": 1
       }
     ],
@@ -8032,10 +7822,16 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 3
       },
       {
-        "slotId": "3_2",
+        "slotId": "4_2",
         "round": "S16",
-        "team": "Arkansas",
-        "seed": 4
+        "team": "Alabama",
+        "seed": 5
+      },
+      {
+        "slotId": "4_3",
+        "round": "S16",
+        "team": "Iowa St.",
+        "seed": 7
       },
       {
         "slotId": "1_1",
@@ -8044,10 +7840,10 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 1
       },
       {
-        "slotId": "3_1",
+        "slotId": "2_1",
         "round": "E8",
-        "team": "Arkansas",
-        "seed": 4
+        "team": "Iowa",
+        "seed": 1
       },
       {
         "slotId": "0_2",
@@ -8056,16 +7852,72 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 1
       },
       {
-        "slotId": "0_3",
-        "round": "F4",
-        "team": "Arkansas",
-        "seed": 4
-      },
-      {
         "slotId": "champ",
         "round": "Final",
         "team": "Duke",
         "seed": 1
+      }
+    ],
+    "mbr_mm1635nfdqvt": [
+      {
+        "slotId": "1_2",
+        "round": "S16",
+        "team": "Duke",
+        "seed": 1
+      },
+      {
+        "slotId": "1_3",
+        "round": "S16",
+        "team": "Connecticut",
+        "seed": 2
+      },
+      {
+        "slotId": "4_2",
+        "round": "S16",
+        "team": "Michigan",
+        "seed": 1
+      },
+      {
+        "slotId": "4_3",
+        "round": "S16",
+        "team": "Tennessee",
+        "seed": 3
+      },
+      {
+        "slotId": "1_1",
+        "round": "E8",
+        "team": "Connecticut",
+        "seed": 2
+      },
+      {
+        "slotId": "3_1",
+        "round": "E8",
+        "team": "Purdue",
+        "seed": 3
+      },
+      {
+        "slotId": "4_1",
+        "round": "E8",
+        "team": "Michigan",
+        "seed": 1
+      },
+      {
+        "slotId": "0_2",
+        "round": "F4",
+        "team": "Connecticut",
+        "seed": 2
+      },
+      {
+        "slotId": "0_3",
+        "round": "F4",
+        "team": "Michigan",
+        "seed": 1
+      },
+      {
+        "slotId": "champ",
+        "round": "Final",
+        "team": "Connecticut",
+        "seed": 2
       }
     ],
     "mbr_mm7vlo5hx9hn": [
@@ -8080,18 +7932,6 @@ window.OFL_BRC_ANALYSIS = {
         "round": "S16",
         "team": "Connecticut",
         "seed": 2
-      },
-      {
-        "slotId": "2_3",
-        "round": "S16",
-        "team": "Houston",
-        "seed": 2
-      },
-      {
-        "slotId": "3_2",
-        "round": "S16",
-        "team": "Arizona",
-        "seed": 1
       },
       {
         "slotId": "4_2",
@@ -8112,6 +7952,12 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 2
       },
       {
+        "slotId": "2_1",
+        "round": "E8",
+        "team": "Iowa",
+        "seed": 1
+      },
+      {
         "slotId": "3_1",
         "round": "E8",
         "team": "Arizona",
@@ -8130,6 +7976,186 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 1
       }
     ],
+    "mbr_003": [
+      {
+        "slotId": "1_2",
+        "round": "S16",
+        "team": "Duke",
+        "seed": 1
+      },
+      {
+        "slotId": "1_3",
+        "round": "S16",
+        "team": "Michigan St.",
+        "seed": 3
+      },
+      {
+        "slotId": "4_2",
+        "round": "S16",
+        "team": "Michigan",
+        "seed": 1
+      },
+      {
+        "slotId": "4_3",
+        "round": "S16",
+        "team": "Tennessee",
+        "seed": 3
+      },
+      {
+        "slotId": "1_1",
+        "round": "E8",
+        "team": "Duke",
+        "seed": 1
+      },
+      {
+        "slotId": "2_1",
+        "round": "E8",
+        "team": "Iowa",
+        "seed": 1
+      },
+      {
+        "slotId": "3_1",
+        "round": "E8",
+        "team": "Arizona",
+        "seed": 1
+      },
+      {
+        "slotId": "4_1",
+        "round": "E8",
+        "team": "Michigan",
+        "seed": 1
+      },
+      {
+        "slotId": "0_2",
+        "round": "F4",
+        "team": "Duke",
+        "seed": 1
+      },
+      {
+        "slotId": "0_3",
+        "round": "F4",
+        "team": "Arizona",
+        "seed": 1
+      },
+      {
+        "slotId": "champ",
+        "round": "Final",
+        "team": "Duke",
+        "seed": 1
+      }
+    ],
+    "mbr_mm161lj76qt7": [
+      {
+        "slotId": "1_2",
+        "round": "S16",
+        "team": "Duke",
+        "seed": 1
+      },
+      {
+        "slotId": "1_3",
+        "round": "S16",
+        "team": "Connecticut",
+        "seed": 2
+      },
+      {
+        "slotId": "4_2",
+        "round": "S16",
+        "team": "Michigan",
+        "seed": 1
+      },
+      {
+        "slotId": "4_3",
+        "round": "S16",
+        "team": "Iowa St.",
+        "seed": 2
+      },
+      {
+        "slotId": "1_1",
+        "round": "E8",
+        "team": "Duke",
+        "seed": 1
+      },
+      {
+        "slotId": "2_1",
+        "round": "E8",
+        "team": "Iowa",
+        "seed": 1
+      },
+      {
+        "slotId": "3_1",
+        "round": "E8",
+        "team": "Arizona",
+        "seed": 1
+      },
+      {
+        "slotId": "4_1",
+        "round": "E8",
+        "team": "Iowa St.",
+        "seed": 2
+      },
+      {
+        "slotId": "0_2",
+        "round": "F4",
+        "team": "Duke",
+        "seed": 1
+      },
+      {
+        "slotId": "0_3",
+        "round": "F4",
+        "team": "Arizona",
+        "seed": 1
+      },
+      {
+        "slotId": "champ",
+        "round": "Final",
+        "team": "Arizona",
+        "seed": 1
+      }
+    ],
+    "mbr_mm164375ur1b": [
+      {
+        "slotId": "1_2",
+        "round": "S16",
+        "team": "Duke",
+        "seed": 1
+      },
+      {
+        "slotId": "1_3",
+        "round": "S16",
+        "team": "Michigan St.",
+        "seed": 3
+      },
+      {
+        "slotId": "4_2",
+        "round": "S16",
+        "team": "Alabama",
+        "seed": 5
+      },
+      {
+        "slotId": "4_3",
+        "round": "S16",
+        "team": "Tennessee",
+        "seed": 6
+      },
+      {
+        "slotId": "1_1",
+        "round": "E8",
+        "team": "Michigan St.",
+        "seed": 3
+      },
+      {
+        "slotId": "0_2",
+        "round": "F4",
+        "team": "Michigan St.",
+        "seed": 3
+      },
+      {
+        "slotId": "champ",
+        "round": "Final",
+        "team": "Michigan St.",
+        "seed": 3
+      }
+    ],
     "mbr_006": [
       {
         "slotId": "1_2",
@@ -8144,16 +8170,72 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 3
       },
       {
-        "slotId": "2_3",
+        "slotId": "4_2",
         "round": "S16",
-        "team": "Illinois",
-        "seed": 3
+        "team": "Michigan",
+        "seed": 1
       },
       {
-        "slotId": "3_2",
+        "slotId": "4_3",
         "round": "S16",
+        "team": "Iowa St.",
+        "seed": 2
+      },
+      {
+        "slotId": "1_1",
+        "round": "E8",
+        "team": "Duke",
+        "seed": 1
+      },
+      {
+        "slotId": "2_1",
+        "round": "E8",
+        "team": "Iowa",
+        "seed": 1
+      },
+      {
+        "slotId": "3_1",
+        "round": "E8",
         "team": "Arizona",
         "seed": 1
+      },
+      {
+        "slotId": "4_1",
+        "round": "E8",
+        "team": "Michigan",
+        "seed": 1
+      },
+      {
+        "slotId": "0_2",
+        "round": "F4",
+        "team": "Duke",
+        "seed": 1
+      },
+      {
+        "slotId": "0_3",
+        "round": "F4",
+        "team": "Michigan",
+        "seed": 1
+      },
+      {
+        "slotId": "champ",
+        "round": "Final",
+        "team": "Duke",
+        "seed": 1
+      }
+    ],
+    "mbr_005": [
+      {
+        "slotId": "1_2",
+        "round": "S16",
+        "team": "Duke",
+        "seed": 1
+      },
+      {
+        "slotId": "1_3",
+        "round": "S16",
+        "team": "Connecticut",
+        "seed": 2
       },
       {
         "slotId": "4_2",
@@ -8194,7 +8276,7 @@ window.OFL_BRC_ANALYSIS = {
       {
         "slotId": "0_3",
         "round": "F4",
-        "team": "Michigan",
+        "team": "Arizona",
         "seed": 1
       },
       {
@@ -8204,7 +8286,7 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 1
       }
     ],
-    "mbr_003": [
+    "mbr_004": [
       {
         "slotId": "1_2",
         "round": "S16",
@@ -8218,28 +8300,16 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 3
       },
       {
-        "slotId": "2_3",
-        "round": "S16",
-        "team": "Houston",
-        "seed": 2
-      },
-      {
-        "slotId": "3_2",
-        "round": "S16",
-        "team": "Arizona",
-        "seed": 1
-      },
-      {
-        "slotId": "3_3",
-        "round": "S16",
-        "team": "Purdue",
-        "seed": 2
-      },
-      {
         "slotId": "4_2",
         "round": "S16",
         "team": "Michigan",
         "seed": 1
+      },
+      {
+        "slotId": "4_3",
+        "round": "S16",
+        "team": "Iowa St.",
+        "seed": 2
       },
       {
         "slotId": "1_1",
@@ -8292,24 +8362,6 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 2
       },
       {
-        "slotId": "2_3",
-        "round": "S16",
-        "team": "Illinois",
-        "seed": 3
-      },
-      {
-        "slotId": "3_2",
-        "round": "S16",
-        "team": "Arizona",
-        "seed": 1
-      },
-      {
-        "slotId": "3_3",
-        "round": "S16",
-        "team": "Purdue",
-        "seed": 2
-      },
-      {
         "slotId": "4_2",
         "round": "S16",
         "team": "Michigan",
@@ -8361,739 +8413,478 @@ window.OFL_BRC_ANALYSIS = {
         "slotId": "champ",
         "round": "Final",
         "team": "Michigan",
-        "seed": 1
-      }
-    ],
-    "mbr_mm164375ur1b": [
-      {
-        "slotId": "1_2",
-        "round": "S16",
-        "team": "Duke",
-        "seed": 1
-      },
-      {
-        "slotId": "1_3",
-        "round": "S16",
-        "team": "Michigan St.",
-        "seed": 3
-      },
-      {
-        "slotId": "2_3",
-        "round": "S16",
-        "team": "Houston",
-        "seed": 2
-      },
-      {
-        "slotId": "3_2",
-        "round": "S16",
-        "team": "Arkansas",
-        "seed": 4
-      },
-      {
-        "slotId": "4_3",
-        "round": "S16",
-        "team": "Tennessee",
-        "seed": 6
-      },
-      {
-        "slotId": "1_1",
-        "round": "E8",
-        "team": "Michigan St.",
-        "seed": 3
-      },
-      {
-        "slotId": "2_1",
-        "round": "E8",
-        "team": "Houston",
-        "seed": 2
-      },
-      {
-        "slotId": "3_1",
-        "round": "E8",
-        "team": "Arkansas",
-        "seed": 4
-      },
-      {
-        "slotId": "0_2",
-        "round": "F4",
-        "team": "Michigan St.",
-        "seed": 3
-      },
-      {
-        "slotId": "0_3",
-        "round": "F4",
-        "team": "Arkansas",
-        "seed": 4
-      },
-      {
-        "slotId": "champ",
-        "round": "Final",
-        "team": "Michigan St.",
-        "seed": 3
-      }
-    ],
-    "mbr_mm161lj76qt7": [
-      {
-        "slotId": "1_2",
-        "round": "S16",
-        "team": "Duke",
-        "seed": 1
-      },
-      {
-        "slotId": "1_3",
-        "round": "S16",
-        "team": "Connecticut",
-        "seed": 2
-      },
-      {
-        "slotId": "2_3",
-        "round": "S16",
-        "team": "Houston",
-        "seed": 2
-      },
-      {
-        "slotId": "3_2",
-        "round": "S16",
-        "team": "Arizona",
-        "seed": 1
-      },
-      {
-        "slotId": "3_3",
-        "round": "S16",
-        "team": "Purdue",
-        "seed": 2
-      },
-      {
-        "slotId": "4_2",
-        "round": "S16",
-        "team": "Michigan",
-        "seed": 1
-      },
-      {
-        "slotId": "4_3",
-        "round": "S16",
-        "team": "Iowa St.",
-        "seed": 2
-      },
-      {
-        "slotId": "1_1",
-        "round": "E8",
-        "team": "Duke",
-        "seed": 1
-      },
-      {
-        "slotId": "3_1",
-        "round": "E8",
-        "team": "Arizona",
-        "seed": 1
-      },
-      {
-        "slotId": "4_1",
-        "round": "E8",
-        "team": "Iowa St.",
-        "seed": 2
-      },
-      {
-        "slotId": "0_2",
-        "round": "F4",
-        "team": "Duke",
-        "seed": 1
-      },
-      {
-        "slotId": "0_3",
-        "round": "F4",
-        "team": "Arizona",
-        "seed": 1
-      },
-      {
-        "slotId": "champ",
-        "round": "Final",
-        "team": "Arizona",
-        "seed": 1
-      }
-    ],
-    "mbr_004": [
-      {
-        "slotId": "1_2",
-        "round": "S16",
-        "team": "Duke",
-        "seed": 1
-      },
-      {
-        "slotId": "1_3",
-        "round": "S16",
-        "team": "Michigan St.",
-        "seed": 3
-      },
-      {
-        "slotId": "2_3",
-        "round": "S16",
-        "team": "Houston",
-        "seed": 2
-      },
-      {
-        "slotId": "3_2",
-        "round": "S16",
-        "team": "Arizona",
-        "seed": 1
-      },
-      {
-        "slotId": "4_2",
-        "round": "S16",
-        "team": "Michigan",
-        "seed": 1
-      },
-      {
-        "slotId": "4_3",
-        "round": "S16",
-        "team": "Iowa St.",
-        "seed": 2
-      },
-      {
-        "slotId": "1_1",
-        "round": "E8",
-        "team": "Duke",
-        "seed": 1
-      },
-      {
-        "slotId": "2_1",
-        "round": "E8",
-        "team": "Houston",
-        "seed": 2
-      },
-      {
-        "slotId": "3_1",
-        "round": "E8",
-        "team": "Arizona",
-        "seed": 1
-      },
-      {
-        "slotId": "4_1",
-        "round": "E8",
-        "team": "Michigan",
-        "seed": 1
-      },
-      {
-        "slotId": "0_2",
-        "round": "F4",
-        "team": "Duke",
-        "seed": 1
-      },
-      {
-        "slotId": "0_3",
-        "round": "F4",
-        "team": "Arizona",
-        "seed": 1
-      },
-      {
-        "slotId": "champ",
-        "round": "Final",
-        "team": "Duke",
-        "seed": 1
-      }
-    ],
-    "mbr_001": [
-      {
-        "slotId": "1_2",
-        "round": "S16",
-        "team": "Duke",
-        "seed": 1
-      },
-      {
-        "slotId": "1_3",
-        "round": "S16",
-        "team": "Michigan St.",
-        "seed": 3
-      },
-      {
-        "slotId": "2_3",
-        "round": "S16",
-        "team": "Houston",
-        "seed": 2
-      },
-      {
-        "slotId": "3_2",
-        "round": "S16",
-        "team": "Arizona",
-        "seed": 1
-      },
-      {
-        "slotId": "3_3",
-        "round": "S16",
-        "team": "Purdue",
-        "seed": 2
-      },
-      {
-        "slotId": "4_2",
-        "round": "S16",
-        "team": "Michigan",
-        "seed": 1
-      },
-      {
-        "slotId": "4_3",
-        "round": "S16",
-        "team": "Iowa St.",
-        "seed": 2
-      },
-      {
-        "slotId": "1_1",
-        "round": "E8",
-        "team": "Duke",
-        "seed": 1
-      },
-      {
-        "slotId": "3_1",
-        "round": "E8",
-        "team": "Arizona",
-        "seed": 1
-      },
-      {
-        "slotId": "4_1",
-        "round": "E8",
-        "team": "Michigan",
-        "seed": 1
-      },
-      {
-        "slotId": "0_3",
-        "round": "F4",
-        "team": "Arizona",
-        "seed": 1
-      },
-      {
-        "slotId": "champ",
-        "round": "Final",
-        "team": "Arizona",
-        "seed": 1
-      }
-    ],
-    "mbr_005": [
-      {
-        "slotId": "1_2",
-        "round": "S16",
-        "team": "Duke",
-        "seed": 1
-      },
-      {
-        "slotId": "1_3",
-        "round": "S16",
-        "team": "Connecticut",
-        "seed": 2
-      },
-      {
-        "slotId": "2_3",
-        "round": "S16",
-        "team": "Houston",
-        "seed": 2
-      },
-      {
-        "slotId": "3_2",
-        "round": "S16",
-        "team": "Arizona",
-        "seed": 1
-      },
-      {
-        "slotId": "3_3",
-        "round": "S16",
-        "team": "Purdue",
-        "seed": 2
-      },
-      {
-        "slotId": "4_2",
-        "round": "S16",
-        "team": "Michigan",
-        "seed": 1
-      },
-      {
-        "slotId": "4_3",
-        "round": "S16",
-        "team": "Iowa St.",
-        "seed": 2
-      },
-      {
-        "slotId": "1_1",
-        "round": "E8",
-        "team": "Duke",
-        "seed": 1
-      },
-      {
-        "slotId": "2_1",
-        "round": "E8",
-        "team": "Houston",
-        "seed": 2
-      },
-      {
-        "slotId": "3_1",
-        "round": "E8",
-        "team": "Arizona",
-        "seed": 1
-      },
-      {
-        "slotId": "4_1",
-        "round": "E8",
-        "team": "Michigan",
-        "seed": 1
-      },
-      {
-        "slotId": "0_2",
-        "round": "F4",
-        "team": "Duke",
-        "seed": 1
-      },
-      {
-        "slotId": "0_3",
-        "round": "F4",
-        "team": "Arizona",
-        "seed": 1
-      },
-      {
-        "slotId": "champ",
-        "round": "Final",
-        "team": "Duke",
         "seed": 1
       }
     ]
   },
   "actualResults": {
     "1_8": {
+      "round": "R64",
       "winner": "Duke",
       "winnerSeed": 1,
+      "winnerScore": 71,
       "loser": "Siena",
       "loserSeed": 16,
-      "round": "R64"
+      "loserScore": 65
     },
     "1_9": {
+      "round": "R64",
       "winner": "TCU",
       "winnerSeed": 9,
+      "winnerScore": 66,
       "loser": "Ohio St.",
       "loserSeed": 8,
-      "round": "R64"
+      "loserScore": 64
     },
     "1_10": {
+      "round": "R64",
       "winner": "St. John's",
       "winnerSeed": 5,
+      "winnerScore": 79,
       "loser": "Northern Iowa",
       "loserSeed": 12,
-      "round": "R64"
+      "loserScore": 53
     },
     "1_11": {
+      "round": "R64",
       "winner": "Kansas",
       "winnerSeed": 4,
+      "winnerScore": 68,
       "loser": "California Baptist",
       "loserSeed": 13,
-      "round": "R64"
+      "loserScore": 60
     },
     "1_12": {
+      "round": "R64",
       "winner": "Louisville",
       "winnerSeed": 6,
+      "winnerScore": 83,
       "loser": "South Florida",
       "loserSeed": 11,
-      "round": "R64"
+      "loserScore": 79
     },
     "1_13": {
+      "round": "R64",
       "winner": "Michigan St.",
       "winnerSeed": 3,
+      "winnerScore": 92,
       "loser": "N. Dak. St.",
       "loserSeed": 14,
-      "round": "R64"
+      "loserScore": 67
     },
     "1_14": {
+      "round": "R64",
       "winner": "UCLA",
       "winnerSeed": 7,
+      "winnerScore": 75,
       "loser": "UCF",
       "loserSeed": 10,
-      "round": "R64"
+      "loserScore": 71
     },
     "1_15": {
+      "round": "R64",
       "winner": "Connecticut",
       "winnerSeed": 2,
+      "winnerScore": 82,
       "loser": "Furman",
       "loserSeed": 15,
-      "round": "R64"
+      "loserScore": 71
     },
     "1_4": {
+      "round": "R32",
       "winner": "Duke",
       "winnerSeed": 1,
+      "winnerScore": 81,
       "loser": "TCU",
       "loserSeed": 9,
-      "round": "R32"
+      "loserScore": 58
     },
     "1_5": {
+      "round": "R32",
       "winner": "St. John's",
       "winnerSeed": 5,
+      "winnerScore": 67,
       "loser": "Kansas",
       "loserSeed": 4,
-      "round": "R32"
+      "loserScore": 65
     },
     "1_6": {
+      "round": "R32",
       "winner": "Michigan St.",
       "winnerSeed": 3,
+      "winnerScore": 77,
       "loser": "Louisville",
       "loserSeed": 6,
-      "round": "R32"
+      "loserScore": 69
     },
     "1_7": {
+      "round": "R32",
       "winner": "Connecticut",
       "winnerSeed": 2,
+      "winnerScore": 73,
       "loser": "UCLA",
       "loserSeed": 7,
-      "round": "R32"
+      "loserScore": 57
     },
     "2_8": {
+      "round": "R64",
       "winner": "Florida",
       "winnerSeed": 1,
+      "winnerScore": 114,
       "loser": "Prairie View A&M",
       "loserSeed": 16,
-      "round": "R64"
+      "loserScore": 55
     },
     "2_9": {
+      "round": "R64",
       "winner": "Iowa",
       "winnerSeed": 9,
+      "winnerScore": 67,
       "loser": "Clemson",
       "loserSeed": 8,
-      "round": "R64"
+      "loserScore": 61
     },
     "2_10": {
+      "round": "R64",
       "winner": "Vanderbilt",
       "winnerSeed": 5,
+      "winnerScore": 78,
       "loser": "McNeese",
       "loserSeed": 12,
-      "round": "R64"
+      "loserScore": 68
     },
     "2_11": {
+      "round": "R64",
       "winner": "Nebraska",
       "winnerSeed": 4,
+      "winnerScore": 76,
       "loser": "Troy",
       "loserSeed": 13,
-      "round": "R64"
+      "loserScore": 47
     },
     "2_12": {
+      "round": "R64",
       "winner": "VCU",
       "winnerSeed": 11,
+      "winnerScore": 82,
       "loser": "N. Carolina",
       "loserSeed": 6,
-      "round": "R64"
+      "loserScore": 78
     },
     "2_13": {
+      "round": "R64",
       "winner": "Illinois",
       "winnerSeed": 3,
+      "winnerScore": 105,
       "loser": "Pennsylvania",
       "loserSeed": 14,
-      "round": "R64"
+      "loserScore": 70
     },
     "2_14": {
+      "round": "R64",
       "winner": "Texas A&M",
       "winnerSeed": 10,
+      "winnerScore": 63,
       "loser": "St. Mary's",
       "loserSeed": 7,
-      "round": "R64"
+      "loserScore": 50
     },
     "2_15": {
+      "round": "R64",
       "winner": "Houston",
       "winnerSeed": 2,
+      "winnerScore": 78,
       "loser": "Idaho",
       "loserSeed": 15,
-      "round": "R64"
+      "loserScore": 47
     },
     "2_4": {
+      "round": "R32",
       "winner": "Iowa",
       "winnerSeed": 9,
+      "winnerScore": 73,
       "loser": "Florida",
       "loserSeed": 1,
-      "round": "R32"
+      "loserScore": 72
     },
     "2_5": {
+      "round": "R32",
       "winner": "Nebraska",
       "winnerSeed": 4,
+      "winnerScore": 74,
       "loser": "Vanderbilt",
       "loserSeed": 5,
-      "round": "R32"
+      "loserScore": 72
     },
     "2_6": {
+      "round": "R32",
       "winner": "Illinois",
       "winnerSeed": 3,
+      "winnerScore": 76,
       "loser": "VCU",
       "loserSeed": 11,
-      "round": "R32"
+      "loserScore": 55
     },
     "2_7": {
+      "round": "R32",
       "winner": "Houston",
       "winnerSeed": 2,
+      "winnerScore": 88,
       "loser": "Texas A&M",
       "loserSeed": 10,
-      "round": "R32"
+      "loserScore": 57
+    },
+    "2_2": {
+      "round": "S16",
+      "winner": "Iowa",
+      "winnerSeed": 9,
+      "winnerScore": 77,
+      "loser": "Nebraska",
+      "loserSeed": 4,
+      "loserScore": 71
     },
     "3_8": {
+      "round": "R64",
       "winner": "Arizona",
       "winnerSeed": 1,
+      "winnerScore": 92,
       "loser": "LIU Brooklyn",
       "loserSeed": 16,
-      "round": "R64"
+      "loserScore": 58
     },
     "3_9": {
+      "round": "R64",
       "winner": "Utah St.",
       "winnerSeed": 9,
+      "winnerScore": 86,
       "loser": "Villanova",
       "loserSeed": 8,
-      "round": "R64"
+      "loserScore": 76
     },
     "3_10": {
+      "round": "R64",
       "winner": "High Point",
       "winnerSeed": 12,
+      "winnerScore": 83,
       "loser": "Wisconsin",
       "loserSeed": 5,
-      "round": "R64"
+      "loserScore": 82
     },
     "3_11": {
+      "round": "R64",
       "winner": "Arkansas",
       "winnerSeed": 4,
+      "winnerScore": 97,
       "loser": "Hawaii",
       "loserSeed": 13,
-      "round": "R64"
+      "loserScore": 78
     },
     "3_12": {
+      "round": "R64",
       "winner": "Texas",
       "winnerSeed": 11,
+      "winnerScore": 79,
       "loser": "BYU",
       "loserSeed": 6,
-      "round": "R64"
+      "loserScore": 71
     },
     "3_13": {
+      "round": "R64",
       "winner": "Gonzaga",
       "winnerSeed": 3,
+      "winnerScore": 73,
       "loser": "Kennesaw St.",
       "loserSeed": 14,
-      "round": "R64"
+      "loserScore": 64
     },
     "3_14": {
+      "round": "R64",
       "winner": "Miami (FL)",
       "winnerSeed": 7,
+      "winnerScore": 80,
       "loser": "Missouri",
       "loserSeed": 10,
-      "round": "R64"
+      "loserScore": 66
     },
     "3_15": {
+      "round": "R64",
       "winner": "Purdue",
       "winnerSeed": 2,
+      "winnerScore": 104,
       "loser": "Queens University",
       "loserSeed": 15,
-      "round": "R64"
+      "loserScore": 71
     },
     "3_4": {
+      "round": "R32",
       "winner": "Arizona",
       "winnerSeed": 1,
+      "winnerScore": 78,
       "loser": "Utah St.",
       "loserSeed": 9,
-      "round": "R32"
+      "loserScore": 66
     },
     "3_5": {
+      "round": "R32",
       "winner": "Arkansas",
       "winnerSeed": 4,
+      "winnerScore": 94,
       "loser": "High Point",
       "loserSeed": 12,
-      "round": "R32"
+      "loserScore": 88
     },
     "3_6": {
+      "round": "R32",
       "winner": "Texas",
       "winnerSeed": 11,
+      "winnerScore": 74,
       "loser": "Gonzaga",
       "loserSeed": 3,
-      "round": "R32"
+      "loserScore": 68
     },
     "3_7": {
+      "round": "R32",
       "winner": "Purdue",
       "winnerSeed": 2,
+      "winnerScore": 79,
       "loser": "Miami (FL)",
       "loserSeed": 7,
-      "round": "R32"
+      "loserScore": 69
+    },
+    "3_3": {
+      "round": "S16",
+      "winner": "Purdue",
+      "winnerSeed": 2,
+      "winnerScore": 79,
+      "loser": "Texas",
+      "loserSeed": 11,
+      "loserScore": 77
     },
     "4_8": {
+      "round": "R64",
       "winner": "Michigan",
       "winnerSeed": 1,
+      "winnerScore": 101,
       "loser": "Howard",
       "loserSeed": 16,
-      "round": "R64"
+      "loserScore": 80
     },
     "4_9": {
+      "round": "R64",
       "winner": "Saint Louis",
       "winnerSeed": 9,
+      "winnerScore": 102,
       "loser": "Georgia",
       "loserSeed": 8,
-      "round": "R64"
+      "loserScore": 77
     },
     "4_10": {
+      "round": "R64",
       "winner": "Texas Tech",
       "winnerSeed": 5,
+      "winnerScore": 91,
       "loser": "Akron",
       "loserSeed": 12,
-      "round": "R64"
+      "loserScore": 71
     },
     "4_11": {
+      "round": "R64",
       "winner": "Alabama",
       "winnerSeed": 4,
+      "winnerScore": 90,
       "loser": "Hofstra",
       "loserSeed": 13,
-      "round": "R64"
+      "loserScore": 70
     },
     "4_12": {
+      "round": "R64",
       "winner": "Tennessee",
       "winnerSeed": 6,
+      "winnerScore": 78,
       "loser": "Miami (OH)",
       "loserSeed": 11,
-      "round": "R64"
+      "loserScore": 56
     },
     "4_13": {
+      "round": "R64",
       "winner": "Virginia",
       "winnerSeed": 3,
+      "winnerScore": 82,
       "loser": "Wright St.",
       "loserSeed": 14,
-      "round": "R64"
+      "loserScore": 73
     },
     "4_14": {
+      "round": "R64",
       "winner": "Kentucky",
       "winnerSeed": 7,
+      "winnerScore": 89,
       "loser": "Santa Clara",
       "loserSeed": 10,
-      "round": "R64"
+      "loserScore": 84
     },
     "4_15": {
+      "round": "R64",
       "winner": "Iowa St.",
       "winnerSeed": 2,
+      "winnerScore": 108,
       "loser": "Tennessee St.",
       "loserSeed": 15,
-      "round": "R64"
+      "loserScore": 74
     },
     "4_4": {
+      "round": "R32",
       "winner": "Michigan",
       "winnerSeed": 1,
+      "winnerScore": 95,
       "loser": "Saint Louis",
       "loserSeed": 9,
-      "round": "R32"
+      "loserScore": 72
     },
     "4_5": {
+      "round": "R32",
       "winner": "Alabama",
       "winnerSeed": 4,
+      "winnerScore": 90,
       "loser": "Texas Tech",
       "loserSeed": 5,
-      "round": "R32"
+      "loserScore": 65
     },
     "4_6": {
+      "round": "R32",
       "winner": "Tennessee",
       "winnerSeed": 6,
+      "winnerScore": 79,
       "loser": "Virginia",
       "loserSeed": 3,
-      "round": "R32"
+      "loserScore": 72
     },
     "4_7": {
+      "round": "R32",
       "winner": "Iowa St.",
       "winnerSeed": 2,
+      "winnerScore": 82,
       "loser": "Kentucky",
       "loserSeed": 7,
-      "round": "R32"
+      "loserScore": 63
+    },
+    "2_3": {
+      "round": "S16",
+      "winner": "Illinois",
+      "winnerSeed": 3,
+      "winnerScore": 65,
+      "loser": "Houston",
+      "loserSeed": 2,
+      "loserScore": 55
+    },
+    "3_2": {
+      "round": "S16",
+      "winner": "Arizona",
+      "winnerSeed": 1,
+      "winnerScore": 109,
+      "loser": "Arkansas",
+      "loserSeed": 4,
+      "loserScore": 88
     }
-  },
-  "opponents": {
-    "3_3": { "team": "Texas",   "seed": 11 },
-    "4_2": { "team": "Alabama", "seed": 4  },
-    "2_2": { "team": "Iowa",    "seed": 9, "opponent": { "team": "Nebraska", "seed": 4 } }
   }
 };
