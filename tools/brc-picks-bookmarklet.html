@@ -192,13 +192,13 @@ function getRound(region,idx){
   if(n>=8)return'R64';
   if(n>=4)return'R32';
   if(n>=2)return'S16';
-  if(n===1)return'E8';
+  if(n<=1)return'E8';
   return'Final';
 }
 
 function parseLabel(label){
   var l=label.toLowerCase();
-  if(l.indexOf('incorrect pick')!==-1){var m=label.match(/^(.+?)\\s+incorrect pick/i);return{pickedName:m?m[1].trim():'',status:'incorrect'};}
+  if(l.indexOf('incorrect pick')!==-1){var m=label.match(/incorrect pick,\\s*(.+?)(?:\\s+seed|\\s+score|$)/i);return{pickedName:m?m[1].trim():'',status:'incorrect'};}
   if(l.indexOf('correct pick')!==-1){var m2=label.match(/^(.+?)\\s+correct pick/i);return{pickedName:m2?m2[1].trim():'',status:'correct'};}
   if(l.indexOf(' picked')!==-1){var m3=label.match(/^(.+?)\\s+(?:seed\\s+\\d+\\s+)?picked/i);return{pickedName:m3?m3[1].trim():'',status:'pending'};}
   return{pickedName:'',status:'played'};
@@ -261,11 +261,11 @@ document.querySelectorAll('[data-slot-id]').forEach(function(slot){
   var label=(sel.getAttribute('aria-label')||'').trim();
   var parsed=parseLabel(label);
   var pickedName=parsed.pickedName;
-  if(!pickedName&&parsed.status==='played'){
+  if(!pickedName){
     var nd=sel.querySelector('[class*="Fxg(1)"][class*="Tov(e)"]');
     pickedName=nd?nd.textContent.trim():'';
   }
-  if(!pickedName)return;
+  if(!pickedName||!pickedName.trim())return;
   var se=sel.querySelector('[class*="W(16px)"][class*="Fz(10px)"]');
   var pickedSeed=se?parseInt(se.textContent.trim(),10)||0:0;
   picks.push({slotId:slot.getAttribute('data-slot-id'),round:round,pickedTeam:pickedName,pickedSeed:pickedSeed,status:parsed.status});

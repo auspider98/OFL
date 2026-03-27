@@ -934,10 +934,8 @@ function handleFiles(files) {
 function mergeResults(newResults) {
   newResults.forEach(function(r){
     if(!r.result || !r.result.complete) return;
-    // Keep result if slot not yet seen, or new file has more data
-    if(!results[r.slotId]) {
-      results[r.slotId] = r;
-    }
+    // Always overwrite — all brackets share the same actual game results
+    results[r.slotId] = r;
   });
 }
 
@@ -1752,7 +1750,25 @@ function exportToOFL() {
     pointStructure: ROUND_PTS,
     standings:      exportStandings,
     aliveBrackets:  aliveBrackets,
-    pendingPicks:   pendingPicksMap
+    pendingPicks:   pendingPicksMap,
+    actualResults:  (function(){
+      var out = {};
+      Object.keys(results).forEach(function(slotId){
+        var r = results[slotId];
+        if(r && r.result && r.result.complete){
+          out[slotId] = {
+            round:       r.round,
+            winner:      r.result.winner,
+            winnerSeed:  r.result.winnerSeed,
+            winnerScore: r.result.winnerScore,
+            loser:       r.result.loser,
+            loserSeed:   r.result.loserSeed,
+            loserScore:  r.result.loserScore
+          };
+        }
+      });
+      return out;
+    })()
   };
 
   var year = exportObj.meta.year || '2026';
@@ -1806,8 +1822,8 @@ function getAllPicks(bracket) {
       var actualWinner = (result && result.result && result.result.complete)
         ? result.result.winner : null;
       var status = pick.status || 'played';
-      // Normalise R64 "played" to correct/incorrect using actual results
-      if(status === 'played' && actualWinner) {
+      // Always normalise status against actual results — overrides any stale bookmarklet status
+      if(actualWinner) {
         status = actualWinner === pick.team ? 'correct' : 'incorrect';
       }
       picks.push({
