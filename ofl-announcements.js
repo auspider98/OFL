@@ -1,6 +1,6 @@
 /**
  * ofl-announcements.js — Commissioner Broadcast Data
- * Generated: 3/27/2026, 11:53:57 AM
+ * Generated: 3/27/2026, 2:26:44 PM
  *
  * Drop this file next to index.html and add:
  *   <script src="ofl-announcements.js"></script>
@@ -8,6 +8,35 @@
  * The renderer will use this data if localStorage is empty.
  */
 var OFL_ANNOUNCEMENTS = [
+  {
+    "id": "ann_mn987by8_nvok",
+    "title": "Dirty Dolly",
+    "body": "<div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div>",
+    "style": "dispatch",
+    "position": "",
+    "ribbonLayout": "float",
+    "marqueeLabel": "",
+    "showMarqueeLabel": true,
+    "marqueeLabelColor": "",
+    "marqueeSpeed": "medium",
+    "entryAnimation": "slide-up",
+    "idleAnimation": "pulse",
+    "letterheadUrl": "assets/logos/brc.png",
+    "eyebrow": "NEW BRC LEADER",
+    "letterheadHeight": 60,
+    "watermarkUrl": "assets/mugs/browns.png",
+    "watermarkOpacity": 1,
+    "showDismiss": true,
+    "active": true,
+    "startDate": "",
+    "endDate": "2026-03-27T19:30",
+    "pages": [
+      "home"
+    ],
+    "dismissBehavior": "permanent",
+    "autoDismiss": false,
+    "autoDismissSecs": 10
+  },
   {
     "id": "ann_mn4wohmz_x184",
     "title": "NEW BRC FEATURES",
