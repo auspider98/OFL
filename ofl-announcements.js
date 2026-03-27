@@ -1,6 +1,6 @@
 /**
  * ofl-announcements.js — Commissioner Broadcast Data
- * Generated: 3/27/2026, 2:30:20 PM
+ * Generated: 3/27/2026, 7:36:45 PM
  *
  * Drop this file next to index.html and add:
  *   <script src="ofl-announcements.js"></script>
@@ -73,7 +73,7 @@ var OFL_ANNOUNCEMENTS = [
     "style": "marquee",
     "position": "bottom",
     "ribbonLayout": "float",
-    "marqueeLabel": "S16 - Thursday",
+    "marqueeLabel": "S16 - Friday",
     "showMarqueeLabel": true,
     "marqueeLabelColor": "#1b2b8f",
     "marqueeSpeed": "medium",
