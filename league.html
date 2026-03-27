@@ -2211,11 +2211,12 @@
               '      var isMyChamp=myPick.team===myChampTeam2;\n' +
               '      var inMyDeep=!!myE8Set[myPick.team]||!!myF4Set[myPick.team];\n' +
               '      var inRivalDeep=!!rivalDeepSameSet[myPick.team];\n' +
+              '      var inRivalDeepAny=!!rivalDeepSet[myPick.team];\n' +
               '      var isRivalChamp=!!rivalChampSet2[myPick.team];\n' +
               '      var tier,pts,ptsLabel;\n' +
               '      if(isMyChamp){tier="t1";pts=myFuturePts(myPick.team);ptsLabel="your pts";}\n' +
               '      else if(inMyDeep&&inRivalDeep){tier="t4";pts=rivalFuturePts(myPick.team);ptsLabel="rivals lose";}\n' +
-              '      else if(!inMyDeep&&inRivalDeep){tier="t5";pts=rivalFuturePts(myPick.team);ptsLabel="rivals lose";}\n' +
+              '      else if(!inMyDeep&&inRivalDeepAny){tier="t5";pts=rivalFuturePts(myPick.team);ptsLabel="rivals lose";}\n' +
               '      else{tier="t2";pts=myFuturePts(myPick.team);ptsLabel="your pts";}\n' +
               '      rows.push({tier:tier,round:sl.round,forTeam:forTeam,againstTeam:againstTeam,pts:pts,ptsLabel:ptsLabel});\n' +
               '    } else {\n' +
@@ -2281,7 +2282,8 @@
               '    html+=\'<div style="\'+forStyle+\'letter-spacing:0.05em">\'+topTeam+\'<span class="brc-rootfor-seed">(\'+topSeed+\')</span></div>\';\n' +
               '    if(botTeam)html+=\'<div class="brc-rootfor-team-against">\'+botTeam+\'<span class="brc-rootfor-seed">(\'+botSeed+\')</span></div>\';\n' +
               '    html+=\'</div></td>\';\n' +
-              '    html+=\'<td class="brc-rootfor-pts" style="color:\'+color+\'">\'+row.pts+\'<span class="brc-rootfor-pts-label">\'+row.ptsLabel+\'</span></td>\';\n' +
+              '    var tierLabel=row.tier.toUpperCase();\n' +
+              '    html+=\'<td class="brc-rootfor-pts" style="color:\'+color+\'">\'+tierLabel+\' - \'+row.pts+\'<span class="brc-rootfor-pts-label">\'+row.ptsLabel+\'</span></td>\';\n' +
               '    html+=\'</tr>\';\n' +
               '  });\n' +
               '  html+=\'</tbody></table>\';\n' +
