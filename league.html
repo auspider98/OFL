@@ -2324,7 +2324,8 @@
               '    }\n' +
               '    var color=tierColor(row.tier);\n' +
               '    var isBold=row.tier!=="t3";\n' +
-              '    var forStyle="color:"+color+";font-weight:"+(isBold?"700":"400")+";";\n' +
+              '    var isHeavy=row.tier==="t1"||row.tier==="t6";\n' +
+              '    var forStyle="color:"+color+";font-weight:"+(isHeavy?"800":isBold?"600":"400")+";"+(isHeavy?"font-size:0.9rem;letter-spacing:-0.02em;":"letter-spacing:0.05em;");\n' +
               '    var topTeam,topSeed,botTeam,botSeed;\n' +
               '    if(row.tier==="t6"){\n' +
               '      topTeam=row.againstTeam?esc2(row.againstTeam.team):"";topSeed=row.againstTeam?row.againstTeam.seed:"";\n' +
@@ -2336,7 +2337,7 @@
               '    html+=\'<tr>\';\n' +
               '    html+=\'<td style="font-size:0.58rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent-dim);white-space:nowrap">\'+esc2(row.round)+\'</td>\';\n' +
               '    html+=\'<td><div class="brc-rootfor-teams">\';\n' +
-              '    html+=\'<div style="\'+forStyle+\'letter-spacing:0.05em">\'+topTeam+\'<span class="brc-rootfor-seed">(\'+topSeed+\')</span></div>\';\n' +
+              '    html+=\'<div style="\'+forStyle+\'">\'+topTeam+\'<span class="brc-rootfor-seed">(\'+topSeed+\')</span></div>\';\n' +
               '    if(botTeam)html+=\'<div class="brc-rootfor-team-against">\'+botTeam+\'<span class="brc-rootfor-seed">(\'+botSeed+\')</span></div>\';\n' +
               '    html+=\'</div></td>\';\n' +
               '    var tierLabel=row.tier.toUpperCase();\n' +
