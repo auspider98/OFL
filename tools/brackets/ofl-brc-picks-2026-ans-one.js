@@ -1,8 +1,8 @@
 /**
  * BRC Bracket Picks · ans+One · 2026
  * Member ID: mbr_mm1629iqfyaj 
- * Generated: 3/23/2026, 6:41:04 PM
- * 63 picks (✓18 correct ✗6 incorrect ⧖6 pending)
+ * Generated: 3/26/2026, 11:49:24 PM
+ * 63 picks (✓18 correct ✗7 incorrect ⧖5 pending)
  */
 
 window.OFL_BRC_PICKS_IMPORT = {
@@ -11,12 +11,12 @@ window.OFL_BRC_PICKS_IMPORT = {
   "memberId": "mbr_mm1629iqfyaj",
   "bracketName": "ans+One",
   "yahooUrl": "https://tournament.fantasysports.yahoo.com/mens-basketball-bracket/538486",
-  "generatedAt": "2026-03-23T22:41:04.862Z",
+  "generatedAt": "2026-03-27T03:49:24.507Z",
   "summary": {
     "total": 63,
     "correct": 18,
-    "incorrect": 6,
-    "pending": 6
+    "incorrect": 7,
+    "pending": 5
   },
   "picks": {
     "R64": [
@@ -281,7 +281,7 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "3_6"
       },
       {
-        "team": "Missouri",
+        "team": "Miami (FL)",
         "seed": 10,
         "status": "incorrect",
         "slotId": "3_7"
@@ -325,13 +325,13 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "1_3"
       },
       {
-        "team": "Florida",
+        "team": "Iowa",
         "seed": 1,
         "status": "incorrect",
         "slotId": "2_2"
       },
       {
-        "team": "Texas A&M",
+        "team": "Houston",
         "seed": 10,
         "status": "incorrect",
         "slotId": "2_3"
@@ -343,19 +343,19 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "3_2"
       },
       {
-        "team": "Missouri",
+        "team": "Purdue",
         "seed": 10,
         "status": "incorrect",
         "slotId": "3_3"
       },
       {
-        "team": "Texas Tech",
+        "team": "Alabama",
         "seed": 5,
         "status": "incorrect",
         "slotId": "4_2"
       },
       {
-        "team": "Kentucky",
+        "team": "Iowa St.",
         "seed": 7,
         "status": "incorrect",
         "slotId": "4_3"
@@ -369,9 +369,9 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "1_1"
       },
       {
-        "team": "Florida",
+        "team": "Iowa",
         "seed": 1,
-        "status": "pending",
+        "status": "incorrect",
         "slotId": "2_1"
       },
       {
@@ -728,6 +728,19 @@ window.OFL_BRC_PICKS_IMPORT = {
       }
     },
     {
+      "slotId": "2_2",
+      "round": "S16",
+      "result": {
+        "winner": "Iowa",
+        "winnerSeed": 9,
+        "winnerScore": 77,
+        "loser": "Nebraska",
+        "loserSeed": 4,
+        "loserScore": 71,
+        "complete": true
+      }
+    },
+    {
       "slotId": "3_8",
       "round": "R64",
       "result": {
@@ -880,6 +893,19 @@ window.OFL_BRC_PICKS_IMPORT = {
         "loser": "Miami (FL)",
         "loserSeed": 7,
         "loserScore": 69,
+        "complete": true
+      }
+    },
+    {
+      "slotId": "3_3",
+      "round": "S16",
+      "result": {
+        "winner": "Purdue",
+        "winnerSeed": 2,
+        "winnerScore": 79,
+        "loser": "Texas",
+        "loserSeed": 11,
+        "loserScore": 77,
         "complete": true
       }
     },

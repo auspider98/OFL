@@ -1,8 +1,8 @@
 /**
  * BRC Bracket Picks · ATLiens · 2026
  * Member ID: mbr_002 
- * Generated: 3/23/2026, 6:40:19 PM
- * 63 picks (✓23 correct ✗1 incorrect ⧖6 pending)
+ * Generated: 3/26/2026, 11:48:47 PM
+ * 63 picks (✓23 correct ✗2 incorrect ⧖5 pending)
  */
 
 window.OFL_BRC_PICKS_IMPORT = {
@@ -11,12 +11,12 @@ window.OFL_BRC_PICKS_IMPORT = {
   "memberId": "mbr_002",
   "bracketName": "ATLiens",
   "yahooUrl": "https://tournament.fantasysports.yahoo.com/mens-basketball-bracket/591493",
-  "generatedAt": "2026-03-23T22:40:19.855Z",
+  "generatedAt": "2026-03-27T03:48:47.689Z",
   "summary": {
     "total": 63,
     "correct": 23,
-    "incorrect": 1,
-    "pending": 6
+    "incorrect": 2,
+    "pending": 5
   },
   "picks": {
     "R64": [
@@ -325,7 +325,7 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "1_3"
       },
       {
-        "team": "Florida",
+        "team": "Iowa",
         "seed": 1,
         "status": "incorrect",
         "slotId": "2_2"
@@ -369,9 +369,9 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "1_1"
       },
       {
-        "team": "Florida",
+        "team": "Iowa",
         "seed": 1,
-        "status": "pending",
+        "status": "incorrect",
         "slotId": "2_1"
       },
       {
@@ -728,6 +728,19 @@ window.OFL_BRC_PICKS_IMPORT = {
       }
     },
     {
+      "slotId": "2_2",
+      "round": "S16",
+      "result": {
+        "winner": "Iowa",
+        "winnerSeed": 9,
+        "winnerScore": 77,
+        "loser": "Nebraska",
+        "loserSeed": 4,
+        "loserScore": 71,
+        "complete": true
+      }
+    },
+    {
       "slotId": "3_8",
       "round": "R64",
       "result": {
@@ -880,6 +893,19 @@ window.OFL_BRC_PICKS_IMPORT = {
         "loser": "Miami (FL)",
         "loserSeed": 7,
         "loserScore": 69,
+        "complete": true
+      }
+    },
+    {
+      "slotId": "3_3",
+      "round": "S16",
+      "result": {
+        "winner": "Purdue",
+        "winnerSeed": 2,
+        "winnerScore": 79,
+        "loser": "Texas",
+        "loserSeed": 11,
+        "loserScore": 77,
         "complete": true
       }
     },

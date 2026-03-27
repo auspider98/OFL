@@ -1,7 +1,7 @@
 /**
  * BRC Bracket Picks · emziemillions · 2026
  * Member ID: mbr_mm164375ur1b 
- * Generated: 3/23/2026, 6:40:55 PM
+ * Generated: 3/26/2026, 11:49:15 PM
  * 63 picks (✓18 correct ✗6 incorrect ⧖6 pending)
  */
 
@@ -11,7 +11,7 @@ window.OFL_BRC_PICKS_IMPORT = {
   "memberId": "mbr_mm164375ur1b",
   "bracketName": "emziemillions",
   "yahooUrl": "https://tournament.fantasysports.yahoo.com/mens-basketball-bracket/400071",
-  "generatedAt": "2026-03-23T22:40:55.574Z",
+  "generatedAt": "2026-03-27T03:49:15.011Z",
   "summary": {
     "total": 63,
     "correct": 18,
@@ -251,7 +251,7 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "2_5"
       },
       {
-        "team": "Pennsylvania",
+        "team": "Illinois",
         "seed": 14,
         "status": "incorrect",
         "slotId": "2_6"
@@ -263,7 +263,7 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "2_7"
       },
       {
-        "team": "Villanova",
+        "team": "Utah St.",
         "seed": 8,
         "status": "incorrect",
         "slotId": "3_4"
@@ -287,7 +287,7 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "3_7"
       },
       {
-        "team": "Georgia",
+        "team": "Saint Louis",
         "seed": 8,
         "status": "incorrect",
         "slotId": "4_4"
@@ -325,7 +325,7 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "1_3"
       },
       {
-        "team": "Vanderbilt",
+        "team": "Nebraska",
         "seed": 5,
         "status": "incorrect",
         "slotId": "2_2"
@@ -343,13 +343,13 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "3_2"
       },
       {
-        "team": "Gonzaga",
+        "team": "Texas",
         "seed": 3,
         "status": "incorrect",
         "slotId": "3_3"
       },
       {
-        "team": "Texas Tech",
+        "team": "Alabama",
         "seed": 5,
         "status": "incorrect",
         "slotId": "4_2"
@@ -728,6 +728,19 @@ window.OFL_BRC_PICKS_IMPORT = {
       }
     },
     {
+      "slotId": "2_2",
+      "round": "S16",
+      "result": {
+        "winner": "Iowa",
+        "winnerSeed": 9,
+        "winnerScore": 77,
+        "loser": "Nebraska",
+        "loserSeed": 4,
+        "loserScore": 71,
+        "complete": true
+      }
+    },
+    {
       "slotId": "3_8",
       "round": "R64",
       "result": {
@@ -880,6 +893,19 @@ window.OFL_BRC_PICKS_IMPORT = {
         "loser": "Miami (FL)",
         "loserSeed": 7,
         "loserScore": 69,
+        "complete": true
+      }
+    },
+    {
+      "slotId": "3_3",
+      "round": "S16",
+      "result": {
+        "winner": "Purdue",
+        "winnerSeed": 2,
+        "winnerScore": 79,
+        "loser": "Texas",
+        "loserSeed": 11,
+        "loserScore": 77,
         "complete": true
       }
     },
