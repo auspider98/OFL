@@ -1,8 +1,8 @@
 /**
  * BRC Bracket Picks · Dirty Dolly · 2026
  * Member ID: mbr_007 
- * Generated: 3/27/2026, 12:32:47 AM
- * 63 picks (✓25 correct ✗1 incorrect ⧖4 pending)
+ * Generated: 3/27/2026, 2:35:38 AM
+ * 63 picks (✓0 correct ✗1 incorrect ⧖29 pending)
  */
 
 window.OFL_BRC_PICKS_IMPORT = {
@@ -11,12 +11,12 @@ window.OFL_BRC_PICKS_IMPORT = {
   "memberId": "mbr_007",
   "bracketName": "Dirty Dolly",
   "yahooUrl": "https://tournament.fantasysports.yahoo.com/mens-basketball-bracket/240070",
-  "generatedAt": "2026-03-27T04:32:47.473Z",
+  "generatedAt": "2026-03-27T06:35:38.796Z",
   "summary": {
     "total": 63,
-    "correct": 25,
+    "correct": 0,
     "incorrect": 1,
-    "pending": 4
+    "pending": 29
   },
   "picks": {
     "R64": [
@@ -217,97 +217,97 @@ window.OFL_BRC_PICKS_IMPORT = {
       {
         "team": "Duke",
         "seed": 1,
-        "status": "correct",
+        "status": "pending",
         "slotId": "1_4"
       },
       {
         "team": "St. John's",
         "seed": 5,
-        "status": "correct",
+        "status": "pending",
         "slotId": "1_5"
       },
       {
         "team": "Michigan St.",
         "seed": 3,
-        "status": "correct",
+        "status": "pending",
         "slotId": "1_6"
       },
       {
         "team": "Connecticut",
         "seed": 2,
-        "status": "correct",
+        "status": "pending",
         "slotId": "1_7"
       },
       {
         "team": "Florida",
         "seed": 1,
-        "status": "correct",
+        "status": "pending",
         "slotId": "2_4"
       },
       {
         "team": "Vanderbilt",
         "seed": 5,
-        "status": "correct",
+        "status": "pending",
         "slotId": "2_5"
       },
       {
         "team": "Illinois",
         "seed": 3,
-        "status": "correct",
+        "status": "pending",
         "slotId": "2_6"
       },
       {
         "team": "Houston",
         "seed": 2,
-        "status": "correct",
+        "status": "pending",
         "slotId": "2_7"
       },
       {
         "team": "Arizona",
         "seed": 1,
-        "status": "correct",
+        "status": "pending",
         "slotId": "3_4"
       },
       {
         "team": "Arkansas",
         "seed": 4,
-        "status": "correct",
+        "status": "pending",
         "slotId": "3_5"
       },
       {
         "team": "Gonzaga",
         "seed": 3,
-        "status": "correct",
+        "status": "pending",
         "slotId": "3_6"
       },
       {
         "team": "Purdue",
         "seed": 2,
-        "status": "correct",
+        "status": "pending",
         "slotId": "3_7"
       },
       {
         "team": "Michigan",
         "seed": 1,
-        "status": "correct",
+        "status": "pending",
         "slotId": "4_4"
       },
       {
         "team": "Alabama",
         "seed": 4,
-        "status": "correct",
+        "status": "pending",
         "slotId": "4_5"
       },
       {
         "team": "Virginia",
         "seed": 3,
-        "status": "correct",
+        "status": "pending",
         "slotId": "4_6"
       },
       {
         "team": "Iowa St.",
         "seed": 2,
-        "status": "correct",
+        "status": "pending",
         "slotId": "4_7"
       }
     ],
@@ -315,17 +315,17 @@ window.OFL_BRC_PICKS_IMPORT = {
       {
         "team": "Duke",
         "seed": 1,
-        "status": "correct",
+        "status": "pending",
         "slotId": "1_2"
       },
       {
         "team": "Connecticut",
         "seed": 2,
-        "status": "correct",
+        "status": "pending",
         "slotId": "1_3"
       },
       {
-        "team": "Nebraska",
+        "team": "Vanderbilt",
         "seed": 5,
         "status": "incorrect",
         "slotId": "2_2"
@@ -333,31 +333,31 @@ window.OFL_BRC_PICKS_IMPORT = {
       {
         "team": "Illinois",
         "seed": 3,
-        "status": "correct",
+        "status": "pending",
         "slotId": "2_3"
       },
       {
         "team": "Arizona",
         "seed": 1,
-        "status": "correct",
+        "status": "pending",
         "slotId": "3_2"
       },
       {
         "team": "Purdue",
         "seed": 2,
-        "status": "correct",
+        "status": "pending",
         "slotId": "3_3"
       },
       {
         "team": "Michigan",
         "seed": 1,
-        "status": "correct",
+        "status": "pending",
         "slotId": "4_2"
       },
       {
         "team": "Iowa St.",
         "seed": 2,
-        "status": "correct",
+        "status": "pending",
         "slotId": "4_3"
       }
     ],
@@ -371,13 +371,13 @@ window.OFL_BRC_PICKS_IMPORT = {
       {
         "team": "Illinois",
         "seed": 3,
-        "status": "correct",
+        "status": "pending",
         "slotId": "2_1"
       },
       {
         "team": "Arizona",
         "seed": 1,
-        "status": "correct",
+        "status": "pending",
         "slotId": "3_1"
       },
       {
