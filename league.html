@@ -92,6 +92,13 @@
     }
     /* Override th opacity:0.7 from style.css on all BRC headers */
     .brc-standings-table th { opacity: 1 !important; }
+    /* Rank change arrows */
+    .brc-rank-arrow {
+      font-size: 0.55rem; font-weight: 700; margin-left: 0.25em;
+      letter-spacing: 0; white-space: nowrap;
+    }
+    .brc-rank-up { color: #4a9d6f; }
+    .brc-rank-dn { color: #c94040; }
     /* Sticky left: bracket identity col — left offset set inline */
     .brc-ident-col,
     .brc-ident-cell { position: sticky; z-index: 2; min-width: 8rem; }
@@ -810,7 +817,7 @@
     }
 
     // ── Render standings table ───────────────────────────────
-    function renderStandingsTable(season, league, config) {
+    function renderStandingsTable(season, league, config, brcAnalysis) {
       var schema     = window.SPORT_STAT_SCHEMAS[league.sport] || window.SPORT_STAT_SCHEMAS.other;
       var isFootball = league.sport === 'football';
       var isMadness  = league.sport === 'madness';
@@ -870,6 +877,47 @@
           }
         });
 
+        // ── Snapshot rank: rank each bracket by score BEFORE the active round ──
+        var SNAP_ROUNDS = ['R64','R32','S16','E8','F4','Final'];
+        var SNAP_PTS    = {R64:1,R32:2,S16:4,E8:8,F4:16,Final:32};
+        var activeRoundIdx = -1;
+        if (brcAnalysis && brcAnalysis.standings) {
+          SNAP_ROUNDS.forEach(function(r, ri) {
+            var hasAny = brcAnalysis.standings.some(function(s) {
+              return (s.allPicks||[]).some(function(p){ return p.round===r && p.status==='correct'; });
+            });
+            if (hasAny) activeRoundIdx = ri;
+          });
+        }
+        if (brcAnalysis && brcAnalysis.standings && activeRoundIdx > 0) {
+          // Build snapshot score per memberId (sum rounds before active)
+          var snapScoreMap = {};
+          brcAnalysis.standings.forEach(function(s) {
+            var snap = 0;
+            SNAP_ROUNDS.forEach(function(r, ri) {
+              if (ri < activeRoundIdx) {
+                (s.allPicks||[]).forEach(function(p){
+                  if (p.round===r && p.status==='correct') snap += SNAP_PTS[r];
+                });
+              }
+            });
+            snapScoreMap[s.memberId] = snap;
+          });
+          // Rank by snapshot score with gap logic
+          var snapEntries = rankedRows.map(function(item) {
+            var mid = item.row.memberId;
+            return { item: item, snapPts: snapScoreMap[mid] !== undefined ? snapScoreMap[mid] : (parseFloat(item.row.totalPoints)||0) };
+          }).sort(function(a,b){ return b.snapPts - a.snapPts; });
+          snapEntries.forEach(function(e, i) {
+            if (i === 0) { e.snapRank = 1; }
+            else {
+              var prev = snapEntries[i-1];
+              e.snapRank = (e.snapPts === prev.snapPts) ? prev.snapRank : i+1;
+            }
+          });
+          snapEntries.forEach(function(e) { e.item.snapRank = e.snapRank; });
+        }
+
         // Abbreviated round labels (index 0–5)
         var ROUND_LABELS = ['R64', 'R32', 'S16', 'E8', 'F4', 'Final'];
 
@@ -905,7 +953,16 @@
 
           // Rank
           if (showRank) {
-            tdCells += '<td class="standings-rank-cell" style="' + BG + '">' + esc(item.displayRank) + '</td>';
+            var rankArrow = '';
+            if (item.snapRank !== undefined) {
+              var delta = item.snapRank - item.displayRank;
+              if (delta > 0) {
+                rankArrow = '<span class="brc-rank-arrow brc-rank-up">\u2191' + delta + '</span>';
+              } else if (delta < 0) {
+                rankArrow = '<span class="brc-rank-arrow brc-rank-dn">\u2193' + Math.abs(delta) + '</span>';
+              }
+            }
+            tdCells += '<td class="standings-rank-cell" style="' + BG + '">' + esc(item.displayRank) + rankArrow + '</td>';
           }
 
           // Identity cell — bracket name / owner / predicted champion stacked
@@ -1737,7 +1794,7 @@
               // ── View: Standings ──────────────────────────
               '<div data-brc-view="standings">' +
                 '<div class="league-section-heading">Standings' + year + '</div>' +
-                renderStandingsTable(current, league, config) +
+                renderStandingsTable(current, league, config, analysis) +
               '</div>' +
 
               // ── View: Scenario Generator ─────────────────
