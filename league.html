@@ -428,6 +428,7 @@
       font-size: 0.52rem; letter-spacing: 0.3em; text-transform: uppercase;
       color: var(--hint-color, var(--accent-dim)); padding: 0.5rem 0.6rem 0.2rem;
       border-top: 1px solid var(--drawer-border); background: rgba(255,255,255,0.01);
+      text-align: center;
     }
     .brc-h2h-pick-row td {
       padding: 0.35rem 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.03);
@@ -442,7 +443,6 @@
     .h2h-disagree-b { color: var(--hint-color, var(--accent)); }
     .h2h-correct { font-weight: 600; }
     .h2h-wrong { opacity: 0.35; text-decoration: line-through; }
-    .h2h-pending { opacity: 0.45; }
     .brc-h2h-hint {
       font-family: var(--font-body); font-size: 0.65rem; letter-spacing: 0.15em;
       color: var(--accent-dim); text-align: center; padding: 2rem 0 1rem; opacity: 0.5;
@@ -1994,12 +1994,10 @@
               '      var clsA=same?"h2h-agree h2h-col-a":"h2h-disagree-a h2h-col-a";\n' +
               '      if(sA==="correct")clsA+=" h2h-correct";\n' +
               '      if(sA==="incorrect")clsA+=" h2h-wrong";\n' +
-              '      if(sA==="pending")clsA+=" h2h-pending";\n' +
               '      // Classes for B\n' +
               '      var clsB=same?"h2h-agree h2h-col-b":"h2h-disagree-b h2h-col-b";\n' +
               '      if(sB==="correct")clsB+=" h2h-correct";\n' +
               '      if(sB==="incorrect")clsB+=" h2h-wrong";\n' +
-              '      if(sB==="pending")clsB+=" h2h-pending";\n' +
               '      tblHtml+=\'<tr class="brc-h2h-pick-row">\'+\n' +
               '        \'<td class="\'+clsA+\'">\'+esc(tA)+\'</td>\'+\n' +
               '        \'<td class="h2h-col-mid">\'+( same?"=":"≠")+\'</td>\'+\n' +
