@@ -1818,6 +1818,13 @@ function exportToOFL() {
 }
 
 function getPendingPicks(bracket) {
+  // Build set of eliminated teams from actualResults
+  var eliminatedTeams = {};
+  Object.values(results).forEach(function(r) {
+    if(r && r.result && r.result.complete && r.result.loser) {
+      eliminatedTeams[r.result.loser] = true;
+    }
+  });
   var picks = [];
   ROUND_ORDER.forEach(function(round) {
     (bracket.picks[round] || []).forEach(function(pick) {
@@ -1826,7 +1833,9 @@ function getPendingPicks(bracket) {
         var hasResult = results[pick.slotId] &&
                         results[pick.slotId].result &&
                         results[pick.slotId].result.complete;
-        if(!hasResult) {
+        // If the picked team has been eliminated, it can't be pending
+        var teamEliminated = !!eliminatedTeams[pick.team];
+        if(!hasResult && !teamEliminated) {
           picks.push({
             slotId: pick.slotId,
             round:  round,
