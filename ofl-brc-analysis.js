@@ -1,13 +1,13 @@
 /**
  * OFL BRC Analysis Export · 2026
- * Generated: 3/28/2026, 12:59:28 AM
+ * Generated: 3/28/2026, 1:40:58 AM
  * 13 brackets · 56 games tracked
  * Load as <script src="ofl-brc-analysis.js"></script> in league.html
  */
 
 window.OFL_BRC_ANALYSIS = {
   "meta": {
-    "generated": "2026-03-28T04:59:28.897Z",
+    "generated": "2026-03-28T05:40:58.714Z",
     "year": "2026",
     "bracketsLoaded": 13,
     "gamesTracked": 56,
@@ -1968,12 +1968,6 @@ window.OFL_BRC_ANALYSIS = {
           "round": "E8",
           "team": "Arizona",
           "seed": 1
-        },
-        {
-          "slotId": "4_1",
-          "round": "E8",
-          "team": "Iowa St.",
-          "seed": 2
         },
         {
           "slotId": "0_2",
@@ -5767,26 +5761,7 @@ window.OFL_BRC_ANALYSIS = {
           "status": "pending"
         }
       ],
-      "pendingPicks": [
-        {
-          "slotId": "1_1",
-          "round": "E8",
-          "team": "Michigan St.",
-          "seed": 3
-        },
-        {
-          "slotId": "0_2",
-          "round": "F4",
-          "team": "Michigan St.",
-          "seed": 3
-        },
-        {
-          "slotId": "champ",
-          "round": "Final",
-          "team": "Michigan St.",
-          "seed": 3
-        }
-      ]
+      "pendingPicks": []
     },
     {
       "rank": 13,
@@ -6371,6 +6346,44 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 1
       }
     ],
+    "mbr_002": [
+      {
+        "slotId": "1_1",
+        "round": "E8",
+        "team": "Duke",
+        "seed": 1
+      },
+      {
+        "slotId": "3_1",
+        "round": "E8",
+        "team": "Arizona",
+        "seed": 1
+      },
+      {
+        "slotId": "4_1",
+        "round": "E8",
+        "team": "Michigan",
+        "seed": 1
+      },
+      {
+        "slotId": "0_2",
+        "round": "F4",
+        "team": "Duke",
+        "seed": 1
+      },
+      {
+        "slotId": "0_3",
+        "round": "F4",
+        "team": "Arizona",
+        "seed": 1
+      },
+      {
+        "slotId": "champ",
+        "round": "Final",
+        "team": "Duke",
+        "seed": 1
+      }
+    ],
     "mbr_mm7vmncz4gfs": [
       {
         "slotId": "1_1",
@@ -6407,6 +6420,38 @@ window.OFL_BRC_ANALYSIS = {
         "round": "Final",
         "team": "Michigan",
         "seed": 1
+      }
+    ],
+    "mbr_mm1635nfdqvt": [
+      {
+        "slotId": "1_1",
+        "round": "E8",
+        "team": "Connecticut",
+        "seed": 2
+      },
+      {
+        "slotId": "4_1",
+        "round": "E8",
+        "team": "Michigan",
+        "seed": 1
+      },
+      {
+        "slotId": "0_2",
+        "round": "F4",
+        "team": "Connecticut",
+        "seed": 2
+      },
+      {
+        "slotId": "0_3",
+        "round": "F4",
+        "team": "Michigan",
+        "seed": 1
+      },
+      {
+        "slotId": "champ",
+        "round": "Final",
+        "team": "Connecticut",
+        "seed": 2
       }
     ],
     "mbr_mm7vlo5hx9hn": [
@@ -6479,44 +6524,6 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 1
       }
     ],
-    "mbr_002": [
-      {
-        "slotId": "1_1",
-        "round": "E8",
-        "team": "Duke",
-        "seed": 1
-      },
-      {
-        "slotId": "3_1",
-        "round": "E8",
-        "team": "Arizona",
-        "seed": 1
-      },
-      {
-        "slotId": "4_1",
-        "round": "E8",
-        "team": "Michigan",
-        "seed": 1
-      },
-      {
-        "slotId": "0_2",
-        "round": "F4",
-        "team": "Duke",
-        "seed": 1
-      },
-      {
-        "slotId": "0_3",
-        "round": "F4",
-        "team": "Arizona",
-        "seed": 1
-      },
-      {
-        "slotId": "champ",
-        "round": "Final",
-        "team": "Duke",
-        "seed": 1
-      }
-    ],
     "mbr_003": [
       {
         "slotId": "1_1",
@@ -6555,58 +6562,39 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 1
       }
     ],
-    "mbr_mm164375ur1b": [
+    "mbr_mm161lj76qt7": [
       {
         "slotId": "1_1",
         "round": "E8",
-        "team": "Michigan St.",
-        "seed": 3
+        "team": "Duke",
+        "seed": 1
       },
       {
-        "slotId": "0_2",
-        "round": "F4",
-        "team": "Michigan St.",
-        "seed": 3
-      },
-      {
-        "slotId": "champ",
-        "round": "Final",
-        "team": "Michigan St.",
-        "seed": 3
-      }
-    ],
-    "mbr_mm1635nfdqvt": [
-      {
-        "slotId": "1_1",
+        "slotId": "3_1",
         "round": "E8",
-        "team": "Connecticut",
-        "seed": 2
-      },
-      {
-        "slotId": "4_1",
-        "round": "E8",
-        "team": "Michigan",
+        "team": "Arizona",
         "seed": 1
       },
       {
         "slotId": "0_2",
         "round": "F4",
-        "team": "Connecticut",
-        "seed": 2
+        "team": "Duke",
+        "seed": 1
       },
       {
         "slotId": "0_3",
         "round": "F4",
-        "team": "Michigan",
+        "team": "Arizona",
         "seed": 1
       },
       {
         "slotId": "champ",
         "round": "Final",
-        "team": "Connecticut",
-        "seed": 2
+        "team": "Arizona",
+        "seed": 1
       }
     ],
+    "mbr_mm164375ur1b": [],
     "mbr_006": [
       {
         "slotId": "1_1",
@@ -6718,44 +6706,6 @@ window.OFL_BRC_ANALYSIS = {
         "slotId": "champ",
         "round": "Final",
         "team": "Duke",
-        "seed": 1
-      }
-    ],
-    "mbr_mm161lj76qt7": [
-      {
-        "slotId": "1_1",
-        "round": "E8",
-        "team": "Duke",
-        "seed": 1
-      },
-      {
-        "slotId": "3_1",
-        "round": "E8",
-        "team": "Arizona",
-        "seed": 1
-      },
-      {
-        "slotId": "4_1",
-        "round": "E8",
-        "team": "Iowa St.",
-        "seed": 2
-      },
-      {
-        "slotId": "0_2",
-        "round": "F4",
-        "team": "Duke",
-        "seed": 1
-      },
-      {
-        "slotId": "0_3",
-        "round": "F4",
-        "team": "Arizona",
-        "seed": 1
-      },
-      {
-        "slotId": "champ",
-        "round": "Final",
-        "team": "Arizona",
         "seed": 1
       }
     ]
