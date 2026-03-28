@@ -192,7 +192,7 @@ function getRound(region,idx){
   if(n>=8)return'R64';
   if(n>=4)return'R32';
   if(n>=2)return'S16';
-  if(n===1)return'E8';
+  if(n<=1)return'E8';
   return'Final';
 }
 
@@ -210,9 +210,19 @@ function parseActualResult(slot){
   if(!topEl||!botEl)return null;
   var topLabel=(topEl.getAttribute('aria-label')||'').trim();
   var botLabel=(botEl.getAttribute('aria-label')||'').trim();
-  var topWon=topLabel.toLowerCase().indexOf('winner')!==-1;
-  var botWon=botLabel.toLowerCase().indexOf('winner')!==-1;
+  var topHasWinner=topLabel.toLowerCase().indexOf('winner')!==-1;
+  var botHasWinner=botLabel.toLowerCase().indexOf('winner')!==-1;
+  var topHasCorrect=topLabel.toLowerCase().indexOf('correct pick')!==-1;
+  var botHasCorrect=botLabel.toLowerCase().indexOf('correct pick')!==-1;
+  // 'winner' always takes priority; 'correct pick' only used if neither side has 'winner'
+  var topWon=topHasWinner||(topHasCorrect&&!botHasWinner);
+  var botWon=botHasWinner||(botHasCorrect&&!topHasWinner);
+  // 'correct pick' alone means the team advanced to this slot but the game hasn't been played yet
+  // Only treat as a complete result if a score or winner is also present
+  var hasScore=topLabel.toLowerCase().indexOf('score')!==-1||botLabel.toLowerCase().indexOf('score')!==-1;
+  var hasWinner=topHasWinner||botHasWinner;
   if(!topWon&&!botWon)return null;
+  if(!hasWinner)return null;
 
   function extract(el,label,won){
     var seeds=el.querySelectorAll('[class*="W(16px)"][class*="Fz(10px)"]');
@@ -220,8 +230,8 @@ function parseActualResult(slot){
     var isIncorrect=label.toLowerCase().indexOf('incorrect pick')!==-1;
     var name='';
     if(isIncorrect){
-      // actual winner name is after "incorrect pick, "
-      var m=label.match(/incorrect pick,\\s*(.+?)\\s+score/i);
+      // actual winner name is after "incorrect pick, " — score may not always be present
+      var m=label.match(/incorrect pick,\\s*(.+?)(?:\\s+score|\\s+seed|$)/i);
       name=m?m[1].trim():'';
       if(seeds.length>1)seed=parseInt(seeds[1].textContent.trim(),10)||seed;
     } else {
@@ -245,6 +255,7 @@ var bracketName=getBracketName();
 var memberInfo=lookupMember(bracketName);
 var picks=[];
 var results=[];
+var rawPicks=[];
 
 document.querySelectorAll('[data-slot-id]').forEach(function(slot){
   if(!slot.querySelector('ul'))return;
@@ -261,21 +272,35 @@ document.querySelectorAll('[data-slot-id]').forEach(function(slot){
   var label=(sel.getAttribute('aria-label')||'').trim();
   var parsed=parseLabel(label);
   var pickedName=parsed.pickedName;
-  if(!pickedName&&parsed.status==='played'){
+  if(!pickedName){
     var nd=sel.querySelector('[class*="Fxg(1)"][class*="Tov(e)"]');
     pickedName=nd?nd.textContent.trim():'';
   }
-  if(!pickedName)return;
+  if(!pickedName||!pickedName.trim())return;
   var se=sel.querySelector('[class*="W(16px)"][class*="Fz(10px)"]');
   var pickedSeed=se?parseInt(se.textContent.trim(),10)||0:0;
-  picks.push({slotId:slot.getAttribute('data-slot-id'),round:round,pickedTeam:pickedName,pickedSeed:pickedSeed,status:parsed.status});
+  var status=parsed.status;
+  if(round!=='R64'&&status==='correct')status='pending';
+  rawPicks.push({slotId:slot.getAttribute('data-slot-id'),round:round,pickedTeam:pickedName,pickedSeed:pickedSeed,status:status});
+});
+
+// Process picks in round order so we can track eliminated teams correctly
+var roundOrder=['R64','R32','S16','E8','F4','Final'];
+var eliminatedTeams={};
+rawPicks.sort(function(a,b){return roundOrder.indexOf(a.round)-roundOrder.indexOf(b.round);});
+rawPicks.forEach(function(p){
+  // If this team was already eliminated in a prior round, mark as incorrect (not phantom — keep for display)
+  if(eliminatedTeams[p.pickedTeam])p.status='incorrect';
+  if(p.status==='incorrect')eliminatedTeams[p.pickedTeam]=true;
+  picks.push(p);
 });
 
 // Championship slot
-var champPick='',champSeed=0;
+var champPick='',champSeed=0,champStatus='pending';
 var cs=document.getElementById('champ-slot');
 if(cs){
   var csel=cs.querySelector('[data-tst*="selected"]');
+  if(!csel)csel=cs.querySelector('[data-tst*="topTeam"],[data-tst*="bottomTeam"]');
   if(csel){
     var cl=(csel.getAttribute('aria-label')||'').trim();
     var cp=parseLabel(cl);
@@ -284,11 +309,24 @@ if(cs){
     var cse=csel.querySelector('[class*="Fz(10px)"][class*="C(overview-gray)"]');
     champSeed=cse?parseInt(cse.textContent.trim(),10)||0:0;
   }
+  if(champPick&&eliminatedTeams[champPick])champStatus='incorrect';
+}
+// Fallback: if champ-slot not found, infer champion from eliminated F4 pick
+if(!champPick){
+  ['0_2','0_3'].forEach(function(sid){
+    rawPicks.forEach(function(p){
+      if(p.slotId===sid&&p.status==='incorrect'&&!champPick){
+        champPick=p.pickedTeam;
+        champSeed=p.pickedSeed;
+        champStatus='incorrect';
+      }
+    });
+  });
 }
 
 var byRound={R64:[],R32:[],S16:[],E8:[],F4:[],Final:[]};
 picks.forEach(function(p){if(byRound[p.round])byRound[p.round].push({team:p.pickedTeam,seed:p.pickedSeed,status:p.status,slotId:p.slotId});});
-if(champPick&&!byRound.Final.length)byRound.Final.push({team:champPick,seed:champSeed,status:'pending',slotId:'champ'});
+if(champPick&&!byRound.Final.length)byRound.Final.push({team:champPick,seed:champSeed,status:champStatus,slotId:'champ'});
 
 // Deduplicate results
 var seen={};
