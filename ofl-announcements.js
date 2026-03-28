@@ -1,6 +1,6 @@
 /**
  * ofl-announcements.js — Commissioner Broadcast Data
- * Generated: 3/28/2026, 10:21:32 AM
+ * Generated: 3/28/2026, 10:25:02 AM
  *
  * Drop this file next to index.html and add:
  *   <script src="ofl-announcements.js"></script>
@@ -134,7 +134,7 @@ var OFL_ANNOUNCEMENTS = [
     "marqueeLabel": "ELITE 8",
     "showMarqueeLabel": true,
     "marqueeLabelColor": "#1b2b8f",
-    "marqueeSpeed": "slow",
+    "marqueeSpeed": "medium",
     "entryAnimation": "slide-up",
     "idleAnimation": "shimmer",
     "letterheadUrl": "",
