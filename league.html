@@ -2169,8 +2169,9 @@
               '  var s=ANALYSIS.standings.find(function(x){return x.memberId===mid;});\n' +
               '  if(!s){cardEl.innerHTML="";bodyEl.innerHTML="";return;}\n' +
               '  var r=ROSTER[mid]||{name:s.bracketName,mugshot:""};\n' +
-              '  var f4Picks=(s.allPicks||[]).filter(function(p){return p.round==="E8"&&p.status==="pending";}).map(function(p){return p.team;});\n' +
-              '  var finalsPicks=(s.allPicks||[]).filter(function(p){return p.round==="F4"&&p.status==="pending";}).map(function(p){return p.team;});\n' +
+              '  var f4Picks=(s.allPicks||[]).filter(function(p){return p.round==="E8"&&(p.status==="pending"||p.status==="incorrect");}).map(function(p){return{team:p.team,elim:p.status==="incorrect"};});\n' +
+              '  var finalsPicks=(s.allPicks||[]).filter(function(p){return p.round==="F4"&&(p.status==="pending"||p.status==="incorrect");}).map(function(p){return{team:p.team,elim:p.status==="incorrect"};});\n' +
+              '  function formatPickList(arr){return arr.map(function(p){return p.elim?"<s style=\\"opacity:0.45\\">"+esc2(p.team)+"</s>":esc2(p.team);}).join(", ");}\n' +
               '  var champPick=(s.allPicks||[]).find(function(p){return p.slotId==="champ";});\n' +
               '  var champTeam=champPick?champPick.team:"";\n' +
               '  var champElim=champPick&&champPick.status==="incorrect";\n' +
@@ -2190,8 +2191,8 @@
               '  cardHtml+=\'<div class="brc-surv-card-info">\';\n' +
               '  cardHtml+=\'<div class="brc-surv-card-bracket">\'+esc2(s.bracketName)+\'</div>\';\n' +
               '  cardHtml+=\'<div class="brc-surv-card-owner">\'+esc2(r.name)+\'</div>\';\n' +
-              '  if(f4Picks.length)cardHtml+=\'<div class="brc-surv-card-row"><strong>Final Four:</strong> \'+esc2(f4Picks.join(", "))+\'</div>\';\n' +
-              '  if(finalsPicks.length)cardHtml+=\'<div class="brc-surv-card-row"><strong>Finals:</strong> \'+esc2(finalsPicks.join(", "))+\'</div>\';\n' +
+              '  if(f4Picks.length)cardHtml+=\'<div class="brc-surv-card-row"><strong>Final Four:</strong> \'+formatPickList(f4Picks)+\'</div>\';\n' +
+              '  if(finalsPicks.length)cardHtml+=\'<div class="brc-surv-card-row"><strong>Finals:</strong> \'+formatPickList(finalsPicks)+\'</div>\';\n' +
               '  if(champTeam){var elimSpan=champElim?\' <span style="opacity:0.45;font-size:0.58rem">(eliminated)</span>\':"";cardHtml+=\'<div class="brc-surv-card-row"><strong>Champion:</strong> \'+esc2(champTeam)+elimSpan+\'</div>\';}\n' +
               '  cardHtml+=\'<div class="brc-surv-card-pts">\';\n' +
               '  cardHtml+=\'<div class="brc-surv-card-pts-item"><div class="brc-surv-card-pts-label">Current Pts</div><div class="brc-surv-card-pts-val">\'+score+\'</div></div>\';\n' +
