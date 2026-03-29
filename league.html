@@ -302,10 +302,11 @@
     }
     .brc-race-bar-score {
       position: absolute; left: 0; top: 0; bottom: 0;
-      background: var(--hint-color, var(--accent));
+      background: var(--success, #4caf7d);
       border-radius: 2px; transition: width 0.4s ease;
     }
-    .brc-race-bar-score.eliminated { background: rgba(255,255,255,0.2); }
+    .brc-race-bar-score.eliminated { background: rgba(255,79,107,0.7); }
+    .brc-race-bar-score.alive { background: var(--success, #4caf7d); }
     .brc-race-scores {
       font-family: var(--font-body); font-size: 0.7rem;
       letter-spacing: 0.08em; color: var(--accent); text-align: right; white-space: nowrap;
@@ -802,7 +803,7 @@
               '<div class="brc-race-name">' + esc(s.bracketName) + '</div>' +
               '<div class="brc-race-bar-wrap">' +
                 '<div class="brc-race-bar-max" style="width:' + maxPct + '%"></div>' +
-                '<div class="brc-race-bar-score' + (isElim ? ' eliminated' : '') + '" style="width:' + scorePct + '%"></div>' +
+                '<div class="brc-race-bar-score' + (isElim ? ' eliminated' : ' alive') + '" style="width:' + scorePct + '%"></div>' +
               '</div>' +
             '</div>' +
             '<div class="brc-race-scores">' +
@@ -1910,7 +1911,7 @@
               '      \'<div><div class="brc-race-name">\'+esc(s.bracketName)+\'</div>\'+\n' +
               '      \'<div class="brc-race-bar-wrap">\'+\n' +
               '        \'<div class="brc-race-bar-max" style="width:\'+mPct+\'%"></div>\'+\n' +
-              '        \'<div class="brc-race-bar-score\'+(s.eliminated?\' eliminated\':\'\')+\'" style="width:\'+sPct+\'%"></div>\'+\n' +
+              '        \'<div class="brc-race-bar-score\'+(s.eliminated?\' eliminated\':\' alive\')+\'" style="width:\'+sPct+\'%"></div>\'+\n' +
               '      \'</div></div>\'+\n' +
               '      \'<div class="brc-race-scores"><span class="score-main">\'+s.projected+\'</span>\'+\n' +
               '        \'<span class="score-sep">/</span>\'+\n' +
