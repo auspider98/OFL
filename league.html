@@ -793,7 +793,7 @@
         var scorePct  = Math.round((scoreVal / maxVal) * 100);
         var maxPct    = Math.round((maxPosVal / maxVal) * 100);
         var isTop     = rank <= 3;
-        var isElim    = s.eliminated;
+        var isElim    = s.hasOwnProperty('canWin') ? !s.canWin : s.eliminated;
 
         html +=
           '<div class="brc-race-row">' +
@@ -1769,7 +1769,10 @@
             // Build survival bracket options: all brackets ranked, eliminated labeled
             var survivalOpts = '';
             var elimSet = {};
-            (analysis.standings || []).forEach(function(s) { if (s.eliminated) elimSet[s.memberId] = true; });
+            (analysis.standings || []).forEach(function(s) {
+              var isElim = s.hasOwnProperty('canWin') ? !s.canWin : s.eliminated;
+              if (isElim) elimSet[s.memberId] = true;
+            });
             (analysis.standings || []).forEach(function(s) {
               var label = s.bracketName + (elimSet[s.memberId] ? ' (eliminated)' : '');
               survivalOpts += '<option value="' + esc(s.memberId) + '">' + esc(label) + '</option>';
@@ -1889,7 +1892,7 @@
               '    (s.pendingPicks||[]).forEach(function(p){\n' +
               '      if(scenMap[p.slotId]&&scenMap[p.slotId]===p.team)extra+=PTS[p.round]||0;\n' +
               '    });\n' +
-              '    return{memberId:s.memberId,bracketName:s.bracketName,actual:s.score,projected:s.score+extra,maxPossible:s.maxPossible,eliminated:s.eliminated};\n' +
+              '    return{memberId:s.memberId,bracketName:s.bracketName,actual:s.score,projected:s.score+extra,maxPossible:s.maxPossible,eliminated:s.hasOwnProperty("canWin")?!s.canWin:s.eliminated};\n' +
               '  }).sort(function(a,b){return b.projected-a.projected;});\n' +
               '  // Actual ranks\n' +
               '  var actualRanks={};\n' +
@@ -2181,7 +2184,7 @@
               '  var rivals=ANALYSIS.standings.filter(function(x){\n' +
               '    if(x.memberId===mid)return false;\n' +
               '    var cp=(x.allPicks||[]).find(function(p){return p.slotId==="champ";});\n' +
-              '    return cp&&cp.team===champTeam&&!x.eliminated;\n' +
+              '    return cp&&cp.team===champTeam&&!(s.hasOwnProperty("canWin")?!s.canWin:s.eliminated);\n' +
               '  }).map(function(x){return x.bracketName;});\n' +
               '  var mugHtml=r.mugshot\n' +
               '    ?\'<img src="\'+r.mugshot+\'" alt="\'+esc2(r.name)+\'" />\'\n' +
