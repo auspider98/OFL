@@ -1,5 +1,5 @@
 /**
- * BRC Round Scores Import · 2026 · Generated 3/27/2026
+ * BRC Round Scores Import · 2026 · Generated 3/29/2026
  * Import via ofl-data.html Import Config.
  */
 
@@ -13,8 +13,8 @@ window.OFL_BRC_STANDINGS_IMPORT = {
       "pointsByRound": [
         24,
         24,
-        12,
-        0,
+        24,
+        24,
         0,
         0
       ]
@@ -25,44 +25,8 @@ window.OFL_BRC_STANDINGS_IMPORT = {
       "pointsByRound": [
         26,
         24,
-        8,
-        0,
-        0,
-        0
-      ]
-    },
-    {
-      "memberId": "mbr_mm161lj76qt7",
-      "bracketName": "Gangan Quilters",
-      "pointsByRound": [
-        24,
-        22,
-        8,
-        0,
-        0,
-        0
-      ]
-    },
-    {
-      "memberId": "mbr_006",
-      "bracketName": "Molly Defenders 2.0",
-      "pointsByRound": [
-        24,
-        22,
-        8,
-        0,
-        0,
-        0
-      ]
-    },
-    {
-      "memberId": "mbr_003",
-      "bracketName": "Dribbling Bubbas",
-      "pointsByRound": [
-        26,
         20,
-        8,
-        0,
+        16,
         0,
         0
       ]
@@ -73,20 +37,8 @@ window.OFL_BRC_STANDINGS_IMPORT = {
       "pointsByRound": [
         21,
         24,
-        8,
-        0,
-        0,
-        0
-      ]
-    },
-    {
-      "memberId": "mbr_001",
-      "bracketName": "theWeb",
-      "pointsByRound": [
-        23,
-        22,
-        8,
-        0,
+        24,
+        16,
         0,
         0
       ]
@@ -97,20 +49,44 @@ window.OFL_BRC_STANDINGS_IMPORT = {
       "pointsByRound": [
         25,
         18,
-        8,
-        0,
+        20,
+        16,
         0,
         0
       ]
     },
     {
-      "memberId": "mbr_004",
-      "bracketName": "TheChattanoogan",
+      "memberId": "mbr_006",
+      "bracketName": "Molly Defenders 2.0",
       "pointsByRound": [
-        27,
-        20,
-        4,
+        24,
+        22,
+        16,
+        16,
         0,
+        0
+      ]
+    },
+    {
+      "memberId": "mbr_003",
+      "bracketName": "Dribbling Bubbas",
+      "pointsByRound": [
+        26,
+        20,
+        16,
+        16,
+        0,
+        0
+      ]
+    },
+    {
+      "memberId": "mbr_001",
+      "bracketName": "theWeb",
+      "pointsByRound": [
+        23,
+        22,
+        16,
+        16,
         0,
         0
       ]
@@ -121,8 +97,32 @@ window.OFL_BRC_STANDINGS_IMPORT = {
       "pointsByRound": [
         23,
         22,
-        4,
+        16,
+        16,
         0,
+        0
+      ]
+    },
+    {
+      "memberId": "mbr_004",
+      "bracketName": "TheChattanoogan",
+      "pointsByRound": [
+        27,
+        20,
+        12,
+        16,
+        0,
+        0
+      ]
+    },
+    {
+      "memberId": "mbr_mm161lj76qt7",
+      "bracketName": "Gangan Quilters",
+      "pointsByRound": [
+        24,
+        22,
+        20,
+        8,
         0,
         0
       ]
@@ -133,8 +133,8 @@ window.OFL_BRC_STANDINGS_IMPORT = {
       "pointsByRound": [
         24,
         24,
-        0,
-        0,
+        12,
+        8,
         0,
         0
       ]
@@ -145,7 +145,7 @@ window.OFL_BRC_STANDINGS_IMPORT = {
       "pointsByRound": [
         26,
         16,
-        0,
+        8,
         0,
         0,
         0
@@ -157,7 +157,7 @@ window.OFL_BRC_STANDINGS_IMPORT = {
       "pointsByRound": [
         27,
         14,
-        0,
+        4,
         0,
         0,
         0
