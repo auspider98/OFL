@@ -1,8 +1,8 @@
 /**
  * BRC Bracket Picks · Gangan Quilters · 2026
  * Member ID: mbr_mm161lj76qt7 
- * Generated: 3/27/2026, 2:36:26 AM
- * 62 picks (✓0 correct ✗1 incorrect ⧖28 pending)
+ * Generated: 3/28/2026, 9:16:33 AM
+ * 63 picks (✓0 correct ✗3 incorrect ⧖27 pending)
  */
 
 window.OFL_BRC_PICKS_IMPORT = {
@@ -11,12 +11,12 @@ window.OFL_BRC_PICKS_IMPORT = {
   "memberId": "mbr_mm161lj76qt7",
   "bracketName": "Gangan Quilters",
   "yahooUrl": "https://tournament.fantasysports.yahoo.com/mens-basketball-bracket/1209247",
-  "generatedAt": "2026-03-27T06:36:26.768Z",
+  "generatedAt": "2026-03-28T13:16:33.229Z",
   "summary": {
-    "total": 62,
+    "total": 63,
     "correct": 0,
-    "incorrect": 1,
-    "pending": 28
+    "incorrect": 3,
+    "pending": 27
   },
   "picks": {
     "R64": [
@@ -369,6 +369,12 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "1_1"
       },
       {
+        "team": "Florida",
+        "seed": 1,
+        "status": "incorrect",
+        "slotId": "2_1"
+      },
+      {
         "team": "Arizona",
         "seed": 1,
         "status": "pending",
@@ -377,7 +383,7 @@ window.OFL_BRC_PICKS_IMPORT = {
       {
         "team": "Iowa St.",
         "seed": 2,
-        "status": "pending",
+        "status": "incorrect",
         "slotId": "4_1"
       }
     ],
@@ -562,6 +568,32 @@ window.OFL_BRC_PICKS_IMPORT = {
         "loser": "UCLA",
         "loserSeed": 7,
         "loserScore": 57,
+        "complete": true
+      }
+    },
+    {
+      "slotId": "1_2",
+      "round": "S16",
+      "result": {
+        "winner": "Duke",
+        "winnerSeed": 1,
+        "winnerScore": 80,
+        "loser": "St. John's",
+        "loserSeed": 5,
+        "loserScore": 75,
+        "complete": true
+      }
+    },
+    {
+      "slotId": "1_3",
+      "round": "S16",
+      "result": {
+        "winner": "Connecticut",
+        "winnerSeed": 2,
+        "winnerScore": 67,
+        "loser": "Michigan St.",
+        "loserSeed": 3,
+        "loserScore": 63,
         "complete": true
       }
     },
@@ -1082,6 +1114,32 @@ window.OFL_BRC_PICKS_IMPORT = {
         "loser": "Kentucky",
         "loserSeed": 7,
         "loserScore": 63,
+        "complete": true
+      }
+    },
+    {
+      "slotId": "4_2",
+      "round": "S16",
+      "result": {
+        "winner": "Michigan",
+        "winnerSeed": 1,
+        "winnerScore": 90,
+        "loser": "Alabama",
+        "loserSeed": 4,
+        "loserScore": 77,
+        "complete": true
+      }
+    },
+    {
+      "slotId": "4_3",
+      "round": "S16",
+      "result": {
+        "winner": "Tennessee",
+        "winnerSeed": 6,
+        "winnerScore": 76,
+        "loser": "Iowa St.",
+        "loserSeed": 2,
+        "loserScore": 62,
         "complete": true
       }
     }

@@ -1,8 +1,8 @@
 /**
  * BRC Bracket Picks · emziemillions · 2026
  * Member ID: mbr_mm164375ur1b 
- * Generated: 3/27/2026, 2:37:39 AM
- * 61 picks (✓0 correct ✗8 incorrect ⧖20 pending)
+ * Generated: 3/28/2026, 9:17:25 AM
+ * 63 picks (✓0 correct ✗12 incorrect ⧖18 pending)
  */
 
 window.OFL_BRC_PICKS_IMPORT = {
@@ -11,12 +11,12 @@ window.OFL_BRC_PICKS_IMPORT = {
   "memberId": "mbr_mm164375ur1b",
   "bracketName": "emziemillions",
   "yahooUrl": "https://tournament.fantasysports.yahoo.com/mens-basketball-bracket/400071",
-  "generatedAt": "2026-03-27T06:37:39.341Z",
+  "generatedAt": "2026-03-28T13:17:25.430Z",
   "summary": {
-    "total": 61,
+    "total": 63,
     "correct": 0,
-    "incorrect": 8,
-    "pending": 20
+    "incorrect": 12,
+    "pending": 18
   },
   "picks": {
     "R64": [
@@ -365,7 +365,7 @@ window.OFL_BRC_PICKS_IMPORT = {
       {
         "team": "Michigan St.",
         "seed": 3,
-        "status": "pending",
+        "status": "incorrect",
         "slotId": "1_1"
       },
       {
@@ -379,21 +379,33 @@ window.OFL_BRC_PICKS_IMPORT = {
         "seed": 4,
         "status": "incorrect",
         "slotId": "3_1"
+      },
+      {
+        "team": "Texas Tech",
+        "seed": 5,
+        "status": "incorrect",
+        "slotId": "4_1"
       }
     ],
     "F4": [
       {
         "team": "Michigan St.",
         "seed": 3,
-        "status": "pending",
+        "status": "incorrect",
         "slotId": "0_2"
+      },
+      {
+        "team": "Arkansas",
+        "seed": 4,
+        "status": "incorrect",
+        "slotId": "0_3"
       }
     ],
     "Final": [
       {
         "team": "Michigan St.",
         "seed": 3,
-        "status": "pending",
+        "status": "incorrect",
         "slotId": "champ"
       }
     ]
@@ -556,6 +568,32 @@ window.OFL_BRC_PICKS_IMPORT = {
         "loser": "UCLA",
         "loserSeed": 7,
         "loserScore": 57,
+        "complete": true
+      }
+    },
+    {
+      "slotId": "1_2",
+      "round": "S16",
+      "result": {
+        "winner": "Duke",
+        "winnerSeed": 1,
+        "winnerScore": 80,
+        "loser": "St. John's",
+        "loserSeed": 5,
+        "loserScore": 75,
+        "complete": true
+      }
+    },
+    {
+      "slotId": "1_3",
+      "round": "S16",
+      "result": {
+        "winner": "Connecticut",
+        "winnerSeed": 2,
+        "winnerScore": 67,
+        "loser": "Michigan St.",
+        "loserSeed": 3,
+        "loserScore": 63,
         "complete": true
       }
     },
@@ -1076,6 +1114,32 @@ window.OFL_BRC_PICKS_IMPORT = {
         "loser": "Kentucky",
         "loserSeed": 7,
         "loserScore": 63,
+        "complete": true
+      }
+    },
+    {
+      "slotId": "4_2",
+      "round": "S16",
+      "result": {
+        "winner": "Michigan",
+        "winnerSeed": 1,
+        "winnerScore": 90,
+        "loser": "Alabama",
+        "loserSeed": 4,
+        "loserScore": 77,
+        "complete": true
+      }
+    },
+    {
+      "slotId": "4_3",
+      "round": "S16",
+      "result": {
+        "winner": "Tennessee",
+        "winnerSeed": 6,
+        "winnerScore": 76,
+        "loser": "Iowa St.",
+        "loserSeed": 2,
+        "loserScore": 62,
         "complete": true
       }
     }

@@ -1,8 +1,8 @@
 /**
  * BRC Bracket Picks · ATLiens · 2026
  * Member ID: mbr_002 
- * Generated: 3/27/2026, 2:36:50 AM
- * 62 picks (✓0 correct ✗1 incorrect ⧖28 pending)
+ * Generated: 3/28/2026, 9:16:26 AM
+ * 63 picks (✓0 correct ✗2 incorrect ⧖28 pending)
  */
 
 window.OFL_BRC_PICKS_IMPORT = {
@@ -11,11 +11,11 @@ window.OFL_BRC_PICKS_IMPORT = {
   "memberId": "mbr_002",
   "bracketName": "ATLiens",
   "yahooUrl": "https://tournament.fantasysports.yahoo.com/mens-basketball-bracket/591493",
-  "generatedAt": "2026-03-27T06:36:50.106Z",
+  "generatedAt": "2026-03-28T13:16:26.038Z",
   "summary": {
-    "total": 62,
+    "total": 63,
     "correct": 0,
-    "incorrect": 1,
+    "incorrect": 2,
     "pending": 28
   },
   "picks": {
@@ -369,6 +369,12 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "1_1"
       },
       {
+        "team": "Florida",
+        "seed": 1,
+        "status": "incorrect",
+        "slotId": "2_1"
+      },
+      {
         "team": "Arizona",
         "seed": 1,
         "status": "pending",
@@ -562,6 +568,32 @@ window.OFL_BRC_PICKS_IMPORT = {
         "loser": "UCLA",
         "loserSeed": 7,
         "loserScore": 57,
+        "complete": true
+      }
+    },
+    {
+      "slotId": "1_2",
+      "round": "S16",
+      "result": {
+        "winner": "Duke",
+        "winnerSeed": 1,
+        "winnerScore": 80,
+        "loser": "St. John's",
+        "loserSeed": 5,
+        "loserScore": 75,
+        "complete": true
+      }
+    },
+    {
+      "slotId": "1_3",
+      "round": "S16",
+      "result": {
+        "winner": "Connecticut",
+        "winnerSeed": 2,
+        "winnerScore": 67,
+        "loser": "Michigan St.",
+        "loserSeed": 3,
+        "loserScore": 63,
         "complete": true
       }
     },
@@ -1082,6 +1114,32 @@ window.OFL_BRC_PICKS_IMPORT = {
         "loser": "Kentucky",
         "loserSeed": 7,
         "loserScore": 63,
+        "complete": true
+      }
+    },
+    {
+      "slotId": "4_2",
+      "round": "S16",
+      "result": {
+        "winner": "Michigan",
+        "winnerSeed": 1,
+        "winnerScore": 90,
+        "loser": "Alabama",
+        "loserSeed": 4,
+        "loserScore": 77,
+        "complete": true
+      }
+    },
+    {
+      "slotId": "4_3",
+      "round": "S16",
+      "result": {
+        "winner": "Tennessee",
+        "winnerSeed": 6,
+        "winnerScore": 76,
+        "loser": "Iowa St.",
+        "loserSeed": 2,
+        "loserScore": 62,
         "complete": true
       }
     }

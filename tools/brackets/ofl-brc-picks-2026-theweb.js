@@ -1,8 +1,8 @@
 /**
  * BRC Bracket Picks · theWeb · 2026
  * Member ID: mbr_001 
- * Generated: 3/28/2026, 1:26:57 AM
- * 61 picks (✓0 correct ✗3 incorrect ⧖25 pending)
+ * Generated: 3/28/2026, 9:16:58 AM
+ * 63 picks (✓0 correct ✗5 incorrect ⧖25 pending)
  */
 
 window.OFL_BRC_PICKS_IMPORT = {
@@ -11,11 +11,11 @@ window.OFL_BRC_PICKS_IMPORT = {
   "memberId": "mbr_001",
   "bracketName": "theWeb",
   "yahooUrl": "https://tournament.fantasysports.yahoo.com/mens-basketball-bracket/8918",
-  "generatedAt": "2026-03-28T05:26:57.241Z",
+  "generatedAt": "2026-03-28T13:16:58.572Z",
   "summary": {
-    "total": 61,
+    "total": 63,
     "correct": 0,
-    "incorrect": 3,
+    "incorrect": 5,
     "pending": 25
   },
   "picks": {
@@ -369,6 +369,12 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "1_1"
       },
       {
+        "team": "Florida",
+        "seed": 1,
+        "status": "incorrect",
+        "slotId": "2_1"
+      },
+      {
         "team": "Arizona",
         "seed": 1,
         "status": "pending",
@@ -382,6 +388,12 @@ window.OFL_BRC_PICKS_IMPORT = {
       }
     ],
     "F4": [
+      {
+        "team": "Florida",
+        "seed": 1,
+        "status": "incorrect",
+        "slotId": "0_2"
+      },
       {
         "team": "Arizona",
         "seed": 1,
