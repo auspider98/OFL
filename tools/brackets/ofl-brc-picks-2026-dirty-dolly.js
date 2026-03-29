@@ -1,7 +1,7 @@
 /**
  * BRC Bracket Picks · Dirty Dolly · 2026
  * Member ID: mbr_007 
- * Generated: 3/29/2026, 5:50:27 PM
+ * Generated: 3/29/2026, 7:35:34 PM
  * 63 picks (✓0 correct ✗1 incorrect ⧖29 pending)
  */
 
@@ -11,7 +11,7 @@ window.OFL_BRC_PICKS_IMPORT = {
   "memberId": "mbr_007",
   "bracketName": "Dirty Dolly",
   "yahooUrl": "https://tournament.fantasysports.yahoo.com/mens-basketball-bracket/240070",
-  "generatedAt": "2026-03-29T21:50:27.575Z",
+  "generatedAt": "2026-03-29T23:35:34.471Z",
   "summary": {
     "total": 63,
     "correct": 0,
@@ -594,6 +594,19 @@ window.OFL_BRC_PICKS_IMPORT = {
         "loser": "Michigan St.",
         "loserSeed": 3,
         "loserScore": 63,
+        "complete": true
+      }
+    },
+    {
+      "slotId": "1_1",
+      "round": "E8",
+      "result": {
+        "winner": "Connecticut",
+        "winnerSeed": 2,
+        "winnerScore": 73,
+        "loser": "Duke",
+        "loserSeed": 1,
+        "loserScore": 72,
         "complete": true
       }
     },
