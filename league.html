@@ -302,11 +302,10 @@
     }
     .brc-race-bar-score {
       position: absolute; left: 0; top: 0; bottom: 0;
-      background: var(--success, #4caf7d);
+      background: var(--hint-color, var(--accent));
       border-radius: 2px; transition: width 0.4s ease;
     }
-    .brc-race-bar-score.eliminated { background: rgba(255,79,107,0.7); }
-    .brc-race-bar-score.alive { background: var(--success, #4caf7d); }
+    .brc-race-bar-score.eliminated { background: rgba(255,255,255,0.2); }
     .brc-race-scores {
       font-family: var(--font-body); font-size: 0.7rem;
       letter-spacing: 0.08em; color: var(--accent); text-align: right; white-space: nowrap;
@@ -794,7 +793,7 @@
         var scorePct  = Math.round((scoreVal / maxVal) * 100);
         var maxPct    = Math.round((maxPosVal / maxVal) * 100);
         var isTop     = rank <= 3;
-        var isElim    = s.hasOwnProperty('canWin') ? !s.canWin : s.eliminated;
+        var isElim    = s.eliminated;
 
         html +=
           '<div class="brc-race-row">' +
@@ -803,7 +802,7 @@
               '<div class="brc-race-name">' + esc(s.bracketName) + '</div>' +
               '<div class="brc-race-bar-wrap">' +
                 '<div class="brc-race-bar-max" style="width:' + maxPct + '%"></div>' +
-                '<div class="brc-race-bar-score' + (isElim ? ' eliminated' : ' alive') + '" style="width:' + scorePct + '%"></div>' +
+                '<div class="brc-race-bar-score' + (isElim ? ' eliminated' : '') + '" style="width:' + scorePct + '%"></div>' +
               '</div>' +
             '</div>' +
             '<div class="brc-race-scores">' +
@@ -1770,10 +1769,7 @@
             // Build survival bracket options: all brackets ranked, eliminated labeled
             var survivalOpts = '';
             var elimSet = {};
-            (analysis.standings || []).forEach(function(s) {
-              var isElim = s.hasOwnProperty('canWin') ? !s.canWin : s.eliminated;
-              if (isElim) elimSet[s.memberId] = true;
-            });
+            (analysis.standings || []).forEach(function(s) { if (s.eliminated) elimSet[s.memberId] = true; });
             (analysis.standings || []).forEach(function(s) {
               var label = s.bracketName + (elimSet[s.memberId] ? ' (eliminated)' : '');
               survivalOpts += '<option value="' + esc(s.memberId) + '">' + esc(label) + '</option>';
@@ -1893,7 +1889,7 @@
               '    (s.pendingPicks||[]).forEach(function(p){\n' +
               '      if(scenMap[p.slotId]&&scenMap[p.slotId]===p.team)extra+=PTS[p.round]||0;\n' +
               '    });\n' +
-              '    return{memberId:s.memberId,bracketName:s.bracketName,actual:s.score,projected:s.score+extra,maxPossible:s.maxPossible,eliminated:s.hasOwnProperty("canWin")?!s.canWin:s.eliminated};\n' +
+              '    return{memberId:s.memberId,bracketName:s.bracketName,actual:s.score,projected:s.score+extra,maxPossible:s.maxPossible,eliminated:s.eliminated};\n' +
               '  }).sort(function(a,b){return b.projected-a.projected;});\n' +
               '  // Actual ranks\n' +
               '  var actualRanks={};\n' +
@@ -1911,7 +1907,7 @@
               '      \'<div><div class="brc-race-name">\'+esc(s.bracketName)+\'</div>\'+\n' +
               '      \'<div class="brc-race-bar-wrap">\'+\n' +
               '        \'<div class="brc-race-bar-max" style="width:\'+mPct+\'%"></div>\'+\n' +
-              '        \'<div class="brc-race-bar-score\'+(s.eliminated?\' eliminated\':\' alive\')+\'" style="width:\'+sPct+\'%"></div>\'+\n' +
+              '        \'<div class="brc-race-bar-score\'+(s.eliminated?\' eliminated\':\'\')+\'" style="width:\'+sPct+\'%"></div>\'+\n' +
               '      \'</div></div>\'+\n' +
               '      \'<div class="brc-race-scores"><span class="score-main">\'+s.projected+\'</span>\'+\n' +
               '        \'<span class="score-sep">/</span>\'+\n' +
@@ -2173,9 +2169,8 @@
               '  var s=ANALYSIS.standings.find(function(x){return x.memberId===mid;});\n' +
               '  if(!s){cardEl.innerHTML="";bodyEl.innerHTML="";return;}\n' +
               '  var r=ROSTER[mid]||{name:s.bracketName,mugshot:""};\n' +
-              '  var f4Picks=(s.allPicks||[]).filter(function(p){return p.round==="E8"&&(p.status==="pending"||p.status==="incorrect");}).map(function(p){return{team:p.team,elim:p.status==="incorrect"};});\n' +
-              '  var finalsPicks=(s.allPicks||[]).filter(function(p){return p.round==="F4"&&(p.status==="pending"||p.status==="incorrect");}).map(function(p){return{team:p.team,elim:p.status==="incorrect"};});\n' +
-              '  function formatPickList(arr){return arr.map(function(p){return p.elim?"<s style=\\"opacity:0.45\\">"+esc2(p.team)+"</s>":esc2(p.team);}).join(", ");}\n' +
+              '  var f4Picks=(s.allPicks||[]).filter(function(p){return p.round==="E8"&&p.status==="pending";}).map(function(p){return p.team;});\n' +
+              '  var finalsPicks=(s.allPicks||[]).filter(function(p){return p.round==="F4"&&p.status==="pending";}).map(function(p){return p.team;});\n' +
               '  var champPick=(s.allPicks||[]).find(function(p){return p.slotId==="champ";});\n' +
               '  var champTeam=champPick?champPick.team:"";\n' +
               '  var champElim=champPick&&champPick.status==="incorrect";\n' +
@@ -2185,7 +2180,7 @@
               '  var rivals=ANALYSIS.standings.filter(function(x){\n' +
               '    if(x.memberId===mid)return false;\n' +
               '    var cp=(x.allPicks||[]).find(function(p){return p.slotId==="champ";});\n' +
-              '    return cp&&cp.team===champTeam&&!(s.hasOwnProperty("canWin")?!s.canWin:s.eliminated);\n' +
+              '    return cp&&cp.team===champTeam&&!x.eliminated;\n' +
               '  }).map(function(x){return x.bracketName;});\n' +
               '  var mugHtml=r.mugshot\n' +
               '    ?\'<img src="\'+r.mugshot+\'" alt="\'+esc2(r.name)+\'" />\'\n' +
@@ -2195,8 +2190,8 @@
               '  cardHtml+=\'<div class="brc-surv-card-info">\';\n' +
               '  cardHtml+=\'<div class="brc-surv-card-bracket">\'+esc2(s.bracketName)+\'</div>\';\n' +
               '  cardHtml+=\'<div class="brc-surv-card-owner">\'+esc2(r.name)+\'</div>\';\n' +
-              '  if(f4Picks.length)cardHtml+=\'<div class="brc-surv-card-row"><strong>Final Four:</strong> \'+formatPickList(f4Picks)+\'</div>\';\n' +
-              '  if(finalsPicks.length)cardHtml+=\'<div class="brc-surv-card-row"><strong>Finals:</strong> \'+formatPickList(finalsPicks)+\'</div>\';\n' +
+              '  if(f4Picks.length)cardHtml+=\'<div class="brc-surv-card-row"><strong>Final Four:</strong> \'+esc2(f4Picks.join(", "))+\'</div>\';\n' +
+              '  if(finalsPicks.length)cardHtml+=\'<div class="brc-surv-card-row"><strong>Finals:</strong> \'+esc2(finalsPicks.join(", "))+\'</div>\';\n' +
               '  if(champTeam){var elimSpan=champElim?\' <span style="opacity:0.45;font-size:0.58rem">(eliminated)</span>\':"";cardHtml+=\'<div class="brc-surv-card-row"><strong>Champion:</strong> \'+esc2(champTeam)+elimSpan+\'</div>\';}\n' +
               '  cardHtml+=\'<div class="brc-surv-card-pts">\';\n' +
               '  cardHtml+=\'<div class="brc-surv-card-pts-item"><div class="brc-surv-card-pts-label">Current Pts</div><div class="brc-surv-card-pts-val">\'+score+\'</div></div>\';\n' +
@@ -2310,7 +2305,12 @@
               '      });\n' +
               '      if(best){\n' +
               '        var inRivalDeepFor=!!rivalDeepSameSet[best.forTeam.team];\n' +
-              '        rows.push({tier:inRivalDeepFor?"t6":"t3",round:sl.round,forTeam:best.forTeam,againstTeam:best.againstTeam,pts:inRivalDeepFor?best.rdmg:myFuturePts(best.forTeam.team),ptsLabel:inRivalDeepFor?"rivals lose":"your pts"});\n' +
+              '        var inRivalDeepAgainst=best.againstTeam&&!!rivalDeepSameSet[best.againstTeam.team];\n' +
+              '        if(inRivalDeepAgainst&&!inRivalDeepFor){\n' +
+              '          rows.push({tier:"ta",round:sl.round,forTeam:best.forTeam,againstTeam:best.againstTeam,pts:rivalFuturePts(best.againstTeam.team),ptsLabel:"rivals lose"});\n' +
+              '        } else {\n' +
+              '          rows.push({tier:inRivalDeepFor?"t6":"t3",round:sl.round,forTeam:best.forTeam,againstTeam:best.againstTeam,pts:inRivalDeepFor?best.rdmg:myFuturePts(best.forTeam.team),ptsLabel:inRivalDeepFor?"rivals lose":"your pts"});\n' +
+              '        }\n' +
               '      }\n' +
               '    }\n' +
               '  });\n' +
@@ -2326,7 +2326,8 @@
               '    var t4=rRows.filter(function(x){return x.tier==="t4";}).sort(function(a,b){return a.pts-b.pts;});\n' +
               '    var t5=rRows.filter(function(x){return x.tier==="t5";}).sort(function(a,b){return a.pts-b.pts;});\n' +
               '    var t6=rRows.filter(function(x){return x.tier==="t6";}).sort(function(a,b){return a.pts-b.pts;});\n' +
-              '    t1.concat(tr,t2,t3,t4,t5,t6).forEach(function(x){sorted.push(x);});\n' +
+              '    var ta=rRows.filter(function(x){return x.tier==="ta";}).sort(function(a,b){return a.pts-b.pts;});\n' +
+              '    t1.concat(tr,t2,t3,t4,t5,t6,ta).forEach(function(x){sorted.push(x);});\n' +
               '  });\n' +
               '  if(!sorted.length){bodyEl.innerHTML=\'<p style="color:var(--accent-dim);font-size:0.75rem;letter-spacing:0.15em;padding-top:0.5rem">No pending games.</p>\';return;}\n' +
               '  var nextRound=sorted[0].round;\n' +
@@ -2350,10 +2351,10 @@
               '    }\n' +
               '    var color=tierColor(row.tier);\n' +
               '    var isBold=row.tier!=="t3";\n' +
-              '    var isHeavy=row.tier==="tr"||row.tier==="t1"||row.tier==="t6";\n' +
+              '    var isHeavy=row.tier==="tr"||row.tier==="t1"||row.tier==="t6"||row.tier==="ta";\n' +
               '    var forStyle="color:"+color+";font-weight:"+(isHeavy?"800":isBold?"600":"400")+";"+(isHeavy?"font-size:0.9rem;letter-spacing:-0.02em;":"letter-spacing:0.05em;");\n' +
               '    var topTeam,topSeed,botTeam,botSeed;\n' +
-              '    if(row.tier==="t6"){\n' +
+              '    if(row.tier==="t6"||row.tier==="ta"){\n' +
               '      topTeam=row.againstTeam?esc2(row.againstTeam.team):"";topSeed=row.againstTeam?row.againstTeam.seed:"";\n' +
               '      botTeam=row.forTeam?esc2(row.forTeam.team):"";botSeed=row.forTeam?row.forTeam.seed:"";\n' +
               '    } else {\n' +
@@ -2366,7 +2367,7 @@
               '    html+=\'<div style="\'+forStyle+\'">\'+topTeam+\'<span class="brc-rootfor-seed">(\'+topSeed+\')</span></div>\';\n' +
               '    if(botTeam)html+=\'<div class="brc-rootfor-team-against">\'+botTeam+\'<span class="brc-rootfor-seed">(\'+botSeed+\')</span></div>\';\n' +
               '    html+=\'</div></td>\';\n' +
-              '    var tierLabel=row.tier==="tr"?"TR":row.tier.toUpperCase();\n' +
+              '    var tierLabel=row.tier==="tr"?"TR":row.tier==="ta"?"TA":row.tier.toUpperCase();\n' +
               '    html+=\'<td class="brc-rootfor-pts" style="color:\'+color+\'">\'+tierLabel+\' - \'+row.pts+\'<span class="brc-rootfor-pts-label">\'+row.ptsLabel+\'</span></td>\';\n' +
               '    html+=\'</tr>\';\n' +
               '  });\n' +
