@@ -2173,8 +2173,8 @@
               '  var s=ANALYSIS.standings.find(function(x){return x.memberId===mid;});\n' +
               '  if(!s){cardEl.innerHTML="";bodyEl.innerHTML="";return;}\n' +
               '  var r=ROSTER[mid]||{name:s.bracketName,mugshot:""};\n' +
-              '  var f4Picks=(s.allPicks||[]).filter(function(p){return p.round==="E8"&&(p.status==="pending"||p.status==="incorrect");}).map(function(p){return{team:p.team,elim:p.status==="incorrect"};});\n' +
-              '  var finalsPicks=(s.allPicks||[]).filter(function(p){return p.round==="F4"&&(p.status==="pending"||p.status==="incorrect");}).map(function(p){return{team:p.team,elim:p.status==="incorrect"};});\n' +
+              '  var f4Picks=(s.allPicks||[]).filter(function(p){return p.round==="E8";}).map(function(p){return{team:p.team,elim:p.status==="incorrect"};});\n' +
+              '  var finalsPicks=(s.allPicks||[]).filter(function(p){return p.round==="F4";}).map(function(p){return{team:p.team,elim:p.status==="incorrect"};});\n' +
               '  function formatPickList(arr){return arr.map(function(p){return p.elim?"<s style=\\"opacity:0.45\\">"+esc2(p.team)+"</s>":esc2(p.team);}).join(", ");}\n' +
               '  var champPick=(s.allPicks||[]).find(function(p){return p.slotId==="champ";});\n' +
               '  var champTeam=champPick?champPick.team:"";\n' +
