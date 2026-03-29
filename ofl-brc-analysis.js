@@ -1,16 +1,16 @@
 /**
  * OFL BRC Analysis Export · 2026
- * Generated: 3/28/2026, 5:07:04 PM
- * 13 brackets · 56 games tracked
+ * Generated: 3/28/2026, 8:54:29 PM
+ * 13 brackets · 57 games tracked
  * Load as <script src="ofl-brc-analysis.js"></script> in league.html
  */
 
 window.OFL_BRC_ANALYSIS = {
   "meta": {
-    "generated": "2026-03-28T21:07:04.407Z",
+    "generated": "2026-03-29T00:54:29.802Z",
     "year": "2026",
     "bracketsLoaded": 13,
-    "gamesTracked": 56,
+    "gamesTracked": 57,
     "roundProgress": {
       "R64": {
         "complete": 32,
@@ -25,7 +25,7 @@ window.OFL_BRC_ANALYSIS = {
         "total": 8
       },
       "E8": {
-        "complete": 0,
+        "complete": 1,
         "total": 4
       },
       "F4": {
@@ -51,7 +51,7 @@ window.OFL_BRC_ANALYSIS = {
       "rank": 1,
       "memberId": "mbr_007",
       "bracketName": "Dirty Dolly",
-      "score": 72,
+      "score": 80,
       "maxPossible": 168,
       "eliminated": false,
       "canWin": true,
@@ -460,7 +460,7 @@ window.OFL_BRC_ANALYSIS = {
           "round": "E8",
           "team": "Illinois",
           "seed": 3,
-          "status": "pending"
+          "status": "correct"
         },
         {
           "slotId": "3_1",
@@ -504,12 +504,6 @@ window.OFL_BRC_ANALYSIS = {
           "round": "E8",
           "team": "Connecticut",
           "seed": 2
-        },
-        {
-          "slotId": "2_1",
-          "round": "E8",
-          "team": "Illinois",
-          "seed": 3
         },
         {
           "slotId": "3_1",
@@ -6249,7 +6243,7 @@ window.OFL_BRC_ANALYSIS = {
     {
       "memberId": "mbr_007",
       "bracketName": "Dirty Dolly",
-      "score": 72,
+      "score": 80,
       "maxPossible": 168,
       "ptsNeeded": 0
     },
@@ -6258,97 +6252,45 @@ window.OFL_BRC_ANALYSIS = {
       "bracketName": "Auburn's Time to Shine",
       "score": 70,
       "maxPossible": 158,
-      "ptsNeeded": 2
+      "ptsNeeded": 10
     },
     {
       "memberId": "mbr_002",
       "bracketName": "ATLiens",
       "score": 69,
       "maxPossible": 157,
-      "ptsNeeded": 3
+      "ptsNeeded": 11
     },
     {
       "memberId": "mbr_mm161lj76qt7",
       "bracketName": "Gangan Quilters",
       "score": 66,
       "maxPossible": 146,
-      "ptsNeeded": 6
+      "ptsNeeded": 14
     },
     {
       "memberId": "mbr_006",
       "bracketName": "Molly Defenders 2.0",
       "score": 62,
       "maxPossible": 150,
-      "ptsNeeded": 10
+      "ptsNeeded": 18
     },
     {
       "memberId": "mbr_001",
       "bracketName": "theWeb",
       "score": 61,
       "maxPossible": 133,
-      "ptsNeeded": 11
+      "ptsNeeded": 19
     },
     {
       "memberId": "mbr_mm1635nfdqvt",
       "bracketName": "bioluminescent bracket",
       "score": 60,
       "maxPossible": 140,
-      "ptsNeeded": 12
+      "ptsNeeded": 20
     }
   ],
   "pendingPicks": {
-    "mbr_mm1635nfdqvt": [
-      {
-        "slotId": "1_1",
-        "round": "E8",
-        "team": "Connecticut",
-        "seed": 2
-      },
-      {
-        "slotId": "4_1",
-        "round": "E8",
-        "team": "Michigan",
-        "seed": 1
-      },
-      {
-        "slotId": "0_2",
-        "round": "F4",
-        "team": "Connecticut",
-        "seed": 2
-      },
-      {
-        "slotId": "0_3",
-        "round": "F4",
-        "team": "Michigan",
-        "seed": 1
-      },
-      {
-        "slotId": "champ",
-        "round": "Final",
-        "team": "Connecticut",
-        "seed": 2
-      }
-    ],
-    "mbr_mm1629iqfyaj": [
-      {
-        "slotId": "1_1",
-        "round": "E8",
-        "team": "Duke",
-        "seed": 1
-      },
-      {
-        "slotId": "0_2",
-        "round": "F4",
-        "team": "Duke",
-        "seed": 1
-      },
-      {
-        "slotId": "champ",
-        "round": "Final",
-        "team": "Duke",
-        "seed": 1
-      }
-    ],
     "mbr_mm7vmncz4gfs": [
       {
         "slotId": "1_1",
@@ -6425,47 +6367,23 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 1
       }
     ],
-    "mbr_007": [
+    "mbr_mm1629iqfyaj": [
       {
         "slotId": "1_1",
         "round": "E8",
-        "team": "Connecticut",
-        "seed": 2
-      },
-      {
-        "slotId": "2_1",
-        "round": "E8",
-        "team": "Illinois",
-        "seed": 3
-      },
-      {
-        "slotId": "3_1",
-        "round": "E8",
-        "team": "Arizona",
-        "seed": 1
-      },
-      {
-        "slotId": "4_1",
-        "round": "E8",
-        "team": "Michigan",
+        "team": "Duke",
         "seed": 1
       },
       {
         "slotId": "0_2",
         "round": "F4",
-        "team": "Illinois",
-        "seed": 3
-      },
-      {
-        "slotId": "0_3",
-        "round": "F4",
-        "team": "Michigan",
+        "team": "Duke",
         "seed": 1
       },
       {
         "slotId": "champ",
         "round": "Final",
-        "team": "Michigan",
+        "team": "Duke",
         "seed": 1
       }
     ],
@@ -6515,45 +6433,39 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 3
       }
     ],
-    "mbr_mm161lj76qt7": [
+    "mbr_mm1635nfdqvt": [
       {
         "slotId": "1_1",
         "round": "E8",
-        "team": "Duke",
-        "seed": 1
-      },
-      {
-        "slotId": "3_1",
-        "round": "E8",
-        "team": "Arizona",
-        "seed": 1
+        "team": "Connecticut",
+        "seed": 2
       },
       {
         "slotId": "4_1",
         "round": "E8",
-        "team": "Iowa St.",
-        "seed": 2
+        "team": "Michigan",
+        "seed": 1
       },
       {
         "slotId": "0_2",
         "round": "F4",
-        "team": "Duke",
-        "seed": 1
+        "team": "Connecticut",
+        "seed": 2
       },
       {
         "slotId": "0_3",
         "round": "F4",
-        "team": "Arizona",
+        "team": "Michigan",
         "seed": 1
       },
       {
         "slotId": "champ",
         "round": "Final",
-        "team": "Arizona",
-        "seed": 1
+        "team": "Connecticut",
+        "seed": 2
       }
     ],
-    "mbr_001": [
+    "mbr_003": [
       {
         "slotId": "1_1",
         "round": "E8",
@@ -6573,6 +6485,12 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 1
       },
       {
+        "slotId": "0_2",
+        "round": "F4",
+        "team": "Duke",
+        "seed": 1
+      },
+      {
         "slotId": "0_3",
         "round": "F4",
         "team": "Arizona",
@@ -6581,11 +6499,87 @@ window.OFL_BRC_ANALYSIS = {
       {
         "slotId": "champ",
         "round": "Final",
-        "team": "Arizona",
+        "team": "Duke",
         "seed": 1
       }
     ],
-    "mbr_003": [
+    "mbr_007": [
+      {
+        "slotId": "1_1",
+        "round": "E8",
+        "team": "Connecticut",
+        "seed": 2
+      },
+      {
+        "slotId": "3_1",
+        "round": "E8",
+        "team": "Arizona",
+        "seed": 1
+      },
+      {
+        "slotId": "4_1",
+        "round": "E8",
+        "team": "Michigan",
+        "seed": 1
+      },
+      {
+        "slotId": "0_2",
+        "round": "F4",
+        "team": "Illinois",
+        "seed": 3
+      },
+      {
+        "slotId": "0_3",
+        "round": "F4",
+        "team": "Michigan",
+        "seed": 1
+      },
+      {
+        "slotId": "champ",
+        "round": "Final",
+        "team": "Michigan",
+        "seed": 1
+      }
+    ],
+    "mbr_004": [
+      {
+        "slotId": "1_1",
+        "round": "E8",
+        "team": "Duke",
+        "seed": 1
+      },
+      {
+        "slotId": "3_1",
+        "round": "E8",
+        "team": "Arizona",
+        "seed": 1
+      },
+      {
+        "slotId": "4_1",
+        "round": "E8",
+        "team": "Michigan",
+        "seed": 1
+      },
+      {
+        "slotId": "0_2",
+        "round": "F4",
+        "team": "Duke",
+        "seed": 1
+      },
+      {
+        "slotId": "0_3",
+        "round": "F4",
+        "team": "Arizona",
+        "seed": 1
+      },
+      {
+        "slotId": "champ",
+        "round": "Final",
+        "team": "Duke",
+        "seed": 1
+      }
+    ],
+    "mbr_005": [
       {
         "slotId": "1_1",
         "round": "E8",
@@ -6661,7 +6655,7 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 1
       }
     ],
-    "mbr_005": [
+    "mbr_001": [
       {
         "slotId": "1_1",
         "round": "E8",
@@ -6681,12 +6675,6 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 1
       },
       {
-        "slotId": "0_2",
-        "round": "F4",
-        "team": "Duke",
-        "seed": 1
-      },
-      {
         "slotId": "0_3",
         "round": "F4",
         "team": "Arizona",
@@ -6695,11 +6683,11 @@ window.OFL_BRC_ANALYSIS = {
       {
         "slotId": "champ",
         "round": "Final",
-        "team": "Duke",
+        "team": "Arizona",
         "seed": 1
       }
     ],
-    "mbr_004": [
+    "mbr_mm161lj76qt7": [
       {
         "slotId": "1_1",
         "round": "E8",
@@ -6715,8 +6703,8 @@ window.OFL_BRC_ANALYSIS = {
       {
         "slotId": "4_1",
         "round": "E8",
-        "team": "Michigan",
-        "seed": 1
+        "team": "Iowa St.",
+        "seed": 2
       },
       {
         "slotId": "0_2",
@@ -6733,7 +6721,7 @@ window.OFL_BRC_ANALYSIS = {
       {
         "slotId": "champ",
         "round": "Final",
-        "team": "Duke",
+        "team": "Arizona",
         "seed": 1
       }
     ]
@@ -7207,6 +7195,15 @@ window.OFL_BRC_ANALYSIS = {
       "loserSeed": 7,
       "loserScore": 63
     },
+    "2_1": {
+      "round": "E8",
+      "winner": "Illinois",
+      "winnerSeed": 3,
+      "winnerScore": 71,
+      "loser": "Iowa",
+      "loserSeed": 9,
+      "loserScore": 59
+    },
     "1_2": {
       "round": "S16",
       "winner": "Duke",
@@ -7253,14 +7250,6 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 2
       }
     },
-    "2_1": {
-      "team": "Iowa",
-      "seed": 9,
-      "opponent": {
-        "team": "Illinois",
-        "seed": 3
-      }
-    },
     "3_1": {
       "team": "Arizona",
       "seed": 1,
@@ -7276,6 +7265,10 @@ window.OFL_BRC_ANALYSIS = {
         "team": "Tennessee",
         "seed": 6
       }
+    },
+    "0_2": {
+      "team": "Illinois",
+      "seed": 3
     }
   }
 };
