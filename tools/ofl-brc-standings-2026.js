@@ -14,7 +14,7 @@ window.OFL_BRC_STANDINGS_IMPORT = {
         24,
         24,
         24,
-        24,
+        32,
         0,
         0
       ]
@@ -39,6 +39,18 @@ window.OFL_BRC_STANDINGS_IMPORT = {
         24,
         24,
         16,
+        0,
+        0
+      ]
+    },
+    {
+      "memberId": "mbr_mm7vlo5hx9hn",
+      "bracketName": "CK Golden picks",
+      "pointsByRound": [
+        23,
+        22,
+        16,
+        24,
         0,
         0
       ]
@@ -92,12 +104,12 @@ window.OFL_BRC_STANDINGS_IMPORT = {
       ]
     },
     {
-      "memberId": "mbr_mm7vlo5hx9hn",
-      "bracketName": "CK Golden picks",
+      "memberId": "mbr_mm1635nfdqvt",
+      "bracketName": "bioluminescent bracket",
       "pointsByRound": [
-        23,
-        22,
-        16,
+        24,
+        24,
+        12,
         16,
         0,
         0
@@ -122,18 +134,6 @@ window.OFL_BRC_STANDINGS_IMPORT = {
         24,
         22,
         20,
-        8,
-        0,
-        0
-      ]
-    },
-    {
-      "memberId": "mbr_mm1635nfdqvt",
-      "bracketName": "bioluminescent bracket",
-      "pointsByRound": [
-        24,
-        24,
-        12,
         8,
         0,
         0
