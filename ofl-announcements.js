@@ -1,6 +1,6 @@
 /**
  * ofl-announcements.js — Commissioner Broadcast Data
- * Generated: 3/29/2026, 9:09:54 PM
+ * Generated: 3/29/2026, 9:15:23 PM
  *
  * Drop this file next to index.html and add:
  *   <script src="ofl-announcements.js"></script>
@@ -127,11 +127,11 @@ var OFL_ANNOUNCEMENTS = [
   {
     "id": "ann_mms3dbmz_162v",
     "title": "",
-    "body": "<div style=\"letter-spacing: 0.272px;\"><b data-path-to-node=\"22,0,0\" data-index-in-node=\"0\" style=\"letter-spacing: 0.02em; font-size: 0.85rem;\">Saturday:</b><span style=\"letter-spacing: 0.02em; font-size: 0.85rem;\">&nbsp; &nbsp;</span></div><div style=\"letter-spacing: 0.272px;\"><p data-path-to-node=\"21\" style=\"letter-spacing: 0.272px;\"></p><ul style=\"letter-spacing: 0.272px;\"><li><b data-path-to-node=\"22,0,0\" data-index-in-node=\"10\" style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">6.10 EDT - Purdue vs. Arizona&nbsp; (TBS/truTV)&nbsp; ||&nbsp;&nbsp;</b></li><li><span data-path-to-node=\"22,0,0\" data-index-in-node=\"31\" style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">8.50 EDT -&nbsp;</span><b data-path-to-node=\"22,0,0\" data-index-in-node=\"31\" style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">Illinois vs. Iowa</b><span style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">&nbsp;&nbsp;</span><b data-path-to-node=\"22,0,0\" data-index-in-node=\"10\" style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">(TBS/truTV)&nbsp; --&nbsp;&nbsp;</b></li></ul><p style=\"letter-spacing: 0.272px;\"></p><span style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">&nbsp;</span><div style=\"letter-spacing: 0.272px;\"><b data-path-to-node=\"22,0,0\" data-index-in-node=\"51\" style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">Sunday:&nbsp;&nbsp;</b></div><div style=\"letter-spacing: 0.272px;\"><ul><li><b data-path-to-node=\"22,0,0\" data-index-in-node=\"59\" style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">2.15 EDT - Duke vs. UConn&nbsp; (CBS)&nbsp; ||&nbsp;&nbsp;</b></li><li><span data-path-to-node=\"22,0,0\" data-index-in-node=\"102\" style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">5.05 EDT -&nbsp;</span><b data-path-to-node=\"22,0,0\" data-index-in-node=\"102\" style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">Michigan vs. Tennessee&nbsp; (CBS)&nbsp; --&nbsp;&nbsp;</b></li></ul></div></div>",
+    "body": "<div style=\"letter-spacing: 0.272px;\"><b data-path-to-node=\"22,0,0\" data-index-in-node=\"0\" style=\"letter-spacing: 0.02em; font-size: 0.85rem;\">Saturday:</b><span style=\"letter-spacing: 0.02em; font-size: 0.85rem;\">&nbsp; &nbsp;</span></div><div style=\"letter-spacing: 0.272px;\"><p data-path-to-node=\"21\" style=\"letter-spacing: 0.272px;\"></p><ul style=\"letter-spacing: 0.272px;\"><li><b data-path-to-node=\"22,0,0\" data-index-in-node=\"10\" style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">6.10 EDT - (3) Illinois vs. (2) UConn&nbsp; (TBS/truTV)&nbsp; ||&nbsp;&nbsp;</b></li><li><span data-path-to-node=\"22,0,0\" data-index-in-node=\"31\" style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">8.50 EDT - (1)&nbsp;</span><b data-path-to-node=\"22,0,0\" data-index-in-node=\"31\" style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">Michigan vs. (1) Arizona&nbsp;&nbsp;</b><b data-path-to-node=\"22,0,0\" data-index-in-node=\"10\" style=\"font-size: 0.85rem; letter-spacing: 0.02em;\">(TBS/truTV)&nbsp; --&nbsp;&nbsp;</b></li></ul></div>",
     "style": "marquee",
     "position": "bottom",
     "ribbonLayout": "float",
-    "marqueeLabel": "ELITE 8",
+    "marqueeLabel": "Final Four",
     "showMarqueeLabel": true,
     "marqueeLabelColor": "#1b2b8f",
     "marqueeSpeed": "medium",
@@ -145,7 +145,7 @@ var OFL_ANNOUNCEMENTS = [
     "showDismiss": false,
     "active": true,
     "startDate": "",
-    "endDate": "2026-03-29T18:05",
+    "endDate": "2026-04-04T18:05",
     "pages": [
       "home"
     ],
