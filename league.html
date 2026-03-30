@@ -2215,6 +2215,7 @@
               '  });\n' +
               '  var rivalDeepSet={};\n' +
               '  var rivalDeepSameSet={};\n' +
+              '  var rivalAllF4Set={};\n' +
               '  var rivalChampSet2={};\n' +
               '  var rivalFinalsSet={};\n' +
               '  ANALYSIS.standings.forEach(function(x){\n' +
@@ -2226,6 +2227,7 @@
               '      if(p.round==="E8"||p.round==="F4"||p.slotId==="champ"){\n' +
               '        rivalDeepSet[p.team]=true;\n' +
               '        if(isSameChamp)rivalDeepSameSet[p.team]=true;\n' +
+              '        if(p.round==="F4"||p.slotId==="champ")rivalAllF4Set[p.team]=true;\n' +
               '      }\n' +
               '      if(isSameChamp&&(p.round==="Final"||p.slotId==="champ"))rivalFinalsSet[p.team]=true;\n' +
               '    });\n' +
@@ -2270,6 +2272,16 @@
               '    });\n' +
               '    return total;\n' +
               '  }\n' +
+              '  function rivalFuturePtsSameChamp(team){\n' +
+              '    var total=0;\n' +
+              '    ANALYSIS.standings.forEach(function(x){\n' +
+              '      if(x.memberId===mid)return;\n' +
+              '      var cp=(x.allPicks||[]).find(function(p){return p.slotId==="champ";});\n' +
+              '      if(!cp||cp.team!==myChampTeam2)return;\n' +
+              '      (x.pendingPicks||[]).forEach(function(p){if(p.team===team)total+=PTS[p.round]||0;});\n' +
+              '    });\n' +
+              '    return total;\n' +
+              '  }\n' +
               '  function myFuturePts(team){\n' +
               '    var total=0;\n' +
               '    (s.pendingPicks||[]).forEach(function(p){if(p.team===team)total+=PTS[p.round]||0;});\n' +
@@ -2305,6 +2317,22 @@
               '      else if(inMyDeep&&inRivalDeep){tier="t4";pts=rivalFuturePts(myPick.team);ptsLabel="rivals lose";}\n' +
               '      else if(!inMyDeep&&inRivalDeepAny){tier="t5";pts=rivalFuturePts(myPick.team);ptsLabel="rivals lose";}\n' +
               '      else{tier="t2";pts=myFuturePts(myPick.team);ptsLabel="your pts";}\n' +
+              '      var earlyRounds=["R64","R32","S16"];\n' +
+              '      var isEarlyRound=earlyRounds.indexOf(sl.round)!==-1;\n' +
+              '      var myPts2=myFuturePts(myPick.team);\n' +
+              '      var sabotageRivalPts=0;\n' +
+              '      if(tier!=="t1"&&tier!=="tr"&&tier!=="tf"&&myPts2>0){\n' +
+              '        ANALYSIS.standings.forEach(function(x){\n' +
+              '          if(x.memberId===mid)return;\n' +
+              '          var cp=(x.allPicks||[]).find(function(p){return p.slotId==="champ";});\n' +
+              '          if(isEarlyRound&&(!cp||cp.team!==myChampTeam2))return;\n' +
+              '          var rPts=0;\n' +
+              '          (x.pendingPicks||[]).forEach(function(p){if(p.team===myPick.team)rPts+=PTS[p.round]||0;});\n' +
+              '          if(rPts>sabotageRivalPts)sabotageRivalPts=rPts;\n' +
+              '        });\n' +
+              '      }\n' +
+              '      var isSabotage=tier!=="t1"&&tier!=="tr"&&tier!=="tf"&&!inMyFinals&&sabotageRivalPts>=2.5*myPts2&&myPts2>0;\n' +
+              '      if(isSabotage){tier="ts";pts=sabotageRivalPts;ptsLabel="rivals lose";}\n' +
               '      rows.push({tier:tier,round:sl.round,forTeam:forTeam,againstTeam:againstTeam,pts:pts,ptsLabel:ptsLabel});\n' +
               '    } else {\n' +
               '      var best=null;\n' +
@@ -2315,7 +2343,7 @@
               '      });\n' +
               '      if(best){\n' +
               '        var inRivalDeepFor=!!rivalDeepSameSet[best.forTeam.team];\n' +
-              '        var inRivalDeepAgainst=best.againstTeam&&!!rivalDeepSameSet[best.againstTeam.team];\n' +
+              '        var inRivalDeepAgainst=best.againstTeam&&(!!rivalDeepSameSet[best.againstTeam.team]||!!rivalAllF4Set[best.againstTeam.team]);\n' +
               '        if(inRivalDeepAgainst&&!inRivalDeepFor){\n' +
               '          rows.push({tier:"ta",round:sl.round,forTeam:best.forTeam,againstTeam:best.againstTeam,pts:rivalFuturePts(best.againstTeam.team),ptsLabel:"rivals lose"});\n' +
               '        } else {\n' +
@@ -2325,7 +2353,7 @@
               '    }\n' +
               '  });\n' +
               '  var ROUND_ORDER=["R64","R32","S16","E8","F4","Final"];\n' +
-              '  function tierColor(t){if(t==="tf"||t==="tr"||t==="t1"||t==="t2")return"#4a9d6f";if(t==="t3")return"var(--hint-color,#98b8ec)";if(t==="t4")return"#c9a227";if(t==="t5")return"#c97a27";return"#c94040";}\n' +
+              '  function tierColor(t){if(t==="tf"||t==="tr"||t==="t1"||t==="t2")return"#4a9d6f";if(t==="t3")return"var(--hint-color,#98b8ec)";if(t==="t4")return"#c9a227";if(t==="t5")return"#c97a27";if(t==="ts")return"#9b59b6";return"#c94040";}\n' +
               '  var sorted=[];\n' +
               '  ROUND_ORDER.forEach(function(r){\n' +
               '    var rRows=rows.filter(function(x){return x.round===r;});\n' +
@@ -2338,7 +2366,8 @@
               '    var t5=rRows.filter(function(x){return x.tier==="t5";}).sort(function(a,b){return a.pts-b.pts;});\n' +
               '    var t6=rRows.filter(function(x){return x.tier==="t6";}).sort(function(a,b){return a.pts-b.pts;});\n' +
               '    var ta=rRows.filter(function(x){return x.tier==="ta";}).sort(function(a,b){return a.pts-b.pts;});\n' +
-              '    t1.concat(tr,tf,t2,t3,t4,t5,t6,ta).forEach(function(x){sorted.push(x);});\n' +
+              '    var ts=rRows.filter(function(x){return x.tier==="ts";}).sort(function(a,b){return a.pts-b.pts;});\n' +
+              '    t1.concat(tr,tf,t2,t3,t4,t5,t6,ta,ts).forEach(function(x){sorted.push(x);});\n' +
               '  });\n' +
               '  if(!sorted.length){bodyEl.innerHTML=\'<p style="color:var(--accent-dim);font-size:0.75rem;letter-spacing:0.15em;padding-top:0.5rem">No pending games.</p>\';return;}\n' +
               '  var nextRound=sorted[0].round;\n' +
@@ -2350,6 +2379,7 @@
               '  html+=\'<span style="font-family:var(--font-body);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:#c9a227;white-space:nowrap">\u25CF Rivals Riding Too</span>\';\n' +
               '  html+=\'<span style="font-family:var(--font-body);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:#c97a27;white-space:nowrap">\u25CF Bigger For Rival</span>\';\n' +
               '  html+=\'<span style="font-family:var(--font-body);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:#c94040;white-space:nowrap">\u25CF Root Against</span>\';\n' +
+              '  html+=\'<span style="font-family:var(--font-body);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:#9b59b6;white-space:nowrap">\u25CF Picking Sabotage</span>\';\n' +
               '  html+=\'</div>\';\n' +
               '  html+=\'<table class="brc-rootfor-table"><thead><tr>\';\n' +
               '  html+=\'<th>Round</th><th>Teams</th><th class="r">Pts</th>\';\n' +
@@ -2378,7 +2408,7 @@
               '    html+=\'<div style="\'+forStyle+\'">\'+topTeam+\'<span class="brc-rootfor-seed">(\'+topSeed+\')</span></div>\';\n' +
               '    if(botTeam)html+=\'<div class="brc-rootfor-team-against">\'+botTeam+\'<span class="brc-rootfor-seed">(\'+botSeed+\')</span></div>\';\n' +
               '    html+=\'</div></td>\';\n' +
-              '    var tierLabel=row.tier==="tr"?"TR":row.tier==="ta"?"TA":row.tier==="tf"?"TF":row.tier.toUpperCase();\n' +
+              '    var tierLabel=row.tier==="tr"?"TR":row.tier==="ta"?"TA":row.tier==="tf"?"TF":row.tier==="ts"?"TS":row.tier.toUpperCase();\n' +
               '    html+=\'<td class="brc-rootfor-pts" style="color:\'+color+\'">\'+tierLabel+\' - \'+row.pts+\'<span class="brc-rootfor-pts-label">\'+row.ptsLabel+\'</span></td>\';\n' +
               '    html+=\'</tr>\';\n' +
               '  });\n' +
