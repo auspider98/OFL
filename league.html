@@ -1775,8 +1775,7 @@
               if (isElim) elimSet[s.memberId] = true;
             });
             (analysis.standings || []).forEach(function(s) {
-              var label = s.bracketName + (elimSet[s.memberId] ? ' (eliminated)' : '');
-              survivalOpts += '<option value="' + esc(s.memberId) + '">' + esc(label) + '</option>';
+              survivalOpts += '<option value="' + esc(s.memberId) + '">' + esc(s.bracketName) + '</option>';
             });
 
             // Build bracket options for selects
