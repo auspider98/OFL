@@ -1,13 +1,13 @@
 /**
  * OFL BRC Analysis Export · 2026
- * Generated: 4/4/2026, 11:39:49 PM
+ * Generated: 4/5/2026, 7:42:42 PM
  * 13 brackets · 62 games tracked
  * Load as <script src="ofl-brc-analysis.js"></script> in league.html
  */
 
 window.OFL_BRC_ANALYSIS = {
   "meta": {
-    "generated": "2026-04-05T03:39:49.302Z",
+    "generated": "2026-04-05T23:42:42.556Z",
     "year": "2026",
     "bracketsLoaded": 13,
     "gamesTracked": 62,
@@ -4140,17 +4140,10 @@ window.OFL_BRC_ANALYSIS = {
           "round": "Final",
           "team": "Arizona",
           "seed": 1,
-          "status": "pending"
+          "status": "incorrect"
         }
       ],
-      "pendingPicks": [
-        {
-          "slotId": "champ",
-          "round": "Final",
-          "team": "Arizona",
-          "seed": 1
-        }
-      ]
+      "pendingPicks": []
     },
     {
       "rank": 10,
@@ -5053,17 +5046,10 @@ window.OFL_BRC_ANALYSIS = {
           "round": "Final",
           "team": "Arizona",
           "seed": 1,
-          "status": "pending"
+          "status": "incorrect"
         }
       ],
-      "pendingPicks": [
-        {
-          "slotId": "champ",
-          "round": "Final",
-          "team": "Arizona",
-          "seed": 1
-        }
-      ]
+      "pendingPicks": []
     },
     {
       "rank": 12,
@@ -5989,23 +5975,24 @@ window.OFL_BRC_ANALYSIS = {
     }
   ],
   "pendingPicks": {
+    "mbr_001": [],
     "mbr_mm1629iqfyaj": [],
-    "mbr_001": [
-      {
-        "slotId": "champ",
-        "round": "Final",
-        "team": "Arizona",
-        "seed": 1
-      }
-    ],
-    "mbr_002": [],
-    "mbr_mm7vlo5hx9hn": [],
     "mbr_mm7vmncz4gfs": [
       {
         "slotId": "champ",
         "round": "Final",
         "team": "Michigan",
         "seed": 1
+      }
+    ],
+    "mbr_002": [],
+    "mbr_mm7vlo5hx9hn": [],
+    "mbr_mm1635nfdqvt": [
+      {
+        "slotId": "champ",
+        "round": "Final",
+        "team": "Connecticut",
+        "seed": 2
       }
     ],
     "mbr_007": [
@@ -6016,27 +6003,12 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 1
       }
     ],
+    "mbr_003": [],
     "mbr_mm164375ur1b": [],
-    "mbr_mm161lj76qt7": [
-      {
-        "slotId": "champ",
-        "round": "Final",
-        "team": "Arizona",
-        "seed": 1
-      }
-    ],
+    "mbr_mm161lj76qt7": [],
     "mbr_006": [],
     "mbr_004": [],
-    "mbr_005": [],
-    "mbr_003": [],
-    "mbr_mm1635nfdqvt": [
-      {
-        "slotId": "champ",
-        "round": "Final",
-        "team": "Connecticut",
-        "seed": 2
-      }
-    ]
+    "mbr_005": []
   },
   "actualResults": {
     "1_8": {
@@ -6579,15 +6551,6 @@ window.OFL_BRC_ANALYSIS = {
       "loserSeed": 6,
       "loserScore": 62
     },
-    "0_2": {
-      "round": "F4",
-      "winner": "Connecticut",
-      "winnerSeed": 2,
-      "winnerScore": 71,
-      "loser": "Illinois",
-      "loserSeed": 3,
-      "loserScore": 62
-    },
     "0_3": {
       "round": "F4",
       "winner": "Michigan",
@@ -6596,6 +6559,15 @@ window.OFL_BRC_ANALYSIS = {
       "loser": "Arizona",
       "loserSeed": 1,
       "loserScore": 73
+    },
+    "0_2": {
+      "round": "F4",
+      "winner": "Connecticut",
+      "winnerSeed": 2,
+      "winnerScore": 71,
+      "loser": "Illinois",
+      "loserSeed": 3,
+      "loserScore": 62
     }
   },
   "opponents": {
