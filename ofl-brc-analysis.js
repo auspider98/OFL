@@ -1,13 +1,13 @@
 /**
  * OFL BRC Analysis Export · 2026
- * Generated: 4/4/2026, 8:39:26 PM
+ * Generated: 4/4/2026, 8:49:47 PM
  * 13 brackets · 61 games tracked
  * Load as <script src="ofl-brc-analysis.js"></script> in league.html
  */
 
 window.OFL_BRC_ANALYSIS = {
   "meta": {
-    "generated": "2026-04-05T00:39:26.239Z",
+    "generated": "2026-04-05T00:49:47.918Z",
     "year": "2026",
     "bracketsLoaded": 13,
     "gamesTracked": 61,
@@ -1450,9 +1450,9 @@ window.OFL_BRC_ANALYSIS = {
       "memberId": "mbr_002",
       "bracketName": "ATLiens",
       "score": 85,
-      "maxPossible": 133,
-      "eliminated": false,
-      "canWin": true,
+      "maxPossible": 101,
+      "eliminated": true,
+      "canWin": false,
       "allPicks": [
         {
           "slotId": "1_8",
@@ -1891,9 +1891,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "champ",
           "round": "Final",
-          "team": "Connecticut",
-          "seed": 2,
-          "status": "pending"
+          "team": "Duke",
+          "seed": 1,
+          "status": "incorrect"
         }
       ],
       "pendingPicks": [
@@ -1902,12 +1902,6 @@ window.OFL_BRC_ANALYSIS = {
           "round": "F4",
           "team": "Arizona",
           "seed": 1
-        },
-        {
-          "slotId": "champ",
-          "round": "Final",
-          "team": "Connecticut",
-          "seed": 2
         }
       ]
     },
@@ -1916,8 +1910,8 @@ window.OFL_BRC_ANALYSIS = {
       "memberId": "mbr_mm7vlo5hx9hn",
       "bracketName": "CK Golden picks",
       "score": 85,
-      "maxPossible": 133,
-      "eliminated": false,
+      "maxPossible": 101,
+      "eliminated": true,
       "canWin": false,
       "allPicks": [
         {
@@ -2357,9 +2351,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "champ",
           "round": "Final",
-          "team": "Connecticut",
-          "seed": 2,
-          "status": "pending"
+          "team": "Florida",
+          "seed": 1,
+          "status": "incorrect"
         }
       ],
       "pendingPicks": [
@@ -2368,12 +2362,6 @@ window.OFL_BRC_ANALYSIS = {
           "round": "F4",
           "team": "Michigan",
           "seed": 1
-        },
-        {
-          "slotId": "champ",
-          "round": "Final",
-          "team": "Connecticut",
-          "seed": 2
         }
       ]
     },
@@ -2382,8 +2370,8 @@ window.OFL_BRC_ANALYSIS = {
       "memberId": "mbr_005",
       "bracketName": "Ozzies",
       "score": 79,
-      "maxPossible": 127,
-      "eliminated": false,
+      "maxPossible": 95,
+      "eliminated": true,
       "canWin": false,
       "allPicks": [
         {
@@ -2823,9 +2811,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "champ",
           "round": "Final",
-          "team": "Connecticut",
-          "seed": 2,
-          "status": "pending"
+          "team": "Duke",
+          "seed": 1,
+          "status": "incorrect"
         }
       ],
       "pendingPicks": [
@@ -2834,12 +2822,6 @@ window.OFL_BRC_ANALYSIS = {
           "round": "F4",
           "team": "Arizona",
           "seed": 1
-        },
-        {
-          "slotId": "champ",
-          "round": "Final",
-          "team": "Connecticut",
-          "seed": 2
         }
       ]
     },
@@ -2848,8 +2830,8 @@ window.OFL_BRC_ANALYSIS = {
       "memberId": "mbr_003",
       "bracketName": "Dribbling Bubbas",
       "score": 78,
-      "maxPossible": 126,
-      "eliminated": false,
+      "maxPossible": 94,
+      "eliminated": true,
       "canWin": false,
       "allPicks": [
         {
@@ -3289,9 +3271,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "champ",
           "round": "Final",
-          "team": "Connecticut",
-          "seed": 2,
-          "status": "pending"
+          "team": "Duke",
+          "seed": 1,
+          "status": "incorrect"
         }
       ],
       "pendingPicks": [
@@ -3300,12 +3282,6 @@ window.OFL_BRC_ANALYSIS = {
           "round": "F4",
           "team": "Arizona",
           "seed": 1
-        },
-        {
-          "slotId": "champ",
-          "round": "Final",
-          "team": "Connecticut",
-          "seed": 2
         }
       ]
     },
@@ -3314,8 +3290,8 @@ window.OFL_BRC_ANALYSIS = {
       "memberId": "mbr_006",
       "bracketName": "Molly Defenders 2.0",
       "score": 78,
-      "maxPossible": 126,
-      "eliminated": false,
+      "maxPossible": 94,
+      "eliminated": true,
       "canWin": false,
       "allPicks": [
         {
@@ -3755,9 +3731,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "champ",
           "round": "Final",
-          "team": "Connecticut",
-          "seed": 2,
-          "status": "pending"
+          "team": "Duke",
+          "seed": 1,
+          "status": "incorrect"
         }
       ],
       "pendingPicks": [
@@ -3766,12 +3742,6 @@ window.OFL_BRC_ANALYSIS = {
           "round": "F4",
           "team": "Michigan",
           "seed": 1
-        },
-        {
-          "slotId": "champ",
-          "round": "Final",
-          "team": "Connecticut",
-          "seed": 2
         }
       ]
     },
@@ -4246,8 +4216,8 @@ window.OFL_BRC_ANALYSIS = {
       "memberId": "mbr_004",
       "bracketName": "TheChattanoogan",
       "score": 75,
-      "maxPossible": 123,
-      "eliminated": false,
+      "maxPossible": 91,
+      "eliminated": true,
       "canWin": false,
       "allPicks": [
         {
@@ -4687,9 +4657,9 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "champ",
           "round": "Final",
-          "team": "Connecticut",
-          "seed": 2,
-          "status": "pending"
+          "team": "Duke",
+          "seed": 1,
+          "status": "incorrect"
         }
       ],
       "pendingPicks": [
@@ -4698,12 +4668,6 @@ window.OFL_BRC_ANALYSIS = {
           "round": "F4",
           "team": "Arizona",
           "seed": 1
-        },
-        {
-          "slotId": "champ",
-          "round": "Final",
-          "team": "Connecticut",
-          "seed": 2
         }
       ]
     },
@@ -5178,7 +5142,7 @@ window.OFL_BRC_ANALYSIS = {
       "memberId": "mbr_mm164375ur1b",
       "bracketName": "emziemillions",
       "score": 50,
-      "maxPossible": 82,
+      "maxPossible": 50,
       "eliminated": true,
       "canWin": false,
       "allPicks": [
@@ -5619,26 +5583,19 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "champ",
           "round": "Final",
-          "team": "Connecticut",
-          "seed": 2,
-          "status": "pending"
+          "team": "Michigan St.",
+          "seed": 3,
+          "status": "incorrect"
         }
       ],
-      "pendingPicks": [
-        {
-          "slotId": "champ",
-          "round": "Final",
-          "team": "Connecticut",
-          "seed": 2
-        }
-      ]
+      "pendingPicks": []
     },
     {
       "rank": 13,
       "memberId": "mbr_mm1629iqfyaj",
       "bracketName": "ans+One",
       "score": 45,
-      "maxPossible": 77,
+      "maxPossible": 45,
       "eliminated": true,
       "canWin": false,
       "allPicks": [
@@ -6079,19 +6036,12 @@ window.OFL_BRC_ANALYSIS = {
         {
           "slotId": "champ",
           "round": "Final",
-          "team": "Connecticut",
-          "seed": 2,
-          "status": "pending"
+          "team": "Duke",
+          "seed": 1,
+          "status": "incorrect"
         }
       ],
-      "pendingPicks": [
-        {
-          "slotId": "champ",
-          "round": "Final",
-          "team": "Connecticut",
-          "seed": 2
-        }
-      ]
+      "pendingPicks": []
     }
   ],
   "aliveBrackets": [
@@ -6108,13 +6058,6 @@ window.OFL_BRC_ANALYSIS = {
       "score": 92,
       "maxPossible": 140,
       "ptsNeeded": 12
-    },
-    {
-      "memberId": "mbr_002",
-      "bracketName": "ATLiens",
-      "score": 85,
-      "maxPossible": 133,
-      "ptsNeeded": 19
     },
     {
       "memberId": "mbr_001",
@@ -6139,26 +6082,13 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 1
       }
     ],
-    "mbr_mm1629iqfyaj": [
-      {
-        "slotId": "champ",
-        "round": "Final",
-        "team": "Connecticut",
-        "seed": 2
-      }
-    ],
+    "mbr_mm1629iqfyaj": [],
     "mbr_002": [
       {
         "slotId": "0_3",
         "round": "F4",
         "team": "Arizona",
         "seed": 1
-      },
-      {
-        "slotId": "champ",
-        "round": "Final",
-        "team": "Connecticut",
-        "seed": 2
       }
     ],
     "mbr_mm7vmncz4gfs": [
@@ -6195,34 +6125,6 @@ window.OFL_BRC_ANALYSIS = {
         "round": "F4",
         "team": "Michigan",
         "seed": 1
-      },
-      {
-        "slotId": "champ",
-        "round": "Final",
-        "team": "Connecticut",
-        "seed": 2
-      }
-    ],
-    "mbr_mm164375ur1b": [
-      {
-        "slotId": "champ",
-        "round": "Final",
-        "team": "Connecticut",
-        "seed": 2
-      }
-    ],
-    "mbr_003": [
-      {
-        "slotId": "0_3",
-        "round": "F4",
-        "team": "Arizona",
-        "seed": 1
-      },
-      {
-        "slotId": "champ",
-        "round": "Final",
-        "team": "Connecticut",
-        "seed": 2
       }
     ],
     "mbr_007": [
@@ -6239,6 +6141,15 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 1
       }
     ],
+    "mbr_003": [
+      {
+        "slotId": "0_3",
+        "round": "F4",
+        "team": "Arizona",
+        "seed": 1
+      }
+    ],
+    "mbr_mm164375ur1b": [],
     "mbr_mm161lj76qt7": [
       {
         "slotId": "0_3",
@@ -6259,12 +6170,6 @@ window.OFL_BRC_ANALYSIS = {
         "round": "F4",
         "team": "Michigan",
         "seed": 1
-      },
-      {
-        "slotId": "champ",
-        "round": "Final",
-        "team": "Connecticut",
-        "seed": 2
       }
     ],
     "mbr_005": [
@@ -6273,12 +6178,6 @@ window.OFL_BRC_ANALYSIS = {
         "round": "F4",
         "team": "Arizona",
         "seed": 1
-      },
-      {
-        "slotId": "champ",
-        "round": "Final",
-        "team": "Connecticut",
-        "seed": 2
       }
     ],
     "mbr_004": [
@@ -6287,12 +6186,6 @@ window.OFL_BRC_ANALYSIS = {
         "round": "F4",
         "team": "Arizona",
         "seed": 1
-      },
-      {
-        "slotId": "champ",
-        "round": "Final",
-        "team": "Connecticut",
-        "seed": 2
       }
     ]
   },
