@@ -1,0 +1,3049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BRC · Bracket Analysis Utility</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800;900&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #080810;
+  --surface: #0f0f1a;
+  --surface2: #161625;
+  --surface3: #1e1e30;
+  --border: #252538;
+  --border2: #2e2e48;
+  --accent: #6c8fff;
+  --accent2: #ff6b9d;
+  --accent3: #ffd166;
+  --text: #e4e4f0;
+  --dim: #5a5a78;
+  --dim2: #7a7a9a;
+  --success: #4fffaa;
+  --warn: #ffaa4f;
+  --danger: #ff4f6b;
+  --mono: 'Space Mono', monospace;
+  --display: 'Syne', sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  min-height: 100vh;
+}
+
+/* ── Layout ── */
+.app { display: flex; flex-direction: column; min-height: 100vh; }
+
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 52px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.topbar-logo {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 15px;
+  color: var(--accent3);
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.topbar-logo span { color: var(--dim2); font-weight: 400; font-size: 11px; margin-left: 6px; letter-spacing: 0.2em; text-transform: uppercase; }
+
+.nav {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+}
+
+.nav-btn {
+  font-family: var(--display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  color: var(--dim2);
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.nav-btn:hover { background: var(--surface2); color: var(--text); }
+.nav-btn.active { background: var(--accent); color: #fff; }
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  color: var(--dim);
+  flex-shrink: 0;
+}
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--dim); }
+.status-dot.loaded { background: var(--success); }
+.status-count { color: var(--text); font-weight: 700; }
+
+/* ── Drop zone ── */
+.drop-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(8,8,16,0.92);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+}
+.drop-overlay.active { display: flex; }
+.drop-ring {
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  border: 3px dashed var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{border-color:var(--accent);} 50%{border-color:var(--accent2);} }
+.drop-ring-icon { font-size: 48px; }
+.drop-ring-label { font-family: var(--display); font-weight: 800; font-size: 16px; color: var(--text); }
+.drop-ring-hint { font-size: 11px; color: var(--dim2); }
+
+/* ── Main content ── */
+.main { flex: 1; padding: 24px; max-width: 1200px; margin: 0 auto; width: 100%; }
+
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── Empty state ── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 16px;
+  text-align: center;
+}
+.empty-icon { font-size: 64px; opacity: 0.4; }
+.empty-title { font-family: var(--display); font-size: 22px; font-weight: 800; color: var(--dim2); }
+.empty-sub { font-size: 11px; color: var(--dim); line-height: 1.8; max-width: 380px; }
+
+.drop-btn {
+  font-family: var(--display);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 12px 28px;
+  border-radius: 8px;
+  border: 2px dashed var(--border2);
+  background: transparent;
+  color: var(--dim2);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+.drop-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(108,143,255,0.06); }
+
+/* ── Section headers ── */
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.section-title {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+}
+.section-sub { font-size: 11px; color: var(--dim); }
+
+/* ── Loaded files strip ── */
+.files-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 24px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.file-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--dim2);
+}
+.file-chip.ok { border-color: rgba(79,255,170,0.25); color: var(--success); background: rgba(79,255,170,0.06); }
+.file-chip .chip-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.file-chip-add {
+  font-size: 10px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: transparent;
+  border: 1px dashed var(--border2);
+  color: var(--dim);
+  cursor: pointer;
+  font-family: var(--mono);
+  transition: all 0.15s;
+}
+.file-chip-add:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Standings table ── */
+.standings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+.standings-table thead tr {
+  border-bottom: 1px solid var(--border2);
+}
+.standings-table th {
+  font-family: var(--display);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--dim);
+  padding: 8px 12px;
+  text-align: left;
+  white-space: nowrap;
+}
+.standings-table th.r { text-align: right; }
+.standings-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.standings-table tr:last-child td { border-bottom: none; }
+.standings-table tr:hover td { background: var(--surface2); }
+
+.rank-cell {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 18px;
+  color: var(--border2);
+  width: 40px;
+  text-align: center;
+}
+.rank-cell.top { color: var(--accent3); }
+
+.bracket-name { font-family: var(--display); font-weight: 700; font-size: 13px; color: var(--text); }
+.owner-name { font-size: 10px; color: var(--dim); margin-top: 1px; }
+
+.score-main { font-family: var(--display); font-weight: 800; font-size: 16px; text-align: right; }
+.score-max { font-size: 10px; color: var(--dim); text-align: right; margin-top: 1px; }
+
+.round-scores {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+.round-pip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 30px;
+}
+.round-pip-label { font-size: 8px; color: var(--dim); letter-spacing: 0.1em; }
+.round-pip-val { font-size: 11px; font-weight: 700; }
+.round-pip-val.has { color: var(--success); }
+.round-pip-val.none { color: var(--border2); }
+.round-pip-val.pending { color: var(--accent3); }
+
+.elim-badge {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(255,79,107,0.12);
+  border: 1px solid rgba(255,79,107,0.25);
+  color: var(--danger);
+  white-space: nowrap;
+}
+.alive-badge {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(79,255,170,0.08);
+  border: 1px solid rgba(79,255,170,0.2);
+  color: var(--success);
+  white-space: nowrap;
+}
+
+/* ── Cards grid ── */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px;
+}
+.stat-card-label {
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 8px;
+}
+.stat-card-val {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 28px;
+  color: var(--text);
+  line-height: 1;
+}
+.stat-card-sub { font-size: 10px; color: var(--dim); margin-top: 6px; }
+
+/* ── Upsets ── */
+.upset-list { display: flex; flex-direction: column; gap: 8px; }
+.upset-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 80px 70px 80px;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 11px;
+}
+.upset-row:hover { border-color: var(--border2); }
+.upset-round { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--dim); }
+.upset-teams { display: flex; flex-direction: column; gap: 2px; }
+.upset-winner { font-weight: 700; color: var(--text); }
+.upset-loser { color: var(--dim); text-decoration: line-through; font-size: 10px; }
+.upset-seed-diff {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 18px;
+  text-align: center;
+  color: var(--accent3);
+}
+.upset-seed-diff-label { font-size: 8px; color: var(--dim); text-align: center; display: block; }
+.upset-callers { font-size: 10px; color: var(--dim2); }
+.upset-happened { font-size: 10px; text-align: right; }
+.upset-happened.yes { color: var(--success); font-weight: 700; }
+.upset-happened.no { color: var(--danger); }
+.upset-happened.pending { color: var(--accent3); }
+
+/* ── Scenario generator ── */
+.scenario-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.scenario-btn {
+  font-family: var(--display);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--dim2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.scenario-btn:hover { border-color: var(--accent3); color: var(--accent3); }
+.scenario-btn.active-scenario { background: var(--accent3); color: #000; border-color: var(--accent3); }
+
+.matchup-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.matchup-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.matchup-card-header {
+  padding: 6px 12px;
+  background: var(--surface2);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--dim);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.matchup-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  transition: background 0.12s;
+  border-bottom: 1px solid var(--border);
+}
+.matchup-option:last-child { border-bottom: none; }
+.matchup-option:hover { background: var(--surface2); }
+.matchup-option.selected { background: rgba(108,143,255,0.12); }
+.matchup-option.selected .matchup-team { color: var(--accent); font-weight: 700; }
+.matchup-seed {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 11px;
+  color: var(--dim);
+  width: 20px;
+  text-align: right;
+}
+.matchup-team { font-size: 12px; color: var(--text); flex: 1; }
+.matchup-check { font-size: 14px; opacity: 0; }
+.matchup-option.selected .matchup-check { opacity: 1; color: var(--accent); }
+
+/* ── Scenario leaderboard ── */
+.scenario-lb {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.scenario-lb-header {
+  padding: 12px 16px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--display);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--dim2);
+  display: flex;
+  justify-content: space-between;
+}
+.scenario-lb-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 80px 80px 80px;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  transition: background 0.1s;
+}
+.scenario-lb-row:last-child { border-bottom: none; }
+.scenario-lb-row:hover { background: var(--surface2); }
+.scenario-delta {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 11px;
+  text-align: right;
+}
+.scenario-delta.up { color: var(--success); }
+.scenario-delta.down { color: var(--danger); }
+.scenario-delta.same { color: var(--dim); }
+
+/* ── Head to head ── */
+.h2h-selectors {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.h2h-select {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 8px 12px;
+  outline: none;
+  cursor: pointer;
+  flex: 1;
+  min-width: 200px;
+}
+.h2h-select:focus { border-color: var(--accent); }
+.h2h-select option { background: var(--surface2); }
+
+.h2h-grid {
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr;
+  gap: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.h2h-col-header {
+  padding: 12px 16px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 12px;
+  text-align: center;
+}
+.h2h-round-header {
+  grid-column: 1 / -1;
+  padding: 6px 16px;
+  background: var(--surface3);
+  border-top: 1px solid var(--border);
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.h2h-pick-a { padding: 8px 16px; text-align: right; border-bottom: 1px solid var(--border); font-size: 11px; }
+.h2h-pick-b { padding: 8px 16px; text-align: left; border-bottom: 1px solid var(--border); font-size: 11px; }
+.h2h-middle { padding: 8px 4px; text-align: center; border-bottom: 1px solid var(--border); font-size: 9px; color: var(--dim); display: flex; align-items: center; justify-content: center; }
+.h2h-pick-a.agree { color: var(--success); }
+.h2h-pick-b.agree { color: var(--success); }
+.h2h-pick-a.disagree { color: var(--accent2); }
+.h2h-pick-b.disagree { color: var(--accent3); }
+.h2h-pick-a.correct { font-weight: 700; }
+.h2h-pick-b.correct { font-weight: 700; }
+.h2h-pick-a.wrong { text-decoration: line-through; opacity: 0.5; }
+.h2h-pick-b.wrong { text-decoration: line-through; opacity: 0.5; }
+
+/* ── Survival ── */
+.survival-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+.survival-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+.survival-card.eliminated { border-color: rgba(255,79,107,0.3); }
+.survival-card.leader { border-color: rgba(255,209,102,0.4); }
+.survival-name { font-family: var(--display); font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+.survival-score { font-size: 11px; color: var(--dim); margin-bottom: 10px; }
+.survival-needs { font-size: 10px; color: var(--dim2); line-height: 1.6; }
+.survival-needs strong { color: var(--text); }
+.survival-max-label { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--dim); margin-bottom: 4px; }
+.survival-max-val {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 22px;
+}
+.survival-max-val.elim { color: var(--danger); }
+.survival-max-val.alive { color: var(--success); }
+.survival-bar-wrap { margin-top: 10px; height: 4px; background: var(--border2); border-radius: 2px; }
+.survival-bar { height: 100%; border-radius: 2px; background: var(--success); transition: width 0.3s; }
+.survival-bar.elim { background: var(--danger); }
+
+/* ── Misc ── */
+code {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--accent);
+  font-size: 11px;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+.tag {
+  display: inline-block;
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-family: var(--display);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.tag-round { background: rgba(108,143,255,0.12); color: var(--accent); border: 1px solid rgba(108,143,255,0.2); }
+
+select option { background: var(--surface2); }
+
+.divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+/* ── Upset leaderboard table ── */
+.upset-lb {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+.upset-lb table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+.upset-lb th {
+  font-family: var(--display);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--dim);
+  padding: 8px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border2);
+  background: var(--surface2);
+}
+.upset-lb th.r { text-align: right; }
+.upset-lb td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.upset-lb tr:last-child td { border-bottom: none; }
+.upset-lb tr:hover td { background: var(--surface2); }
+.upset-lb .lb-rank {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 15px;
+  color: var(--border2);
+  width: 32px;
+  text-align: center;
+}
+.upset-lb .lb-rank.top { color: var(--accent3); }
+.upset-lb .lb-name { font-family: var(--display); font-weight: 700; font-size: 12px; }
+.upset-lb .lb-num { text-align: right; font-family: var(--display); font-weight: 800; font-size: 14px; }
+.upset-lb .lb-num.correct { color: var(--success); }
+.upset-lb .lb-num.total { color: var(--text); }
+.upset-lb .lb-rate { text-align: right; font-size: 10px; color: var(--dim2); }
+
+/* ── Simulate bracket select ── */
+.simulate-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+.simulate-label {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--dim);
+  white-space: nowrap;
+}
+.simulate-select {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 7px 10px;
+  outline: none;
+  cursor: pointer;
+  flex: 1;
+}
+.simulate-select:focus { border-color: var(--accent3); }
+.simulate-hint { font-size: 10px; color: var(--dim); }
+
+
+/* ── Edit Bracket ── */
+.edit-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.edit-info {
+  font-family: var(--display);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent3);
+  flex: 1;
+}
+.edit-info span { color: var(--dim2); font-weight: 400; font-size: 11px; margin-left: 8px; }
+.edit-action-btn {
+  font-family: var(--display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 6px 16px;
+  border-radius: 5px;
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--dim2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.edit-action-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(108,143,255,0.08); }
+.edit-action-btn.danger:hover { border-color: var(--danger); color: var(--danger); background: rgba(255,79,107,0.08); }
+.edit-action-btn.primary { border-color: var(--accent3); color: var(--accent3); }
+.edit-action-btn.primary:hover { background: rgba(255,209,102,0.1); }
+.edit-region-tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+.edit-region-tab {
+  font-family: var(--display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 8px 18px;
+  border: none;
+  background: transparent;
+  color: var(--dim2);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.15s;
+}
+.edit-region-tab:hover { color: var(--text); }
+.edit-region-tab.active { color: var(--accent3); border-bottom-color: var(--accent3); }
+.edit-bracket-region { display: none; }
+.edit-bracket-region.active { display: block; }
+.edit-rounds-wrap {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.edit-round-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+  flex-shrink: 0;
+}
+.edit-round-header {
+  font-family: var(--display);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--dim);
+  padding: 8px 10px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+.edit-round-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 6px;
+  justify-content: space-around;
+  flex: 1;
+}
+.edit-slot {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color 0.15s;
+}
+.edit-slot:focus-within { border-color: var(--accent); }
+.edit-slot-id {
+  font-size: 9px;
+  color: var(--dim);
+  letter-spacing: 0.15em;
+}
+.edit-slot-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.edit-slot-seed {
+  width: 28px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  color: var(--dim2);
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 3px 4px;
+  text-align: center;
+  outline: none;
+}
+.edit-slot-team {
+  flex: 1;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 3px 6px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.edit-slot-team:focus { border-color: var(--accent); }
+.edit-slot-status {
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.edit-slot-status.correct { background: rgba(79,255,170,0.12); color: var(--success); }
+.edit-slot-status.incorrect { background: rgba(255,79,107,0.12); color: var(--danger); }
+.edit-slot-status.pending { background: rgba(108,143,255,0.12); color: var(--accent); }
+.edit-slot-status.played { background: rgba(108,143,255,0.08); color: var(--dim2); }
+.edit-champ-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+.edit-champ-slot {
+  background: var(--surface);
+  border: 2px solid var(--accent3);
+  border-radius: 10px;
+  padding: 14px 20px;
+  min-width: 220px;
+  text-align: center;
+}
+.edit-champ-label {
+  font-family: var(--display);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent3);
+  margin-bottom: 8px;
+}
+.edit-slot-status-select {
+  font-family: var(--mono);
+  font-size: 9px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  color: var(--dim2);
+  padding: 2px 4px;
+  outline: none;
+  cursor: pointer;
+}
+.edit-slot-status-select.correct { color: var(--success); border-color: rgba(79,255,170,0.3); }
+.edit-slot-status-select.incorrect { color: var(--danger); border-color: rgba(255,79,107,0.3); }
+.edit-slot-status-select.pending { color: var(--accent); border-color: rgba(108,143,255,0.3); }
+.edit-score-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-top: 12px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.edit-score-label {
+  font-family: var(--display);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--dim2);
+  margin-bottom: 10px;
+  text-align: center;
+}
+.edit-score-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+.edit-score-field-label {
+  font-size: 10px;
+  color: var(--dim2);
+  width: 80px;
+  text-align: right;
+}
+.edit-score-input {
+  width: 64px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 6px 8px;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.edit-score-input:focus { border-color: var(--accent3); }
+.edit-score-total {
+  font-size: 10px;
+  color: var(--dim);
+  text-align: center;
+  margin-top: 6px;
+}
+/* Final Score comparison tab */
+.finalscore-section {
+  margin-bottom: 28px;
+}
+.finalscore-actual {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.finalscore-actual-card {
+  background: var(--surface2);
+  border: 1px solid var(--accent3);
+  border-radius: 8px;
+  padding: 12px 20px;
+  text-align: center;
+  min-width: 100px;
+}
+.finalscore-actual-label {
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent3);
+  margin-bottom: 4px;
+}
+.finalscore-actual-val {
+  font-family: var(--display);
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--text);
+}
+.finalscore-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+.finalscore-table th {
+  font-family: var(--display);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--dim);
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border2);
+}
+.finalscore-table th.r { text-align: right; }
+.finalscore-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.finalscore-table tr:last-child td { border-bottom: none; }
+.finalscore-table tr:hover td { background: var(--surface2); }
+.finalscore-winner { color: var(--success); font-weight: 700; }
+.finalscore-diff { text-align: right; color: var(--dim2); }
+.finalscore-diff.best { color: var(--success); font-weight: 700; }
+.finalscore-cat-header {
+  font-family: var(--display);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent3);
+  margin: 20px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.edit-winners-badge {
+  display: inline-block;
+  font-family: var(--display);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: rgba(79,255,170,0.15);
+  color: var(--success);
+  margin-left: 8px;
+}
+
+@media (max-width: 640px) {
+  .topbar { padding: 0 12px; gap: 12px; }
+  .main { padding: 14px; }
+  .nav-btn { padding: 5px 10px; font-size: 10px; }
+  .standings-table { font-size: 10px; }
+  .round-scores { display: none; }
+  .upset-row { grid-template-columns: 60px 1fr 50px 50px; }
+  .upset-happened { display: none; }
+  .scenario-lb-row { grid-template-columns: 30px 1fr 60px 60px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- Drop overlay -->
+<div class="drop-overlay" id="dropOverlay">
+  <div class="drop-ring">
+    <div class="drop-ring-icon">🏀</div>
+    <div class="drop-ring-label">Drop Files</div>
+    <div class="drop-ring-hint">ofl-brc-picks-*.js</div>
+  </div>
+</div>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="topbar-logo">BRC <span>· Analysis Utility · 2026</span></div>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showPage('standings')">Standings</button>
+    <button class="nav-btn" onclick="showPage('upsets')">Upsets</button>
+    <button class="nav-btn" onclick="showPage('scenario')">Scenarios</button>
+    <button class="nav-btn" onclick="showPage('h2h')">Head-to-Head</button>
+    <button class="nav-btn" onclick="showPage('survival')">Survival</button>
+    <button class="nav-btn" id="editNavBtn" onclick="showPage('edit')" style="display:none">Edit Bracket</button>
+    <button class="nav-btn" id="finalScoreNavBtn" onclick="showPage('finalscore')" style="display:none">Final Score</button>
+  </nav>
+  <div class="status-bar">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">No files loaded</span>
+    <button id="exportBtn" onclick="exportToOFL()" style="display:none;margin-left:12px;font-family:var(--display);font-size:10px;font-weight:700;letter-spacing:0.1em;padding:5px 14px;border-radius:4px;border:1px solid var(--accent3);background:transparent;color:var(--accent3);cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background='rgba(255,209,102,0.1)'" onmouseout="this.style.background='transparent'">⬇ Export to OFL</button>
+  </div>
+</div>
+
+<!-- Hidden file input -->
+<input type="file" id="fileInput" multiple accept=".js" style="display:none" onchange="handleFiles(this.files)">
+
+<!-- Main -->
+<div class="main">
+
+  <!-- ══ STANDINGS ══════════════════════════════════════════════════════════ -->
+  <div class="page active" id="page-standings">
+    <div id="standings-empty" class="empty-state">
+      <div class="empty-icon">🏀</div>
+      <div class="empty-title">No brackets loaded</div>
+      <div class="empty-sub">Drag and drop your <code>ofl-brc-picks-*.js</code> files anywhere on this page, or click below to browse. Add files one at a time or all at once.</div>
+      <button class="drop-btn" onclick="document.getElementById('fileInput').click()">+ Load bracket files</button>
+    </div>
+    <div id="standings-content" style="display:none">
+      <div class="files-strip" id="filesStrip"></div>
+      <div class="section-header">
+        <div class="section-title">Standings</div>
+        <div class="section-sub" id="standingsSub"></div>
+      </div>
+      <div class="cards-grid" id="standingsSummaryCards"></div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+        <table class="standings-table">
+          <thead>
+            <tr>
+              <th style="width:40px;text-align:center">#</th>
+              <th>Bracket</th>
+              <th class="r">Score</th>
+              <th class="r" style="display:none" id="th-rounds">By Round</th>
+              <th class="r">Max Left</th>
+              <th class="r">Status</th>
+            </tr>
+          </thead>
+          <tbody id="standingsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ UPSETS ══════════════════════════════════════════════════════════ -->
+  <div class="page" id="page-upsets">
+    <div id="upsets-empty" class="empty-state">
+      <div class="empty-icon">💥</div>
+      <div class="empty-title">No brackets loaded</div>
+      <div class="empty-sub">Load bracket files to see upset predictions.</div>
+      <button class="drop-btn" onclick="document.getElementById('fileInput').click()">+ Load bracket files</button>
+    </div>
+    <div id="upsets-content" style="display:none">
+      <div class="files-strip" id="filesStripUpsets"></div>
+      <div class="section-header">
+        <div class="section-title">Upset Tracker</div>
+        <div class="section-sub">Lower seed beats higher seed · sorted by seed differential</div>
+      </div>
+      <div class="cards-grid" id="upsetSummaryCards"></div>
+      <div class="section-header" style="margin-top:4px">
+        <div class="section-title" style="font-size:15px">Upset Leaderboard</div>
+        <div class="section-sub">ranked by upsets called correctly</div>
+      </div>
+      <div class="upset-lb" id="upsetLB"></div>
+      <div class="section-header">
+        <div class="section-title" style="font-size:15px">All Upset Predictions</div>
+        <div class="section-sub">sorted by seed differential</div>
+      </div>
+      <div class="upset-list" id="upsetList"></div>
+    </div>
+  </div>
+
+  <!-- ══ SCENARIO ══════════════════════════════════════════════════════════ -->
+  <div class="page" id="page-scenario">
+    <div id="scenario-empty" class="empty-state">
+      <div class="empty-icon">🔮</div>
+      <div class="empty-title">No brackets loaded</div>
+      <div class="empty-sub">Load bracket files to run scenario simulations.</div>
+      <button class="drop-btn" onclick="document.getElementById('fileInput').click()">+ Load bracket files</button>
+    </div>
+    <div id="scenario-content" style="display:none">
+      <div class="files-strip" id="filesStripScenario"></div>
+      <div class="section-header">
+        <div class="section-title">Scenario Generator</div>
+        <div class="section-sub">Toggle winners for upcoming games · leaderboard updates live</div>
+      </div>
+      <div class="simulate-wrap">
+        <span class="simulate-label">Simulate bracket</span>
+        <select class="simulate-select" id="simulateSelect" onchange="simulateBracket(this.value)">
+          <option value="">— Select a bracket to simulate all their picks —</option>
+        </select>
+        <span class="simulate-hint">Sets all pending picks to that bracket's predictions</span>
+      </div>
+      <div class="scenario-controls">
+        <button class="scenario-btn" onclick="resetScenario()">↺ Reset to actual results</button>
+        <button class="scenario-btn" onclick="clearScenario()">✕ Clear all picks</button>
+      </div>
+      <div id="scenarioMatchups"></div>
+      <div class="section-header" style="margin-top:24px">
+        <div class="section-title">Projected Standings</div>
+        <div class="section-sub">Based on your scenario selections</div>
+      </div>
+      <div class="scenario-lb" id="scenarioLB">
+        <div class="scenario-lb-header">
+          <span>Bracket</span>
+          <span>Actual</span>
+          <span>Projected</span>
+          <span>Change</span>
+        </div>
+        <div id="scenarioLBBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ HEAD-TO-HEAD ══════════════════════════════════════════════════════ -->
+  <div class="page" id="page-h2h">
+    <div id="h2h-empty" class="empty-state">
+      <div class="empty-icon">⚔️</div>
+      <div class="empty-title">No brackets loaded</div>
+      <div class="empty-sub">Load at least two bracket files to compare head-to-head.</div>
+      <button class="drop-btn" onclick="document.getElementById('fileInput').click()">+ Load bracket files</button>
+    </div>
+    <div id="h2h-content" style="display:none">
+      <div class="files-strip" id="filesStripH2H"></div>
+      <div class="section-header">
+        <div class="section-title">Head-to-Head</div>
+        <div class="section-sub">Compare picks and disagreements between two brackets</div>
+      </div>
+      <div class="h2h-selectors">
+        <select class="h2h-select" id="h2hSelectA" onchange="renderH2H()">
+          <option value="">— Select bracket A —</option>
+        </select>
+        <select class="h2h-select" id="h2hSelectB" onchange="renderH2H()">
+          <option value="">— Select bracket B —</option>
+        </select>
+      </div>
+      <div id="h2hStats" style="margin-bottom:16px"></div>
+      <div id="h2hGrid"></div>
+    </div>
+  </div>
+
+  <!-- ══ SURVIVAL ══════════════════════════════════════════════════════════ -->
+  <div class="page" id="page-survival">
+    <div id="survival-empty" class="empty-state">
+      <div class="empty-icon">🫀</div>
+      <div class="empty-title">No brackets loaded</div>
+      <div class="empty-sub">Load bracket files to see survival analysis.</div>
+      <button class="drop-btn" onclick="document.getElementById('fileInput').click()">+ Load bracket files</button>
+    </div>
+    <div id="survival-content" style="display:none">
+      <div class="files-strip" id="filesStripSurvival"></div>
+      <div class="section-header">
+        <div class="section-title">Bracket Survival</div>
+        <div class="section-sub">Maximum possible score remaining · who can still win</div>
+      </div>
+      <div class="survival-grid" id="survivalGrid"></div>
+    </div>
+  </div>
+
+</div>
+
+  <!-- ══ FINAL SCORE ══════════════════════════════════════════════════════ -->
+  <div class="page" id="page-finalscore">
+    <div id="finalscore-empty" class="empty-state">
+      <div class="empty-icon">🏆</div>
+      <div class="empty-title">No score predictions yet</div>
+      <div class="empty-sub">Add predicted final scores in the Edit tab for each bracket. Enter actual scores in the winners file to see the comparison.</div>
+      <button class="drop-btn" onclick="document.getElementById('fileInput').click()">+ Load bracket files</button>
+    </div>
+    <div id="finalscore-content" style="display:none">
+      <div class="section-header">
+        <div class="section-title">Final Score Predictions</div>
+        <div class="section-sub">How close did each bracket predict the championship score?</div>
+      </div>
+      <div class="finalscore-actual" id="finalscoreActual"></div>
+      <div id="finalscoreBody"></div>
+    </div>
+  </div>
+
+  <!-- ══ EDIT BRACKET ══════════════════════════════════════════════════════ -->
+  <div class="page" id="page-edit">
+    <div id="edit-empty" class="empty-state">
+      <div class="empty-icon">✏️</div>
+      <div class="empty-title">Load a single bracket file</div>
+      <div class="empty-sub">Import one bracket .js file to edit its picks and export back out. Works for both regular brackets and the winners file.</div>
+      <button class="drop-btn" onclick="document.getElementById('fileInput').click()">+ Load bracket file</button>
+    </div>
+    <div id="edit-content" style="display:none">
+      <div class="edit-toolbar">
+        <div class="edit-info" id="editBracketName">—<span id="editFilenameBadge"></span></div>
+        <button class="edit-action-btn danger" onclick="clearAllPicks()">✕ Clear All Picks</button>
+        <button class="edit-action-btn" onclick="setAllPending()">⟳ All Pending</button>
+        <button class="edit-action-btn" onclick="setAllCorrect()">✓ All Correct</button>
+        <button class="edit-action-btn primary" onclick="exportSingleBracket()">⬇ Export Bracket</button>
+      </div>
+      <div class="edit-region-tabs" id="editRegionTabs"></div>
+      <div id="editRegionPanels"></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════════
+var brackets = [];        // loaded bracket data objects
+var results = {};         // slotId → result (best/most recent)
+var scenarioWinners = {}; // slotId → team name (scenario overrides)
+var currentPage = 'standings';
+var winnersFile = null;   // loaded winners bracket (excluded from standings)
+var editBracket = null;   // bracket currently being edited
+var editFilename = '';    // original filename for re-export
+
+var ROUND_ORDER = ['R64','R32','S16','E8','F4','Final'];
+var ROUND_PTS   = {R64:1, R32:2, S16:4, E8:8, F4:16, Final:32};
+var ROUND_LABELS = {R64:'R64',R32:'R32',S16:'S16',E8:'E8',F4:'F4',Final:'Fnl'};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FILE LOADING
+// ═══════════════════════════════════════════════════════════════════════════
+document.addEventListener('dragover', function(e){ e.preventDefault(); document.getElementById('dropOverlay').classList.add('active'); });
+document.addEventListener('dragleave', function(e){ if(e.relatedTarget===null)document.getElementById('dropOverlay').classList.remove('active'); });
+document.addEventListener('drop', function(e){
+  e.preventDefault();
+  document.getElementById('dropOverlay').classList.remove('active');
+  handleFiles(e.dataTransfer.files);
+});
+
+function handleFiles(files) {
+  var arr = Array.from(files).filter(function(f){ return f.name.endsWith('.js'); });
+  var pending = arr.length;
+  if(!pending) return;
+  arr.forEach(function(file){
+    var fname = file.name;
+    var reader = new FileReader();
+    reader.onload = function(e){
+      try {
+        var fn = new Function(e.target.result);
+        fn();
+        var data = window.OFL_BRC_PICKS_IMPORT;
+        if(data && data.bracketName) {
+          // Store raw text for re-export
+          data._rawText = e.target.result;
+          data._filename = fname;
+          // Detect winners file by filename
+          if(fname.endsWith('-winners.js')) {
+            data.memberId = 'mbr_winners';
+            data.bracketName = 'Winners';
+            winnersFile = data;
+            // Use winners picks as authoritative results
+            applyWinnersResults(data);
+          } else {
+            // Regular bracket
+            var idx = brackets.findIndex(function(b){ return b.memberId === data.memberId; });
+            if(idx >= 0) brackets[idx] = data;
+            else brackets.push(data);
+            // Only merge actualResults if no winners file loaded
+            if(!winnersFile) mergeResults(data.actualResults || []);
+          }
+          // If only one non-winners file loaded total, set as edit target
+          if(brackets.length === 1 && !winnersFile) {
+            editBracket = brackets[0];
+            editFilename = editBracket._filename || 'bracket.js';
+          } else if(winnersFile && brackets.length === 0) {
+            editBracket = winnersFile;
+            editFilename = winnersFile._filename || 'ofl-brc-picks-2026-winners.js';
+          }
+        }
+      } catch(err) {
+        console.error('Error loading', fname, err);
+      }
+      pending--;
+      if(pending === 0) afterLoad();
+    };
+    reader.readAsText(file);
+  });
+}
+
+function applyWinnersResults(winnersBracket) {
+  results = {};
+  var ROUND_ORDER_W = ['R64','R32','S16','E8','F4','Final'];
+  var FEEDER_MAP = {
+    '1_4':['1_8','1_9'],   '1_5':['1_10','1_11'], '1_6':['1_12','1_13'], '1_7':['1_14','1_15'],
+    '2_4':['2_8','2_9'],   '2_5':['2_10','2_11'], '2_6':['2_12','2_13'], '2_7':['2_14','2_15'],
+    '3_4':['3_8','3_9'],   '3_5':['3_10','3_11'], '3_6':['3_12','3_13'], '3_7':['3_14','3_15'],
+    '4_4':['4_8','4_9'],   '4_5':['4_10','4_11'], '4_6':['4_12','4_13'], '4_7':['4_14','4_15'],
+    '1_2':['1_4','1_5'],   '1_3':['1_6','1_7'],
+    '2_2':['2_4','2_5'],   '2_3':['2_6','2_7'],
+    '3_2':['3_4','3_5'],   '3_3':['3_6','3_7'],
+    '4_2':['4_4','4_5'],   '4_3':['4_6','4_7'],
+    '1_1':['1_2','1_3'],   '2_1':['2_2','2_3'],
+    '3_1':['3_2','3_3'],   '4_1':['4_2','4_3'],
+    '0_2':['1_1','2_1'],   '0_3':['3_1','4_1'],
+    'champ':['0_2','0_3']
+  };
+  var pickMap = {};
+  ROUND_ORDER_W.forEach(function(round) {
+    (winnersBracket.picks[round] || []).forEach(function(pick) { pickMap[pick.slotId] = pick; });
+  });
+  ROUND_ORDER_W.forEach(function(round) {
+    (winnersBracket.picks[round] || []).forEach(function(pick) {
+      if(!pick.team || !pick.status || pick.status === 'pending') return;
+      if(pick.status !== 'correct' && pick.status !== 'played' && pick.status !== 'incorrect') return;
+      if(results[pick.slotId]) return;
+      var loserTeam = '', loserSeed = 0;
+      var feeders = FEEDER_MAP[pick.slotId];
+      if(feeders) {
+        feeders.forEach(function(feederId) {
+          var fp = pickMap[feederId];
+          if(fp && fp.team && fp.team !== pick.team) { loserTeam = fp.team; loserSeed = fp.seed || 0; }
+        });
+      }
+      results[pick.slotId] = {
+        slotId: pick.slotId, round: round,
+        result: { complete: true, winner: pick.team, winnerSeed: pick.seed || 0, winnerScore: 0,
+                  loser: loserTeam, loserSeed: loserSeed, loserScore: 0 }
+      };
+    });
+  });
+  mergeResults(winnersBracket.actualResults || []);
+}
+
+function mergeResults(newResults) {
+  newResults.forEach(function(r){
+    if(!r.result || !r.result.complete) return;
+    // Always overwrite — all brackets share the same actual game results
+    results[r.slotId] = r;
+  });
+}
+
+function afterLoad() {
+  updateStatus();
+  renderAll();
+  // Show content areas for main tabs
+  ['standings','upsets','scenario','h2h','survival'].forEach(function(p){
+    var empty = document.getElementById(p+'-empty');
+    var cont = document.getElementById(p+'-content');
+    if(brackets.length > 0) {
+      if(empty) empty.style.display = 'none';
+      if(cont) cont.style.display = 'block';
+    }
+  });
+  // Show/hide Edit tab
+  var editBtn = document.getElementById('editNavBtn');
+  var canEdit = (brackets.length === 1 && !winnersFile) || (winnersFile && brackets.length === 0);
+  if(canEdit) {
+    editBtn.style.display = 'inline-block';
+    editBracket = (winnersFile && brackets.length === 0) ? winnersFile : brackets[0];
+    editFilename = editBracket._filename || 'bracket.js';
+    renderEditPage();
+    var editEmpty = document.getElementById('edit-empty');
+    var editCont = document.getElementById('edit-content');
+    if(editEmpty) editEmpty.style.display = 'none';
+    if(editCont) editCont.style.display = 'block';
+    // Auto-navigate to Edit tab when only winners file or single bracket loaded
+    document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+    document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+    document.getElementById('page-edit').classList.add('active');
+    editBtn.classList.add('active');
+    currentPage = 'edit';
+  } else {
+    editBtn.style.display = 'none';
+    var editEmpty = document.getElementById('edit-empty');
+    var editCont = document.getElementById('edit-content');
+    if(editEmpty) editEmpty.style.display = 'flex';
+    if(editCont) editCont.style.display = 'none';
+  }
+
+  // Show/hide Final Score tab — show when any bracket has score predictions or winners has actual
+  var fsBtn = document.getElementById('finalScoreNavBtn');
+  var hasPredictions = brackets.some(function(b){ return b.championPick && (b.championPick.predictedWinnerScore || b.championPick.predictedLoserScore); });
+  var hasActualScores = winnersFile && winnersFile.championPick && (winnersFile.championPick.actualWinnerScore || winnersFile.championPick.actualLoserScore);
+  fsBtn.style.display = (hasPredictions || hasActualScores) ? 'inline-block' : 'none';
+}
+
+function updateStatus() {
+  var dot = document.getElementById('statusDot');
+  var txt = document.getElementById('statusText');
+  var btn = document.getElementById('exportBtn');
+  if(brackets.length === 0 && !winnersFile) {
+    dot.className = 'status-dot';
+    txt.textContent = 'No files loaded';
+    btn.style.display = 'none';
+  } else {
+    dot.className = 'status-dot loaded';
+    var parts = [];
+    if(brackets.length > 0) parts.push(brackets.length + ' of 13 brackets');
+    if(winnersFile) parts.push('✓ winners file');
+    parts.push(Object.keys(results).length + ' games tracked');
+    txt.textContent = parts.join(' · ');
+    if(brackets.length > 0) btn.style.display = 'inline-block';
+    else btn.style.display = 'none';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SCORING ENGINE
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Build a flat map of slotId → actual winner (from results + scenario overrides)
+function getEffectiveWinners(useScenario) {
+  var w = {};
+  Object.keys(results).forEach(function(slotId){
+    var r = results[slotId];
+    if(r && r.result && r.result.winner) w[slotId] = r.result.winner;
+  });
+  if(useScenario) {
+    Object.keys(scenarioWinners).forEach(function(slotId){
+      w[slotId] = scenarioWinners[slotId];
+    });
+  }
+  return w;
+}
+
+function scoreBracket(bracket, useScenario) {
+  var winners = getEffectiveWinners(useScenario);
+  var score = 0;
+  var byRound = {};
+  ROUND_ORDER.forEach(function(r){ byRound[r] = 0; });
+
+  ROUND_ORDER.forEach(function(round){
+    var picks = bracket.picks[round] || [];
+    var pts = ROUND_PTS[round];
+    picks.forEach(function(pick){
+      var actual = winners[pick.slotId];
+      if(actual && actual === pick.team) {
+        score += pts;
+        byRound[round] += pts;
+      }
+    });
+  });
+  return { score: score, byRound: byRound };
+}
+function maxPossible(bracket) {
+  var winners = getEffectiveWinners(false);
+  var score = 0;
+
+  ROUND_ORDER.forEach(function(round){
+    var picks = bracket.picks[round] || [];
+    var pts = ROUND_PTS[round];
+    picks.forEach(function(pick){
+      var actual = winners[pick.slotId];
+      if(actual) {
+        // Game played — only scores if correct
+        if(actual === pick.team) score += pts;
+      } else {
+        // Game not yet played — assume this pick could still be correct
+        // But only if the picked team is still alive (won all prior rounds)
+        if(isTeamAlive(pick.team)) score += pts;
+      }
+    });
+  });
+  return score;
+}
+
+// A team is "alive" if it has won all games played so far
+function isTeamAlive(teamName) {
+  var winners = getEffectiveWinners(false);
+  // Check if team has lost any completed game
+  var lost = false;
+  Object.keys(results).forEach(function(slotId){
+    var r = results[slotId];
+    if(r && r.result && r.result.complete) {
+      if(r.result.loser === teamName) lost = true;
+    }
+  });
+  return !lost;
+}
+
+function getStandings(useScenario) {
+  return brackets.map(function(b){
+    var s = scoreBracket(b, useScenario);
+    var mx = maxPossible(b);
+    return {
+      memberId: b.memberId,
+      bracketName: b.bracketName,
+      score: s.score,
+      byRound: s.byRound,
+      maxPossible: mx,
+      bracket: b
+    };
+  }).sort(function(a,b){ return b.score - a.score || b.maxPossible - a.maxPossible; });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER ALL
+// ═══════════════════════════════════════════════════════════════════════════
+function renderAll() {
+  renderFilesStrip();
+  renderStandings();
+  renderUpsets();
+  renderScenario();
+  renderH2HSelectors();
+  renderH2H();
+  renderSurvival();
+}
+
+function renderFilesStrip() {
+  ['','Upsets','Scenario','H2H','Survival'].forEach(function(suffix){
+    var el = document.getElementById('filesStrip'+suffix);
+    if(!el) return;
+    el.innerHTML = '';
+    brackets.forEach(function(b){
+      var chip = document.createElement('div');
+      chip.className = 'file-chip ok';
+      chip.innerHTML = '<span class="chip-dot"></span>' + esc(b.bracketName);
+      el.appendChild(chip);
+    });
+    if(winnersFile) {
+      var wchip = document.createElement('div');
+      wchip.className = 'file-chip ok';
+      wchip.style.borderColor = 'var(--success)';
+      wchip.innerHTML = '<span class="chip-dot" style="background:var(--success)"></span>' + esc(winnersFile.bracketName) + ' ✓';
+      el.appendChild(wchip);
+    }
+    var add = document.createElement('button');
+    add.className = 'file-chip-add';
+    add.textContent = '+ Add file';
+    add.onclick = function(){ document.getElementById('fileInput').click(); };
+    el.appendChild(add);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STANDINGS
+// ═══════════════════════════════════════════════════════════════════════════
+function renderStandings() {
+  var standings = getStandings(false);
+  var completedGames = Object.keys(results).length;
+  var leader = standings[0];
+  var canWinMap = computeCanWin();
+
+  // Summary cards
+  var cards = document.getElementById('standingsSummaryCards');
+  cards.innerHTML = '';
+  var completedRounds = ROUND_ORDER.filter(function(r){
+    // A round is "complete" if any result exists for it and all 8/4/2/1 games are done
+    var expected = {R64:32,R32:16,S16:8,E8:4,F4:2,Final:1};
+    var found = Object.values(results).filter(function(r2){ return r2.round === r; }).length;
+    return found >= expected[r];
+  });
+  var lastRound = completedRounds.length ? completedRounds[completedRounds.length-1] : null;
+
+  addCard(cards, 'Leader', leader ? leader.bracketName : '—', leader ? leader.score + ' pts' : '');
+  addCard(cards, 'Completed Games', completedGames, lastRound ? 'Through ' + lastRound : 'Preseason');
+  addCard(cards, 'Brackets Loaded', brackets.length + ' / 13', brackets.length < 13 ? (13-brackets.length) + ' missing' : 'All loaded');
+  if(leader) {
+    var gap = standings.length > 1 ? leader.score - standings[standings.length-1].score : 0;
+    addCard(cards, '1st to Last Gap', gap + ' pts', 'point spread across field');
+  }
+
+  // Sub
+  document.getElementById('standingsSub').textContent =
+    completedGames + ' games complete · ' + (63 - completedGames) + ' remaining';
+
+  // Body
+  var body = document.getElementById('standingsBody');
+  body.innerHTML = '';
+  var maxScore = leader ? leader.score : 1;
+
+  standings.forEach(function(s, i){
+    var rank = i + 1;
+    var eliminated = s.maxPossible < (leader ? leader.score : 0);
+    var canWin = !!canWinMap[s.memberId];
+    var tr = document.createElement('tr');
+
+    var rankCell = '<td class="rank-cell' + (rank <= 3 ? ' top' : '') + '">' + rank + '</td>';
+    var nameCell = '<td><div class="bracket-name">' + esc(s.bracketName) + '</div></td>';
+
+    var scoreCell = '<td style="text-align:right"><div class="score-main" style="color:' +
+      scoreColor(s.score, maxScore) + '">' + s.score + '</div>' +
+      '<div class="score-max">of ' + s.maxPossible + ' max</div></td>';
+
+    var roundCell = '<td><div class="round-scores">' +
+      ROUND_ORDER.map(function(r){
+        var v = s.byRound[r] || 0;
+        var cls = v > 0 ? 'has' : (isRoundPending(r) ? 'pending' : 'none');
+        return '<div class="round-pip"><div class="round-pip-label">' + ROUND_LABELS[r] +
+          '</div><div class="round-pip-val ' + cls + '">' + (v || '·') + '</div></div>';
+      }).join('') + '</div></td>';
+
+    var maxCell = '<td style="text-align:right"><div class="score-main" style="font-size:13px;color:var(--dim2)">' +
+      s.maxPossible + '</div></td>';
+
+    var statusCell = '<td style="text-align:right">' +
+      (canWin ? '<span class="alive-badge">Can Win</span>' : '<span class="elim-badge">Eliminated</span>') +
+      '</td>';
+
+    tr.innerHTML = rankCell + nameCell + scoreCell + roundCell + maxCell + statusCell;
+    body.appendChild(tr);
+  });
+}
+
+function isRoundPending(round) {
+  var expected = {R64:32,R32:16,S16:8,E8:4,F4:2,Final:1};
+  var found = Object.values(results).filter(function(r){ return r.round === round; }).length;
+  return found < expected[round];
+}
+
+function scoreColor(score, max) {
+  if(max === 0) return 'var(--dim)';
+  var pct = score / max;
+  if(pct >= 0.9) return 'var(--accent3)';
+  if(pct >= 0.7) return 'var(--success)';
+  if(pct >= 0.5) return 'var(--text)';
+  return 'var(--dim2)';
+}
+
+function addCard(container, label, val, sub) {
+  var card = document.createElement('div');
+  card.className = 'stat-card';
+  card.innerHTML = '<div class="stat-card-label">' + esc(label) + '</div>' +
+    '<div class="stat-card-val">' + esc(String(val)) + '</div>' +
+    (sub ? '<div class="stat-card-sub">' + esc(sub) + '</div>' : '');
+  container.appendChild(card);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UPSETS
+// ═══════════════════════════════════════════════════════════════════════════
+function renderUpsets() {
+  // Build seed map from results and picks
+  var seedMap = {};
+  Object.values(results).forEach(function(r){
+    if(!r.result) return;
+    if(r.result.winner) seedMap[r.result.winner] = r.result.winnerSeed;
+    if(r.result.loser)  seedMap[r.result.loser]  = r.result.loserSeed;
+  });
+  brackets.forEach(function(b){
+    ROUND_ORDER.forEach(function(round){
+      (b.picks[round]||[]).forEach(function(p){ if(p.seed) seedMap[p.team] = p.seed; });
+    });
+  });
+
+  // Build per-bracket upset tracking: bracketName → {predicted:[], correct:[]}
+  var bracketUpsets = {};
+  brackets.forEach(function(b){ bracketUpsets[b.bracketName] = {predicted:0, correct:0, pending:0}; });
+
+  // Build all predicted upsets across all brackets
+  var upsetMap = {};
+
+  brackets.forEach(function(b){
+    ROUND_ORDER.forEach(function(round){
+      (b.picks[round]||[]).forEach(function(pick){
+        var result = results[pick.slotId];
+        var opponentSeed = null;
+        var pickedSeed = pick.seed || seedMap[pick.team] || 0;
+
+        if(result && result.result) {
+          opponentSeed = result.result.winner === pick.team
+            ? result.result.loserSeed
+            : result.result.winnerSeed;
+        }
+
+        if(opponentSeed !== null && pickedSeed > opponentSeed && pickedSeed > 0 && opponentSeed > 0) {
+          var key = pick.slotId + '_' + pick.team;
+          if(!upsetMap[key]) {
+            upsetMap[key] = {
+              slotId: pick.slotId,
+              round: round,
+              upsetTeam: pick.team,
+              upsetSeed: pickedSeed,
+              favoriteTeam: result ? (result.result.winner === pick.team ? result.result.loser : result.result.winner) : '?',
+              favoriteSeed: opponentSeed,
+              seedDiff: pickedSeed - opponentSeed,
+              callers: [],
+              happened: null
+            };
+          }
+          upsetMap[key].callers.push(b.bracketName);
+
+          if(result && result.result && result.result.complete) {
+            upsetMap[key].happened = (result.result.winner === pick.team);
+          }
+
+          // Per-bracket tallies
+          bracketUpsets[b.bracketName].predicted++;
+          if(result && result.result && result.result.complete) {
+            if(result.result.winner === pick.team) bracketUpsets[b.bracketName].correct++;
+          } else {
+            bracketUpsets[b.bracketName].pending++;
+          }
+        }
+      });
+    });
+  });
+
+  var upsets = Object.values(upsetMap).sort(function(a,b){
+    return b.seedDiff - a.seedDiff || b.callers.length - a.callers.length;
+  });
+
+  // Summary cards
+  var cards = document.getElementById('upsetSummaryCards');
+  cards.innerHTML = '';
+  var calledAndHappened = upsets.filter(function(u){ return u.happened === true; });
+  var calledNotHappened = upsets.filter(function(u){ return u.happened === false; });
+  var stillPending      = upsets.filter(function(u){ return u.happened === null; });
+
+  addCard(cards, 'Upsets Predicted', upsets.length, 'unique upset picks across all brackets');
+  addCard(cards, 'Correct Calls', calledAndHappened.length, 'upsets that actually happened');
+  addCard(cards, 'Wrong Calls', calledNotHappened.length, 'favorites won instead');
+  addCard(cards, 'Still Pending', stillPending.length, 'game not yet played');
+
+  // ── Upset leaderboard table ──────────────────────────────────────────────
+  var lbData = brackets.map(function(b){
+    var u = bracketUpsets[b.bracketName] || {predicted:0, correct:0, pending:0};
+    var rate = u.predicted > 0 ? Math.round((u.correct / (u.predicted - u.pending)) * 100) : 0;
+    if(u.predicted - u.pending <= 0) rate = 0;
+    return { name: b.bracketName, predicted: u.predicted, correct: u.correct, pending: u.pending, rate: rate };
+  }).sort(function(a,b){
+    return b.correct - a.correct || b.predicted - a.predicted;
+  });
+
+  var lb = document.getElementById('upsetLB');
+  var lbHtml = '<table><thead><tr>' +
+    '<th style="width:32px;text-align:center">#</th>' +
+    '<th>Bracket</th>' +
+    '<th class="r">Predicted</th>' +
+    '<th class="r">Correct</th>' +
+    '<th class="r">Pending</th>' +
+    '<th class="r">Hit Rate</th>' +
+    '</tr></thead><tbody>';
+
+  lbData.forEach(function(row, i){
+    var rank = i + 1;
+    var rateStr = (row.predicted - row.pending) > 0 ? row.rate + '%' : '—';
+    lbHtml +=
+      '<tr>' +
+      '<td class="lb-rank' + (rank <= 3 ? ' top' : '') + '">' + rank + '</td>' +
+      '<td class="lb-name">' + esc(row.name) + '</td>' +
+      '<td class="lb-num total">' + row.predicted + '</td>' +
+      '<td class="lb-num correct">' + row.correct + '</td>' +
+      '<td class="lb-num" style="color:var(--accent3)">' + row.pending + '</td>' +
+      '<td class="lb-rate">' + rateStr + '</td>' +
+      '</tr>';
+  });
+
+  lbHtml += '</tbody></table>';
+  lb.innerHTML = lbHtml;
+
+  // ── Upset list ───────────────────────────────────────────────────────────
+  var list = document.getElementById('upsetList');
+  list.innerHTML = '';
+
+  if(!upsets.length) {
+    list.innerHTML = '<div style="padding:24px;text-align:center;color:var(--dim);font-size:11px">No upset predictions detected yet — results data may be incomplete.</div>';
+    return;
+  }
+
+  upsets.forEach(function(u){
+    var row = document.createElement('div');
+    row.className = 'upset-row';
+
+    var happenedHtml = u.happened === true
+      ? '<div class="upset-happened yes">✓ Happened</div>'
+      : u.happened === false
+        ? '<div class="upset-happened no">✗ Fav won</div>'
+        : '<div class="upset-happened pending">⧖ Pending</div>';
+
+    row.innerHTML =
+      '<div><div class="upset-round">' + u.round + '</div><span class="tag tag-round" style="margin-top:4px;display:inline-block">+' + u.seedDiff + '</span></div>' +
+      '<div class="upset-teams">' +
+        '<div class="upset-winner">' + esc(u.upsetTeam) + ' <span style="color:var(--dim);font-size:9px">('+u.upsetSeed+')</span></div>' +
+        '<div class="upset-loser">over ' + esc(u.favoriteTeam) + ' <span style="font-size:9px">('+u.favoriteSeed+')</span></div>' +
+      '</div>' +
+      '<div class="upset-seed-diff">' + u.seedDiff + '<span class="upset-seed-diff-label">seeds</span></div>' +
+      '<div class="upset-callers">' + u.callers.map(function(c){ return '<div>'+esc(c)+'</div>'; }).join('') + '</div>' +
+      happenedHtml;
+
+    list.appendChild(row);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SCENARIO GENERATOR
+// ═══════════════════════════════════════════════════════════════════════════
+function renderScenario() {
+  var container = document.getElementById('scenarioMatchups');
+  container.innerHTML = '';
+
+  // Populate simulate selector
+  var sel = document.getElementById('simulateSelect');
+  var prevVal = sel.value;
+  sel.innerHTML = '<option value="">— Select a bracket to simulate all their picks —</option>';
+  brackets.forEach(function(b){
+    sel.innerHTML += '<option value="'+esc(b.memberId)+'">' + esc(b.bracketName) + '</option>';
+  });
+  if(prevVal) sel.value = prevVal;
+
+  // Build pending slots — slots with no completed result
+  var allSlots = {};
+  brackets.forEach(function(b){
+    ROUND_ORDER.forEach(function(round){
+      (b.picks[round]||[]).forEach(function(p){
+        if(!allSlots[p.slotId]) allSlots[p.slotId] = {slotId:p.slotId, round:round};
+      });
+    });
+  });
+
+  var pendingSlots = [];
+  Object.keys(allSlots).forEach(function(slotId){
+    if(!results[slotId] || !results[slotId].result || !results[slotId].result.complete) {
+      pendingSlots.push(allSlots[slotId]);
+    }
+  });
+
+  // Group by round
+  var byRound = {};
+  pendingSlots.forEach(function(s){
+    if(!byRound[s.round]) byRound[s.round] = [];
+    byRound[s.round].push(s);
+  });
+
+  if(!pendingSlots.length) {
+    container.innerHTML = '<div style="padding:24px;text-align:center;color:var(--dim);font-size:11px">No pending games found. All games may be complete, or results data may need updating.</div>';
+    renderScenarioLB();
+    return;
+  }
+
+  ROUND_ORDER.forEach(function(round){
+    if(!byRound[round] || !byRound[round].length) return;
+
+    var roundHeader = document.createElement('div');
+    roundHeader.className = 'section-header';
+    roundHeader.style.marginBottom = '12px';
+    roundHeader.innerHTML = '<div class="section-title" style="font-size:14px">' + round + '</div>' +
+      '<div class="section-sub">' + ROUND_PTS[round] + ' pts per correct pick</div>';
+    container.appendChild(roundHeader);
+
+    var grid = document.createElement('div');
+    grid.className = 'matchup-grid';
+
+    byRound[round].forEach(function(slot){
+      // Collect teams picked for this slot across all brackets
+      // ── FIX: only include teams that are still alive ──
+      var teamsForSlot = {};
+      brackets.forEach(function(b){
+        (b.picks[round]||[]).forEach(function(p){
+          if(p.slotId === slot.slotId && isTeamAlive(p.team)) {
+            teamsForSlot[p.team] = p.seed || 0;
+          }
+        });
+      });
+
+      var teamArr = Object.keys(teamsForSlot).sort(function(a,b){ return teamsForSlot[a] - teamsForSlot[b]; });
+      if(teamArr.length < 1) return;
+
+      var card = document.createElement('div');
+      card.className = 'matchup-card';
+      card.innerHTML = '<div class="matchup-card-header"><span>' + slot.slotId + '</span><span>' + round + '</span></div>';
+
+      teamArr.forEach(function(team){
+        var seed = teamsForSlot[team];
+        var isSelected = scenarioWinners[slot.slotId] === team;
+        var btn = document.createElement('button');
+        btn.className = 'matchup-option' + (isSelected ? ' selected' : '');
+        btn.innerHTML =
+          '<span class="matchup-seed">' + (seed||'?') + '</span>' +
+          '<span class="matchup-team">' + esc(team) + '</span>' +
+          '<span class="matchup-check">✓</span>';
+        btn.onclick = (function(sid, t){ return function(){
+          scenarioWinners[sid] = scenarioWinners[sid] === t ? null : t;
+          if(scenarioWinners[sid] === null) delete scenarioWinners[sid];
+          // Clear simulate selector since user is now manually picking
+          document.getElementById('simulateSelect').value = '';
+          renderScenario();
+        }; })(slot.slotId, team);
+        card.appendChild(btn);
+      });
+
+      grid.appendChild(card);
+    });
+
+    container.appendChild(grid);
+  });
+
+  renderScenarioLB();
+}
+
+function simulateBracket(memberId) {
+  // Set all pending picks to the selected bracket's predictions
+  scenarioWinners = {};
+  if(!memberId) { renderScenario(); return; }
+
+  var bracket = brackets.find(function(b){ return b.memberId === memberId; });
+  if(!bracket) return;
+
+  ROUND_ORDER.forEach(function(round){
+    (bracket.picks[round]||[]).forEach(function(pick){
+      // Only apply if game is still pending and team is still alive
+      var hasResult = results[pick.slotId] && results[pick.slotId].result && results[pick.slotId].result.complete;
+      if(!hasResult && isTeamAlive(pick.team)) {
+        scenarioWinners[pick.slotId] = pick.team;
+      }
+    });
+  });
+
+  renderScenario();
+}
+
+function renderScenarioLB() {
+  var actual = getStandings(false);
+  var projected = getStandings(true);
+
+  var actualMap = {};
+  actual.forEach(function(s,i){ actualMap[s.memberId] = {score:s.score, rank:i+1}; });
+
+  var body = document.getElementById('scenarioLBBody');
+  body.innerHTML = '';
+
+  projected.forEach(function(s, i){
+    var projRank = i + 1;
+    var prev = actualMap[s.memberId] || {score:0, rank:projRank};
+    var delta = s.score - prev.score;
+    var rankDelta = prev.rank - projRank;
+
+    var deltaHtml = delta > 0
+      ? '<span class="scenario-delta up">+' + delta + '</span>'
+      : delta < 0
+        ? '<span class="scenario-delta down">' + delta + '</span>'
+        : '<span class="scenario-delta same">—</span>';
+
+    var rankHtml = rankDelta > 0
+      ? '<span style="color:var(--success);font-size:10px">▲'+rankDelta+'</span>'
+      : rankDelta < 0
+        ? '<span style="color:var(--danger);font-size:10px">▼'+Math.abs(rankDelta)+'</span>'
+        : '<span style="color:var(--dim);font-size:10px">—</span>';
+
+    var row = document.createElement('div');
+    row.className = 'scenario-lb-row';
+    row.innerHTML =
+      '<div style="font-family:var(--display);font-weight:900;font-size:16px;color:var(--border2)">' + projRank + '</div>' +
+      '<div><div style="font-family:var(--display);font-weight:700;font-size:12px">' + esc(s.bracketName) + '</div>' +
+        '<div style="font-size:10px;color:var(--dim)">' + rankHtml + ' from #' + prev.rank + '</div></div>' +
+      '<div style="text-align:right;font-family:var(--display);font-weight:700">' + prev.score + '</div>' +
+      '<div style="text-align:right;font-family:var(--display);font-weight:800;color:var(--accent3)">' + s.score + '</div>' +
+      '<div style="text-align:right">' + deltaHtml + '</div>';
+    body.appendChild(row);
+  });
+}
+
+function resetScenario() { scenarioWinners = {}; renderScenario(); }
+function clearScenario() { scenarioWinners = {}; renderScenario(); }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HEAD TO HEAD
+// ═══════════════════════════════════════════════════════════════════════════
+function renderH2HSelectors() {
+  var selA = document.getElementById('h2hSelectA');
+  var selB = document.getElementById('h2hSelectB');
+  var prevA = selA.value, prevB = selB.value;
+
+  selA.innerHTML = '<option value="">— Select bracket A —</option>';
+  selB.innerHTML = '<option value="">— Select bracket B —</option>';
+
+  brackets.forEach(function(b){
+    selA.innerHTML += '<option value="'+esc(b.memberId)+'">' + esc(b.bracketName) + '</option>';
+    selB.innerHTML += '<option value="'+esc(b.memberId)+'">' + esc(b.bracketName) + '</option>';
+  });
+
+  if(prevA) selA.value = prevA;
+  if(prevB) selB.value = prevB;
+
+  // Auto-select first two if nothing selected
+  if(!selA.value && brackets.length >= 1) selA.value = brackets[0].memberId;
+  if(!selB.value && brackets.length >= 2) selB.value = brackets[1].memberId;
+}
+
+function renderH2H() {
+  var selA = document.getElementById('h2hSelectA').value;
+  var selB = document.getElementById('h2hSelectB').value;
+  var grid = document.getElementById('h2hGrid');
+  var statsEl = document.getElementById('h2hStats');
+  grid.innerHTML = '';
+  statsEl.innerHTML = '';
+
+  if(!selA || !selB || selA === selB) {
+    grid.innerHTML = '<div style="color:var(--dim);font-size:11px;padding:16px">Select two different brackets to compare.</div>';
+    return;
+  }
+
+  var bA = brackets.find(function(b){ return b.memberId === selA; });
+  var bB = brackets.find(function(b){ return b.memberId === selB; });
+  if(!bA || !bB) return;
+
+  var winners = getEffectiveWinners(false);
+  var agree = 0, disagree = 0, total = 0;
+
+  var tableHtml = '<div class="h2h-grid">';
+  tableHtml += '<div class="h2h-col-header" style="color:var(--accent)">' + esc(bA.bracketName) + '</div>';
+  tableHtml += '<div class="h2h-col-header" style="color:var(--border2)">vs</div>';
+  tableHtml += '<div class="h2h-col-header" style="color:var(--accent3)">' + esc(bB.bracketName) + '</div>';
+
+  ROUND_ORDER.forEach(function(round){
+    var picksA = bA.picks[round] || [];
+    var picksB = bB.picks[round] || [];
+    if(!picksA.length && !picksB.length) return;
+
+    tableHtml += '<div class="h2h-round-header">' + round + ' · ' + ROUND_PTS[round] + ' pts</div>';
+
+    // Build slot map
+    var slotsA = {}, slotsB = {};
+    picksA.forEach(function(p){ slotsA[p.slotId] = p; });
+    picksB.forEach(function(p){ slotsB[p.slotId] = p; });
+
+    var allSlotIds = Object.keys(Object.assign({}, slotsA, slotsB));
+    allSlotIds.sort();
+
+    allSlotIds.forEach(function(slotId){
+      var pA = slotsA[slotId];
+      var pB = slotsB[slotId];
+      var teamA = pA ? pA.team : '—';
+      var teamB = pB ? pB.team : '—';
+      var actualWinner = winners[slotId];
+      var sameTeam = teamA === teamB;
+
+      if(pA && pB) { total++; if(sameTeam) agree++; else disagree++; }
+
+      var clsA = sameTeam ? 'agree' : 'disagree';
+      var clsB = sameTeam ? 'agree' : 'disagree';
+      if(actualWinner) {
+        clsA += teamA === actualWinner ? ' correct' : ' wrong';
+        clsB += teamB === actualWinner ? ' correct' : ' wrong';
+      }
+
+      tableHtml +=
+        '<div class="h2h-pick-a ' + clsA + '">' + esc(teamA) + '</div>' +
+        '<div class="h2h-middle">' + (sameTeam ? '=' : '≠') + '</div>' +
+        '<div class="h2h-pick-b ' + clsB + '">' + esc(teamB) + '</div>';
+    });
+  });
+
+  tableHtml += '</div>';
+  grid.innerHTML = tableHtml;
+
+  // Stats bar
+  var scoreA = scoreBracket(bA, false).score;
+  var scoreB = scoreBracket(bB, false).score;
+  statsEl.innerHTML =
+    '<div class="cards-grid" style="margin-bottom:16px">' +
+    makeStatCardHtml('Agreement', agree + ' / ' + total + ' picks', Math.round(agree/total*100||0)+'% same') +
+    makeStatCardHtml('Disagreements', disagree + ' picks differ', 'potential swing games') +
+    makeStatCardHtml(esc(bA.bracketName), scoreA + ' pts', 'current score') +
+    makeStatCardHtml(esc(bB.bracketName), scoreB + ' pts', 'current score') +
+    '</div>';
+}
+
+function makeStatCardHtml(label, val, sub) {
+  return '<div class="stat-card">' +
+    '<div class="stat-card-label">' + label + '</div>' +
+    '<div class="stat-card-val" style="font-size:20px">' + val + '</div>' +
+    '<div class="stat-card-sub">' + sub + '</div>' +
+    '</div>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SURVIVAL
+// ═══════════════════════════════════════════════════════════════════════════
+function renderSurvival() {
+  var standings = getStandings(false);
+  var leader = standings[0];
+  var leaderScore = leader ? leader.score : 0;
+  var maxPossibleOverall = Math.max.apply(null, standings.map(function(s){ return s.maxPossible; }));
+  var canWinMap = computeCanWin();
+
+  var grid = document.getElementById('survivalGrid');
+  grid.innerHTML = '';
+
+  standings.forEach(function(s, i){
+    var canWin = !!canWinMap[s.memberId];
+    var eliminated = !canWin;
+    var isLeader = i === 0;
+    var pct = maxPossibleOverall > 0 ? Math.round(s.maxPossible / maxPossibleOverall * 100) : 0;
+    var gapToFirst = leaderScore - s.score;
+    var ptsPending = s.maxPossible - s.score;
+
+    var card = document.createElement('div');
+    card.className = 'survival-card' + (eliminated ? ' eliminated' : '') + (isLeader ? ' leader' : '');
+
+    // What teams does this bracket need?
+    var needsList = [];
+    ROUND_ORDER.forEach(function(round){
+      (s.bracket.picks[round]||[]).forEach(function(pick){
+        if(!results[pick.slotId] || !results[pick.slotId].result || !results[pick.slotId].result.complete) {
+          if(isTeamAlive(pick.team)) needsList.push(pick.team);
+        }
+      });
+    });
+    // Deduplicate
+    needsList = needsList.filter(function(v,i,a){ return a.indexOf(v)===i; });
+
+    card.innerHTML =
+      '<div class="survival-name">' + esc(s.bracketName) + (isLeader ? ' 👑' : '') + '</div>' +
+      '<div class="survival-score">' + s.score + ' pts current · #' + (i+1) + '</div>' +
+      '<div class="survival-max-label">Max Possible</div>' +
+      '<div class="survival-max-val ' + (eliminated ? 'elim' : 'alive') + '">' + s.maxPossible + '</div>' +
+      '<div class="survival-bar-wrap"><div class="survival-bar ' + (eliminated ? 'elim' : '') +
+        '" style="width:' + pct + '%"></div></div>' +
+      (eliminated
+        ? '<div class="survival-needs" style="margin-top:10px;color:var(--danger)">Eliminated · cannot win in any scenario</div>'
+        : '<div class="survival-needs" style="margin-top:10px">' +
+            (gapToFirst > 0 ? '<div>Needs <strong>' + gapToFirst + ' pts</strong> more than leader</div>' : '<div><strong>Leading!</strong></div>') +
+            (needsList.length ? '<div style="margin-top:6px">Key teams: <strong>' + needsList.slice(0,4).map(esc).join(', ') + (needsList.length > 4 ? '…' : '') + '</strong></div>' : '') +
+          '</div>'
+      );
+
+    grid.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════════════════════════════════════
+function showPage(name) {
+  currentPage = name;
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('page-'+name).classList.add('active');
+  event.target.classList.add('active');
+  if(name === 'h2h') renderH2H();
+  if(name === 'scenario') renderScenario();
+  if(name === 'edit' && editBracket) renderEditPage();
+  if(name === 'finalscore') renderFinalScore();
+}
+
+function renderFinalScore() {
+  // Gather actual scores from winners file
+  var actualWin = null, actualLos = null;
+  if(winnersFile && winnersFile.championPick) {
+    actualWin = winnersFile.championPick.actualWinnerScore;
+    actualLos = winnersFile.championPick.actualLoserScore;
+  }
+  var hasActual = actualWin !== undefined && actualWin !== null && actualWin !== 0;
+
+  var emptyEl = document.getElementById('finalscore-empty');
+  var contEl = document.getElementById('finalscore-content');
+
+  // Gather predictions from all brackets
+  var allBrackets = brackets.concat(winnersFile ? [] : []);
+  var predictions = brackets.filter(function(b) {
+    var cp = b.championPick;
+    return cp && (cp.predictedWinnerScore || cp.predictedLoserScore);
+  });
+
+  if(!predictions.length && !hasActual) {
+    emptyEl.style.display = 'flex';
+    contEl.style.display = 'none';
+    return;
+  }
+
+  emptyEl.style.display = 'none';
+  contEl.style.display = 'block';
+
+  // Actual score cards
+  var actualEl = document.getElementById('finalscoreActual');
+  if(hasActual) {
+    var actualTotal = (actualWin || 0) + (actualLos || 0);
+    actualEl.innerHTML =
+      '<div class="finalscore-actual-card"><div class="finalscore-actual-label">Winner Score</div><div class="finalscore-actual-val">' + actualWin + '</div></div>' +
+      '<div class="finalscore-actual-card"><div class="finalscore-actual-label">Loser Score</div><div class="finalscore-actual-val">' + actualLos + '</div></div>' +
+      '<div class="finalscore-actual-card"><div class="finalscore-actual-label">Total Points</div><div class="finalscore-actual-val">' + actualTotal + '</div></div>';
+  } else {
+    actualEl.innerHTML = '<div style="font-size:11px;color:var(--dim);text-align:center">Actual scores not yet entered — load winners file and add scores in Edit tab</div>';
+  }
+
+  // Build comparison table
+  var body = document.getElementById('finalscoreBody');
+  if(!predictions.length) {
+    body.innerHTML = '<div style="font-size:11px;color:var(--dim);margin-top:12px;text-align:center">No score predictions found. Add predicted scores in the Edit tab for each bracket.</div>';
+    return;
+  }
+
+  var categories = [
+    { key: 'total',  label: 'Total Points', fn: function(cp){ return (cp.predictedWinnerScore||0)+(cp.predictedLoserScore||0); }, actual: hasActual ? (actualWin+actualLos) : null },
+    { key: 'winner', label: 'Winning Team Points', fn: function(cp){ return cp.predictedWinnerScore||0; }, actual: hasActual ? actualWin : null },
+    { key: 'loser',  label: 'Losing Team Points',  fn: function(cp){ return cp.predictedLoserScore||0; }, actual: hasActual ? actualLos : null }
+  ];
+
+  var html = '';
+  categories.forEach(function(cat) {
+    html += '<div class="finalscore-cat-header">' + cat.label + '</div>';
+    html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px">';
+    html += '<table class="finalscore-table"><thead><tr>' +
+      '<th>#</th><th>Bracket</th><th class="r">Predicted</th>' +
+      (cat.actual !== null ? '<th class="r">Actual</th><th class="r">Diff</th>' : '') +
+      '</tr></thead><tbody>';
+
+    var rows = predictions.map(function(b) {
+      var cp = b.championPick;
+      var pred = cat.fn(cp);
+      var diff = cat.actual !== null ? Math.abs(pred - cat.actual) : null;
+      return { name: b.bracketName, pred: pred, diff: diff };
+    });
+
+    if(cat.actual !== null) rows.sort(function(a,b){ return a.diff - b.diff; });
+
+    var bestDiff = (cat.actual !== null && rows.length) ? rows[0].diff : null;
+    rows.forEach(function(row, i) {
+      var isBest = cat.actual !== null && row.diff === bestDiff;
+      html += '<tr>' +
+        '<td class="lb-rank' + (isBest ? ' top' : '') + '">' + (i+1) + '</td>' +
+        '<td class="' + (isBest ? 'finalscore-winner' : '') + '">' + esc(row.name) + '</td>' +
+        '<td class="finalscore-diff">' + row.pred + '</td>' +
+        (cat.actual !== null
+          ? '<td class="finalscore-diff">' + cat.actual + '</td>' +
+            '<td class="finalscore-diff' + (isBest ? ' best' : '') + '">' + (isBest ? '★ ' : '') + row.diff + '</td>'
+          : '') +
+        '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+  });
+
+  body.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BRUTE-FORCE CAN-WIN CALCULATOR
+// ═══════════════════════════════════════════════════════════════════════════
+function computeCanWin() {
+  var feederMap = {
+    '1_2':['1_4','1_5'],'1_3':['1_6','1_7'],
+    '2_2':['2_4','2_5'],'2_3':['2_6','2_7'],
+    '3_2':['3_4','3_5'],'3_3':['3_6','3_7'],
+    '4_2':['4_4','4_5'],'4_3':['4_6','4_7'],
+    '1_1':['1_2','1_3'],'2_1':['2_2','2_3'],
+    '3_1':['3_2','3_3'],'4_1':['4_2','4_3'],
+    '0_2':['1_1','2_1'],'0_3':['3_1','4_1'],
+    'champ':['0_2','0_3']
+  };
+  // Process slots in topological order (earlier rounds first)
+  var slotOrder = [
+    '1_2','1_3','2_2','2_3','3_2','3_3','4_2','4_3',
+    '1_1','2_1','3_1','4_1',
+    '0_2','0_3','champ'
+  ];
+
+  // Build actual winners from completed results
+  var actualWinners = {};
+  Object.keys(results).forEach(function(sid){
+    var r = results[sid];
+    if(r && r.result && r.result.complete) actualWinners[sid] = r.result.winner;
+  });
+
+  var canWinMap = {};
+  brackets.forEach(function(b){ canWinMap[b.memberId] = false; });
+
+  // Recursive enumeration — scenario is a complete or partial winners map
+  function enumerate(scenario) {
+    // Find next unresolved slot (both feeders known, slot not yet assigned)
+    var next = null;
+    for(var i = 0; i < slotOrder.length; i++){
+      var sid = slotOrder[i];
+      if(scenario[sid]) continue;
+      var feeders = feederMap[sid];
+      if(scenario[feeders[0]] && scenario[feeders[1]]){
+        next = {slotId: sid, teamA: scenario[feeders[0]], teamB: scenario[feeders[1]]};
+        break;
+      }
+    }
+
+    if(!next){
+      // No more resolvable slots — score all brackets
+      var savedScenario = scenarioWinners;
+      scenarioWinners = scenario;
+      var scored = brackets.map(function(b){
+        return {memberId: b.memberId, score: scoreBracket(b, true).score};
+      }).sort(function(a,b){ return b.score - a.score; });
+      scenarioWinners = savedScenario;
+      if(scored.length){
+        var topScore = scored[0].score;
+        scored.forEach(function(s){
+          if(s.score === topScore) canWinMap[s.memberId] = true;
+        });
+      }
+      return;
+    }
+
+    // Try teamA wins
+    var sA = {}; Object.keys(scenario).forEach(function(k){ sA[k] = scenario[k]; });
+    sA[next.slotId] = next.teamA;
+    enumerate(sA);
+
+    // Try teamB wins
+    var sB = {}; Object.keys(scenario).forEach(function(k){ sB[k] = scenario[k]; });
+    sB[next.slotId] = next.teamB;
+    enumerate(sB);
+  }
+
+  var baseScenario = {};
+  Object.keys(actualWinners).forEach(function(sid){ baseScenario[sid] = actualWinners[sid]; });
+  enumerate(baseScenario);
+
+  return canWinMap;
+}
+
+// EXPORT TO OFL
+// ═══════════════════════════════════════════════════════════════════════════
+function exportToOFL() {
+  if(!brackets.length) return;
+
+  var standings = getStandings(false);
+  var leaderScore = standings.length ? standings[0].score : 0;
+
+  // Brute-force can-win calculation
+  var canWinMap = computeCanWin();
+
+  // Build standings array for export
+  var exportStandings = standings.map(function(s, i) {
+    var eliminated = s.maxPossible < leaderScore && i > 0;
+    var canWin = !!canWinMap[s.memberId];
+    return {
+      rank:        i + 1,
+      memberId:    s.memberId,
+      bracketName: s.bracketName,
+      score:       s.score,
+      maxPossible: s.maxPossible,
+      eliminated:  eliminated,
+      canWin:      canWin,
+      allPicks:    getAllPicks(s.bracket),
+      pendingPicks: getPendingPicks(s.bracket)
+    };
+  });
+
+  // Alive brackets only (for survival strip) with pts needed
+  var aliveBrackets = exportStandings.filter(function(s) { return s.canWin; }).map(function(s) {
+    return {
+      memberId:    s.memberId,
+      bracketName: s.bracketName,
+      score:       s.score,
+      maxPossible: s.maxPossible,
+      ptsNeeded:   Math.max(0, leaderScore - s.score)
+    };
+  });
+
+  // Per-bracket pending picks map (memberId → picks array) for scenario generator
+  var pendingPicksMap = {};
+  brackets.forEach(function(b) {
+    pendingPicksMap[b.memberId] = getPendingPicks(b);
+  });
+
+  // Completed game count per round for meta
+  var roundProgress = {};
+  var ROUND_EXPECTED = {R64:32,R32:16,S16:8,E8:4,F4:2,Final:1};
+  ROUND_ORDER.forEach(function(r){
+    var found = Object.values(results).filter(function(res){ return res.round === r; }).length;
+    roundProgress[r] = { complete: found, total: ROUND_EXPECTED[r] };
+  });
+
+  var exportObj = {
+    meta: {
+      generated:     new Date().toISOString(),
+      year:          brackets[0] ? brackets[0].year : '2026',
+      bracketsLoaded: brackets.length,
+      gamesTracked:  Object.keys(results).length,
+      roundProgress: roundProgress
+    },
+    pointStructure: ROUND_PTS,
+    standings:      exportStandings,
+    aliveBrackets:  aliveBrackets,
+    pendingPicks:   pendingPicksMap,
+    actualResults:  (function(){
+      var out = {};
+      Object.keys(results).forEach(function(slotId){
+        var r = results[slotId];
+        if(r && r.result && r.result.complete){
+          out[slotId] = {
+            round:       r.round,
+            winner:      r.result.winner,
+            winnerSeed:  r.result.winnerSeed,
+            winnerScore: r.result.winnerScore,
+            loser:       r.result.loser,
+            loserSeed:   r.result.loserSeed,
+            loserScore:  r.result.loserScore
+          };
+        }
+      });
+      return out;
+    })(),
+    opponents: (function(){
+      var feederMap = {
+        '1_2':['1_4','1_5'],'1_3':['1_6','1_7'],
+        '2_2':['2_4','2_5'],'2_3':['2_6','2_7'],
+        '3_2':['3_4','3_5'],'3_3':['3_6','3_7'],
+        '4_2':['4_4','4_5'],'4_3':['4_6','4_7'],
+        '1_1':['1_2','1_3'],'2_1':['2_2','2_3'],
+        '3_1':['3_2','3_3'],'4_1':['4_2','4_3'],
+        '0_2':['1_1','2_1'],'0_3':['3_1','4_1'],
+        'champ':['0_2','0_3']
+      };
+      var out = {};
+      Object.keys(feederMap).forEach(function(slotId){
+        // Skip slots that already have a completed result — game is done
+        if(results[slotId] && results[slotId].result && results[slotId].result.complete) return;
+        var teams = [];
+        feederMap[slotId].forEach(function(feederId){
+          var r = results[feederId];
+          if(r && r.result && r.result.complete){
+            teams.push({team:r.result.winner, seed:r.result.winnerSeed});
+          }
+        });
+        if(teams.length === 2){
+          out[slotId] = {team:teams[0].team, seed:teams[0].seed,
+                         opponent:{team:teams[1].team, seed:teams[1].seed}};
+        } else if(teams.length === 1){
+          out[slotId] = {team:teams[0].team, seed:teams[0].seed};
+        }
+      });
+      return out;
+    })()
+  };
+
+  var year = exportObj.meta.year || '2026';
+  var out =
+    '/**\n' +
+    ' * OFL BRC Analysis Export · ' + year + '\n' +
+    ' * Generated: ' + new Date().toLocaleString() + '\n' +
+    ' * ' + brackets.length + ' brackets · ' + Object.keys(results).length + ' games tracked\n' +
+    ' * Load as <script src="ofl-brc-analysis.js"><\/script> in league.html\n' +
+    ' */\n\n' +
+    'window.OFL_BRC_ANALYSIS = ' + JSON.stringify(exportObj, null, 2) + ';\n';
+
+  var blob = new Blob([out], {type:'text/javascript;charset=utf-8'});
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href = url; a.download = 'ofl-brc-analysis.js';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function getPendingPicks(bracket) {
+  var picks = [];
+  ROUND_ORDER.forEach(function(round) {
+    (bracket.picks[round] || []).forEach(function(pick) {
+      if(pick.status === 'pending' || pick.status === 'played') {
+        // If actualResults now has this slot, the game is done — not pending
+        var hasResult = results[pick.slotId] &&
+                        results[pick.slotId].result &&
+                        results[pick.slotId].result.complete;
+        if(!hasResult && isTeamAlive(pick.team)) {
+          picks.push({
+            slotId: pick.slotId,
+            round:  round,
+            team:   pick.team,
+            seed:   pick.seed || 0
+          });
+        }
+      }
+    });
+  });
+  return picks;
+}
+
+function getAllPicks(bracket) {
+  var picks = [];
+  ROUND_ORDER.forEach(function(round) {
+    (bracket.picks[round] || []).forEach(function(pick) {
+      var result = results[pick.slotId];
+      var actualWinner = (result && result.result && result.result.complete)
+        ? result.result.winner : null;
+      var status = pick.status || 'pending';
+      if(status === 'played') {
+        // R64 picks come through as 'played' — normalize against actualResults
+        if(actualWinner) status = actualWinner === pick.team ? 'correct' : 'incorrect';
+      } else if(status === 'pending') {
+        // R32+ pending picks — check actualResults to see if game is now done
+        if(actualWinner) status = actualWinner === pick.team ? 'correct' : 'incorrect';
+      }
+      // 'incorrect' status from Yahoo is always kept as-is — reliable signal
+      picks.push({
+        slotId:  pick.slotId,
+        round:   round,
+        team:    pick.team,
+        seed:    pick.seed || 0,
+        status:  status
+      });
+    });
+  });
+  return picks;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EDIT BRACKET
+// ═══════════════════════════════════════════════════════════════════════════
+
+var REGION_DEFS = [
+  { key: 'east',    label: 'East',    prefix: '1', rounds: ['R64','R32','S16','E8'] },
+  { key: 'south',   label: 'South',   prefix: '2', rounds: ['R64','R32','S16','E8'] },
+  { key: 'west',    label: 'West',    prefix: '3', rounds: ['R64','R32','S16','E8'] },
+  { key: 'midwest', label: 'Midwest', prefix: '4', rounds: ['R64','R32','S16','E8'] },
+  { key: 'finals',  label: 'Finals',  prefix: '0', rounds: ['F4'] }
+];
+
+// Canonical slot lists per region per round
+var CANONICAL_SLOTS = {
+  '1': { R64:['1_8','1_9','1_10','1_11','1_12','1_13','1_14','1_15'], R32:['1_4','1_5','1_6','1_7'], S16:['1_2','1_3'], E8:['1_1'] },
+  '2': { R64:['2_8','2_9','2_10','2_11','2_12','2_13','2_14','2_15'], R32:['2_4','2_5','2_6','2_7'], S16:['2_2','2_3'], E8:['2_1'] },
+  '3': { R64:['3_8','3_9','3_10','3_11','3_12','3_13','3_14','3_15'], R32:['3_4','3_5','3_6','3_7'], S16:['3_2','3_3'], E8:['3_1'] },
+  '4': { R64:['4_8','4_9','4_10','4_11','4_12','4_13','4_14','4_15'], R32:['4_4','4_5','4_6','4_7'], S16:['4_2','4_3'], E8:['4_1'] },
+  '0': { F4:['0_2','0_3'] }
+};
+
+// Forward feeder: slotId → the slot this team feeds into when they win
+// and which "position" (0=top, 1=bottom) they occupy in that slot
+var FORWARD_FEEDER = {
+  // R64 → R32
+  '1_8':'1_4','1_9':'1_4','1_10':'1_5','1_11':'1_5',
+  '1_12':'1_6','1_13':'1_6','1_14':'1_7','1_15':'1_7',
+  '2_8':'2_4','2_9':'2_4','2_10':'2_5','2_11':'2_5',
+  '2_12':'2_6','2_13':'2_6','2_14':'2_7','2_15':'2_7',
+  '3_8':'3_4','3_9':'3_4','3_10':'3_5','3_11':'3_5',
+  '3_12':'3_6','3_13':'3_6','3_14':'3_7','3_15':'3_7',
+  '4_8':'4_4','4_9':'4_4','4_10':'4_5','4_11':'4_5',
+  '4_12':'4_6','4_13':'4_6','4_14':'4_7','4_15':'4_7',
+  // R32 → S16
+  '1_4':'1_2','1_5':'1_2','1_6':'1_3','1_7':'1_3',
+  '2_4':'2_2','2_5':'2_2','2_6':'2_3','2_7':'2_3',
+  '3_4':'3_2','3_5':'3_2','3_6':'3_3','3_7':'3_3',
+  '4_4':'4_2','4_5':'4_2','4_6':'4_3','4_7':'4_3',
+  // S16 → E8
+  '1_2':'1_1','1_3':'1_1','2_2':'2_1','2_3':'2_1',
+  '3_2':'3_1','3_3':'3_1','4_2':'4_1','4_3':'4_1',
+  // E8 → F4
+  '1_1':'0_2','2_1':'0_2','3_1':'0_3','4_1':'0_3',
+  // F4 → Final (champ slot)
+  '0_2':'champ','0_3':'champ'
+};
+
+// Round lookup for each slot
+var SLOT_ROUND = {};
+Object.keys(CANONICAL_SLOTS).forEach(function(prefix) {
+  Object.keys(CANONICAL_SLOTS[prefix]).forEach(function(round) {
+    CANONICAL_SLOTS[prefix][round].forEach(function(sid) { SLOT_ROUND[sid] = round; });
+  });
+});
+SLOT_ROUND['0_2'] = 'F4'; SLOT_ROUND['0_3'] = 'F4'; SLOT_ROUND['champ'] = 'Final';
+
+function renderEditPage() {
+  if(!editBracket) return;
+
+  var isWinners = editBracket._filename && editBracket._filename.indexOf('winners') !== -1;
+
+  // Header
+  var nameEl = document.getElementById('editBracketName');
+  nameEl.innerHTML = esc(editBracket.bracketName) +
+    '<span>' + esc(editBracket._filename || '') + '</span>' +
+    (isWinners ? '<span class="edit-winners-badge">Winners File</span>' : '');
+
+  // Build region tabs
+  var tabsEl = document.getElementById('editRegionTabs');
+  var panelsEl = document.getElementById('editRegionPanels');
+  tabsEl.innerHTML = '';
+  panelsEl.innerHTML = '';
+
+  REGION_DEFS.forEach(function(region, ri) {
+    var tab = document.createElement('button');
+    tab.className = 'edit-region-tab' + (ri === 0 ? ' active' : '');
+    tab.textContent = region.label;
+    tab.onclick = (function(key) { return function() { switchEditRegion(key); }; })(region.key);
+    tab.id = 'edit-tab-' + region.key;
+    tabsEl.appendChild(tab);
+
+    var panel = document.createElement('div');
+    panel.className = 'edit-bracket-region' + (ri === 0 ? ' active' : '');
+    panel.id = 'edit-panel-' + region.key;
+    panel.innerHTML = buildRegionHTML(editBracket, region);
+    panelsEl.appendChild(panel);
+  });
+
+  // Champion slot + score predictions
+  var champDiv = document.createElement('div');
+  champDiv.className = 'edit-champ-wrap';
+  var champ = editBracket.championPick || { team: '', seed: '' };
+  var pWin = champ.predictedWinnerScore !== undefined ? champ.predictedWinnerScore : '';
+  var pLos = champ.predictedLoserScore !== undefined ? champ.predictedLoserScore : '';
+  var aWin = champ.actualWinnerScore !== undefined ? champ.actualWinnerScore : '';
+  var aLos = champ.actualLoserScore !== undefined ? champ.actualLoserScore : '';
+  var isWinnersEdit = editBracket._filename && editBracket._filename.indexOf('winners') !== -1;
+
+  var scoreHTML = isWinnersEdit
+    ? '<div class="edit-score-wrap">' +
+        '<div class="edit-score-label">Actual Final Score</div>' +
+        '<div class="edit-score-row">' +
+          '<span class="edit-score-field-label">Winner score</span>' +
+          '<input class="edit-score-input" id="edit-actual-winner-score" type="number" min="0" value="' + esc(String(aWin)) + '">' +
+        '</div>' +
+        '<div class="edit-score-row">' +
+          '<span class="edit-score-field-label">Loser score</span>' +
+          '<input class="edit-score-input" id="edit-actual-loser-score" type="number" min="0" value="' + esc(String(aLos)) + '">' +
+        '</div>' +
+        '<div class="edit-score-total" id="edit-actual-score-total"></div>' +
+      '</div>'
+    : '<div class="edit-score-wrap">' +
+        '<div class="edit-score-label">Predicted Final Score</div>' +
+        '<div class="edit-score-row">' +
+          '<span class="edit-score-field-label">Winner score</span>' +
+          '<input class="edit-score-input" id="edit-pred-winner-score" type="number" min="0" value="' + esc(String(pWin)) + '">' +
+        '</div>' +
+        '<div class="edit-score-row">' +
+          '<span class="edit-score-field-label">Loser score</span>' +
+          '<input class="edit-score-input" id="edit-pred-loser-score" type="number" min="0" value="' + esc(String(pLos)) + '">' +
+        '</div>' +
+        '<div class="edit-score-total" id="edit-pred-score-total"></div>' +
+      '</div>';
+
+  var champPickEntry = (editBracket.picks['Final'] || []).find(function(p){ return p.slotId === 'champ'; });
+  var champStatus = champPickEntry ? (champPickEntry.status || 'pending') : 'pending';
+  var champStatusOpts = ['pending','correct','incorrect','played'].map(function(s) {
+    return '<option value="' + s + '"' + (s === champStatus ? ' selected' : '') + '>' + s + '</option>';
+  }).join('');
+  champDiv.innerHTML =
+    '<div class="edit-champ-slot">' +
+      '<div class="edit-champ-label">Champion</div>' +
+      '<div class="edit-slot-row" style="justify-content:center;gap:8px;margin-bottom:6px">' +
+        '<input class="edit-slot-seed" id="edit-seed-champ" type="text" value="' + esc(String(champ.seed||'')) + '" style="width:32px">' +
+        '<input class="edit-slot-team" id="edit-team-champ" type="text" value="' + esc(champ.team||'') + '" style="width:160px;text-align:center">' +
+      '</div>' +
+      '<div style="display:flex;justify-content:center">' +
+        '<select class="edit-slot-status-select ' + champStatus + '" id="edit-status-champ" onchange="updateStatusStyle(this)">' + champStatusOpts + '</select>' +
+      '</div>' +
+    '</div>' + scoreHTML;
+  panelsEl.appendChild(champDiv);
+}
+
+function buildRegionHTML(bracket, region) {
+  var html = '<div class="edit-rounds-wrap">';
+  var statuses = ['pending','correct','incorrect','played'];
+  var EDIT_ROUND_DISPLAY = {R64:'R32',R32:'S16',S16:'E8',E8:'F4',F4:'Finals',Final:'Champ'};
+
+  // Finals tab: prepend E8 feeder column
+  if(region.key === 'finals') {
+    var e8Groups = [
+      { slots: ['1_1','2_1'], feedsTo: '0_2' },
+      { slots: ['3_1','4_1'], feedsTo: '0_3' }
+    ];
+    html += '<div class="edit-round-col">';
+    html += '<div class="edit-round-header">E8 Winners</div>';
+    html += '<div class="edit-round-slots" style="gap:24px">';
+    e8Groups.forEach(function(grp) {
+      html += '<div style="display:flex;flex-direction:column;gap:6px">';
+      grp.slots.forEach(function(slotId) {
+        var pick = null;
+        (bracket.picks['E8']||[]).forEach(function(p){ if(p.slotId===slotId) pick=p; });
+        if(!pick) pick = { slotId: slotId, team: '', seed: 0 };
+        var team = pick.team || '';
+        var seed = pick.seed || 0;
+        html += '<div class="edit-slot" style="cursor:pointer;border-color:var(--border2)">' +
+          '<div class="edit-slot-id" style="font-size:8px;color:var(--dim)">' + esc(slotId) + '</div>' +
+          '<div class="edit-slot-row">' +
+            '<div style="width:28px;display:flex;align-items:center;justify-content:center;background:var(--surface3);border-radius:3px;font-family:var(--mono);font-size:10px;color:var(--dim2)">' + esc(String(seed)) + '</div>' +
+            '<div class="edit-slot-team-display" style="flex:1;padding:3px 6px;cursor:pointer;background:var(--surface3);border-radius:3px;font-size:11px;font-family:var(--mono);color:var(--text);border:none"' +
+              ' data-slot="' + esc(slotId) + '" data-team="' + esc(team) + '" data-seed="' + seed + '" onclick="cascadeWinnerDiv(this)">' +
+              esc(team || '—') +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      });
+      html += '</div>';
+    });
+    html += '</div></div>';
+  }
+
+  region.rounds.forEach(function(round) {
+    var pickMap = {};
+    (bracket.picks[round] || []).forEach(function(p){ pickMap[p.slotId] = p; });
+    var canonSlots = (CANONICAL_SLOTS[region.prefix] && CANONICAL_SLOTS[region.prefix][round]) || [];
+    var isEditable = (round === 'R64');
+
+    html += '<div class="edit-round-col">';
+    html += '<div class="edit-round-header">' + (EDIT_ROUND_DISPLAY[round] || round) + '</div>';
+    html += '<div class="edit-round-slots">';
+
+    canonSlots.forEach(function(slotId) {
+      var pick = pickMap[slotId] || { slotId: slotId, team: '', seed: '', status: 'pending' };
+      var statusCls = pick.status || 'pending';
+      var statusOpts = statuses.map(function(s) {
+        return '<option value="' + s + '"' + (s === statusCls ? ' selected' : '') + '>' + s + '</option>';
+      }).join('');
+
+      if(isEditable) {
+        html += '<div class="edit-slot">' +
+          '<div class="edit-slot-id">' + esc(slotId) +
+            ' <select class="edit-slot-status-select ' + statusCls + '" data-slot="' + esc(slotId) + '" data-field="status" onchange="updateStatusStyle(this)">' + statusOpts + '</select>' +
+          '</div>' +
+          '<div class="edit-slot-row">' +
+            '<input class="edit-slot-seed" type="text" data-slot="' + esc(slotId) + '" data-field="seed" value="' + esc(String(pick.seed||'')) + '">' +
+            '<input class="edit-slot-team" type="text" data-slot="' + esc(slotId) + '" data-field="team" value="' + esc(pick.team||'') + '" onclick="cascadeWinner(this)">' +
+          '</div>' +
+        '</div>';
+      } else {
+        html += '<div class="edit-slot" style="cursor:pointer" onclick="cascadeWinnerSlot(\'' + esc(slotId) + '\')">' +
+          '<div class="edit-slot-id">' + esc(slotId) +
+            ' <select class="edit-slot-status-select ' + statusCls + '" data-slot="' + esc(slotId) + '" data-field="status" onchange="updateStatusStyle(this);event.stopPropagation()">' + statusOpts + '</select>' +
+          '</div>' +
+          '<div class="edit-slot-row">' +
+            '<input class="edit-slot-seed" type="text" data-slot="' + esc(slotId) + '" data-field="seed" value="' + esc(String(pick.seed||'')) + '" readonly style="pointer-events:none;opacity:0.7">' +
+            '<input class="edit-slot-team" type="text" data-slot="' + esc(slotId) + '" data-field="team" value="' + esc(pick.team||'') + '" readonly style="cursor:pointer;caret-color:transparent">' +
+          '</div>' +
+        '</div>';
+      }
+    });
+
+    html += '</div></div>';
+  });
+
+  html += '</div>';
+  return html;
+}
+
+function cascadeWinnerSlot(slotId) {
+  var input = document.querySelector('.edit-slot-team[data-slot="' + slotId + '"]');
+  if(input) cascadeWinner(input);
+}
+
+function cascadeWinnerDiv(el) {
+  var team = el.dataset.team || '';
+  var seed = parseInt(el.dataset.seed) || 0;
+  if(!team) return;
+  var slotId = el.dataset.slot;
+  var nextSlotId = FORWARD_FEEDER[slotId];
+  if(!nextSlotId) return;
+  var nextInput = document.querySelector('.edit-slot-team[data-slot="' + nextSlotId + '"]');
+  if(!nextInput) return;
+  var nextSeedInput = nextInput.parentElement.querySelector('.edit-slot-seed');
+  nextInput.value = team;
+  if(nextSeedInput) nextSeedInput.value = seed || '';
+  updatePickInMemory(nextSlotId, team, seed);
+  cascadeWinner(nextInput);
+}
+
+function updatePickInMemory(slotId, team, seed) {
+  // Keep editBracket.picks in sync with DOM changes
+  if(!editBracket) return;
+  var slotRoundMap = {};
+  Object.keys(CANONICAL_SLOTS).forEach(function(prefix) {
+    Object.keys(CANONICAL_SLOTS[prefix]).forEach(function(round) {
+      CANONICAL_SLOTS[prefix][round].forEach(function(sid) { slotRoundMap[sid] = round; });
+    });
+  });
+  slotRoundMap['0_2'] = 'F4'; slotRoundMap['0_3'] = 'F4'; slotRoundMap['champ'] = 'Final';
+  var round = slotRoundMap[slotId];
+  if(!round) return;
+  if(!editBracket.picks[round]) editBracket.picks[round] = [];
+  var existing = editBracket.picks[round].find(function(p){ return p.slotId === slotId; });
+  if(existing) {
+    existing.team = team;
+    existing.seed = seed || 0;
+  } else {
+    editBracket.picks[round].push({ slotId: slotId, team: team, seed: seed || 0, status: 'pending' });
+  }
+}
+
+function cascadeWinner(input) {
+  var slotId = input.dataset.slot;
+  var team = input.value.trim();
+  var seedInput = input.parentElement.querySelector('.edit-slot-seed');
+  var seed = seedInput ? (parseInt(seedInput.value) || 0) : 0;
+
+  if(!team) return; // nothing to cascade
+
+  // Find the next slot this feeds into
+  var nextSlotId = FORWARD_FEEDER[slotId];
+  if(!nextSlotId) return; // champ or no forward slot
+
+  // Handle champion slot specially
+  if(nextSlotId === 'champ') {
+    var champTeam = document.getElementById('edit-team-champ');
+    var champSeed = document.getElementById('edit-seed-champ');
+    if(champTeam) champTeam.value = team;
+    if(champSeed) champSeed.value = seed || '';
+    if(editBracket && !editBracket.championPick) editBracket.championPick = {};
+    if(editBracket) { editBracket.championPick.team = team; editBracket.championPick.seed = seed || 0; }
+    return;
+  }
+
+  // Find the next slot's team input in the DOM
+  var nextInput = document.querySelector('.edit-slot-team[data-slot="' + nextSlotId + '"]');
+  if(!nextInput) return;
+
+  var nextSeedInput = nextInput.parentElement.querySelector('.edit-slot-seed');
+
+  nextInput.value = team;
+  if(nextSeedInput) nextSeedInput.value = seed || '';
+
+  // Keep memory in sync
+  updatePickInMemory(nextSlotId, team, seed);
+
+  // Cascade further
+  cascadeWinner(nextInput);
+}
+
+function updateStatusStyle(sel) {
+  sel.className = 'edit-slot-status-select ' + sel.value;
+}
+
+function switchEditRegion(key) {
+  document.querySelectorAll('.edit-region-tab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.edit-bracket-region').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('edit-tab-' + key).classList.add('active');
+  document.getElementById('edit-panel-' + key).classList.add('active');
+}
+
+function clearAllPicks() {
+  if(!editBracket) return;
+  if(!confirm('Clear all picks from this bracket? This cannot be undone.')) return;
+  ROUND_ORDER.forEach(function(round) {
+    (editBracket.picks[round] || []).forEach(function(pick) {
+      pick.team = '';
+      pick.seed = 0;
+      pick.status = 'pending';
+    });
+  });
+  if(editBracket.championPick) {
+    editBracket.championPick.team = '';
+    editBracket.championPick.seed = 0;
+  }
+  renderEditPage();
+}
+
+function setAllPending() {
+  if(!editBracket) return;
+  // Update all status dropdowns in DOM to pending first
+  document.querySelectorAll('.edit-slot-status-select[data-slot]').forEach(function(sel) {
+    sel.value = 'pending';
+    updateStatusStyle(sel);
+  });
+  collectEdits();
+  renderEditPage();
+}
+
+function setAllCorrect() {
+  if(!editBracket) return;
+  // First update status dropdowns in DOM to 'correct' for all non-empty slots
+  document.querySelectorAll('.edit-slot-team[data-slot]').forEach(function(input) {
+    if(input.tagName !== 'INPUT') return;
+    var team = input.value.trim();
+    if(!team) return;
+    var sid = input.dataset.slot;
+    var sel = document.querySelector('.edit-slot-status-select[data-slot="' + sid + '"]');
+    if(sel) { sel.value = 'correct'; updateStatusStyle(sel); }
+  });
+  var champTeamEl = document.getElementById('edit-team-champ');
+  var champStatEl = document.getElementById('edit-status-champ');
+  if(champTeamEl && champStatEl && champTeamEl.value.trim()) {
+    champStatEl.value = 'correct'; updateStatusStyle(champStatEl);
+  }
+  // Now collect all edits including the updated statuses
+  collectEdits();
+  renderEditPage();
+}
+
+function collectEdits() {
+  if(!editBracket) return;
+
+  // Build a round lookup for all canonical slots
+  var slotRoundMap = {};
+  Object.keys(CANONICAL_SLOTS).forEach(function(prefix) {
+    Object.keys(CANONICAL_SLOTS[prefix]).forEach(function(round) {
+      CANONICAL_SLOTS[prefix][round].forEach(function(sid) { slotRoundMap[sid] = round; });
+    });
+  });
+  slotRoundMap['0_2'] = 'F4'; slotRoundMap['0_3'] = 'F4';
+
+  // Collect all slot inputs from DOM
+  var slotData = {}; // slotId → {team, seed, status}
+  document.querySelectorAll('.edit-slot-team[data-slot]').forEach(function(input) {
+    if(input.tagName !== 'INPUT') return;
+    var sid = input.dataset.slot;
+    if(!slotData[sid]) slotData[sid] = {};
+    slotData[sid].team = input.value.trim();
+  });
+  document.querySelectorAll('.edit-slot-seed[data-slot]').forEach(function(input) {
+    var sid = input.dataset.slot;
+    if(!slotData[sid]) slotData[sid] = {};
+    slotData[sid].seed = parseInt(input.value) || 0;
+  });
+  document.querySelectorAll('.edit-slot-status-select[data-slot]').forEach(function(sel) {
+    var sid = sel.dataset.slot;
+    if(!slotData[sid]) slotData[sid] = {};
+    slotData[sid].status = sel.value;
+  });
+
+  // Apply to bracket picks — add missing slots if needed
+  Object.keys(slotData).forEach(function(sid) {
+    var round = slotRoundMap[sid];
+    if(!round) return;
+    if(!editBracket.picks[round]) editBracket.picks[round] = [];
+    var existing = editBracket.picks[round].find(function(p){ return p.slotId === sid; });
+    if(existing) {
+      if(slotData[sid].team !== undefined) existing.team = slotData[sid].team;
+      if(slotData[sid].seed !== undefined) existing.seed = slotData[sid].seed;
+      if(slotData[sid].status !== undefined) existing.status = slotData[sid].status;
+    } else {
+      editBracket.picks[round].push({
+        slotId: sid,
+        team: slotData[sid].team || '',
+        seed: slotData[sid].seed || 0,
+        status: slotData[sid].status || 'pending'
+      });
+    }
+  });
+
+  // Champion — sync UI fields into both championPick and picks['Final']['champ']
+  var champTeam = document.getElementById('edit-team-champ');
+  var champSeed = document.getElementById('edit-seed-champ');
+  var champStat = document.getElementById('edit-status-champ');
+  if(!editBracket.championPick) editBracket.championPick = { team: '', seed: 0 };
+  var champTeamVal = champTeam ? champTeam.value.trim() : '';
+  var champSeedVal = champSeed ? (parseInt(champSeed.value) || 0) : 0;
+  var champStatVal = champStat ? champStat.value : 'pending';
+  editBracket.championPick.team = champTeamVal;
+  editBracket.championPick.seed = champSeedVal;
+  // Keep picks['Final']['champ'] in sync — this is what applyWinnersResults reads
+  if(!editBracket.picks['Final']) editBracket.picks['Final'] = [];
+  var champFinalPick = editBracket.picks['Final'].find(function(p){ return p.slotId === 'champ'; });
+  if(champFinalPick) {
+    champFinalPick.team   = champTeamVal;
+    champFinalPick.seed   = champSeedVal;
+    champFinalPick.status = champStatVal;
+  } else {
+    editBracket.picks['Final'].push({ slotId: 'champ', team: champTeamVal, seed: champSeedVal, status: champStatVal });
+  }
+
+  // Score fields
+  var isWinnersEdit = editBracket._filename && editBracket._filename.indexOf('winners') !== -1;
+  if(isWinnersEdit) {
+    var aw = document.getElementById('edit-actual-winner-score');
+    var al = document.getElementById('edit-actual-loser-score');
+    if(aw) editBracket.championPick.actualWinnerScore = parseInt(aw.value) || 0;
+    if(al) editBracket.championPick.actualLoserScore = parseInt(al.value) || 0;
+  } else {
+    var pw = document.getElementById('edit-pred-winner-score');
+    var pl = document.getElementById('edit-pred-loser-score');
+    if(pw) editBracket.championPick.predictedWinnerScore = parseInt(pw.value) || 0;
+    if(pl) editBracket.championPick.predictedLoserScore = parseInt(pl.value) || 0;
+  }
+}
+
+function exportSingleBracket() {
+  if(!editBracket) { alert('Export failed: no bracket loaded.'); return; }
+  try {
+    var slotRoundMapExp = {};
+    Object.keys(CANONICAL_SLOTS).forEach(function(prefix) {
+      Object.keys(CANONICAL_SLOTS[prefix]).forEach(function(round) {
+        CANONICAL_SLOTS[prefix][round].forEach(function(sid) { slotRoundMapExp[sid] = round; });
+      });
+    });
+    slotRoundMapExp['0_2'] = 'F4'; slotRoundMapExp['0_3'] = 'F4';
+    Object.keys(slotRoundMapExp).forEach(function(sid) {
+      var round = slotRoundMapExp[sid];
+      if(!editBracket.picks[round]) editBracket.picks[round] = [];
+      if(!editBracket.picks[round].find(function(p){ return p.slotId === sid; })) {
+        editBracket.picks[round].push({ slotId: sid, team: '', seed: 0, status: 'pending' });
+      }
+    });
+    collectEdits();
+    var total = 0, correct = 0, incorrect = 0, pending = 0;
+    ROUND_ORDER.forEach(function(round) {
+      (editBracket.picks[round] || []).forEach(function(pick) {
+        total++;
+        if(pick.status === 'correct') correct++;
+        else if(pick.status === 'incorrect') incorrect++;
+        else pending++;
+      });
+    });
+    var out =
+      '/**\n' +
+      ' * BRC Bracket Picks \u00b7 ' + editBracket.bracketName + ' \u00b7 ' + (editBracket.year || '2026') + '\n' +
+      ' * Member ID: ' + editBracket.memberId + ' \n' +
+      ' * Generated: ' + new Date().toLocaleString() + '\n' +
+      ' * ' + total + ' picks (\u2713' + correct + ' correct \u2717' + incorrect + ' incorrect \u29d6' + pending + ' pending)\n' +
+      ' */\n\n' +
+      'window.OFL_BRC_PICKS_IMPORT = ' + JSON.stringify({
+        leagueId:      editBracket.leagueId || 'lg_002',
+        year:          editBracket.year || '2026',
+        memberId:      editBracket.memberId,
+        bracketName:   editBracket.bracketName,
+        yahooUrl:      editBracket.yahooUrl || '',
+        generatedAt:   new Date().toISOString(),
+        summary: { total: total, correct: correct, incorrect: incorrect, pending: pending },
+        picks:         editBracket.picks,
+        championPick:  editBracket.championPick || {},
+        actualResults: editBracket.actualResults || []
+      }, null, 2) + ';\n';
+    var blob = new Blob([out], { type: 'text/javascript;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = editFilename || 'bracket.js';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch(err) {
+    console.error('Export error:', err);
+    alert('Export failed: ' + err.message);
+  }
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
