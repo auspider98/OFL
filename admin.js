@@ -218,10 +218,12 @@ var SPORT_STAT_SCHEMAS = {
       },
       {
         key: "cinderellaPick",
-        label: "Highest Seed in the Elite Eight",
+        label: "Lowest Sweet Sixteen Seed (TB Pts)",
         awardKey: "cinderellaPick",
         type: "owner",
-        subFields: []
+        subFields: [
+          { key: "lowestS16Seed", label: "Lowest S16 Seed", type: "number" }
+        ]
       },
       {
         key: "bestSingleRound",
@@ -239,15 +241,21 @@ var SPORT_STAT_SCHEMAS = {
         awardKey: "finalFourCorrect",
         type: "owner",
         multiWinner: true,
-        subFields: []
+        subFields: [
+          { key: "f4Teams", label: "Number of F4 Teams", type: "number" }
+        ]
       },
       {
         key: "championshipCorrect",
-        label: "Predicted the Most Upsets",
+        label: "Best Upset Prediction % (TB Pts)",
         awardKey: "championshipCorrect",
         type: "owner",
         multiWinner: true,
-        subFields: []
+        subFields: [
+          { key: "predicted", label: "Predicted", type: "number" },
+          { key: "correct", label: "Correct", type: "number" },
+          { key: "predictionPct", label: "Prediction %", type: "number" }
+        ]
       },
       {
         key: "lastPlace",
@@ -264,10 +272,10 @@ var SPORT_STAT_SCHEMAS = {
       { key: "champion",              defaultLabel: "The Bracket King",        hint: "Winning Bracket" },
       { key: "runnerUp",              defaultLabel: "Runner-Up",               hint: "Season Runner-Up" },
       { key: "mostCorrectPicks",      defaultLabel: "The Oracle",              hint: "Most Correct Picks" },
-      { key: "cinderellaPick",        defaultLabel: "The Cinderella Chaser",   hint: "Highest Seed in the Elite Eight" },
+      { key: "cinderellaPick",        defaultLabel: "The Cinderella Chaser",   hint: "Lowest Sweet Sixteen Seed (TB Pts)" },
       { key: "earliestBust",          defaultLabel: "The First Out",           hint: "Earliest to Lose Champion" },
       { key: "lastPlace",             defaultLabel: "The Participation Cup",   hint: "Last Place / Worst Bracket" },
-      { key: "championshipCorrect",   defaultLabel: "The Crystal Ball",        hint: "Predicted the Most Upsets" },
+      { key: "championshipCorrect",   defaultLabel: "The Crystal Ball",        hint: "Best Upset Prediction % (TB Pts)" },
       { key: "bestSingleRound",       defaultLabel: "The Round Dominator",     hint: "Most Points in the First Round" },
       { key: "finalFourCorrect",      defaultLabel: "The Prophet",             hint: "Most Final Four Teams with Points" },
       { key: "perfectBracketThrough", defaultLabel: "The Unblemished",         hint: "Longest Lasting Perfect Bracket" }
