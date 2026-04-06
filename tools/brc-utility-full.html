@@ -1031,6 +1031,7 @@ select option { background: var(--surface2); }
   <nav class="nav">
     <button class="nav-btn active" onclick="showPage('standings')">Standings</button>
     <button class="nav-btn" onclick="showPage('upsets')">Upsets</button>
+    <button class="nav-btn" onclick="showPage('gardener')">Gardener Trophy</button>
     <button class="nav-btn" onclick="showPage('scenario')">Scenarios</button>
     <button class="nav-btn" onclick="showPage('h2h')">Head-to-Head</button>
     <button class="nav-btn" onclick="showPage('survival')">Survival</button>
@@ -1199,6 +1200,38 @@ select option { background: var(--surface2); }
   </div>
 
 </div>
+
+  <!-- ══ GARDENER TROPHY ═════════════════════════════════════════════════ -->
+  <div class="page" id="page-gardener">
+    <div id="gardener-empty" class="empty-state">
+      <div class="empty-icon">🌱</div>
+      <div class="empty-title">No brackets loaded</div>
+      <div class="empty-sub">Load bracket files to see the Gardener Trophy standings.</div>
+      <button class="drop-btn" onclick="document.getElementById('fileInput').click()">+ Load bracket files</button>
+    </div>
+    <div id="gardener-content" style="display:none">
+      <div class="files-strip" id="filesStripGardener"></div>
+      <div class="section-header">
+        <div class="section-title">Gardener Trophy</div>
+        <div class="section-sub">Sum of seeds correctly predicted to reach the Sweet 16 · highest wins</div>
+      </div>
+      <div class="cards-grid" id="gardenerSummaryCards"></div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+        <table class="standings-table" id="gardenerTable">
+          <thead>
+            <tr>
+              <th style="width:40px;text-align:center">#</th>
+              <th>Bracket</th>
+              <th class="r">Seed Total</th>
+              <th class="r">Correct S16 Picks</th>
+              <th class="r">Pts Thru R32</th>
+            </tr>
+          </thead>
+          <tbody id="gardenerBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
   <!-- ══ FINAL SCORE ══════════════════════════════════════════════════════ -->
   <div class="page" id="page-finalscore">
@@ -1375,7 +1408,7 @@ function afterLoad() {
   updateStatus();
   renderAll();
   // Show content areas for main tabs
-  ['standings','upsets','scenario','h2h','survival'].forEach(function(p){
+  ['standings','upsets','scenario','h2h','survival','gardener'].forEach(function(p){
     var empty = document.getElementById(p+'-empty');
     var cont = document.getElementById(p+'-content');
     if(brackets.length > 0) {
@@ -1536,10 +1569,11 @@ function renderAll() {
   renderH2HSelectors();
   renderH2H();
   renderSurvival();
+  renderGardenerTrophy();
 }
 
 function renderFilesStrip() {
-  ['','Upsets','Scenario','H2H','Survival'].forEach(function(suffix){
+  ['','Upsets','Scenario','H2H','Survival','Gardener'].forEach(function(suffix){
     var el = document.getElementById('filesStrip'+suffix);
     if(!el) return;
     el.innerHTML = '';
@@ -1675,9 +1709,10 @@ function renderUpsets() {
     });
   });
 
-  // Build per-bracket upset tracking: bracketName → {predicted:[], correct:[]}
+  // Build per-bracket upset tracking: bracketName → {predicted, correct, pending, ddCorrect}
+  // ddCorrect = correctly predicted double-digit seed (≥10) wins
   var bracketUpsets = {};
-  brackets.forEach(function(b){ bracketUpsets[b.bracketName] = {predicted:0, correct:0, pending:0}; });
+  brackets.forEach(function(b){ bracketUpsets[b.bracketName] = {predicted:0, correct:0, pending:0, ddCorrect:0}; });
 
   // Build all predicted upsets across all brackets
   var upsetMap = {};
@@ -1719,7 +1754,11 @@ function renderUpsets() {
           // Per-bracket tallies
           bracketUpsets[b.bracketName].predicted++;
           if(result && result.result && result.result.complete) {
-            if(result.result.winner === pick.team) bracketUpsets[b.bracketName].correct++;
+            if(result.result.winner === pick.team) {
+              bracketUpsets[b.bracketName].correct++;
+              // Double-digit upset: winning team seed >= 10
+              if(pickedSeed >= 10) bracketUpsets[b.bracketName].ddCorrect++;
+            }
           } else {
             bracketUpsets[b.bracketName].pending++;
           }
@@ -1746,10 +1785,10 @@ function renderUpsets() {
 
   // ── Upset leaderboard table ──────────────────────────────────────────────
   var lbData = brackets.map(function(b){
-    var u = bracketUpsets[b.bracketName] || {predicted:0, correct:0, pending:0};
+    var u = bracketUpsets[b.bracketName] || {predicted:0, correct:0, pending:0, ddCorrect:0};
     var rate = u.predicted > 0 ? Math.round((u.correct / (u.predicted - u.pending)) * 100) : 0;
     if(u.predicted - u.pending <= 0) rate = 0;
-    return { name: b.bracketName, predicted: u.predicted, correct: u.correct, pending: u.pending, rate: rate };
+    return { name: b.bracketName, predicted: u.predicted, correct: u.correct, pending: u.pending, rate: rate, ddCorrect: u.ddCorrect };
   }).sort(function(a,b){
     return b.correct - a.correct || b.predicted - a.predicted;
   });
@@ -1762,6 +1801,7 @@ function renderUpsets() {
     '<th class="r">Correct</th>' +
     '<th class="r">Pending</th>' +
     '<th class="r">Hit Rate</th>' +
+    '<th class="r">DD Upsets (≥10)</th>' +
     '</tr></thead><tbody>';
 
   lbData.forEach(function(row, i){
@@ -1775,6 +1815,7 @@ function renderUpsets() {
       '<td class="lb-num correct">' + row.correct + '</td>' +
       '<td class="lb-num" style="color:var(--accent3)">' + row.pending + '</td>' +
       '<td class="lb-rate">' + rateStr + '</td>' +
+      '<td class="lb-num' + (row.ddCorrect > 0 ? ' correct' : '') + '">' + row.ddCorrect + '</td>' +
       '</tr>';
   });
 
@@ -3040,6 +3081,115 @@ function exportSingleBracket() {
     alert('Export failed: ' + err.message);
   }
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GARDENER TROPHY
+// ═══════════════════════════════════════════════════════════════════════════
+function renderGardenerTrophy() {
+  var body = document.getElementById('gardenerBody');
+  var cards = document.getElementById('gardenerSummaryCards');
+  if(!body) return;
+
+  if(!brackets.length) { body.innerHTML = ''; return; }
+
+  // Build a map of slotId -> actual winner from the results object (winners file)
+  var actualWinners = {};
+  Object.keys(results).forEach(function(slotId) {
+    var r = results[slotId];
+    if(r && r.result && r.result.complete && r.result.winner) {
+      actualWinners[slotId] = r.result.winner;
+    }
+  });
+
+  // R32 picks = Sweet 16 predictions
+  // A pick is correct if the results object confirms that team won that slot
+  var rows = brackets.map(function(b) {
+    var r32picks = (b.picks['R32'] || []);
+    var seedTotal = 0;
+    var correctCount = 0;
+    var correctTeams = [];
+
+    r32picks.forEach(function(pick) {
+      var actualWinner = actualWinners[pick.slotId];
+      var isCorrect = actualWinner
+        ? actualWinner === pick.team          // cross-check against winners file
+        : pick.status === 'correct';          // fall back to stored status if no result yet
+      if(isCorrect) {
+        seedTotal += (pick.seed || 0);
+        correctCount++;
+        correctTeams.push({ team: pick.team, seed: pick.seed || 0 });
+      }
+    });
+
+    // Tiebreaker 2: total points through R32 only (at time of Sweet 16)
+    var overall = 0;
+    var pts = {R64:1,R32:2};
+    ['R64','R32'].forEach(function(round) {
+      (b.picks[round]||[]).forEach(function(pick) {
+        var aw = actualWinners[pick.slotId];
+        var correct = aw ? aw === pick.team : pick.status === 'correct';
+        if(correct) overall += (pts[round] || 0);
+      });
+    });
+
+    return {
+      bracketName: b.bracketName,
+      memberId: b.memberId,
+      seedTotal: seedTotal,
+      correctCount: correctCount,
+      overall: overall,
+      correctTeams: correctTeams.sort(function(a,b){ return b.seed - a.seed; })
+    };
+  });
+
+  // Sort: highest seed total → fewest correct picks → most overall pts
+  rows.sort(function(a, b) {
+    if(b.seedTotal !== a.seedTotal) return b.seedTotal - a.seedTotal;
+    if(a.correctCount !== b.correctCount) return a.correctCount - b.correctCount;
+    return b.overall - a.overall;
+  });
+
+  // Summary cards
+  if(cards) {
+    cards.innerHTML = '';
+    var winner = rows[0];
+    var maxSeedTeam = winner ? winner.correctTeams[0] : null;
+    addCard(cards, 'Trophy Leader', winner ? winner.bracketName : '—',
+      winner ? winner.seedTotal + ' seed pts' : '');
+    addCard(cards, 'Highest Seed Called', maxSeedTeam ? maxSeedTeam.team : '—',
+      maxSeedTeam ? 'seed ' + maxSeedTeam.seed : '');
+    var totalCorrect = rows.reduce(function(s,r){ return s + r.correctCount; }, 0);
+    var avgCorrect = rows.length ? (totalCorrect / rows.length).toFixed(1) : 0;
+    addCard(cards, 'Avg Correct S16 Picks', avgCorrect, 'per bracket');
+  }
+
+  // Table
+  var html = '';
+  rows.forEach(function(row, i) {
+    var rank = i + 1;
+    var teamChips = row.correctTeams.map(function(t) {
+      return '<span style="display:inline-block;background:var(--surface3);border:1px solid var(--border2);' +
+        'border-radius:3px;padding:1px 6px;margin:1px;font-size:9px;color:var(--dim2)">' +
+        esc(t.team) + ' <span style="color:var(--accent3)">' + t.seed + '</span></span>';
+    }).join('');
+
+    html +=
+      '<tr>' +
+      '<td class="rank-cell' + (rank <= 3 ? ' top' : '') + '">' + rank + '</td>' +
+      '<td>' +
+        '<div class="bracket-name">' + esc(row.bracketName) + '</div>' +
+        '<div style="margin-top:4px;line-height:1.8">' +
+          (teamChips || '<span style="font-size:10px;color:var(--dim)">no correct picks yet</span>') +
+        '</div>' +
+      '</td>' +
+      '<td style="text-align:right;font-family:var(--display);font-weight:800;font-size:20px;color:var(--accent3)">' + row.seedTotal + '</td>' +
+      '<td style="text-align:right;color:var(--dim2)">' + row.correctCount + '</td>' +
+      '<td style="text-align:right;color:var(--dim2)">' + row.overall + '</td>' +
+      '</tr>';
+  });
+  body.innerHTML = html;
+}
+
 
 function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
