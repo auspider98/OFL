@@ -1,7 +1,7 @@
 /**
  * BRC Bracket Picks · Winners · 2026
  * Member ID: mbr_winners 
- * Generated: 4/6/2026, 10:05:31 AM
+ * Generated: 4/6/2026, 3:30:09 PM
  * 63 picks (✓62 correct ✗0 incorrect ⧖1 pending)
  */
 
@@ -11,7 +11,7 @@ window.OFL_BRC_PICKS_IMPORT = {
   "memberId": "mbr_winners",
   "bracketName": "Winners",
   "yahooUrl": "https://tournament.fantasysports.yahoo.com/mens-basketball-bracket/240070",
-  "generatedAt": "2026-04-06T14:05:31.374Z",
+  "generatedAt": "2026-04-06T19:30:09.386Z",
   "summary": {
     "total": 63,
     "correct": 62,
@@ -27,8 +27,8 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "1_8"
       },
       {
-        "team": "Ohio St.",
-        "seed": 8,
+        "team": "TCU",
+        "seed": 9,
         "status": "correct",
         "slotId": "1_9"
       },
@@ -57,8 +57,8 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "1_13"
       },
       {
-        "team": "UCF",
-        "seed": 10,
+        "team": "UCLA",
+        "seed": 7,
         "status": "correct",
         "slotId": "1_14"
       },
@@ -93,8 +93,8 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "2_11"
       },
       {
-        "team": "N. Carolina",
-        "seed": 6,
+        "team": "VCU",
+        "seed": 11,
         "status": "correct",
         "slotId": "2_12"
       },
@@ -105,8 +105,8 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "2_13"
       },
       {
-        "team": "St. Mary's",
-        "seed": 7,
+        "team": "Texas A&M",
+        "seed": 10,
         "status": "correct",
         "slotId": "2_14"
       },
@@ -129,8 +129,8 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "3_9"
       },
       {
-        "team": "Wisconsin",
-        "seed": 5,
+        "team": "High Point",
+        "seed": 12,
         "status": "correct",
         "slotId": "3_10"
       },
@@ -141,8 +141,8 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "3_11"
       },
       {
-        "team": "BYU",
-        "seed": 6,
+        "team": "Texas",
+        "seed": 11,
         "status": "correct",
         "slotId": "3_12"
       },
@@ -153,8 +153,8 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "3_13"
       },
       {
-        "team": "Missouri",
-        "seed": 10,
+        "team": "Miami",
+        "seed": 7,
         "status": "correct",
         "slotId": "3_14"
       },
@@ -171,8 +171,8 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "4_8"
       },
       {
-        "team": "Georgia",
-        "seed": 8,
+        "team": "Saint Louis",
+        "seed": 9,
         "status": "correct",
         "slotId": "4_9"
       },
@@ -239,14 +239,14 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "1_7"
       },
       {
-        "team": "Florida",
-        "seed": 1,
+        "team": "Iowa",
+        "seed": 9,
         "status": "correct",
         "slotId": "2_4"
       },
       {
-        "team": "Vanderbilt",
-        "seed": 5,
+        "team": "Nebraska",
+        "seed": 4,
         "status": "correct",
         "slotId": "2_5"
       },
@@ -275,8 +275,8 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "3_5"
       },
       {
-        "team": "Gonzaga",
-        "seed": 3,
+        "team": "Texas",
+        "seed": 11,
         "status": "correct",
         "slotId": "3_6"
       },
@@ -299,8 +299,8 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "4_5"
       },
       {
-        "team": "Virginia",
-        "seed": 3,
+        "team": "Tennessee",
+        "seed": 6,
         "status": "correct",
         "slotId": "4_6"
       },
@@ -325,8 +325,8 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "1_3"
       },
       {
-        "team": "Vanderbilt",
-        "seed": 5,
+        "team": "Iowa",
+        "seed": 9,
         "status": "correct",
         "slotId": "2_2"
       },
@@ -355,8 +355,8 @@ window.OFL_BRC_PICKS_IMPORT = {
         "slotId": "4_2"
       },
       {
-        "team": "Iowa St.",
-        "seed": 2,
+        "team": "Tennessee",
+        "seed": 6,
         "status": "correct",
         "slotId": "4_3"
       }
@@ -404,7 +404,7 @@ window.OFL_BRC_PICKS_IMPORT = {
     "Final": [
       {
         "team": "",
-        "seed": 2,
+        "seed": 1,
         "status": "pending",
         "slotId": "champ"
       }
@@ -412,7 +412,7 @@ window.OFL_BRC_PICKS_IMPORT = {
   },
   "championPick": {
     "team": "",
-    "seed": 2,
+    "seed": 1,
     "predictedWinnerScore": 0,
     "predictedLoserScore": 0,
     "actualWinnerScore": 0,
