@@ -1712,7 +1712,8 @@ function renderUpsets() {
   // Build per-bracket upset tracking: bracketName → {predicted, correct, pending, ddCorrect}
   // ddCorrect = correctly predicted double-digit seed (≥10) wins
   var bracketUpsets = {};
-  brackets.forEach(function(b){ bracketUpsets[b.bracketName] = {predicted:0, correct:0, pending:0, ddCorrect:0}; });
+  var ROUND_DEPTH = {R64:1,R32:2,S16:3,E8:4,F4:5,Final:6};
+  brackets.forEach(function(b){ bracketUpsets[b.bracketName] = {predicted:0, correct:0, pending:0, ddCorrect:0, deepestDD:0, deepestDDRound:'', lowestS16Seed:0, ptsThruS16:0, lowestE8Seed:0, ptsThruE8:0}; });
 
   // Build all predicted upsets across all brackets
   var upsetMap = {};
@@ -1752,18 +1753,73 @@ function renderUpsets() {
           }
 
           // Per-bracket tallies
+
           bracketUpsets[b.bracketName].predicted++;
           if(result && result.result && result.result.complete) {
             if(result.result.winner === pick.team) {
               bracketUpsets[b.bracketName].correct++;
               // Double-digit upset: winning team seed >= 10
-              if(pickedSeed >= 10) bracketUpsets[b.bracketName].ddCorrect++;
+              if(pickedSeed >= 10) {
+                bracketUpsets[b.bracketName].ddCorrect++;
+                var depth = ROUND_DEPTH[round] || 0;
+                if(depth > bracketUpsets[b.bracketName].deepestDD) {
+                  bracketUpsets[b.bracketName].deepestDD = depth;
+                  bracketUpsets[b.bracketName].deepestDDRound = round;
+                }
+              }
             }
           } else {
             bracketUpsets[b.bracketName].pending++;
           }
         }
       });
+    });
+  });
+
+  // Track lowest seed (highest number) correctly predicted to win S16 (reach E8)
+  // Also compute each bracket's cumulative score through end of S16
+  brackets.forEach(function(b){
+    var pts = 0;
+    ['R64','R32','S16'].forEach(function(round){
+      (b.picks[round]||[]).forEach(function(pick){
+        var result = results[pick.slotId];
+        if(result && result.result && result.result.complete && result.result.winner === pick.team) {
+          pts += ROUND_PTS[round] || 0;
+        }
+      });
+    });
+    bracketUpsets[b.bracketName].ptsThruS16 = pts;
+    (b.picks['S16']||[]).forEach(function(pick){
+      var result = results[pick.slotId];
+      if(result && result.result && result.result.complete && result.result.winner === pick.team) {
+        var seed = pick.seed || seedMap[pick.team] || 0;
+        if(seed > bracketUpsets[b.bracketName].lowestS16Seed) {
+          bracketUpsets[b.bracketName].lowestS16Seed = seed;
+        }
+      }
+    });
+  });
+
+  // Track lowest seed correctly predicted to win E8 + cumulative pts through E8
+  brackets.forEach(function(b){
+    var pts = 0;
+    ['R64','R32','S16','E8'].forEach(function(round){
+      (b.picks[round]||[]).forEach(function(pick){
+        var result = results[pick.slotId];
+        if(result && result.result && result.result.complete && result.result.winner === pick.team) {
+          pts += ROUND_PTS[round] || 0;
+        }
+      });
+    });
+    bracketUpsets[b.bracketName].ptsThruE8 = pts;
+    (b.picks['E8']||[]).forEach(function(pick){
+      var result = results[pick.slotId];
+      if(result && result.result && result.result.complete && result.result.winner === pick.team) {
+        var seed = pick.seed || seedMap[pick.team] || 0;
+        if(seed > bracketUpsets[b.bracketName].lowestE8Seed) {
+          bracketUpsets[b.bracketName].lowestE8Seed = seed;
+        }
+      }
     });
   });
 
@@ -1788,7 +1844,7 @@ function renderUpsets() {
     var u = bracketUpsets[b.bracketName] || {predicted:0, correct:0, pending:0, ddCorrect:0};
     var rate = u.predicted > 0 ? Math.round((u.correct / (u.predicted - u.pending)) * 100) : 0;
     if(u.predicted - u.pending <= 0) rate = 0;
-    return { name: b.bracketName, predicted: u.predicted, correct: u.correct, pending: u.pending, rate: rate, ddCorrect: u.ddCorrect };
+    return { name: b.bracketName, predicted: u.predicted, correct: u.correct, pending: u.pending, rate: rate, ddCorrect: u.ddCorrect, deepestDDRound: u.deepestDDRound || '', lowestS16Seed: u.lowestS16Seed || 0, ptsThruS16: u.ptsThruS16 || 0, lowestE8Seed: u.lowestE8Seed || 0, ptsThruE8: u.ptsThruE8 || 0 };
   }).sort(function(a,b){
     return b.correct - a.correct || b.predicted - a.predicted;
   });
@@ -1802,6 +1858,9 @@ function renderUpsets() {
     '<th class="r">Pending</th>' +
     '<th class="r">Hit Rate</th>' +
     '<th class="r">DD Upsets (≥10)</th>' +
+    '<th class="r">Deepest 10+ Seed</th>' +
+    '<th class="r">Lowest Correct S16 Seed</th>' +
+    '<th class="r">Lowest Correct E8 Seed</th>' +
     '</tr></thead><tbody>';
 
   lbData.forEach(function(row, i){
@@ -1816,6 +1875,12 @@ function renderUpsets() {
       '<td class="lb-num" style="color:var(--accent3)">' + row.pending + '</td>' +
       '<td class="lb-rate">' + rateStr + '</td>' +
       '<td class="lb-num' + (row.ddCorrect > 0 ? ' correct' : '') + '">' + row.ddCorrect + '</td>' +
+      (function(){
+        var ADVANCEMENTS = {R64:'R32',R32:'S16',S16:'E8',E8:'F4',F4:'Finals',Final:'Champion'};
+        return '<td class="lb-rate">' + (row.deepestDDRound ? (ADVANCEMENTS[row.deepestDDRound] || row.deepestDDRound) : '—') + '</td>';
+      })() +
+      '<td class="lb-num' + (row.lowestS16Seed >= 10 ? ' correct' : '') + '">' + (row.lowestS16Seed > 0 ? row.lowestS16Seed + ' / ' + row.ptsThruS16 : '—') + '</td>' +
+      '<td class="lb-num' + (row.lowestE8Seed >= 10 ? ' correct' : '') + '">' + (row.lowestE8Seed > 0 ? row.lowestE8Seed + ' / ' + row.ptsThruE8 : '—') + '</td>' +
       '</tr>';
   });
 
