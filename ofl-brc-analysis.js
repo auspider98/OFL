@@ -1,13 +1,13 @@
 /**
  * OFL BRC Analysis Export · 2026
- * Generated: 4/5/2026, 7:42:42 PM
+ * Generated: 4/6/2026, 9:53:05 AM
  * 13 brackets · 62 games tracked
  * Load as <script src="ofl-brc-analysis.js"></script> in league.html
  */
 
 window.OFL_BRC_ANALYSIS = {
   "meta": {
-    "generated": "2026-04-05T23:42:42.556Z",
+    "generated": "2026-04-06T13:53:05.948Z",
     "year": "2026",
     "bracketsLoaded": 13,
     "gamesTracked": 62,
@@ -1875,7 +1875,7 @@ window.OFL_BRC_ANALYSIS = {
           "round": "Final",
           "team": "Florida",
           "seed": 1,
-          "status": "incorrect"
+          "status": "pending"
         }
       ],
       "pendingPicks": []
@@ -2328,7 +2328,7 @@ window.OFL_BRC_ANALYSIS = {
           "round": "Final",
           "team": "Duke",
           "seed": 1,
-          "status": "incorrect"
+          "status": "pending"
         }
       ],
       "pendingPicks": []
@@ -2781,7 +2781,7 @@ window.OFL_BRC_ANALYSIS = {
           "round": "Final",
           "team": "Duke",
           "seed": 1,
-          "status": "incorrect"
+          "status": "pending"
         }
       ],
       "pendingPicks": []
@@ -3234,7 +3234,7 @@ window.OFL_BRC_ANALYSIS = {
           "round": "Final",
           "team": "Duke",
           "seed": 1,
-          "status": "incorrect"
+          "status": "pending"
         }
       ],
       "pendingPicks": []
@@ -3687,7 +3687,7 @@ window.OFL_BRC_ANALYSIS = {
           "round": "Final",
           "team": "Duke",
           "seed": 1,
-          "status": "incorrect"
+          "status": "pending"
         }
       ],
       "pendingPicks": []
@@ -4140,7 +4140,7 @@ window.OFL_BRC_ANALYSIS = {
           "round": "Final",
           "team": "Arizona",
           "seed": 1,
-          "status": "incorrect"
+          "status": "pending"
         }
       ],
       "pendingPicks": []
@@ -4593,7 +4593,7 @@ window.OFL_BRC_ANALYSIS = {
           "round": "Final",
           "team": "Duke",
           "seed": 1,
-          "status": "incorrect"
+          "status": "pending"
         }
       ],
       "pendingPicks": []
@@ -5046,7 +5046,7 @@ window.OFL_BRC_ANALYSIS = {
           "round": "Final",
           "team": "Arizona",
           "seed": 1,
-          "status": "incorrect"
+          "status": "pending"
         }
       ],
       "pendingPicks": []
@@ -5499,7 +5499,7 @@ window.OFL_BRC_ANALYSIS = {
           "round": "Final",
           "team": "Michigan St.",
           "seed": 3,
-          "status": "incorrect"
+          "status": "pending"
         }
       ],
       "pendingPicks": []
@@ -5952,7 +5952,7 @@ window.OFL_BRC_ANALYSIS = {
           "round": "Final",
           "team": "Duke",
           "seed": 1,
-          "status": "incorrect"
+          "status": "pending"
         }
       ],
       "pendingPicks": []
@@ -5975,8 +5975,8 @@ window.OFL_BRC_ANALYSIS = {
     }
   ],
   "pendingPicks": {
-    "mbr_001": [],
     "mbr_mm1629iqfyaj": [],
+    "mbr_002": [],
     "mbr_mm7vmncz4gfs": [
       {
         "slotId": "champ",
@@ -5985,7 +5985,6 @@ window.OFL_BRC_ANALYSIS = {
         "seed": 1
       }
     ],
-    "mbr_002": [],
     "mbr_mm7vlo5hx9hn": [],
     "mbr_mm1635nfdqvt": [
       {
@@ -6006,9 +6005,10 @@ window.OFL_BRC_ANALYSIS = {
     "mbr_003": [],
     "mbr_mm164375ur1b": [],
     "mbr_mm161lj76qt7": [],
-    "mbr_006": [],
+    "mbr_005": [],
     "mbr_004": [],
-    "mbr_005": []
+    "mbr_001": [],
+    "mbr_006": []
   },
   "actualResults": {
     "1_8": {
@@ -6083,69 +6083,6 @@ window.OFL_BRC_ANALYSIS = {
       "loserSeed": 15,
       "loserScore": 71
     },
-    "1_4": {
-      "round": "R32",
-      "winner": "Duke",
-      "winnerSeed": 1,
-      "winnerScore": 81,
-      "loser": "TCU",
-      "loserSeed": 9,
-      "loserScore": 58
-    },
-    "1_5": {
-      "round": "R32",
-      "winner": "St. John's",
-      "winnerSeed": 5,
-      "winnerScore": 67,
-      "loser": "Kansas",
-      "loserSeed": 4,
-      "loserScore": 65
-    },
-    "1_6": {
-      "round": "R32",
-      "winner": "Michigan St.",
-      "winnerSeed": 3,
-      "winnerScore": 77,
-      "loser": "Louisville",
-      "loserSeed": 6,
-      "loserScore": 69
-    },
-    "1_7": {
-      "round": "R32",
-      "winner": "Connecticut",
-      "winnerSeed": 2,
-      "winnerScore": 73,
-      "loser": "UCLA",
-      "loserSeed": 7,
-      "loserScore": 57
-    },
-    "1_2": {
-      "round": "S16",
-      "winner": "Duke",
-      "winnerSeed": 1,
-      "winnerScore": 80,
-      "loser": "St. John's",
-      "loserSeed": 5,
-      "loserScore": 75
-    },
-    "1_3": {
-      "round": "S16",
-      "winner": "Connecticut",
-      "winnerSeed": 2,
-      "winnerScore": 67,
-      "loser": "Michigan St.",
-      "loserSeed": 3,
-      "loserScore": 63
-    },
-    "1_1": {
-      "round": "E8",
-      "winner": "Connecticut",
-      "winnerSeed": 2,
-      "winnerScore": 73,
-      "loser": "Duke",
-      "loserSeed": 1,
-      "loserScore": 72
-    },
     "2_8": {
       "round": "R64",
       "winner": "Florida",
@@ -6217,69 +6154,6 @@ window.OFL_BRC_ANALYSIS = {
       "loser": "Idaho",
       "loserSeed": 15,
       "loserScore": 47
-    },
-    "2_4": {
-      "round": "R32",
-      "winner": "Iowa",
-      "winnerSeed": 9,
-      "winnerScore": 73,
-      "loser": "Florida",
-      "loserSeed": 1,
-      "loserScore": 72
-    },
-    "2_5": {
-      "round": "R32",
-      "winner": "Nebraska",
-      "winnerSeed": 4,
-      "winnerScore": 74,
-      "loser": "Vanderbilt",
-      "loserSeed": 5,
-      "loserScore": 72
-    },
-    "2_6": {
-      "round": "R32",
-      "winner": "Illinois",
-      "winnerSeed": 3,
-      "winnerScore": 76,
-      "loser": "VCU",
-      "loserSeed": 11,
-      "loserScore": 55
-    },
-    "2_7": {
-      "round": "R32",
-      "winner": "Houston",
-      "winnerSeed": 2,
-      "winnerScore": 88,
-      "loser": "Texas A&M",
-      "loserSeed": 10,
-      "loserScore": 57
-    },
-    "2_2": {
-      "round": "S16",
-      "winner": "Iowa",
-      "winnerSeed": 9,
-      "winnerScore": 77,
-      "loser": "Nebraska",
-      "loserSeed": 4,
-      "loserScore": 71
-    },
-    "2_3": {
-      "round": "S16",
-      "winner": "Illinois",
-      "winnerSeed": 3,
-      "winnerScore": 65,
-      "loser": "Houston",
-      "loserSeed": 2,
-      "loserScore": 55
-    },
-    "2_1": {
-      "round": "E8",
-      "winner": "Illinois",
-      "winnerSeed": 3,
-      "winnerScore": 71,
-      "loser": "Iowa",
-      "loserSeed": 9,
-      "loserScore": 59
     },
     "3_8": {
       "round": "R64",
@@ -6353,69 +6227,6 @@ window.OFL_BRC_ANALYSIS = {
       "loserSeed": 15,
       "loserScore": 71
     },
-    "3_4": {
-      "round": "R32",
-      "winner": "Arizona",
-      "winnerSeed": 1,
-      "winnerScore": 78,
-      "loser": "Utah St.",
-      "loserSeed": 9,
-      "loserScore": 66
-    },
-    "3_5": {
-      "round": "R32",
-      "winner": "Arkansas",
-      "winnerSeed": 4,
-      "winnerScore": 94,
-      "loser": "High Point",
-      "loserSeed": 12,
-      "loserScore": 88
-    },
-    "3_6": {
-      "round": "R32",
-      "winner": "Texas",
-      "winnerSeed": 11,
-      "winnerScore": 74,
-      "loser": "Gonzaga",
-      "loserSeed": 3,
-      "loserScore": 68
-    },
-    "3_7": {
-      "round": "R32",
-      "winner": "Purdue",
-      "winnerSeed": 2,
-      "winnerScore": 79,
-      "loser": "Miami (FL)",
-      "loserSeed": 7,
-      "loserScore": 69
-    },
-    "3_2": {
-      "round": "S16",
-      "winner": "Arizona",
-      "winnerSeed": 1,
-      "winnerScore": 109,
-      "loser": "Arkansas",
-      "loserSeed": 4,
-      "loserScore": 88
-    },
-    "3_3": {
-      "round": "S16",
-      "winner": "Purdue",
-      "winnerSeed": 2,
-      "winnerScore": 79,
-      "loser": "Texas",
-      "loserSeed": 11,
-      "loserScore": 77
-    },
-    "3_1": {
-      "round": "E8",
-      "winner": "Arizona",
-      "winnerSeed": 1,
-      "winnerScore": 79,
-      "loser": "Purdue",
-      "loserSeed": 2,
-      "loserScore": 64
-    },
     "4_8": {
       "round": "R64",
       "winner": "Michigan",
@@ -6488,6 +6299,114 @@ window.OFL_BRC_ANALYSIS = {
       "loserSeed": 15,
       "loserScore": 74
     },
+    "1_4": {
+      "round": "R32",
+      "winner": "Duke",
+      "winnerSeed": 1,
+      "winnerScore": 81,
+      "loser": "TCU",
+      "loserSeed": 9,
+      "loserScore": 58
+    },
+    "1_5": {
+      "round": "R32",
+      "winner": "St. John's",
+      "winnerSeed": 5,
+      "winnerScore": 67,
+      "loser": "Kansas",
+      "loserSeed": 4,
+      "loserScore": 65
+    },
+    "1_6": {
+      "round": "R32",
+      "winner": "Michigan St.",
+      "winnerSeed": 3,
+      "winnerScore": 77,
+      "loser": "Louisville",
+      "loserSeed": 6,
+      "loserScore": 69
+    },
+    "1_7": {
+      "round": "R32",
+      "winner": "Connecticut",
+      "winnerSeed": 2,
+      "winnerScore": 73,
+      "loser": "UCLA",
+      "loserSeed": 7,
+      "loserScore": 57
+    },
+    "2_4": {
+      "round": "R32",
+      "winner": "Iowa",
+      "winnerSeed": 9,
+      "winnerScore": 73,
+      "loser": "Florida",
+      "loserSeed": 1,
+      "loserScore": 72
+    },
+    "2_5": {
+      "round": "R32",
+      "winner": "Nebraska",
+      "winnerSeed": 4,
+      "winnerScore": 74,
+      "loser": "Vanderbilt",
+      "loserSeed": 5,
+      "loserScore": 72
+    },
+    "2_6": {
+      "round": "R32",
+      "winner": "Illinois",
+      "winnerSeed": 3,
+      "winnerScore": 76,
+      "loser": "VCU",
+      "loserSeed": 11,
+      "loserScore": 55
+    },
+    "2_7": {
+      "round": "R32",
+      "winner": "Houston",
+      "winnerSeed": 2,
+      "winnerScore": 88,
+      "loser": "Texas A&M",
+      "loserSeed": 10,
+      "loserScore": 57
+    },
+    "3_4": {
+      "round": "R32",
+      "winner": "Arizona",
+      "winnerSeed": 1,
+      "winnerScore": 78,
+      "loser": "Utah St.",
+      "loserSeed": 9,
+      "loserScore": 66
+    },
+    "3_5": {
+      "round": "R32",
+      "winner": "Arkansas",
+      "winnerSeed": 4,
+      "winnerScore": 94,
+      "loser": "High Point",
+      "loserSeed": 12,
+      "loserScore": 88
+    },
+    "3_6": {
+      "round": "R32",
+      "winner": "Texas",
+      "winnerSeed": 11,
+      "winnerScore": 74,
+      "loser": "Gonzaga",
+      "loserSeed": 3,
+      "loserScore": 68
+    },
+    "3_7": {
+      "round": "R32",
+      "winner": "Purdue",
+      "winnerSeed": 2,
+      "winnerScore": 79,
+      "loser": "Miami (FL)",
+      "loserSeed": 7,
+      "loserScore": 69
+    },
     "4_4": {
       "round": "R32",
       "winner": "Michigan",
@@ -6524,6 +6443,60 @@ window.OFL_BRC_ANALYSIS = {
       "loserSeed": 7,
       "loserScore": 63
     },
+    "1_2": {
+      "round": "S16",
+      "winner": "Duke",
+      "winnerSeed": 1,
+      "winnerScore": 80,
+      "loser": "St. John's",
+      "loserSeed": 5,
+      "loserScore": 75
+    },
+    "1_3": {
+      "round": "S16",
+      "winner": "Connecticut",
+      "winnerSeed": 2,
+      "winnerScore": 67,
+      "loser": "Michigan St.",
+      "loserSeed": 3,
+      "loserScore": 63
+    },
+    "2_2": {
+      "round": "S16",
+      "winner": "Iowa",
+      "winnerSeed": 9,
+      "winnerScore": 77,
+      "loser": "Nebraska",
+      "loserSeed": 4,
+      "loserScore": 71
+    },
+    "2_3": {
+      "round": "S16",
+      "winner": "Illinois",
+      "winnerSeed": 3,
+      "winnerScore": 65,
+      "loser": "Houston",
+      "loserSeed": 2,
+      "loserScore": 55
+    },
+    "3_2": {
+      "round": "S16",
+      "winner": "Arizona",
+      "winnerSeed": 1,
+      "winnerScore": 109,
+      "loser": "Arkansas",
+      "loserSeed": 4,
+      "loserScore": 88
+    },
+    "3_3": {
+      "round": "S16",
+      "winner": "Purdue",
+      "winnerSeed": 2,
+      "winnerScore": 79,
+      "loser": "Texas",
+      "loserSeed": 11,
+      "loserScore": 77
+    },
     "4_2": {
       "round": "S16",
       "winner": "Michigan",
@@ -6542,6 +6515,33 @@ window.OFL_BRC_ANALYSIS = {
       "loserSeed": 2,
       "loserScore": 62
     },
+    "1_1": {
+      "round": "E8",
+      "winner": "Connecticut",
+      "winnerSeed": 2,
+      "winnerScore": 73,
+      "loser": "Duke",
+      "loserSeed": 1,
+      "loserScore": 72
+    },
+    "2_1": {
+      "round": "E8",
+      "winner": "Illinois",
+      "winnerSeed": 3,
+      "winnerScore": 71,
+      "loser": "Iowa",
+      "loserSeed": 9,
+      "loserScore": 59
+    },
+    "3_1": {
+      "round": "E8",
+      "winner": "Arizona",
+      "winnerSeed": 1,
+      "winnerScore": 79,
+      "loser": "Purdue",
+      "loserSeed": 2,
+      "loserScore": 64
+    },
     "4_1": {
       "round": "E8",
       "winner": "Michigan",
@@ -6551,23 +6551,23 @@ window.OFL_BRC_ANALYSIS = {
       "loserSeed": 6,
       "loserScore": 62
     },
-    "0_3": {
-      "round": "F4",
-      "winner": "Michigan",
-      "winnerSeed": 1,
-      "winnerScore": 91,
-      "loser": "Arizona",
-      "loserSeed": 1,
-      "loserScore": 73
-    },
     "0_2": {
       "round": "F4",
       "winner": "Connecticut",
       "winnerSeed": 2,
-      "winnerScore": 71,
+      "winnerScore": 0,
       "loser": "Illinois",
       "loserSeed": 3,
-      "loserScore": 62
+      "loserScore": 0
+    },
+    "0_3": {
+      "round": "F4",
+      "winner": "Michigan",
+      "winnerSeed": 1,
+      "winnerScore": 0,
+      "loser": "Arizona",
+      "loserSeed": 1,
+      "loserScore": 0
     }
   },
   "opponents": {
