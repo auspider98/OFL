@@ -834,7 +834,7 @@
 
       var CS = 'Career Records';
       defs.push({section:CS, label:'Most Career Points',        top3: r.careerArr.map(   function(x){return{memberId:x.memberId,name:x.name,value:fmt(x.value,2)};})});
-      defs.push({section:CS, label:'Most BRC Season Wins',      top3: r.champWonArr.map( function(x){return{memberId:x.memberId,name:x.name,value:x.count};})});
+      defs.push({section:CS, label:'Most BRC Championships',    top3: r.champWonArr.map( function(x){return{memberId:x.memberId,name:x.name,value:x.count};})});
       defs.push({section:CS, label:'Consecutive Championships', top3: r.consChampArr.map(function(x){return{memberId:x.memberId,name:x.name,value:x.best};})});
       defs.push({section:CS, label:'Correctly Picked Champion', top3: r.champCorrArr.map(function(x){return{memberId:x.memberId,name:x.name,value:x.count};})});
       defs.push({section:CS, label:'Predicted Final Score',     top3: r.finalScoreArr.map(function(x){return{memberId:x.memberId,name:x.name,value:x.count};})});
