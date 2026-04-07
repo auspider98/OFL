@@ -2854,8 +2854,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if (cs.predictedWinner !== '' && cs.predictedLoser !== '') csParts.push('— predicted '+cs.predictedWinner+'-'+cs.predictedLoser);
             csDisplayVal = csParts.join(' ');
           }
+          var csAwardLabel = (awards && awards['closestScore'])
+            ? ' <em class="stat-award-tag">'+esc(awards['closestScore'])+'</em>' : '';
           csGroup.innerHTML =
-            '<div class="stat-group-header"><span class="stat-group-label">Closest Score</span>' +
+            '<div class="stat-group-header"><span class="stat-group-label">Closest Score</span>'+csAwardLabel+
               '<span class="stat-derived-badge">Auto</span></div>' +
             '<div class="admin-card-fields"><div class="admin-field-group full-width">' +
               '<div class="stat-derived-display" data-derived-stat="closestScore">'+esc(csDisplayVal)+'</div>' +

@@ -277,8 +277,9 @@ var SPORT_STAT_SCHEMAS = {
       { key: "lastPlace",             defaultLabel: "The Participation Cup",   hint: "Last Place / Worst Bracket" },
       { key: "championshipCorrect",   defaultLabel: "The Crystal Ball",        hint: "Best Upset Prediction % (TB Pts)" },
       { key: "bestSingleRound",       defaultLabel: "The Round Dominator",     hint: "Most Points in the First Round" },
-      { key: "finalFourCorrect",      defaultLabel: "The Prophet",             hint: "Most Final Four Teams with Points" },
-      { key: "perfectBracketThrough", defaultLabel: "The Unblemished",         hint: "Longest Lasting Perfect Bracket" }
+      { key: "finalFourCorrect",      defaultLabel: "The Final Fourcaster",    hint: "Most Final Four Teams with Points" },
+      { key: "perfectBracketThrough", defaultLabel: "The Unblemished",         hint: "Longest Lasting Perfect Bracket" },
+      { key: "closestScore",          defaultLabel: "The Score Whisperer",      hint: "Closest Championship Score Prediction" }
     ],
     standingsColumns: [
       { key: "rank",         label: "#" },

@@ -188,7 +188,7 @@
     /* Standard history row */
     .tc-history-row {
       display: grid;
-      grid-template-columns: 2.2rem 1fr 1fr;
+      grid-template-columns: 2.2rem 1fr auto;
       padding: 0.3rem 0.9rem;
       border-top: 1px solid var(--drawer-border);
       transition: background 0.15s;
@@ -198,6 +198,10 @@
       font-family: var(--font-body); font-size: 0.58rem;
       letter-spacing: 0.08em; color: var(--accent-dim); line-height: 1.6;
     }
+    .tc-history-name-cell {
+      display: flex; flex-wrap: wrap; align-items: baseline;
+      gap: 0 0.4em; overflow: hidden; min-width: 0;
+    }
     .tc-history-name {
       font-family: var(--font-body); font-size: 0.62rem;
       letter-spacing: 0.05em; color: var(--accent);
@@ -205,17 +209,17 @@
       overflow: hidden; text-overflow: ellipsis;
     }
     .tc-history-team {
-      font-family: var(--font-body); font-size: 0.58rem;
-      letter-spacing: 0.04em; color: var(--accent-dim);
-      line-height: 1.6; white-space: nowrap;
-      overflow: hidden; text-overflow: ellipsis; text-align: right;
-    }
-    .tc-history-extra {
       font-family: var(--font-body); font-size: 0.55rem;
       letter-spacing: 0.04em; color: var(--hint-color, var(--accent-dim));
-      line-height: 1.4; padding-bottom: 0.2rem;
-      grid-column: 2 / -1;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      line-height: 1.6; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+      padding-left: 0.3em;
+    }
+    .tc-history-extra {
+      font-family: var(--font-body); font-size: 0.62rem;
+      letter-spacing: 0.05em; color: var(--accent);
+      line-height: 1.6; white-space: nowrap;
+      text-align: right;
     }
 
     /* Champion history row */
@@ -368,7 +372,7 @@
       madness: [
         'champion', 'runnerUp', 'mostCorrectPicks', 'cinderellaPick',
         'earliestBust', 'championshipCorrect', 'bestSingleRound',
-        'finalFourCorrect', 'perfectBracketThrough'
+        'finalFourCorrect', 'perfectBracketThrough', 'closestScore'
         // custom awards slot in here (isCustom)
         // lastPlace always last
       ]
@@ -485,10 +489,18 @@
 
       var stat = (season.stats || {})[awardKey];
 
+      // Multi-winner (array) stats — return all winners with subField extras
       if (Array.isArray(stat)) {
         if (!stat.length) return null;
-        var f = stat[0];
-        return { name: f.ownerName || f.owner || '', team: f.bracketName || f.teamName || '' };
+        var winners = stat.map(function(f) {
+          var wExtra = '';
+          if (awardKey === 'bestSingleRound' && f.points)          wExtra = f.points + ' pts';
+          if (awardKey === 'finalFourCorrect' && f.f4Teams)         wExtra = String(f.f4Teams);
+          if (awardKey === 'championshipCorrect' && f.predicted != null) wExtra = f.predicted + ' / ' + f.correct + ' — ' + f.predictionPct + '%';
+          if (awardKey === 'perfectBracketThrough' && f.round)      wExtra = f.round;
+          return { name: f.ownerName || f.owner || '', team: f.bracketName || f.teamName || '', extra: wExtra };
+        });
+        return { name: winners[0].name, team: winners[0].team, extra: winners[0].extra, winners: winners };
       }
 
       var name = stat ? (stat.ownerName || stat.owner || '') : '';
@@ -496,16 +508,30 @@
       var extra = '';
 
       if (awardKey === 'highestTeamGameScore' && stat.score)       extra = stat.score + ' pts (Wk ' + (stat.week || '?') + ')';
-      if (awardKey === 'highestIndividualScore' && stat.playerName) extra = stat.playerName + ' \u2014 ' + (stat.points || '') + ' pts';
-      if (awardKey === 'seasonPointsLeader' && stat.playerName)     extra = stat.playerName + ' \u2014 ' + (stat.total || '') + ' pts';
+      if (awardKey === 'highestIndividualScore' && stat.playerName) extra = stat.playerName + ' — ' + (stat.points || '') + ' pts';
+      if (awardKey === 'seasonPointsLeader' && stat.playerName)     extra = stat.playerName + ' — ' + (stat.total || '') + ' pts';
       if (awardKey === 'mostPointsAgainst' && stat.total)           extra = stat.total + ' pts against';
       if (awardKey === 'lastPlace' && stat.record)                  extra = stat.record;
       if (awardKey === 'closestWin' && stat.margin)                 extra = 'Margin: ' + stat.margin + ' pts (Wk ' + (stat.week || '?') + ')';
       if (awardKey === 'regularSeasonChamp' && stat.record)         extra = stat.record;
       if (awardKey === 'winningBracket' && stat.totalPoints)        extra = stat.totalPoints + ' pts';
-      if (awardKey === 'mostCorrectPicks' && stat.count)            extra = stat.count + ' correct';
-      if (awardKey === 'earliestBust' && stat.round)                extra = 'Round: ' + stat.round;
-      if (awardKey === 'cinderellaPick' && stat.team)               extra = stat.team + (stat.round ? ' (Round ' + stat.round + ')' : '');
+      if (awardKey === 'mostCorrectPicks' && stat.count)            extra = String(stat.count);
+      if (awardKey === 'earliestBust' && stat.round)                extra = stat.round;
+      if (awardKey === 'cinderellaPick' && stat.lowestS16Seed)      extra = 'Seed: ' + stat.lowestS16Seed;
+
+      if (awardKey === 'closestScore') {
+        var cs = (season.stats || {}).closestScore;
+        if (!cs || !cs.ownerName) return null;
+        var csActual = (season.finalScoreWinner !== '' && season.finalScoreWinner != null &&
+                        season.finalScoreLoser  !== '' && season.finalScoreLoser  != null)
+          ? String(season.finalScoreWinner) + ' - ' + String(season.finalScoreLoser) : '';
+        var csPredicted = (cs.predictedWinner !== '' && cs.predictedWinner != null &&
+                           cs.predictedLoser  !== '' && cs.predictedLoser  != null)
+          ? String(cs.predictedWinner) + ' - ' + String(cs.predictedLoser) : '';
+        var csTeam = (cs.bracketName || cs.teamName || '');
+        if (csActual) csTeam = csTeam + '  (Final Score: ' + csActual + ')';
+        return { name: cs.ownerName, team: csTeam, extra: csPredicted };
+      }
 
       if (!name) return null;
       return { name: name, team: team, extra: extra };
@@ -520,58 +546,66 @@
 
     // ── Build history array — newest first ────────────────
     // Seasons array in data is already newest-first
+    // Multi-winner seasons expand into multiple row objects (year blank after first)
     function buildHistory(league, awardDef) {
       return (league.seasons || []).filter(function(s) { return s.isFinal === true; }).reduce(function(acc, season) {
         var winner = awardDef.isCustom
           ? getCustomWinner(season, awardDef.customId)
           : getWinnerForKey(season, awardDef.key);
-        if (winner && winner.name) acc.push({ year: season.year, winner: winner });
+        if (!winner || !winner.name) return acc;
+        if (winner.winners && winner.winners.length > 1) {
+          winner.winners.forEach(function(w, i) {
+            acc.push({ year: i === 0 ? season.year : '', winner: w });
+          });
+        } else {
+          acc.push({ year: season.year, winner: winner });
+        }
         return acc;
       }, []);
     }
 
-    // ── Build a standard history row (+ optional extra row) ─
+    // ── Build a standard history row ──────────────────────
+    // Layout: [year] | [owner name  team/bracket(dim)] | [extra value(bright, right)]
     function makeHistoryRow(h) {
       var frag = document.createDocumentFragment();
 
       var row = document.createElement('div');
       row.className = 'tc-history-row';
+      // Continuation rows (multi-winner) have no top border
+      if (!h.year) {
+        row.style.borderTop = 'none';
+        row.style.paddingTop = '0';
+      }
 
       var yearEl = document.createElement('div');
       yearEl.className = 'tc-history-year';
-      yearEl.textContent = h.year;
+      yearEl.textContent = h.year || '';
 
-      var nameEl = document.createElement('div');
+      // Name cell: owner name + team/bracket name (dim) inline
+      var nameCell = document.createElement('div');
+      nameCell.className = 'tc-history-name-cell';
+
+      var nameEl = document.createElement('span');
       nameEl.className = 'tc-history-name';
       nameEl.textContent = h.winner.name;
+      nameCell.appendChild(nameEl);
 
-      var teamEl = document.createElement('div');
-      teamEl.className = 'tc-history-team';
-      teamEl.textContent = h.winner.team || '';
+      if (h.winner.team) {
+        var teamEl = document.createElement('span');
+        teamEl.className = 'tc-history-team';
+        teamEl.textContent = h.winner.team;
+        nameCell.appendChild(teamEl);
+      }
+
+      // Extra value — right column, bright treatment
+      var extraEl = document.createElement('div');
+      extraEl.className = 'tc-history-extra';
+      extraEl.textContent = h.winner.extra || '';
 
       row.appendChild(yearEl);
-      row.appendChild(nameEl);
-      row.appendChild(teamEl);
+      row.appendChild(nameCell);
+      row.appendChild(extraEl);
       frag.appendChild(row);
-
-      if (h.winner.extra) {
-        var extraRow = document.createElement('div');
-        extraRow.className = 'tc-history-row';
-        extraRow.style.borderTop = 'none';
-        extraRow.style.paddingTop = '0';
-
-        var emptyYear = document.createElement('div');
-        emptyYear.className = 'tc-history-year';
-
-        var extraEl = document.createElement('div');
-        extraEl.className = 'tc-history-extra';
-        extraEl.style.gridColumn = '2 / -1';
-        extraEl.textContent = h.winner.extra;
-
-        extraRow.appendChild(emptyYear);
-        extraRow.appendChild(extraEl);
-        frag.appendChild(extraRow);
-      }
 
       return frag;
     }
