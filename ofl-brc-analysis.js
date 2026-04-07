@@ -1,13 +1,13 @@
 /**
  * OFL BRC Analysis Export · 2026
- * Generated: 4/6/2026, 11:23:19 PM
+ * Generated: 4/6/2026, 11:41:52 PM
  * 13 brackets · 63 games tracked
  * Load as <script src="ofl-brc-analysis.js"></script> in league.html
  */
 
 window.OFL_BRC_ANALYSIS = {
   "meta": {
-    "generated": "2026-04-07T03:23:19.741Z",
+    "generated": "2026-04-07T03:41:52.889Z",
     "year": "2026",
     "bracketsLoaded": 13,
     "gamesTracked": 63,
@@ -5947,19 +5947,19 @@ window.OFL_BRC_ANALYSIS = {
     }
   ],
   "pendingPicks": {
+    "mbr_mm7vmncz4gfs": [],
     "mbr_mm1629iqfyaj": [],
+    "mbr_002": [],
     "mbr_mm1635nfdqvt": [],
+    "mbr_007": [],
     "mbr_mm7vlo5hx9hn": [],
     "mbr_003": [],
-    "mbr_002": [],
-    "mbr_006": [],
-    "mbr_007": [],
+    "mbr_005": [],
     "mbr_mm164375ur1b": [],
-    "mbr_mm7vmncz4gfs": [],
+    "mbr_006": [],
     "mbr_mm161lj76qt7": [],
     "mbr_001": [],
-    "mbr_004": [],
-    "mbr_005": []
+    "mbr_004": []
   },
   "actualResults": {
     "1_8": {
