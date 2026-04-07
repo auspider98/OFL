@@ -679,7 +679,7 @@
     function computeBRC(league) {
       var seasons = (league.seasons||[]).filter(seasonComplete);
       var seasonsByYear = seasons.slice().sort(function(a,b){ return (a.year||0)-(b.year||0); });
-      var allSeasonPts=[], allSeasonPicks=[], careerPts={}, champCorrect={}, finalScore={}, consChamp={};
+      var allSeasonPts=[], allSeasonPicks=[], careerPts={}, champCorrect={}, finalScore={}, consChamp={}, champWon={};
       var champLowPtsArr=[], champLowPicksArr=[];
       var roundCumBest = [{},{},{},{},{}];
 
@@ -696,6 +696,7 @@
           if (!champCorrect[mid]) champCorrect[mid] = {count:0, name:name, memberId:mid};
           if (!finalScore[mid])   finalScore[mid]   = {count:0, name:name, memberId:mid};
           if (!consChamp[mid])    consChamp[mid]    = {current:0, best:0, name:name, memberId:mid};
+          if (!champWon[mid])     champWon[mid]     = {count:0, lastYear:0, name:name, memberId:mid};
           var team = row.teamName || row.bracketName || '';
           careerPts[mid].total += totalPts;
           if (totalPts   > 0) allSeasonPts.push(  {memberId:mid, name:name, year:s.year, team:team, value:totalPts});
@@ -718,12 +719,15 @@
           if (mid === champId) {
             if (totalPts   > 0) champLowPtsArr.push(  {memberId:mid, name:name, value:totalPts,   year:s.year, team:team});
             if (totalPicks > 0) champLowPicksArr.push({memberId:mid, name:name, value:totalPicks, year:s.year, team:team});
+            champWon[mid].count++;
+            if (s.year > champWon[mid].lastYear) champWon[mid].lastYear = s.year;
           }
         });
         Object.keys(consChamp).forEach(function(mid) {
           if (mid === champId) {
             consChamp[mid].current++;
             if (consChamp[mid].current > consChamp[mid].best) consChamp[mid].best = consChamp[mid].current;
+
           } else { consChamp[mid].current = 0; }
         });
       });
@@ -748,6 +752,8 @@
         finalScoreArr: Object.values(finalScore).filter(function(x){return x.count>0;})
                          .sort(function(a,b){return b.count-a.count;}).slice(0,5),
         consChampArr:  Object.values(consChamp).sort(function(a,b){return b.best-a.best;}).slice(0,5),
+        champWonArr:   Object.values(champWon).filter(function(x){return x.count>0;})
+                         .sort(function(a,b){return b.count-a.count || b.lastYear-a.lastYear;}).slice(0,5),
         roundCumTop5,
         t3ChampLowPts:   topN(champLowPtsArr,   'value', false),
         t3ChampLowPicks: topN(champLowPicksArr, 'value', false),
@@ -820,7 +826,7 @@
       defs.push({section:SS, label:'Champion Lowest Picks',  top3: r.t3ChampLowPicks.map(function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:x.value,sub:x.year};})});
 
       var RS = 'Most Points Through Each Round';
-      var rLabels = ['After Round 1','After Round 2','After Round 3','After Round 4','After Round 5'];
+      var rLabels = ['Round of 64','Round of 32','Sweet Sixteen','Elite Eight','Final Four'];
       for (var ri = 0; ri < 5; ri++) {
         defs.push({section:RS, label:'Most Points '+rLabels[ri],
           top3: r.roundCumTop5[ri].map(function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.year};})});
@@ -828,6 +834,7 @@
 
       var CS = 'Career Records';
       defs.push({section:CS, label:'Most Career Points',        top3: r.careerArr.map(   function(x){return{memberId:x.memberId,name:x.name,value:fmt(x.value,2)};})});
+      defs.push({section:CS, label:'Most BRC Season Wins',      top3: r.champWonArr.map( function(x){return{memberId:x.memberId,name:x.name,value:x.count};})});
       defs.push({section:CS, label:'Consecutive Championships', top3: r.consChampArr.map(function(x){return{memberId:x.memberId,name:x.name,value:x.best};})});
       defs.push({section:CS, label:'Correctly Picked Champion', top3: r.champCorrArr.map(function(x){return{memberId:x.memberId,name:x.name,value:x.count};})});
       defs.push({section:CS, label:'Predicted Final Score',     top3: r.finalScoreArr.map(function(x){return{memberId:x.memberId,name:x.name,value:x.count};})});
