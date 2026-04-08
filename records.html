@@ -680,6 +680,7 @@
       var seasons = (league.seasons||[]).filter(seasonComplete);
       var seasonsByYear = seasons.slice().sort(function(a,b){ return (a.year||0)-(b.year||0); });
       var allSeasonPts=[], allSeasonPicks=[], careerPts={}, champCorrect={}, finalScore={}, consChamp={}, champWon={};
+      var careerByRound = [{},{},{},{},{},{}];
       var champLowPtsArr=[], champLowPicksArr=[];
       var roundCumBest = [{},{},{},{},{}];
 
@@ -699,6 +700,11 @@
           if (!champWon[mid])     champWon[mid]     = {count:0, lastYear:0, name:name, memberId:mid};
           var team = row.teamName || row.bracketName || '';
           careerPts[mid].total += totalPts;
+          for (var ri = 0; ri < 6; ri++) {
+            var rPts = parseFloat((row.pointsByRound || [])[ri]) || 0;
+            if (!careerByRound[ri][mid]) careerByRound[ri][mid] = {total:0, name:name, memberId:mid};
+            careerByRound[ri][mid].total += rPts;
+          }
           if (totalPts   > 0) allSeasonPts.push(  {memberId:mid, name:name, year:s.year, team:team, value:totalPts});
           if (totalPicks > 0) allSeasonPicks.push({memberId:mid, name:name, year:s.year, team:team, value:totalPicks});
           var cum = 0;
@@ -754,6 +760,11 @@
         consChampArr:  Object.values(consChamp).sort(function(a,b){return b.best-a.best;}).slice(0,5),
         champWonArr:   Object.values(champWon).filter(function(x){return x.count>0;})
                          .sort(function(a,b){return b.count-a.count || b.lastYear-a.lastYear;}).slice(0,5),
+        careerByRoundArr: careerByRound.map(function(rnd){
+          return Object.values(rnd).filter(function(x){return x.total>0;})
+            .sort(function(a,b){return b.total-a.total;}).slice(0,5)
+            .map(function(x){return {memberId:x.memberId, name:x.name, value:fmt(x.total,2)};});
+        }),
         roundCumTop5,
         t3ChampLowPts:   topN(champLowPtsArr,   'value', false),
         t3ChampLowPicks: topN(champLowPicksArr, 'value', false),
@@ -834,6 +845,10 @@
 
       var CS = 'Career Records';
       defs.push({section:CS, label:'Most Career Points',        top3: r.careerArr.map(   function(x){return{memberId:x.memberId,name:x.name,value:fmt(x.value,2)};})});
+      var roundNames = ['Round of 64','Round of 32','Sweet Sixteen','Elite Eight','Final Four','Championship'];
+      for (var ri = 0; ri < 6; ri++) {
+        defs.push({section:CS, label:'Career Points — '+roundNames[ri], top3: r.careerByRoundArr[ri]});
+      }
       defs.push({section:CS, label:'Most BRC Championships',    top3: r.champWonArr.map( function(x){return{memberId:x.memberId,name:x.name,value:x.count};})});
       defs.push({section:CS, label:'Consecutive Championships', top3: r.consChampArr.map(function(x){return{memberId:x.memberId,name:x.name,value:x.best};})});
       defs.push({section:CS, label:'Correctly Picked Champion', top3: r.champCorrArr.map(function(x){return{memberId:x.memberId,name:x.name,value:x.count};})});
