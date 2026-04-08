@@ -525,9 +525,21 @@
         var csActual = (season.finalScoreWinner !== '' && season.finalScoreWinner != null &&
                         season.finalScoreLoser  !== '' && season.finalScoreLoser  != null)
           ? String(season.finalScoreWinner) + ' - ' + String(season.finalScoreLoser) : '';
-        var csPredicted = (cs.predictedWinner !== '' && cs.predictedWinner != null &&
-                           cs.predictedLoser  !== '' && cs.predictedLoser  != null)
-          ? String(cs.predictedWinner) + ' - ' + String(cs.predictedLoser) : '';
+        var csPredicted = '';
+        if (cs.predictedWinner !== '' && cs.predictedWinner != null &&
+            cs.predictedLoser  !== '' && cs.predictedLoser  != null) {
+          var predStr = String(cs.predictedWinner) + ' - ' + String(cs.predictedLoser);
+          if (season.finalScoreWinner !== '' && season.finalScoreWinner != null &&
+              season.finalScoreLoser  !== '' && season.finalScoreLoser  != null) {
+            var diff = Math.abs(
+              (parseFloat(cs.predictedWinner) + parseFloat(cs.predictedLoser)) -
+              (parseFloat(season.finalScoreWinner) + parseFloat(season.finalScoreLoser))
+            );
+            csPredicted = predStr + '  /  ' + diff;
+          } else {
+            csPredicted = predStr;
+          }
+        }
         var csTeam = (cs.bracketName || cs.teamName || '');
         if (csActual) csTeam = csTeam + '  (Final Score: ' + csActual + ')';
         return { name: cs.ownerName, team: csTeam, extra: csPredicted };
