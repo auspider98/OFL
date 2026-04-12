@@ -495,7 +495,7 @@
         var winners = stat.map(function(f) {
           var wExtra = '';
           if (awardKey === 'bestSingleRound' && f.points)          wExtra = f.points + ' pts';
-          if (awardKey === 'finalFourCorrect' && f.f4Teams)         wExtra = String(f.f4Teams);
+          if (awardKey === 'finalFourCorrect' && f.f4Teams)         wExtra = f.f4Teams + ' Final Four Teams';
           if (awardKey === 'championshipCorrect' && f.predicted != null) wExtra = f.predicted + ' / ' + f.correct + ' — ' + f.predictionPct + '%';
           if (awardKey === 'perfectBracketThrough' && f.round)      wExtra = f.round;
           return { name: f.ownerName || f.owner || '', team: f.bracketName || f.teamName || '', extra: wExtra };

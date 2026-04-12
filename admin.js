@@ -237,7 +237,7 @@ var SPORT_STAT_SCHEMAS = {
       },
       {
         key: "finalFourCorrect",
-        label: "Most Final Four Teams with Points",
+        label: "Most Final Four Teams (TB Pts)",
         awardKey: "finalFourCorrect",
         type: "owner",
         multiWinner: true,
@@ -277,7 +277,7 @@ var SPORT_STAT_SCHEMAS = {
       { key: "lastPlace",             defaultLabel: "The Participation Cup",   hint: "Last Place / Worst Bracket" },
       { key: "championshipCorrect",   defaultLabel: "The Crystal Ball",        hint: "Best Upset Prediction % (TB Pts)" },
       { key: "bestSingleRound",       defaultLabel: "The Round Dominator",     hint: "Most Points in the First Round" },
-      { key: "finalFourCorrect",      defaultLabel: "The Final Fourcaster",    hint: "Most Final Four Teams with Points" },
+      { key: "finalFourCorrect",      defaultLabel: "The Final Fourcaster",    hint: "Most Final Four Teams (TB Pts)" },
       { key: "perfectBracketThrough", defaultLabel: "The Unblemished",         hint: "Longest Lasting Perfect Bracket" },
       { key: "closestScore",          defaultLabel: "The Score Whisperer",      hint: "Closest Championship Score Prediction" }
     ],
