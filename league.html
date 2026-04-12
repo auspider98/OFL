@@ -1318,17 +1318,68 @@
       // Stats-based awards
       awardDefs.forEach(function (a) {
         if (a.key === 'champion') return;
+
+        // closestScore is a special injected stat — handle separately
+        if (a.key === 'closestScore') {
+          var cs = stats.closestScore;
+          if (!cs || !cs.ownerName) return;
+          var csLines = [];
+          if (cs.ownerName && cs.ownerName !== (cs.bracketName || cs.teamName)) csLines.push(cs.ownerName);
+          if (cs.predictedWinner !== '' && cs.predictedWinner != null &&
+              cs.predictedLoser  !== '' && cs.predictedLoser  != null) {
+            var predStr = cs.predictedWinner + ' - ' + cs.predictedLoser;
+            var aw = parseFloat(season.finalScoreWinner);
+            var al = parseFloat(season.finalScoreLoser);
+            if (!isNaN(aw) && !isNaN(al)) {
+              var diff = Math.abs((parseFloat(cs.predictedWinner) + parseFloat(cs.predictedLoser)) - (aw + al));
+              csLines.push(predStr + '  /  ' + diff);
+            } else {
+              csLines.push(predStr);
+            }
+          }
+          html += buildStatCard(
+            awards['closestScore'] || a.defaultLabel,
+            a.hint || '',
+            awardImages['closestScore'] || '',
+            cs.bracketName || cs.teamName || cs.ownerName || '',
+            csLines,
+            true
+          );
+          return;
+        }
+
         var stat = stats[a.key];
         var statDef = (schema.stats || []).find(function (s) { return s.awardKey === a.key; });
         if (statDef) stat = stats[statDef.key];
+
+        // Handle multiWinner array stats — use first entry
+        if (Array.isArray(stat)) {
+          if (!stat.length) return;
+          stat = stat[0];
+        }
+
         if (!stat || (!stat.ownerName && !stat.bracketName)) return;
         var isAuto = autoKeys.indexOf(a.key) !== -1 || autoKeys.indexOf(statDef && statDef.key) !== -1;
+
+        // Build BRC-specific extra detail lines
+        var extraLines = statLines(stat).slice();
+        if (a.key === 'cinderellaPick' && stat.lowestS16Seed != null && stat.lowestS16Seed !== '')
+          extraLines = ['Seed: ' + stat.lowestS16Seed];
+        if (a.key === 'bestSingleRound' && stat.points != null && stat.points !== '')
+          extraLines = [stat.points + ' pts'];
+        if (a.key === 'finalFourCorrect' && stat.f4Teams != null && stat.f4Teams !== '')
+          extraLines = [stat.f4Teams + ' F4 teams'];
+        if (a.key === 'championshipCorrect' && stat.predicted != null && stat.predicted !== '')
+          extraLines = [stat.predicted + ' / ' + stat.correct + ' — ' + stat.predictionPct + '%'];
+        if (a.key === 'perfectBracketThrough' && stat.round)
+          extraLines = [stat.round];
+
         html += buildStatCard(
           awards[a.key] || a.defaultLabel,
           a.hint || '',
           awardImages[a.key] || '',
           stat.teamName || stat.bracketName || stat.ownerName || '',
-          statLines(stat),
+          extraLines,
           isAuto
         );
       });
