@@ -1779,7 +1779,9 @@
           sectionEl = document.createElement('div');
           sectionEl.innerHTML =
             '<div class="league-section-heading">Season Story</div>' +
-            '<p class="season-story-text">' + esc(current.story) + '</p>';
+            current.story.split(/\n[\t ]*\n/).map(function(p) {
+              return '<p class="season-story-text">' + esc(p.trim()) + '</p>';
+            }).join('');
         }
 
         // ── Final Standings ───────────────────────────────
