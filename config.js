@@ -7333,12 +7333,26 @@ const SITE_CONFIG = {
       "hiddenFromNav": false,
       "sections": [
         {
-          "type": "flip-cards",
+          "type": "two-col",
           "label": "Contagious",
           "background": "dark",
           "anchorId": "afflictions",
           "heading": "Afflictions",
-          "subtitle": "Villains are no different than anyone else; they, too, are susceptible to the siren song of bad habits, poor trends, and total lapses in judgment. These, Afflictions, are the erratic psychological behaviors that transform a routine drive into a masterclass of highway misery. Highly volatile and notoriously unpredictable, an affliction can manifest in any villain at a moment’s notice, and it is entirely possible to cycle through multiple conditions in a single day. Whether you are tracking a local menace or documenting your own commute, understand this: these afflictions are the true engines of chaos on our asphalt, spreading one bad decision at a time. Afflictions can turn even a nuisance villain into a catastrophic villain in the blink of a tiktok video.\n\nTo identity the severity of the affliction, we use the Pathological Affliction Tracking Hierarchy (PATH), to categorize the progression of a villain’s behavior from a minor annoyance into a full-blown traffic catastrophe.\n\nPATH Breakdown:\nLevel 1: The Nuisance (The \"Initial Symptom\")  -  Minor, quirky, or slightly distracted habits.\nLevel 2: The Hazard (The \"Behavioral Shift\")  -  Consistent, distracting behavior interfering with others.\nLevel 3: The Menace (The \"Public Threat\")  -  Reality-detached, extreme, or \"necessary\" behavior.\nLevel 4: The Apex Rogue (The \"Gridlock Legend\")  -  Fully identity-defined, terminal chaos.",
+          "body": "Villains are no different than anyone else; they, too, are susceptible to the siren song of bad habits, poor trends, and total lapses in judgment. These, Afflictions, are the erratic psychological behaviors that transform a routine drive into a masterclass of highway misery. Highly volatile and notoriously unpredictable, an affliction can manifest in any villain at a moment’s notice, and it is entirely possible to cycle through multiple conditions in a single day. \n\nTo identity the severity of the affliction, we use the Pathological Affliction Tracking Hierarchy (PATH), to categorize the progression of a villain’s behavior from a minor annoyance into a full-blown traffic catastrophe.\n\nLevel 1: The Nuisance (The \"Initial Symptom\")  -  Minor, quirky, or slightly distracted habits.\nLevel 2: The Hazard (The \"Behavioral Shift\")  -  Consistent, distracting behavior interfering with others.\nLevel 3: The Menace (The \"Public Threat\")  -  Reality-detached, extreme, or \"necessary\" behavior.\nLevel 4: The Apex Rogue (The \"Gridlock Legend\")  -  Fully identity-defined, terminal chaos.",
+          "imagePath": "afflictions/afflictions.png",
+          "imagePosition": "left",
+          "imageMaxWidth": "300",
+          "cta_linkType": "none",
+          "cta_linkUrl": "home",
+          "cta_linkLabel": ""
+        },
+        {
+          "type": "flip-cards",
+          "label": "",
+          "background": "dark",
+          "anchorId": "afflictions-chart",
+          "heading": "",
+          "subtitle": "",
           "maxCols": 2,
           "items": [
             {
@@ -9101,5 +9115,5 @@ const SITE_CONFIG = {
   },
   "fontDisplayCustom": "",
   "fontBodyCustom": "",
-  "_savedAt": 1780417409491
+  "_savedAt": 1780436526078
 };
