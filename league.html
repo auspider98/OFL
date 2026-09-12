@@ -8,8 +8,11 @@
   <link rel="stylesheet" href="style.css" />
   <script src="admin-config.js"></script>
   <script src="ofl-data.js"></script>
+  <script src="ofl-brc-analysis.js"></script>
   <script src="admin.js"></script>
   <style>
+    a.roster-card { text-decoration: none; cursor: pointer; }
+    a.roster-card:hover .roster-card-name { color: var(--hint-color, var(--accent)); }
     .yahoo-link-wrap {
       text-align: center;
       padding: 0.75rem 1rem 1.25rem;
@@ -45,6 +48,503 @@
       justify-content: space-between;
       align-items: center;
       min-height: 1.2em;
+    }
+
+    /* ── BRC standings table ────────────────────── */
+    .brc-standings-wrap {
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+    .brc-standings-table {
+      width: 100%; table-layout: auto;
+      border-collapse: separate; border-spacing: 0;
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+    }
+
+    /* Every cell — solid black, no exceptions, no hover */
+    .brc-standings-table th,
+    .brc-standings-table td { vertical-align: middle; background: #000 !important; }
+
+    /* Header cells */
+    .brc-standings-table th {
+      font-weight: 300; font-size: 0.58rem;
+      letter-spacing: 0.35em; text-transform: uppercase;
+      color: var(--accent-dim); text-align: left;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--drawer-border);
+      opacity: 0.7;
+    }
+
+    /* Body cells */
+    .brc-standings-table td {
+      padding: 0.65rem 0.75rem;
+      border-bottom: 1px solid rgba(232,232,232,0.04);
+      color: var(--accent); letter-spacing: 0.08em;
+    }
+
+    /* Sticky left: rank — override standings-rank-cell opacity:0.5 from style.css */
+    .brc-standings-table .standings-rank-cell {
+      position: sticky; left: 0; z-index: 2;
+      width: 2rem; min-width: 2rem;
+      opacity: 1 !important;
+    }
+    /* Override th opacity:0.7 from style.css on all BRC headers */
+    .brc-standings-table th { opacity: 1 !important; }
+    /* Rank change arrows */
+    .brc-rank-arrow {
+      font-size: 0.55rem; font-weight: 700; margin-left: 0.25em;
+      letter-spacing: 0; white-space: nowrap;
+    }
+    .brc-rank-up { color: #4a9d6f; }
+    .brc-rank-dn { color: #c94040; }
+    /* Sticky left: bracket identity col — left offset set inline */
+    .brc-ident-col,
+    .brc-ident-cell { position: sticky; z-index: 2; min-width: 8rem; }
+
+    /* Sticky right: total col */
+    .brc-total-col,
+    .brc-total-cell {
+      position: sticky; right: 0; z-index: 2;
+      width: 5rem; min-width: 5rem;
+    }
+
+    /* Round cols — not sticky, scroll freely */
+    .brc-round-col { width: 4.5rem; min-width: 4rem; text-align: center; white-space: nowrap; }
+
+    /* Identity cell */
+    .brc-ident-cell { text-align: left; }
+    .brc-ident-cell span { display: block; }
+    .brc-ident-bracket { font-size: 0.8rem; font-weight: 600; color: var(--accent); }
+    .brc-ident-owner   { font-size: 0.72rem; color: var(--accent-dim); }
+    .brc-ident-champ   { font-size: 0.65rem; color: var(--hint-color, var(--accent)); font-style: italic; }
+
+    /* Round + Total shared */
+    .brc-total-col { text-align: center; white-space: nowrap; }
+    .brc-round-cell,
+    .brc-total-cell { font-size: 0.75rem; white-space: nowrap; }
+    .brc-cell-pts   { font-weight: 600; }
+    .brc-cell-sep   { margin: 0 0.15em; opacity: 0.45; font-size: 0.65rem; }
+    .brc-cell-picks { opacity: 0.7; }
+
+    /* ── BRC View Pills ─────────────────────────────────────── */
+    .brc-view-pills {
+      display: flex; gap: 0.4rem; flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 1.2rem; padding-bottom: 0.9rem;
+      border-bottom: 1px solid var(--drawer-border);
+    }
+    .brc-view-pill {
+      font-family: var(--font-body); font-size: 0.6rem; font-weight: 400;
+      letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--accent-dim); background: transparent;
+      border: 1px solid var(--drawer-border);
+      padding: 0.3rem 0.75rem; cursor: pointer;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+    .brc-view-pill:hover { color: var(--accent); border-color: rgba(232,232,232,0.3); }
+    .brc-view-pill.is-active {
+      color: var(--accent); border-color: var(--accent);
+      background: rgba(232,232,232,0.06);
+    }
+
+    /* ── BRC Upset Summary Cards ────────────────────────────── */
+    .brc-upset-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.6rem;
+      margin-bottom: 1.4rem;
+    }
+    @media (orientation: portrait) {
+      .brc-upset-cards { grid-template-columns: auto 1fr 1fr; }
+    }
+    .brc-upset-card {
+      padding: 0.9rem 1rem;
+      border: 1px solid var(--drawer-border);
+      background: rgba(255,255,255,0.02);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .brc-upset-card-label {
+      font-family: var(--font-body); font-size: 0.55rem;
+      letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--accent-dim); margin-bottom: 0.35rem;
+    }
+    .brc-upset-card-val {
+      font-family: var(--font-display); font-size: 2rem;
+      font-weight: 300; color: var(--accent); line-height: 1;
+      margin-top: auto;
+    }
+    .brc-upset-card-sub {
+      font-family: var(--font-body); font-size: 0.6rem;
+      letter-spacing: 0.08em; color: var(--accent-dim);
+      margin-top: 0.5rem; padding-top: 0.4rem;
+      border-top: 1px solid var(--drawer-border);
+      display: flex; align-items: baseline; gap: 0.4rem;
+    }
+    .brc-upset-card-sub-val {
+      font-family: var(--font-display); font-size: 1.1rem;
+      font-weight: 300; color: var(--accent);
+    }
+
+    /* ── BRC Upset Leaderboard ──────────────────────────────── */
+    .brc-upset-lb-table {
+      width: 100%; border-collapse: collapse;
+      font-family: var(--font-body); font-size: 0.72rem;
+      margin-bottom: 1.8rem;
+      max-width: calc(100% - 1.5rem);
+    }
+    .brc-upset-lb-table thead th {
+      font-weight: 300; font-size: 0.55rem; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--accent-dim);
+      padding: 0.4rem 0.6rem; text-align: left;
+      border-bottom: 1px solid var(--drawer-border);
+    }
+    .brc-upset-lb-table thead th.r { text-align: right; }
+    @media (orientation: portrait) and (max-width: 600px) {
+      .brc-upset-lb-table thead th { letter-spacing: 0.1em; font-size: 0.5rem; padding: 0.4rem 0.4rem; }
+      .brc-upset-lb-table td { padding: 0.5rem 0.4rem; }
+      .brc-upset-lb-table th:last-child,
+      .brc-upset-lb-table td:last-child { padding-right: 0; }
+    }
+    .brc-upset-lb-table td {
+      padding: 0.5rem 0.6rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      letter-spacing: 0.06em; color: var(--accent);
+    }
+    .brc-upset-lb-table tr:last-child td { border-bottom: none; }
+    .brc-upset-lb-table th:last-child,
+    .brc-upset-lb-table td:last-child { padding-right: 0.6rem; }
+    .brc-upset-lb-rank {
+      font-family: var(--font-display); font-size: 0.9rem;
+      color: var(--accent-dim); text-align: center; width: 2rem;
+    }
+    .brc-upset-lb-rank.top { color: var(--hint-color, var(--accent)); font-weight: 600; }
+    .brc-upset-lb-name { font-weight: 600; }
+    .brc-upset-lb-num { text-align: center; }
+    .brc-upset-lb-num.correct { color: var(--hint-color, var(--accent)); font-weight: 600; }
+    .brc-upset-lb-rate { text-align: right; color: var(--accent-dim); font-size: 0.65rem; }
+
+    /* ── BRC Upsets Table ───────────────────────────────────── */
+    .brc-upsets-table {
+      width: 100%; border-collapse: collapse;
+      font-family: var(--font-body); font-size: 0.72rem;
+    }
+    .brc-upsets-table thead th {
+      font-weight: 300; font-size: 0.55rem; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--accent-dim);
+      padding: 0.4rem 0.6rem; text-align: left;
+      border-bottom: 1px solid var(--drawer-border);
+    }
+    .brc-upsets-table thead th.r { text-align: right; }
+    .brc-upsets-table td {
+      padding: 0.55rem 0.6rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      vertical-align: top;
+    }
+    .brc-upsets-table tr:last-child td { border-bottom: none; }
+    .brc-upset-round {
+      font-size: 0.58rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--accent-dim);
+      white-space: nowrap; padding-top: 0.1rem;
+    }
+    .brc-upset-winner {
+      font-family: var(--font-body); font-weight: 600;
+      font-size: 0.78rem; letter-spacing: 0.06em;
+      color: var(--hint-color, var(--accent));
+    }
+    .brc-upset-winner-seed {
+      font-size: 0.6rem; opacity: 0.6; margin-left: 0.3em;
+    }
+    .brc-upset-loser {
+      font-family: var(--font-body); font-size: 0.68rem;
+      letter-spacing: 0.04em; color: var(--accent-dim);
+      text-decoration: line-through; opacity: 0.55;
+      margin-top: 0.15rem;
+    }
+    .brc-upset-loser-seed {
+      font-size: 0.58rem; margin-left: 0.25em;
+    }
+    .brc-upset-called {
+      text-align: right; font-family: var(--font-display);
+      font-size: 1rem; font-weight: 300;
+      color: var(--accent); white-space: nowrap;
+    }
+    .brc-upset-callers {
+      font-size: 0.62rem; letter-spacing: 0.05em;
+      color: var(--accent-dim); line-height: 1.6;
+    }
+
+    /* ── BRC Live Race ──────────────────────────────────────── */
+    .brc-live-race { display: flex; flex-direction: column; gap: 0.6rem; }
+    .brc-race-row {
+      display: grid; grid-template-columns: 1.4rem 1fr auto;
+      gap: 0.5rem 0.75rem; align-items: center;
+    }
+    .brc-race-rank {
+      font-family: var(--font-body); font-size: 0.65rem; font-weight: 600;
+      letter-spacing: 0.1em; color: var(--accent-dim); text-align: right;
+    }
+    .brc-race-rank.top { color: var(--hint-color, var(--accent)); }
+    .brc-race-name {
+      font-family: var(--font-body); font-size: 0.78rem; font-weight: 600;
+      letter-spacing: 0.08em; color: var(--accent); margin-bottom: 0.25rem;
+    }
+    .brc-race-bar-wrap {
+      position: relative; height: 4px;
+      background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden;
+    }
+    .brc-race-bar-max {
+      position: absolute; left: 0; top: 0; bottom: 0;
+      background: rgba(255,255,255,0.1); border-radius: 2px;
+    }
+    .brc-race-bar-score {
+      position: absolute; left: 0; top: 0; bottom: 0;
+      background: var(--success, #4caf7d);
+      border-radius: 2px; transition: width 0.4s ease;
+    }
+    .brc-race-bar-score.eliminated { background: rgba(255,79,107,0.7); }
+    .brc-race-bar-score.alive { background: var(--success, #4caf7d); }
+    .brc-race-scores {
+      font-family: var(--font-body); font-size: 0.7rem;
+      letter-spacing: 0.08em; color: var(--accent); text-align: right; white-space: nowrap;
+    }
+    .brc-race-scores .score-main { font-weight: 600; }
+    .brc-race-scores .score-sep { opacity: 0.35; margin: 0 0.2em; }
+    .brc-race-scores .score-max { opacity: 0.45; font-size: 0.65rem; }
+
+    /* ── BRC Survival Strip ─────────────────────────────────── */
+    .brc-survival-strip { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .brc-survival-chip {
+      display: flex; flex-direction: column; gap: 0.1rem;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--drawer-border); background: rgba(255,255,255,0.02);
+    }
+    .brc-survival-chip.leading {
+      border-color: var(--hint-color, var(--accent)); background: rgba(255,255,255,0.04);
+    }
+    .brc-chip-name {
+      font-family: var(--font-body); font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.06em; color: var(--accent); white-space: nowrap;
+    }
+    .brc-chip-detail {
+      font-family: var(--font-body); font-size: 0.62rem;
+      letter-spacing: 0.1em; color: var(--accent-dim); white-space: nowrap;
+    }
+    .brc-chip-detail.needs { color: var(--hint-color, var(--accent-dim)); opacity: 0.8; }
+
+    /* ── BRC Scenario Generator ─────────────────────────────── */
+    .brc-scenario-label {
+      font-family: var(--font-body); font-size: 0.62rem; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--accent-dim);
+      margin-bottom: 0.4rem; display: block;
+    }
+    .brc-scenario-select {
+      width: 100%; background: rgba(255,255,255,0.03);
+      border: 1px solid var(--drawer-border);
+      color: var(--accent); font-family: var(--font-body);
+      font-size: 0.75rem; letter-spacing: 0.08em;
+      padding: 0.6rem 0.75rem; outline: none; cursor: pointer;
+      appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 0.75rem center;
+      padding-right: 2rem; transition: border-color 0.2s; margin-bottom: 1rem;
+    }
+    .brc-scenario-select:focus { border-color: var(--hint-color, var(--accent)); }
+    .brc-scenario-select option { background: #111; }
+    .brc-scenario-table { width: 100%; border-collapse: collapse; }
+    .brc-scenario-table th {
+      font-family: var(--font-body); font-size: 0.58rem; font-weight: 300;
+      letter-spacing: 0.35em; text-transform: uppercase; color: var(--accent-dim);
+      padding: 0.4rem 0.5rem; text-align: left;
+      border-bottom: 1px solid var(--drawer-border); opacity: 0.7;
+    }
+    .brc-scenario-table th.r { text-align: right; }
+    .brc-scenario-table td {
+      padding: 0.55rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-family: var(--font-body); font-size: 0.75rem;
+      letter-spacing: 0.06em; color: var(--accent);
+    }
+    .brc-scenario-table tr:last-child td { border-bottom: none; }
+    .brc-scenario-rank { font-size: 0.65rem; color: var(--accent-dim); text-align: center; width: 2rem; }
+    .brc-scenario-rank.top { color: var(--hint-color, var(--accent)); font-weight: 600; }
+    .brc-scenario-name { font-weight: 600; }
+    .brc-scenario-score { text-align: right; font-weight: 600; }
+    .brc-scenario-delta { text-align: right; font-size: 0.68rem; white-space: nowrap; }
+    .brc-scenario-delta.up { color: var(--hint-color, var(--accent)); }
+    .brc-scenario-delta.down { color: var(--accent-dim); opacity: 0.6; }
+    .brc-scenario-delta.same { color: var(--accent-dim); opacity: 0.4; }
+    .brc-scenario-hint {
+      font-family: var(--font-body); font-size: 0.65rem; letter-spacing: 0.12em;
+      color: var(--accent-dim); text-align: center; padding: 1.5rem 0 0.5rem; opacity: 0.6;
+    }
+
+    /* ── BRC H2H ────────────────────────────────────────────── */
+    .brc-h2h-selects {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1rem;
+    }
+    .brc-h2h-selects select:first-child { text-align: right; direction: rtl; }
+    .brc-h2h-stat-cards {
+      display: grid; grid-template-columns: 1fr auto 1fr;
+      gap: 0.6rem; margin-bottom: 1rem; align-items: stretch;
+    }
+    .brc-h2h-card {
+      padding: 0.8rem 0.9rem; border: 1px solid var(--drawer-border);
+      background: rgba(255,255,255,0.02); display: flex; flex-direction: column;
+      justify-content: space-between; gap: 0;
+    }
+    .brc-h2h-card.center { align-items: center; justify-content: center; text-align: center; gap: 0.2rem; }
+    .brc-h2h-card.left { text-align: right; align-items: flex-end; }
+    .brc-h2h-card-header { display: flex; flex-direction: column; gap: 0.2rem; margin-bottom: 0.5rem; }
+    .brc-h2h-card-body { display: flex; flex-direction: column; gap: 0.2rem; }
+    .brc-h2h-card-label {
+      font-family: var(--font-body); font-size: 0.55rem;
+      letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent-dim);
+    }
+    .brc-h2h-card-val {
+      font-family: var(--font-display); font-size: 1.4rem; font-weight: 300;
+      color: var(--accent); line-height: 1;
+    }
+    .brc-h2h-card-sub {
+      font-family: var(--font-body); font-size: 0.62rem;
+      letter-spacing: 0.1em; color: var(--accent-dim);
+    }
+    .brc-h2h-card-name {
+      font-family: var(--font-body); font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.06em; color: var(--hint-color, var(--accent));
+    }
+    .brc-h2h-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .brc-h2h-table { width: 100%; border-collapse: collapse; font-family: var(--font-body); font-size: 0.72rem; table-layout: fixed; }
+    .brc-h2h-table thead th {
+      font-weight: 300; font-size: 0.55rem; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--accent-dim); padding: 0.4rem 0.6rem;
+      border-bottom: 1px solid var(--drawer-border); white-space: nowrap;
+    }
+    .brc-h2h-table thead th.h2h-col-a { text-align: right; color: var(--hint-color, var(--accent-dim)); width: 46%; }
+    .brc-h2h-table thead th.h2h-col-b { text-align: left; width: 46%; }
+    .brc-h2h-table thead th.h2h-col-mid { text-align: center; width: 8%; }
+    .brc-h2h-round-row td {
+      font-size: 0.52rem; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--hint-color, var(--accent-dim)); padding: 0.5rem 0.6rem 0.2rem;
+      border-top: 1px solid var(--drawer-border); background: rgba(255,255,255,0.01);
+      text-align: center;
+    }
+    .brc-h2h-pick-row td {
+      padding: 0.35rem 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.03);
+      letter-spacing: 0.06em; vertical-align: middle;
+    }
+    .brc-h2h-pick-row:last-child td { border-bottom: none; }
+    .h2h-col-a { text-align: right; }
+    .h2h-col-b { text-align: left; }
+    .h2h-col-mid { text-align: center; font-size: 0.6rem; color: var(--drawer-border); }
+    .h2h-agree { color: var(--accent); }
+    .h2h-disagree-a { color: var(--hint-color, var(--accent)); }
+    .h2h-disagree-b { color: var(--hint-color, var(--accent)); }
+    .h2h-correct { font-weight: 600; }
+    .h2h-wrong { opacity: 0.35; text-decoration: line-through; }
+    .brc-h2h-hint {
+      font-family: var(--font-body); font-size: 0.65rem; letter-spacing: 0.15em;
+      color: var(--accent-dim); text-align: center; padding: 2rem 0 1rem; opacity: 0.5;
+    }
+
+    /* ── BRC Survival Card ────────────────────────────────── */
+    .brc-surv-card {
+      display: flex; gap: 0; overflow: hidden;
+      border: 1px solid var(--drawer-border);
+      background: rgba(255,255,255,0.02);
+      margin-bottom: 1.4rem;
+    }
+    .brc-surv-card-mug {
+      width: 90px; min-width: 90px; flex-shrink: 0;
+      overflow: hidden; position: relative;
+      background: rgba(255,255,255,0.04);
+    }
+    .brc-surv-card-mug img {
+      width: 100%; height: 100%; object-fit: cover; object-position: top; display: block;
+    }
+    .brc-surv-card-mug-init {
+      width: 100%; height: 100%; display: flex;
+      align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: 2rem; font-weight: 300;
+      color: var(--accent-dim);
+    }
+    .brc-surv-card-info {
+      flex: 1; min-width: 0; padding: 0.85rem 1rem;
+      display: flex; flex-direction: column; gap: 0.25rem;
+    }
+    .brc-surv-card-bracket {
+      font-family: var(--font-body); font-size: 0.85rem; font-weight: 700;
+      letter-spacing: 0.04em; color: var(--accent); line-height: 1.2;
+    }
+    .brc-surv-card-owner {
+      font-family: var(--font-body); font-size: 0.68rem;
+      letter-spacing: 0.12em; color: var(--accent-dim);
+    }
+    .brc-surv-card-row {
+      font-family: var(--font-body); font-size: 0.65rem;
+      letter-spacing: 0.06em; color: var(--accent-dim);
+      margin-top: 0.15rem; line-height: 1.5;
+    }
+    .brc-surv-card-row strong { color: var(--accent); font-weight: 600; }
+    .brc-surv-card-pts { display: flex; gap: 1rem; margin-top: 0.2rem; }
+    .brc-surv-card-pts-item { display: flex; flex-direction: column; gap: 0.1rem; }
+    .brc-surv-card-pts-label {
+      font-family: var(--font-body); font-size: 0.5rem;
+      letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--accent-dim); opacity: 0.7;
+    }
+    .brc-surv-card-pts-val {
+      font-family: var(--font-display); font-size: 1.3rem;
+      font-weight: 300; color: var(--accent); line-height: 1;
+    }
+    .brc-surv-card-rivals {
+      font-family: var(--font-body); font-size: 0.62rem;
+      letter-spacing: 0.05em; color: var(--accent-dim);
+      margin-top: 0.2rem; padding-top: 0.35rem;
+      border-top: 1px solid var(--drawer-border);
+    }
+    .brc-surv-card-rivals strong { color: var(--hint-color, var(--accent)); }
+
+    /* ── BRC Root-For Table ───────────────────────────────── */
+    .brc-rootfor-table {
+      width: 100%; border-collapse: collapse;
+      font-family: var(--font-body); font-size: 0.72rem;
+    }
+    .brc-rootfor-table thead th {
+      font-weight: 300; font-size: 0.52rem; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--accent-dim);
+      padding: 0.4rem 0.5rem; text-align: left;
+      border-bottom: 1px solid var(--drawer-border);
+    }
+    .brc-rootfor-table thead th.r { text-align: right; }
+    .brc-rootfor-table td {
+      padding: 0.5rem 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: var(--accent); letter-spacing: 0.05em; vertical-align: middle;
+    }
+    .brc-rootfor-table tr:last-child td { border-bottom: none; }
+    .brc-rootfor-round-row td {
+      font-size: 0.5rem; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--hint-color, var(--accent-dim));
+      padding: 0.6rem 0.5rem 0.2rem;
+      border-top: 1px solid var(--drawer-border);
+      background: rgba(255,255,255,0.01);
+    }
+    .brc-rootfor-teams { display: flex; flex-direction: column; gap: 0.15rem; }
+    .brc-rootfor-team-against {
+      font-size: 0.68rem; color: var(--accent);
+      letter-spacing: 0.04em; opacity: 0.55;
+    }
+    .brc-rootfor-seed { font-size: 0.6rem; opacity: 0.5; margin-left: 0.25em; font-weight: 300; }
+    .brc-rootfor-pts {
+      text-align: right; font-family: var(--font-display);
+      font-size: 1rem; font-weight: 300; white-space: nowrap; vertical-align: middle;
+    }
+    .brc-rootfor-pts-label {
+      font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent-dim); opacity: 0.6; display: block; text-align: right;
     }
   </style>
 </head>
@@ -91,6 +591,7 @@
   </div><!-- /leaguePage -->
 
   <script src="sound.js"></script>
+  <script src="ofl-announcements.js"></script><script src="announcements.js"></script>
   <script src="menu.js"></script>
 
   <script>
@@ -202,7 +703,23 @@
       var showSubtitle = pl.showSubtitle !== false;
 
       el('leagueEyebrow').textContent  = showEyebrow  ? (league.heroEyebrow  || config.landing.eyebrow || '') : '';
-      el('leagueTitle').textContent    = showTitle    ? (league.heroTitle    || league.fullName || league.name || '') : '';
+
+      // Title — either logo image or text
+      var titleEl = el('leagueTitle');
+      titleEl.innerHTML = '';
+      if (showTitle) {
+        if (pl.useTitleImage && league.heroTitleImage) {
+          var logoImg = document.createElement('img');
+          logoImg.src   = league.heroTitleImage;
+          logoImg.alt   = league.heroTitle || league.fullName || league.name || '';
+          var logoWidth = league.heroTitleImageWidth ? league.heroTitleImageWidth + 'px' : '80%';
+          logoImg.style.cssText = 'max-width:' + logoWidth + ';width:auto;height:auto;object-fit:contain;display:block;margin:0 auto;';
+          titleEl.appendChild(logoImg);
+        } else {
+          titleEl.textContent = league.heroTitle || league.fullName || league.name || '';
+        }
+      }
+
       el('leagueSubtitle').textContent = showSubtitle ? (league.heroSubtitle || '') : '';
 
       // Adjust hero size based on visible fields
@@ -260,10 +777,231 @@
       '</div>';
     }
 
+    // ── BRC Live Race (also used as Projected Final Bracket) ─
+    function renderBrcLiveRace(analysis, projectedStandings) {
+      var standings = projectedStandings || (analysis.standings || []);
+      if (!standings.length) return '<p style="color:var(--accent-dim);font-size:0.75rem;letter-spacing:0.15em;">No data.</p>';
+
+      var maxVal = standings.reduce(function (m, s) {
+        return Math.max(m, projectedStandings ? (s.projected || s.score) : (s.maxPossible || s.score));
+      }, 1);
+
+      var html = '<div class="brc-live-race">';
+      standings.forEach(function (s, i) {
+        var rank      = i + 1;
+        var scoreVal  = projectedStandings ? (s.projected || s.score) : s.score;
+        var maxPosVal = projectedStandings ? (s.maxPossible || scoreVal) : (s.maxPossible || scoreVal);
+        var scorePct  = Math.round((scoreVal / maxVal) * 100);
+        var maxPct    = Math.round((maxPosVal / maxVal) * 100);
+        var isTop     = rank <= 3;
+        var isElim    = s.hasOwnProperty('canWin') ? !s.canWin : s.eliminated;
+
+        html +=
+          '<div class="brc-race-row">' +
+            '<div class="brc-race-rank' + (isTop ? ' top' : '') + '">' + rank + '</div>' +
+            '<div>' +
+              '<div class="brc-race-name">' + esc(s.bracketName) + '</div>' +
+              '<div class="brc-race-bar-wrap">' +
+                '<div class="brc-race-bar-max" style="width:' + maxPct + '%"></div>' +
+                '<div class="brc-race-bar-score' + (isElim ? ' eliminated' : ' alive') + '" style="width:' + scorePct + '%"></div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="brc-race-scores">' +
+              '<span class="score-main">' + scoreVal + '</span>' +
+              '<span class="score-sep">/</span>' +
+              '<span class="score-max">max ' + maxPosVal + '</span>' +
+            '</div>' +
+          '</div>';
+      });
+      html += '</div>';
+      return html;
+    }
+
     // ── Render standings table ───────────────────────────────
-    function renderStandingsTable(season, league, config) {
+    function renderStandingsTable(season, league, config, brcAnalysis) {
       var schema     = window.SPORT_STAT_SCHEMAS[league.sport] || window.SPORT_STAT_SCHEMAS.other;
       var isFootball = league.sport === 'football';
+      var isMadness  = league.sport === 'madness';
+
+      var rows = season.standings || [];
+      if (!rows.length) return '<p style="color:var(--accent-dim);font-size:0.75rem;letter-spacing:0.15em;">No standings data yet.</p>';
+
+      // ── Madness-specific layout ──────────────────────────
+      if (isMadness) {
+        var savedCols = league.standingsColumns || [];
+        function colVisible(key) {
+          var entry = savedCols.find(function (c) { return c.key === key; });
+          return entry ? entry.show !== false : true;
+        }
+
+        var showRank   = colVisible('rank');
+        var showRounds = colVisible('rounds');
+        var showTotal  = colVisible('totalPoints') || colVisible('correctPicks');
+
+        // ── Auto-sort rows by totalPoints, tiebreak by predicted score proximity
+        var actualTotal = null;
+        var fsw = parseFloat(season.finalScoreWinner);
+        var fsl = parseFloat(season.finalScoreLoser);
+        if (!isNaN(fsw) && !isNaN(fsl) && (fsw + fsl) > 0) {
+          actualTotal = fsw + fsl;
+        }
+
+        rows = rows.slice().sort(function (a, b) {
+          var ptsDiff = (parseFloat(b.totalPoints) || 0) - (parseFloat(a.totalPoints) || 0);
+          if (ptsDiff !== 0) return ptsDiff;
+          // Tiebreak: closest predicted combined score to actual
+          if (actualTotal !== null) {
+            var aPred = (parseFloat(a.predictedScoreWinner) || 0) + (parseFloat(a.predictedScoreLoser) || 0);
+            var bPred = (parseFloat(b.predictedScoreWinner) || 0) + (parseFloat(b.predictedScoreLoser) || 0);
+            var aDiff = Math.abs(aPred - actualTotal);
+            var bDiff = Math.abs(bPred - actualTotal);
+            return aDiff - bDiff;
+          }
+          return 0; // keep stored order on ties if no final scores
+        });
+
+        // ── Assign ranks with gaps on ties (1,1,3 style)
+        var rankedRows = rows.map(function (row, i) {
+          return { row: row, sortPts: parseFloat(row.totalPoints) || 0 };
+        });
+        var rankCounter = 1;
+        rankedRows.forEach(function (item, i) {
+          if (i === 0) {
+            item.displayRank = 1;
+          } else {
+            var prev = rankedRows[i - 1];
+            if (item.sortPts === prev.sortPts) {
+              item.displayRank = prev.displayRank; // tied — same rank
+            } else {
+              item.displayRank = i + 1; // gap after tie
+            }
+          }
+        });
+
+        // ── Snapshot rank: rank each bracket by score BEFORE the active round ──
+        var SNAP_ROUNDS = ['R64','R32','S16','E8','F4','Final'];
+        var SNAP_PTS    = {R64:1,R32:2,S16:4,E8:8,F4:16,Final:32};
+        var activeRoundIdx = -1;
+        if (brcAnalysis && brcAnalysis.standings) {
+          SNAP_ROUNDS.forEach(function(r, ri) {
+            var hasAny = brcAnalysis.standings.some(function(s) {
+              return (s.allPicks||[]).some(function(p){ return p.round===r && p.status==='correct'; });
+            });
+            if (hasAny) activeRoundIdx = ri;
+          });
+        }
+        if (brcAnalysis && brcAnalysis.standings && activeRoundIdx > 0) {
+          // Build snapshot score per memberId (sum rounds before active)
+          var snapScoreMap = {};
+          brcAnalysis.standings.forEach(function(s) {
+            var snap = 0;
+            SNAP_ROUNDS.forEach(function(r, ri) {
+              if (ri < activeRoundIdx) {
+                (s.allPicks||[]).forEach(function(p){
+                  if (p.round===r && p.status==='correct') snap += SNAP_PTS[r];
+                });
+              }
+            });
+            snapScoreMap[s.memberId] = snap;
+          });
+          // Rank by snapshot score with gap logic
+          var snapEntries = rankedRows.map(function(item) {
+            var mid = item.row.memberId;
+            return { item: item, snapPts: snapScoreMap[mid] !== undefined ? snapScoreMap[mid] : (parseFloat(item.row.totalPoints)||0) };
+          }).sort(function(a,b){ return b.snapPts - a.snapPts; });
+          snapEntries.forEach(function(e, i) {
+            if (i === 0) { e.snapRank = 1; }
+            else {
+              var prev = snapEntries[i-1];
+              e.snapRank = (e.snapPts === prev.snapPts) ? prev.snapRank : i+1;
+            }
+          });
+          snapEntries.forEach(function(e) { e.item.snapRank = e.snapRank; });
+        }
+
+        // Abbreviated round labels (index 0–5)
+        var ROUND_LABELS = ['R64', 'R32', 'S16', 'E8', 'F4', 'Final'];
+
+        // Determine which round indices have any real data across all rows
+        var activeRoundIndices = [];
+        if (showRounds) {
+          ROUND_LABELS.forEach(function (_, rIdx) {
+            var hasData = rows.some(function (row) {
+              var pts  = (row.pointsByRound  || [])[rIdx];
+              var picks = (row.picksByRound  || [])[rIdx];
+              return (pts  !== undefined && pts  !== 0 && pts  !== '') ||
+                     (picks !== undefined && picks !== 0 && picks !== '');
+            });
+            if (hasData) activeRoundIndices.push(rIdx);
+          });
+        }
+
+        // Build thead
+        var thCells = '';
+        var identLeft = showRank ? '2rem' : '0';
+        var BG = 'background:#000;';
+        if (showRank) thCells += '<th class="standings-rank-cell" style="' + BG + '">#</th>';
+        thCells += '<th class="brc-ident-col" style="' + BG + 'left:' + identLeft + '">Bracket</th>';
+        activeRoundIndices.forEach(function (rIdx) {
+          thCells += '<th class="brc-round-col" style="' + BG + '">' + esc(ROUND_LABELS[rIdx]) + '</th>';
+        });
+        if (showTotal) thCells += '<th class="brc-total-col" style="' + BG + '">Total</th>';
+
+        // Build tbody
+        var tbodyRows = rankedRows.map(function (item) {
+          var row = item.row;
+          var tdCells = '';
+
+          // Rank
+          if (showRank) {
+            var rankArrow = '';
+            if (item.snapRank !== undefined) {
+              var delta = item.snapRank - item.displayRank;
+              if (delta > 0) {
+                rankArrow = '<span class="brc-rank-arrow brc-rank-up">\u2191' + delta + '</span>';
+              } else if (delta < 0) {
+                rankArrow = '<span class="brc-rank-arrow brc-rank-dn">\u2193' + Math.abs(delta) + '</span>';
+              }
+            }
+            tdCells += '<td class="standings-rank-cell" style="' + BG + '">' + esc(item.displayRank) + rankArrow + '</td>';
+          }
+
+          // Identity cell — bracket name / owner / predicted champion stacked
+          var identLines = [];
+          var bName = row.bracketName || row.teamName || '';
+          if (bName) identLines.push('<span class="brc-ident-bracket">' + esc(bName) + '</span>');
+          if (row.owner || row.ownerName) identLines.push('<span class="brc-ident-owner">' + esc(row.owner || row.ownerName) + '</span>');
+          if (row.predictedChampion) identLines.push('<span class="brc-ident-champ">' + esc(row.predictedChampion) + '</span>');
+          tdCells += '<td class="brc-ident-cell" style="' + BG + 'left:' + identLeft + '">' + identLines.join('') + '</td>';
+
+          // Round cells
+          activeRoundIndices.forEach(function (rIdx) {
+            var pts   = (row.pointsByRound || [])[rIdx];
+            var ptsVal = (pts !== undefined && pts !== '' && pts !== 0) ? pts : '—';
+            tdCells += '<td class="brc-round-col brc-round-cell" style="' + BG + '">' +
+              '<span class="brc-cell-pts">' + esc(ptsVal) + '</span>' +
+            '</td>';
+          });
+
+          // Total cell
+          if (showTotal) {
+            var totPts   = (row.totalPoints  !== undefined && row.totalPoints  !== '') ? row.totalPoints  : '—';
+            var totPicks = (row.correctPicks !== undefined && row.correctPicks !== '') ? row.correctPicks : '—';
+            tdCells += '<td class="brc-total-col brc-total-cell" style="' + BG + '">' +
+              '<span class="brc-cell-pts">'   + esc(totPts)   + '</span>' +
+              '<span class="brc-cell-sep">/</span>' +
+              '<span class="brc-cell-picks">' + esc(totPicks) + '</span>' +
+            '</td>';
+          }
+
+          return '<tr>' + tdCells + '</tr>';
+        }).join('');
+
+        return '<div class="brc-standings-wrap"><table class="brc-standings-table"><thead><tr>' +
+          thCells + '</tr></thead><tbody>' + tbodyRows + '</tbody></table></div>';
+      }
+
+      // ── Football / other layout ──────────────────────────
 
       // Use league-level column config if saved, else fall back to schema defaults (all visible)
       var allCols = (league.standingsColumns && league.standingsColumns.length)
@@ -273,9 +1011,6 @@
       // Separate rank (always first, fixed) from the rest
       var rankCol = allCols.find(function (c) { return c.key === 'rank'; });
       var cols    = allCols.filter(function (c) { return c.key !== 'rank'; });
-
-      var rows = season.standings || [];
-      if (!rows.length) return '<p style="color:var(--accent-dim);font-size:0.75rem;letter-spacing:0.15em;">No standings data yet.</p>';
 
       /* Some column keys in the schema differ from the actual stored key on the row */
       var keyAliases = { team: ['teamName', 'bracketName', 'team'] };
@@ -287,17 +1022,9 @@
         return '';
       }
 
-      /* Build a roster-entry-like object from a standings row for logo lookup */
-      function logoForRow(row) {
-        if (!isFootball) return '';
-        var entry = { memberId: row.memberId || '', teamName: row.teamName || row.team || '' };
-        return resolveRosterLogo(entry, league);
-      }
-
       function teamCellHtml(row) {
         var teamName = resolveCell(row, 'team');
-        if (!isFootball) return esc(teamName);
-        var logo    = logoForRow(row);
+        var logo    = resolveRosterLogo({ memberId: row.memberId || '', teamName: row.teamName || row.team || '' }, league);
         var initial = teamName ? teamName.charAt(0).toUpperCase() : '?';
         var imgHtml = logo
           ? '<img class="standings-team-logo" src="' + esc(logo) + '" alt="' + esc(teamName) + '" />'
@@ -591,17 +1318,68 @@
       // Stats-based awards
       awardDefs.forEach(function (a) {
         if (a.key === 'champion') return;
+
+        // closestScore is a special injected stat — handle separately
+        if (a.key === 'closestScore') {
+          var cs = stats.closestScore;
+          if (!cs || !cs.ownerName) return;
+          var csLines = [];
+          if (cs.ownerName && cs.ownerName !== (cs.bracketName || cs.teamName)) csLines.push(cs.ownerName);
+          if (cs.predictedWinner !== '' && cs.predictedWinner != null &&
+              cs.predictedLoser  !== '' && cs.predictedLoser  != null) {
+            var predStr = cs.predictedWinner + ' - ' + cs.predictedLoser;
+            var aw = parseFloat(season.finalScoreWinner);
+            var al = parseFloat(season.finalScoreLoser);
+            if (!isNaN(aw) && !isNaN(al)) {
+              var diff = Math.abs((parseFloat(cs.predictedWinner) + parseFloat(cs.predictedLoser)) - (aw + al));
+              csLines.push(predStr + '  /  ' + diff);
+            } else {
+              csLines.push(predStr);
+            }
+          }
+          html += buildStatCard(
+            awards['closestScore'] || a.defaultLabel,
+            a.hint || '',
+            awardImages['closestScore'] || '',
+            cs.bracketName || cs.teamName || cs.ownerName || '',
+            csLines,
+            true
+          );
+          return;
+        }
+
         var stat = stats[a.key];
         var statDef = (schema.stats || []).find(function (s) { return s.awardKey === a.key; });
         if (statDef) stat = stats[statDef.key];
+
+        // Handle multiWinner array stats — use first entry
+        if (Array.isArray(stat)) {
+          if (!stat.length) return;
+          stat = stat[0];
+        }
+
         if (!stat || (!stat.ownerName && !stat.bracketName)) return;
         var isAuto = autoKeys.indexOf(a.key) !== -1 || autoKeys.indexOf(statDef && statDef.key) !== -1;
+
+        // Build BRC-specific extra detail lines
+        var extraLines = statLines(stat).slice();
+        if (a.key === 'cinderellaPick' && stat.lowestS16Seed != null && stat.lowestS16Seed !== '')
+          extraLines = ['Seed: ' + stat.lowestS16Seed];
+        if (a.key === 'bestSingleRound' && stat.points != null && stat.points !== '')
+          extraLines = [stat.points + ' pts'];
+        if (a.key === 'finalFourCorrect' && stat.f4Teams != null && stat.f4Teams !== '')
+          extraLines = [stat.f4Teams + ' Final Four Teams'];
+        if (a.key === 'championshipCorrect' && stat.predicted != null && stat.predicted !== '')
+          extraLines = [stat.predicted + ' / ' + stat.correct + ' — ' + stat.predictionPct + '%'];
+        if (a.key === 'perfectBracketThrough' && stat.round)
+          extraLines = [stat.round];
+
         html += buildStatCard(
           awards[a.key] || a.defaultLabel,
           a.hint || '',
           awardImages[a.key] || '',
           stat.teamName || stat.bracketName || stat.ownerName || '',
-          statLines(stat),
+          extraLines,
           isAuto
         );
       });
@@ -867,6 +1645,7 @@
 
     // ── Render season roster grid ────────────────────────────
     function renderRoster(season, league, config) {
+      var isFootball = league.sport === 'football';
       var roster = season.roster || [];
       if (!roster.length) return '';
 
@@ -891,10 +1670,11 @@
           ? '<img class="roster-card-logo" src="' + esc(logo) + '" alt="' + esc(name) + '" />'
           : '<div class="roster-card-initial">' + esc(initial) + '</div>';
 
-        return '<div class="roster-card">' +
+        var teamUrl = (isFootball && entry.memberId) ? 'team.html?id=' + encodeURIComponent(entry.memberId) : null;
+        return (teamUrl ? '<a class="roster-card" href="' + esc(teamUrl) + '">' : '<div class="roster-card">') +
           imgHtml +
           '<div class="roster-card-name">' + esc(name || entry.ownerName || '—') + '</div>' +
-        '</div>';
+        (teamUrl ? '</a>' : '</div>');
       }).join('');
 
       var cols = Math.ceil(roster.length / 2);
@@ -1007,11 +1787,702 @@
         else if (key === 'standings') {
           if (!current) return;
           sectionEl = document.createElement('div');
-          sectionEl.innerHTML =
-            '<div class="league-section-heading">' + (isFinal ? 'Final Standings' : 'Standings') +
-              (current.year ? ' \u2014 ' + esc(current.year) : '') +
-            '</div>' +
-            '<div class="league-standings-wrap">' + renderStandingsTable(current, league, config) + '</div>';
+
+          var analysis = window.OFL_BRC_ANALYSIS;
+          var isMadnessLive = (league.sport === 'madness' && !isFinal && analysis);
+
+          if (isMadnessLive) {
+            // ── BRC live mode: view pills + three views ──
+            var year = current.year ? ' \u2014 ' + esc(current.year) : '';
+            var pillsId      = 'brc-pills-' + (current.id || 'cur');
+            var viewId       = 'brc-view-'  + (current.id || 'cur');
+            var scenSelId    = 'brc-ssel-'  + (current.id || 'cur');
+            var scenTblId    = 'brc-stbl-'  + (current.id || 'cur');
+            var scenHntId    = 'brc-shnt-'  + (current.id || 'cur');
+            var h2hSelAId    = 'brc-h2ha-'  + (current.id || 'cur');
+            var h2hSelBId    = 'brc-h2hb-'  + (current.id || 'cur');
+            var h2hBodyId    = 'brc-h2hbd-' + (current.id || 'cur');
+            var upsetsViewId = 'brc-uv-'    + (current.id || 'cur');
+            var upsetsBodyId = 'brc-ub-'    + (current.id || 'cur');
+            var survivalSelId  = 'brc-svs-'  + (current.id || 'cur');
+            var survivalCardId = 'brc-svc-'  + (current.id || 'cur');
+            var survivalBodyId = 'brc-svb-'  + (current.id || 'cur');
+
+            // Build roster map: memberId → { name, mugshot }
+            var masterRoster = (window.OFL_DATA && window.OFL_DATA.masterRoster) || [];
+            var rosterMap = {};
+            (analysis.standings || []).forEach(function(s) {
+              var m = masterRoster.find(function(mr) { return mr.id === s.memberId; });
+              rosterMap[s.memberId] = { name: m ? m.name : s.bracketName, mugshot: m ? (m.mugshot || '') : '' };
+            });
+
+            // Default survival selection: rank 1 bracket
+            var defaultSurvivalMid = (analysis.standings && analysis.standings[0]) ? analysis.standings[0].memberId : '';
+
+            // Build survival bracket options: all brackets ranked, eliminated labeled
+            var survivalOpts = '';
+            var elimSet = {};
+            (analysis.standings || []).forEach(function(s) {
+              var isElim = s.hasOwnProperty('canWin') ? !s.canWin : s.eliminated;
+              if (isElim) elimSet[s.memberId] = true;
+            });
+            (analysis.standings || []).forEach(function(s) {
+              survivalOpts += '<option value="' + esc(s.memberId) + '">' + esc(s.bracketName) + '</option>';
+            });
+
+            // Build bracket options for selects
+            var bracketOpts = '<option value="">— Select —</option>';
+            (analysis.standings || []).forEach(function(s) {
+              bracketOpts += '<option value="' + esc(s.memberId) + '">' + esc(s.bracketName) + '</option>';
+            });
+
+            sectionEl.innerHTML =
+              // Pills
+              '<div class="brc-view-pills" id="' + pillsId + '">' +
+                '<button class="brc-view-pill is-active" data-view="standings">Standings</button>' +
+                '<button class="brc-view-pill" data-view="scenario">Scenario Generator</button>' +
+                '<button class="brc-view-pill" data-view="h2h">Head to Head</button>' +
+                '<button class="brc-view-pill" data-view="upsets">Upsets</button>' +
+                '<button class="brc-view-pill" data-view="survival">Survival</button>' +
+              '</div>' +
+
+              // ── View: Standings ──────────────────────────
+              '<div data-brc-view="standings">' +
+                '<div class="league-section-heading">Standings' + year + '</div>' +
+                renderStandingsTable(current, league, config, analysis) +
+              '</div>' +
+
+              // ── View: Scenario Generator ─────────────────
+              '<div data-brc-view="scenario" style="display:none">' +
+                '<div class="league-section-heading">Scenario Generator' + year + '</div>' +
+                '<span class="brc-scenario-label">If this bracket\'s picks all come true&hellip;</span>' +
+                '<select class="brc-scenario-select" id="' + scenSelId + '">' + bracketOpts + '</select>' +
+                '<div class="league-section-heading" style="margin-top:0.5rem">Projected Final Bracket</div>' +
+                '<div id="' + scenTblId + '_race" class="brc-live-race">' + renderBrcLiveRace(analysis, null) + '</div>' +
+                '<table class="brc-scenario-table" id="' + scenTblId + '" style="display:none"></table>' +
+                '<div class="brc-scenario-hint" id="' + scenHntId + '" style="display:none"></div>' +
+              '</div>' +
+
+              // ── View: Head to Head ───────────────────────
+              '<div data-brc-view="h2h" style="display:none">' +
+                '<div class="league-section-heading">Head to Head' + year + '</div>' +
+                '<div class="brc-h2h-selects">' +
+                  '<select class="brc-scenario-select" id="' + h2hSelAId + '" style="margin-bottom:0">' + bracketOpts + '</select>' +
+                  '<select class="brc-scenario-select" id="' + h2hSelBId + '" style="margin-bottom:0">' + bracketOpts + '</select>' +
+                '</div>' +
+                '<div id="' + h2hBodyId + '">' +
+                  '<div class="brc-h2h-hint">Select two brackets above to compare</div>' +
+                '</div>' +
+              '</div>' +
+
+              // ── View: Upsets ─────────────────────────────
+              '<div data-brc-view="upsets" style="display:none" id="' + upsetsViewId + '">' +
+                '<div class="league-section-heading">Upsets' + year + '</div>' +
+                '<div id="' + upsetsBodyId + '"></div>' +
+              '</div>' +
+
+              // ── View: Survival ────────────────────────────
+              '<div data-brc-view="survival" style="display:none">' +
+                '<div class="league-section-heading">Survival' + year + '</div>' +
+                '<select class="brc-scenario-select" id="' + survivalSelId + '">' + survivalOpts + '</select>' +
+                '<div id="' + survivalCardId + '"></div>' +
+                '<div id="' + survivalBodyId + '"></div>' +
+              '</div>';
+
+            // Wire up interactivity via inline script
+            var defaultH2hMidA = (analysis.standings && analysis.standings[0]) ? analysis.standings[0].memberId : '';
+            var defaultH2hMidB = (analysis.standings && analysis.standings[1]) ? analysis.standings[1].memberId : '';
+
+            var inlineScript = document.createElement('script');
+            inlineScript.textContent = (function(
+              analysis, pillsId, viewId, scenSelId, scenTblId, scenHntId,
+              h2hSelAId, h2hSelBId, h2hBodyId, upsetsBodyId,
+              survivalSelId, survivalCardId, survivalBodyId, rosterMap, defaultSurvivalMid,
+              defaultH2hMidA, defaultH2hMidB
+            ){
+              return '(function(){\n' +
+              'var ANALYSIS=' + JSON.stringify(analysis) + ';\n' +
+              'var ROSTER=' + JSON.stringify(rosterMap) + ';\n' +
+              'var PTS=ANALYSIS.pointStructure||{R64:1,R32:2,S16:4,E8:8,F4:16,Final:32};\n' +
+              'var ROUNDS=["R64","R32","S16","E8","F4","Final"];\n' +
+
+              // ── Pill switching
+              'var pillsEl=document.getElementById("' + pillsId + '");\n' +
+              'if(pillsEl){pillsEl.addEventListener("click",function(e){\n' +
+              '  var btn=e.target.closest("button[data-view]");if(!btn)return;\n' +
+              '  var v=btn.getAttribute("data-view");\n' +
+              '  pillsEl.querySelectorAll(".brc-view-pill").forEach(function(p){p.classList.remove("is-active");});\n' +
+              '  btn.classList.add("is-active");\n' +
+              '  var wrap=pillsEl.parentElement;\n' +
+              '  wrap.querySelectorAll("[data-brc-view]").forEach(function(el){el.style.display=el.getAttribute("data-brc-view")===v?"block":"none";});\n' +
+              '  if(v==="upsets")renderUpsets();\n' +
+              '  if(v==="survival")initSurvival();\n' +
+              '  if(v==="h2h")initH2H();\n' +
+              '});}\n' +
+
+              // ── Scenario select
+              'function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}\n' +
+              'var scenSel=document.getElementById("' + scenSelId + '");\n' +
+              'if(scenSel){scenSel.addEventListener("change",function(){\n' +
+              '  var mid=this.value;\n' +
+              '  var raceEl=document.getElementById("' + scenTblId + '_race");\n' +
+              '  var tblEl=document.getElementById("' + scenTblId + '");\n' +
+              '  var hntEl=document.getElementById("' + scenHntId + '");\n' +
+              '  if(!mid){\n' +
+              '    raceEl.innerHTML=' + JSON.stringify(renderBrcLiveRace(analysis, null)) + ';\n' +
+              '    tblEl.style.display="none";hntEl.style.display="none";\n' +
+              '    return;\n' +
+              '  }\n' +
+              '  var chosen=ANALYSIS.standings.find(function(s){return s.memberId===mid;});\n' +
+              '  if(!chosen)return;\n' +
+              '  // Build scenario winners from this bracket pending picks\n' +
+              '  var scenMap={};\n' +
+              '  (chosen.pendingPicks||[]).forEach(function(p){scenMap[p.slotId]=p.team;});\n' +
+              '  // Project scores\n' +
+              '  var proj=ANALYSIS.standings.map(function(s){\n' +
+              '    var extra=0;\n' +
+              '    (s.pendingPicks||[]).forEach(function(p){\n' +
+              '      if(scenMap[p.slotId]&&scenMap[p.slotId]===p.team)extra+=PTS[p.round]||0;\n' +
+              '    });\n' +
+              '    return{memberId:s.memberId,bracketName:s.bracketName,actual:s.score,projected:s.score+extra,maxPossible:s.maxPossible,eliminated:s.hasOwnProperty("canWin")?!s.canWin:s.eliminated};\n' +
+              '  }).sort(function(a,b){return b.projected-a.projected;});\n' +
+              '  // Actual ranks\n' +
+              '  var actualRanks={};\n' +
+              '  ANALYSIS.standings.forEach(function(s,i){actualRanks[s.memberId]=i+1;});\n' +
+              '  // Render projected race bars\n' +
+              '  var maxProj=proj.reduce(function(m,s){return Math.max(m,s.projected);},1);\n' +
+              '  var raceHtml="";\n' +
+              '  proj.forEach(function(s,i){\n' +
+              '    var rank=i+1;\n' +
+              '    var sPct=Math.round((s.projected/maxProj)*100);\n' +
+              '    var mPct=Math.round(((s.maxPossible||s.projected)/maxProj)*100);\n' +
+              '    var isTop=rank<=3;\n' +
+              '    raceHtml+=\'<div class="brc-race-row">\'+\n' +
+              '      \'<div class="brc-race-rank\'+(isTop?\' top\':\'\')+\'">\'+(rank)+\'</div>\'+\n' +
+              '      \'<div><div class="brc-race-name">\'+esc(s.bracketName)+\'</div>\'+\n' +
+              '      \'<div class="brc-race-bar-wrap">\'+\n' +
+              '        \'<div class="brc-race-bar-max" style="width:\'+mPct+\'%"></div>\'+\n' +
+              '        \'<div class="brc-race-bar-score\'+(s.eliminated?\' eliminated\':\' alive\')+\'" style="width:\'+sPct+\'%"></div>\'+\n' +
+              '      \'</div></div>\'+\n' +
+              '      \'<div class="brc-race-scores"><span class="score-main">\'+s.projected+\'</span>\'+\n' +
+              '        \'<span class="score-sep">/</span>\'+\n' +
+              '        \'<span class="score-max">max \'+s.maxPossible+\'</span></div>\'+\n' +
+              '    \'</div>\';\n' +
+              '  });\n' +
+              '  raceEl.innerHTML=raceHtml;\n' +
+              '  tblEl.style.display="none"; hntEl.style.display="none";\n' +
+              '});}\n' +
+
+              // ── H2H selects
+              'function renderH2H(){\n' +
+              '  var midA=document.getElementById("' + h2hSelAId + '").value;\n' +
+              '  var midB=document.getElementById("' + h2hSelBId + '").value;\n' +
+              '  var body=document.getElementById("' + h2hBodyId + '");\n' +
+              '  if(!midA||!midB||midA===midB){body.innerHTML=\'<div class="brc-h2h-hint">Select two different brackets to compare</div>\';return;}\n' +
+              '  var bA=ANALYSIS.standings.find(function(s){return s.memberId===midA;});\n' +
+              '  var bB=ANALYSIS.standings.find(function(s){return s.memberId===midB;});\n' +
+              '  if(!bA||!bB)return;\n' +
+              '  var picksA={},picksB={};\n' +
+              '  (bA.allPicks||[]).forEach(function(p){picksA[p.slotId]=p;});\n' +
+              '  (bB.allPicks||[]).forEach(function(p){picksB[p.slotId]=p;});\n' +
+              '  // Count agreement\n' +
+              '  var agree=0,total=0;\n' +
+              '  var allSlots=Object.keys(Object.assign({},picksA,picksB));\n' +
+              '  allSlots.forEach(function(sid){\n' +
+              '    var pA=picksA[sid],pB=picksB[sid];\n' +
+              '    if(pA&&pB){total++;if(pA.team===pB.team)agree++;}\n' +
+              '  });\n' +
+              '  var pct=total>0?Math.round(agree/total*100):0;\n' +
+              '  // Stat cards\n' +
+              '  var champA=(bA.allPicks||[]).find(function(p){return p.slotId==="champ";});\n' +
+              '  var champB=(bB.allPicks||[]).find(function(p){return p.slotId==="champ";});\n' +
+              '  var cardsHtml=\'<div class="brc-h2h-stat-cards">\'+\n' +
+              '    \'<div class="brc-h2h-card left">\'+\n' +
+              '      \'<div class="brc-h2h-card-header">\'+\n' +
+              '      \'<div class="brc-h2h-card-name">\'+esc(bA.bracketName)+\'</div>\'+\n' +
+              '      (champA?\'<div class="brc-h2h-card-label" style="opacity:1;color:var(--hint-color,var(--accent-dim))">\'+esc(champA.team)+\'</div>\':"")+\n' +
+              '      \'</div>\'+\n' +
+              '      \'<div class="brc-h2h-card-body">\'+\n' +
+              '      \'<div class="brc-h2h-card-label">Current Score</div>\'+\n' +
+              '      \'<div class="brc-h2h-card-val">\'+bA.score+\'</div>\'+\n' +
+              '      \'<div class="brc-h2h-card-sub">pts</div>\'+\n' +
+              '      \'</div>\'+\n' +
+              '    \'</div>\'+\n' +
+              '    \'<div class="brc-h2h-card center">\'+\n' +
+              '      \'<div class="brc-h2h-card-label">Agreement</div>\'+\n' +
+              '      \'<div class="brc-h2h-card-val">\'+agree+\'/\'+total+\'</div>\'+\n' +
+              '      \'<div class="brc-h2h-card-sub">\'+pct+\'% same picks</div>\'+\n' +
+              '    \'</div>\'+\n' +
+              '    \'<div class="brc-h2h-card">\'+\n' +
+              '      \'<div class="brc-h2h-card-header">\'+\n' +
+              '      \'<div class="brc-h2h-card-name">\'+esc(bB.bracketName)+\'</div>\'+\n' +
+              '      (champB?\'<div class="brc-h2h-card-label" style="opacity:1;color:var(--hint-color,var(--accent-dim))">\'+esc(champB.team)+\'</div>\':"")+\n' +
+              '      \'</div>\'+\n' +
+              '      \'<div class="brc-h2h-card-body">\'+\n' +
+              '      \'<div class="brc-h2h-card-label">Current Score</div>\'+\n' +
+              '      \'<div class="brc-h2h-card-val">\'+bB.score+\'</div>\'+\n' +
+              '      \'<div class="brc-h2h-card-sub">pts</div>\'+\n' +
+              '      \'</div>\'+\n' +
+              '    \'</div>\'+\n' +
+              '  \'</div>\';\n' +
+              '  // Pick table by round\n' +
+              '  var tblHtml=\'<div class="brc-h2h-table-wrap"><table class="brc-h2h-table"><thead><tr>\'+\n' +
+              '    \'<th class="h2h-col-a h2h-col-a">\'+esc(bA.bracketName)+\'</th>\'+\n' +
+              '    \'<th class="h2h-col-mid"></th>\'+\n' +
+              '    \'<th class="h2h-col-b">\'+esc(bB.bracketName)+\'</th>\'+\n' +
+              '  \'</tr></thead><tbody>\';\n' +
+              '  ROUNDS.forEach(function(round){\n' +
+              '    var rA=(bA.allPicks||[]).filter(function(p){return p.round===round;});\n' +
+              '    var rB=(bB.allPicks||[]).filter(function(p){return p.round===round;});\n' +
+              '    if(!rA.length&&!rB.length)return;\n' +
+              '    tblHtml+=\'<tr class="brc-h2h-round-row"><td colspan="3">\'+round+\' &middot; \'+((PTS[round]||0))+\' pts</td></tr>\';\n' +
+              '    var slots=[];\n' +
+              '    rA.forEach(function(p){if(slots.indexOf(p.slotId)===-1)slots.push(p.slotId);});\n' +
+              '    rB.forEach(function(p){if(slots.indexOf(p.slotId)===-1)slots.push(p.slotId);});\n' +
+              '    slots.sort();\n' +
+              '    slots.forEach(function(sid){\n' +
+              '      var pA=picksA[sid],pB=picksB[sid];\n' +
+              '      var tA=pA?pA.team:"—",tB=pB?pB.team:"—";\n' +
+              '      var sA=pA?pA.status:"pending",sB=pB?pB.status:"pending";\n' +
+              '      var same=tA===tB;\n' +
+              '      // Classes for A\n' +
+              '      var clsA=same?"h2h-agree h2h-col-a":"h2h-disagree-a h2h-col-a";\n' +
+              '      if(sA==="correct")clsA+=" h2h-correct";\n' +
+              '      if(sA==="incorrect")clsA+=" h2h-wrong";\n' +
+              '      // Classes for B\n' +
+              '      var clsB=same?"h2h-agree h2h-col-b":"h2h-disagree-b h2h-col-b";\n' +
+              '      if(sB==="correct")clsB+=" h2h-correct";\n' +
+              '      if(sB==="incorrect")clsB+=" h2h-wrong";\n' +
+              '      tblHtml+=\'<tr class="brc-h2h-pick-row">\'+\n' +
+              '        \'<td class="\'+clsA+\'">\'+esc(tA)+\'</td>\'+\n' +
+              '        \'<td class="h2h-col-mid">\'+( same?"=":"≠")+\'</td>\'+\n' +
+              '        \'<td class="\'+clsB+\'">\'+esc(tB)+\'</td>\'+\n' +
+              '      \'</tr>\';\n' +
+              '    });\n' +
+              '  });\n' +
+              '  tblHtml+=\'</tbody></table></div>\';\n' +
+              '  body.innerHTML=cardsHtml+tblHtml;\n' +
+              '}\n' +
+              'var _h2hInited=false;\n' +
+              'function initH2H(){\n' +
+              '  var selA=document.getElementById("' + h2hSelAId + '");\n' +
+              '  var selB=document.getElementById("' + h2hSelBId + '");\n' +
+              '  if(!selA||!selB)return;\n' +
+              '  if(!_h2hInited){\n' +
+              '    selA.addEventListener("change",renderH2H);\n' +
+              '    selB.addEventListener("change",renderH2H);\n' +
+              '    _h2hInited=true;\n' +
+              '  }\n' +
+              '  if(!selA.value&&"' + defaultH2hMidA + '")selA.value="' + defaultH2hMidA + '";\n' +
+              '  if(!selB.value&&"' + defaultH2hMidB + '")selB.value="' + defaultH2hMidB + '";\n' +
+              '  renderH2H();\n' +
+              '}\n' +
+
+              // ── Upsets renderer
+              'function esc2(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}\n' +
+              'function renderUpsets(){\n' +
+              '  var body=document.getElementById("' + upsetsBodyId + '");\n' +
+              '  if(!body)return;\n' +
+              '  var standings=ANALYSIS.standings||[];\n' +
+              '  var gameResults=ANALYSIS.actualResults||{};\n' +
+              // If no actualResults in export, show a message
+              '  if(!Object.keys(gameResults).length){\n' +
+              '    body.innerHTML=\'<p style="color:var(--accent-dim);font-size:0.75rem;letter-spacing:0.15em;">Re-export ofl-brc-analysis.js from the BRC utility to enable Upsets data.</p>\';\n' +
+              '    return;\n' +
+              '  }\n' +
+              // Identify actual upsets from gameResults: winner seed > loser seed
+              '  var actualUpsets={};\n' +
+              '  Object.keys(gameResults).forEach(function(sid){\n' +
+              '    var r=gameResults[sid];\n' +
+              '    if(!r||!r.winner||r.winnerSeed==null||r.loserSeed==null)return;\n' +
+              '    if(r.winnerSeed>r.loserSeed){\n' +
+              '      actualUpsets[sid]={slotId:sid,round:r.round,winner:r.winner,winnerSeed:r.winnerSeed,loser:r.loser,loserSeed:r.loserSeed,seedDiff:r.winnerSeed-r.loserSeed,predictors:[]};\n' +
+              '    }\n' +
+              '  });\n' +
+              // Find predictors and tally per bracket using gameResults for opponent seed
+              '  var bracketTally={};\n' +
+              '  standings.forEach(function(s){bracketTally[s.bracketName]={predicted:0,correct:0};});\n' +
+              '  standings.forEach(function(s){\n' +
+              '    (s.allPicks||[]).forEach(function(p){\n' +
+              '      var r=gameResults[p.slotId];\n' +
+              '      if(!r)return;\n' +
+              // Determine picked seed and opponent seed from actual game result
+              '      var pickedSeed=p.seed||0;\n' +
+              '      var opponentSeed=p.team===r.winner?r.loserSeed:r.winnerSeed;\n' +
+              '      if(pickedSeed>opponentSeed&&pickedSeed>0&&opponentSeed>0){\n' +
+              '        bracketTally[s.bracketName].predicted++;\n' +
+              '        if(p.status==="correct")bracketTally[s.bracketName].correct++;\n' +
+              '      }\n' +
+              // Track predictors of actual upsets
+              '      if(actualUpsets[p.slotId]&&p.team===actualUpsets[p.slotId].winner&&p.status==="correct"){\n' +
+              '        actualUpsets[p.slotId].predictors.push(s.bracketName);\n' +
+              '      }\n' +
+              '    });\n' +
+              '  });\n' +
+              '  var upsetArr=Object.values(actualUpsets).sort(function(a,b){\n' +
+              '    var ro=["R64","R32","S16","E8","F4","Final"];\n' +
+              '    var ri=ro.indexOf(a.round)-ro.indexOf(b.round);\n' +
+              '    return ri!==0?ri:b.seedDiff-a.seedDiff;\n' +
+              '  });\n' +
+              '  var totalActual=upsetArr.length;\n' +
+              '  var totalPredicted=0;\n' +
+              '  Object.values(bracketTally).forEach(function(t){totalPredicted+=t.predicted;});\n' +
+              '  var totalGames=(function(){\n' +
+              '    var slotTeams={};\n' +
+              '    standings.forEach(function(s){\n' +
+              '      (s.allPicks||[]).forEach(function(p){\n' +
+              '        if(!slotTeams[p.slotId])slotTeams[p.slotId]={};\n' +
+              '        slotTeams[p.slotId][p.team]=p.seed;\n' +
+              '      });\n' +
+              '    });\n' +
+              '    var slots={};\n' +
+              '    standings.forEach(function(s){\n' +
+              '      (s.allPicks||[]).forEach(function(p){\n' +
+              '        var pickedSeed=p.seed||0;\n' +
+              '        var teams=slotTeams[p.slotId]||{};\n' +
+              '        var otherSeeds=Object.keys(teams).filter(function(t){return t!==p.team;}).map(function(t){return teams[t];});\n' +
+              '        if(!otherSeeds.length)return;\n' +
+              '        var opponentSeed=Math.min.apply(null,otherSeeds);\n' +
+              '        if(pickedSeed>opponentSeed&&pickedSeed>0&&opponentSeed>0)slots[p.slotId]=true;\n' +
+              '      });\n' +
+              '    });\n' +
+              '    return Object.keys(slots).length;\n' +
+              '  })();\n' +
+              // Summary cards
+              '  var leaguePredictPct=totalPredicted>0?Math.round((Object.values(bracketTally).reduce(function(s,t){return s+t.correct;},0)/totalPredicted)*100):0;\n' +
+              '  var html=\'<div class="brc-upset-cards">\';\n' +
+              '  html+=\'<div class="brc-upset-card">\';\n' +
+              '  html+=\'<div class="brc-upset-card-label">Predictions / Games</div>\';\n' +
+              '  html+=\'<div class="brc-upset-card-val">\'+totalPredicted+\'<span style="opacity:0.35;margin:0 0.15em;font-size:1.4rem">/</span>\'+totalGames+\'</div>\';\n' +
+              '  html+=\'</div>\';\n' +
+              '  html+=\'<div class="brc-upset-card"><div class="brc-upset-card-label">Upsets</div><div class="brc-upset-card-val">\'+totalActual+\'</div></div>\';\n' +
+              '  html+=\'<div class="brc-upset-card"><div class="brc-upset-card-label">League</div><div class="brc-upset-card-val">\'+leaguePredictPct+\'%</div></div>\';\n' +
+              '  html+=\'</div>\';\n' +
+              // Leaderboard
+              '  var lbData=standings.map(function(s){\n' +
+              '    var t=bracketTally[s.bracketName]||{predicted:0,correct:0};\n' +
+              '    var rate=totalActual>0?Math.round((t.correct/totalActual)*100):0;\n' +
+              '    var predictPct=t.predicted>0?Math.round((t.correct/t.predicted)*100):0;\n' +
+              '    return{name:s.bracketName,predicted:t.predicted,correct:t.correct,rate:rate,predictPct:predictPct};\n' +
+              '  }).sort(function(a,b){return b.predictPct-a.predictPct||b.correct-a.correct||b.predicted-a.predicted;});\n' +
+              '  lbData.forEach(function(row,i){\n' +
+              '    if(i===0){row.displayRank=1;}\n' +
+              '    else if(lbData[i-1].predictPct===row.predictPct&&lbData[i-1].correct===row.correct){row.displayRank=lbData[i-1].displayRank;}\n' +
+              '    else{row.displayRank=i+1;}\n' +
+              '  });\n' +
+              '  html+=\'<div class="league-section-heading" style="margin-bottom:0.8rem">Upset Leaderboard</div>\';\n' +
+              '  html+=\'<div style="padding-right:1rem"><table class="brc-upset-lb-table"><thead><tr>\';\n' +
+              '  html+=\'<th style="width:2rem;text-align:center">#</th><th>Bracket</th><th style="text-align:center">Predicted</th><th style="text-align:center">Correct</th><th class="r">%</th>\';\n' +
+              '  html+=\'</tr></thead><tbody>\';\n' +
+              '  lbData.forEach(function(row){\n' +
+              '    var isTop=row.displayRank<=3;\n' +
+              '    html+=\'<tr>\';\n' +
+              '    html+=\'<td class="brc-upset-lb-rank\'+(isTop?\' top\':\'\')+\'">\'+(row.displayRank)+\'</td>\';\n' +
+              '    html+=\'<td class="brc-upset-lb-name">\'+esc2(row.name)+\'</td>\';\n' +
+              '    html+=\'<td class="brc-upset-lb-num">\'+row.predicted+\'</td>\';\n' +
+              '    html+=\'<td class="brc-upset-lb-num"><span style="color:var(--hint-color,var(--accent));font-weight:600">\'+row.correct+\'</span><span style="color:var(--accent-dim);opacity:0.6;margin:0 0.15em">/</span><span style="color:var(--accent-dim)">\'+totalActual+\'</span></td>\';\n' +
+              '    html+=\'<td class="brc-upset-lb-rate" style="color:#fff;font-weight:600">\'+row.predictPct+\'%</td>\';\n' +
+              '    html+=\'</tr>\';\n' +
+              '  });\n' +
+              '  html+=\'</tbody></table></div>\';\n' +
+              '  html+=\'<div class="league-section-heading" style="margin-top:1.5rem;margin-bottom:0.8rem">Upsets That Happened</div>\';\n' +
+              '  if(!upsetArr.length){\n' +
+              '    html+=\'<p style="color:var(--accent-dim);font-size:0.75rem;letter-spacing:0.15em;">No upsets yet.</p>\';\n' +
+              '  } else {\n' +
+              '    html+=\'<table class="brc-upsets-table"><thead><tr>\';\n' +
+              '    html+=\'<th>Round</th><th>Teams</th><th class="r">Called</th><th>By</th>\';\n' +
+              '    html+=\'</tr></thead><tbody>\';\n' +
+              '    upsetArr.forEach(function(u){\n' +
+              '      html+=\'<tr>\';\n' +
+              '      html+=\'<td class="brc-upset-round">\'+esc2(u.round)+\'</td>\';\n' +
+              '      html+=\'<td>\';\n' +
+              '      html+=\'<div class="brc-upset-winner">\'+esc2(u.winner)+\'<span class="brc-upset-winner-seed">(\'+u.winnerSeed+\')</span></div>\';\n' +
+              '      html+=\'<div class="brc-upset-loser">\'+esc2(u.loser)+\'<span class="brc-upset-loser-seed">(\'+u.loserSeed+\')</span></div>\';\n' +
+              '      html+=\'</td>\';\n' +
+              '      html+=\'<td class="brc-upset-called">\'+u.predictors.length+\'</td>\';\n' +
+              '      html+=\'<td class="brc-upset-callers">\'+(u.predictors.length?esc2(u.predictors.join(", ")):"—")+\'</td>\';\n' +
+              '      html+=\'</tr>\';\n' +
+              '    });\n' +
+              '    html+=\'</tbody></table>\';\n' +
+              '  }\n' +
+              '  body.innerHTML=html;\n' +
+              '}\n' +
+
+              'function initSurvival(){\n' +
+              '  var sel=document.getElementById("' + survivalSelId + '");\n' +
+              '  if(!sel)return;\n' +
+              '  if("' + defaultSurvivalMid + '")sel.value="' + defaultSurvivalMid + '";\n' +
+              '  renderSurvivalFor(sel.value);\n' +
+              '  sel.addEventListener("change",function(){renderSurvivalFor(this.value);});\n' +
+              '}\n' +
+
+              'function renderSurvivalFor(mid){\n' +
+              '  var cardEl=document.getElementById("' + survivalCardId + '");\n' +
+              '  var bodyEl=document.getElementById("' + survivalBodyId + '");\n' +
+              '  if(!cardEl||!bodyEl)return;\n' +
+              '  if(!mid){cardEl.innerHTML="";bodyEl.innerHTML="";return;}\n' +
+              '  var s=ANALYSIS.standings.find(function(x){return x.memberId===mid;});\n' +
+              '  if(!s){cardEl.innerHTML="";bodyEl.innerHTML="";return;}\n' +
+              '  var r=ROSTER[mid]||{name:s.bracketName,mugshot:""};\n' +
+              '  var f4Picks=(s.allPicks||[]).filter(function(p){return p.round==="E8";}).map(function(p){return{team:p.team,elim:p.status==="incorrect"};});\n' +
+              '  var finalsPicks=(s.allPicks||[]).filter(function(p){return p.round==="F4";}).map(function(p){return{team:p.team,elim:p.status==="incorrect"};});\n' +
+              '  function formatPickList(arr){return arr.map(function(p){return p.elim?"<s style=\\"opacity:0.45\\">"+esc2(p.team)+"</s>":esc2(p.team);}).join(", ");}\n' +
+              '  var champPick=(s.allPicks||[]).find(function(p){return p.slotId==="champ";});\n' +
+              '  var champTeam=champPick?champPick.team:"";\n' +
+              '  var champElim=champPick&&champPick.status==="incorrect";\n' +
+              '  var aliveEntry=(ANALYSIS.aliveBrackets||[]).find(function(b){return b.memberId===mid;});\n' +
+              '  var score=s.score;\n' +
+              '  var maxPoss=aliveEntry?aliveEntry.maxPossible:s.maxPossible;\n' +
+              '  var rivals=ANALYSIS.standings.filter(function(x){\n' +
+              '    if(x.memberId===mid)return false;\n' +
+              '    var cp=(x.allPicks||[]).find(function(p){return p.slotId==="champ";});\n' +
+              '    return cp&&cp.team===champTeam&&!(x.hasOwnProperty("canWin")?!x.canWin:x.eliminated);\n' +
+              '  }).map(function(x){return x.bracketName;});\n' +
+              '  var mugHtml=r.mugshot\n' +
+              '    ?\'<img src="\'+r.mugshot+\'" alt="\'+esc2(r.name)+\'" />\'\n' +
+              '    :\'<div class="brc-surv-card-mug-init">\'+esc2((r.name||"?").charAt(0).toUpperCase())+\'</div>\';\n' +
+              '  var cardHtml=\'<div class="brc-surv-card">\';\n' +
+              '  cardHtml+=\'<div class="brc-surv-card-mug">\'+mugHtml+\'</div>\';\n' +
+              '  cardHtml+=\'<div class="brc-surv-card-info">\';\n' +
+              '  cardHtml+=\'<div class="brc-surv-card-bracket">\'+esc2(s.bracketName)+\'</div>\';\n' +
+              '  cardHtml+=\'<div class="brc-surv-card-owner">\'+esc2(r.name)+\'</div>\';\n' +
+              '  if(f4Picks.length)cardHtml+=\'<div class="brc-surv-card-row"><strong>Final Four:</strong> \'+formatPickList(f4Picks)+\'</div>\';\n' +
+              '  if(finalsPicks.length)cardHtml+=\'<div class="brc-surv-card-row"><strong>Finals:</strong> \'+formatPickList(finalsPicks)+\'</div>\';\n' +
+              '  if(champTeam){var elimSpan=champElim?\' <span style="opacity:0.45;font-size:0.58rem">(eliminated)</span>\':"";cardHtml+=\'<div class="brc-surv-card-row"><strong>Champion:</strong> \'+esc2(champTeam)+elimSpan+\'</div>\';}\n' +
+              '  cardHtml+=\'<div class="brc-surv-card-pts">\';\n' +
+              '  cardHtml+=\'<div class="brc-surv-card-pts-item"><div class="brc-surv-card-pts-label">Current Pts</div><div class="brc-surv-card-pts-val">\'+score+\'</div></div>\';\n' +
+              '  cardHtml+=\'<div class="brc-surv-card-pts-item"><div class="brc-surv-card-pts-label">Max Pts</div><div class="brc-surv-card-pts-val">\'+maxPoss+\'</div></div>\';\n' +
+              '  cardHtml+=\'</div>\';\n' +
+              '  if(rivals.length)cardHtml+=\'<div class="brc-surv-card-rivals"><strong>Biggest Rivals:</strong> \'+esc2(rivals.join(", "))+\'</div>\';\n' +
+              '  cardHtml+=\'</div></div>\';\n' +
+              '  cardEl.innerHTML=cardHtml;\n' +
+              '  var myPendingSet={};\n' +
+              '  (s.pendingPicks||[]).forEach(function(p){myPendingSet[p.slotId]=p;});\n' +
+              '  var myChampTeam2=champPick?champPick.team:"";\n' +
+              '  var myE8Set={};var myF4Set={};\n' +
+              '  (s.allPicks||[]).forEach(function(p){\n' +
+              '    if(p.round==="E8")myE8Set[p.team]=true;\n' +
+              '    if(p.round==="F4")myF4Set[p.team]=true;\n' +
+              '  });\n' +
+              '  var rivalDeepSet={};\n' +
+              '  var rivalDeepSameSet={};\n' +
+              '  var rivalAllF4Set={};\n' +
+              '  var rivalChampSet2={};\n' +
+              '  var rivalFinalsSet={};\n' +
+              '  ANALYSIS.standings.forEach(function(x){\n' +
+              '    if(x.memberId===mid)return;\n' +
+              '    var cp=(x.allPicks||[]).find(function(p){return p.slotId==="champ";});\n' +
+              '    if(cp)rivalChampSet2[cp.team]=true;\n' +
+              '    var isSameChamp=cp&&cp.team===myChampTeam2;\n' +
+              '    (x.allPicks||[]).forEach(function(p){\n' +
+              '      if(p.round==="E8"||p.round==="F4"||p.slotId==="champ"){\n' +
+              '        rivalDeepSet[p.team]=true;\n' +
+              '        if(isSameChamp)rivalDeepSameSet[p.team]=true;\n' +
+              '        if(p.round==="F4"||p.slotId==="champ")rivalAllF4Set[p.team]=true;\n' +
+              '      }\n' +
+              '      if(isSameChamp&&(p.round==="Final"||p.slotId==="champ"))rivalFinalsSet[p.team]=true;\n' +
+              '    });\n' +
+              '  });\n' +
+              '  var rivalSameChampPickMap={};\n' +
+              '  ANALYSIS.standings.forEach(function(x){\n' +
+              '    if(x.memberId===mid)return;\n' +
+              '    var cp=(x.allPicks||[]).find(function(p){return p.slotId==="champ";});\n' +
+              '    if(!cp||cp.team!==myChampTeam2)return;\n' +
+              '    var rivalE8=((x.allPicks||[]).filter(function(p){return p.round==="E8";}).map(function(p){return p.team;}));\n' +
+              '    var rivalF4=((x.allPicks||[]).filter(function(p){return p.round==="F4";}).map(function(p){return p.team;}));\n' +
+              '    (x.pendingPicks||[]).forEach(function(p){\n' +
+              '      if(!rivalSameChampPickMap[p.slotId])rivalSameChampPickMap[p.slotId]=[];\n' +
+              '      rivalSameChampPickMap[p.slotId].push({team:p.team,seed:p.seed,memberId:x.memberId,rivalE8:rivalE8,rivalF4:rivalF4});\n' +
+              '    });\n' +
+              '  });\n' +
+              '  var slotMap={};\n' +
+              '  ANALYSIS.standings.forEach(function(x){\n' +
+              '    (x.pendingPicks||[]).forEach(function(p){\n' +
+              '      if(!slotMap[p.slotId])slotMap[p.slotId]={round:p.round,slotId:p.slotId,teams:{}};\n' +
+              '      if(!slotMap[p.slotId].teams[p.team])slotMap[p.slotId].teams[p.team]={team:p.team,seed:p.seed};\n' +
+              '    });\n' +
+              '  });\n' +
+              '  var oppMap=ANALYSIS.opponents||{};\n' +
+              '  Object.keys(oppMap).forEach(function(sid){\n' +
+              '    var opp=oppMap[sid];\n' +
+              '    if(!slotMap[sid]){\n' +
+              '      var round=null;\n' +
+              '      ANALYSIS.standings.forEach(function(x){var p=(x.allPicks||[]).find(function(p){return p.slotId===sid;});if(p&&!round)round=p.round;});\n' +
+              '      if(round)slotMap[sid]={round:round,slotId:sid,teams:{}};\n' +
+              '    }\n' +
+              '    if(slotMap[sid]){\n' +
+              '      if(!slotMap[sid].teams[opp.team])slotMap[sid].teams[opp.team]={team:opp.team,seed:opp.seed};\n' +
+              '      if(opp.opponent&&!slotMap[sid].teams[opp.opponent.team])slotMap[sid].teams[opp.opponent.team]={team:opp.opponent.team,seed:opp.opponent.seed};\n' +
+              '    }\n' +
+              '  });\n' +
+              '  function rivalFuturePts(team){\n' +
+              '    var total=0;\n' +
+              '    ANALYSIS.standings.forEach(function(x){\n' +
+              '      if(x.memberId===mid)return;\n' +
+              '      (x.pendingPicks||[]).forEach(function(p){if(p.team===team)total+=PTS[p.round]||0;});\n' +
+              '    });\n' +
+              '    return total;\n' +
+              '  }\n' +
+              '  function rivalFuturePtsSameChamp(team){\n' +
+              '    var total=0;\n' +
+              '    ANALYSIS.standings.forEach(function(x){\n' +
+              '      if(x.memberId===mid)return;\n' +
+              '      var cp=(x.allPicks||[]).find(function(p){return p.slotId==="champ";});\n' +
+              '      if(!cp||cp.team!==myChampTeam2)return;\n' +
+              '      (x.pendingPicks||[]).forEach(function(p){if(p.team===team)total+=PTS[p.round]||0;});\n' +
+              '    });\n' +
+              '    return total;\n' +
+              '  }\n' +
+              '  function myFuturePts(team){\n' +
+              '    var total=0;\n' +
+              '    (s.pendingPicks||[]).forEach(function(p){if(p.team===team)total+=PTS[p.round]||0;});\n' +
+              '    return total;\n' +
+              '  }\n' +
+              '  var rows=[];\n' +
+              '  Object.values(slotMap).forEach(function(sl){\n' +
+              '    var teams=Object.values(sl.teams);\n' +
+              '    var myPick=myPendingSet[sl.slotId];\n' +
+              '    if(myPick){\n' +
+              '      var forTeam=sl.teams[myPick.team];\n' +
+              '      var againstTeam=teams.filter(function(t){return t.team!==myPick.team;})[0]||null;\n' +
+              '      var isMyChamp=myPick.team===myChampTeam2;\n' +
+              '      var inMyDeep=!!myE8Set[myPick.team]||!!myF4Set[myPick.team];\n' +
+              '      var inRivalDeep=!!rivalDeepSameSet[myPick.team];\n' +
+              '      var inRivalDeepAny=!!rivalDeepSet[myPick.team];\n' +
+              '      var isRivalChamp=!!rivalChampSet2[myPick.team];\n' +
+              '      var tier,pts,ptsLabel;\n' +
+              '      var rivalClashPicks=rivalSameChampPickMap[sl.slotId]||[];\n' +
+              '      var myE8Arr=Object.keys(myE8Set);\n' +
+              '      var myF4Arr=Object.keys(myF4Set);\n' +
+              '      var isRivalClash=!isMyChamp&&rivalClashPicks.some(function(rp){\n' +
+              '        if(rp.team===myPick.team)return false;\n' +
+              '        var f4Match=myF4Arr.length>0&&myF4Arr.every(function(t){return rp.rivalF4.indexOf(t)!==-1;})&&rp.rivalF4.every(function(t){return myF4Arr.indexOf(t)!==-1;});\n' +
+              '        var e8Common=myE8Arr.filter(function(t){return rp.rivalE8.indexOf(t)!==-1;}).length;\n' +
+              '        return f4Match&&e8Common>=3;\n' +
+              '      });\n' +
+              '      var inMyFinals=!!myF4Set[myPick.team]||(myPick.slotId==="champ");\n' +
+              '      var inRivalFinals=!!rivalFinalsSet[myPick.team];\n' +
+              '      if(isRivalClash){tier="tr";pts=myFuturePts(myPick.team);ptsLabel="your pts";}\n' +
+              '      else if(isMyChamp){tier="t1";pts=myFuturePts(myPick.team);ptsLabel="your pts";}\n' +
+              '      else if(inMyFinals&&inRivalDeep&&!inRivalFinals){tier="tf";pts=myFuturePts(myPick.team);ptsLabel="your pts";}\n' +
+              '      else if(inMyDeep&&inRivalDeep){tier="t4";pts=rivalFuturePts(myPick.team);ptsLabel="rivals lose";}\n' +
+              '      else if(!inMyDeep&&inRivalDeepAny){tier="t5";pts=rivalFuturePts(myPick.team);ptsLabel="rivals lose";}\n' +
+              '      else{tier="t2";pts=myFuturePts(myPick.team);ptsLabel="your pts";}\n' +
+              '      var earlyRounds=["R64","R32","S16"];\n' +
+              '      var isEarlyRound=earlyRounds.indexOf(sl.round)!==-1;\n' +
+              '      var myPts2=myFuturePts(myPick.team);\n' +
+              '      var sabotageRivalPts=0;\n' +
+              '      if(tier!=="t1"&&tier!=="tr"&&tier!=="tf"&&myPts2>0){\n' +
+              '        ANALYSIS.standings.forEach(function(x){\n' +
+              '          if(x.memberId===mid)return;\n' +
+              '          var cp=(x.allPicks||[]).find(function(p){return p.slotId==="champ";});\n' +
+              '          if(isEarlyRound&&(!cp||cp.team!==myChampTeam2))return;\n' +
+              '          var rPts=0;\n' +
+              '          (x.pendingPicks||[]).forEach(function(p){if(p.team===myPick.team)rPts+=PTS[p.round]||0;});\n' +
+              '          if(rPts>sabotageRivalPts)sabotageRivalPts=rPts;\n' +
+              '        });\n' +
+              '      }\n' +
+              '      var isSabotage=tier!=="t1"&&tier!=="tr"&&tier!=="tf"&&!inMyFinals&&sabotageRivalPts>=2.5*myPts2&&myPts2>0;\n' +
+              '      if(isSabotage){tier="ts";pts=sabotageRivalPts;ptsLabel="rivals lose";}\n' +
+              '      rows.push({tier:tier,round:sl.round,forTeam:forTeam,againstTeam:againstTeam,pts:pts,ptsLabel:ptsLabel});\n' +
+              '    } else {\n' +
+              '      var best=null;\n' +
+              '      teams.forEach(function(rootFor){\n' +
+              '        var losing=teams.filter(function(t){return t.team!==rootFor.team;});\n' +
+              '        var rdmg=0;losing.forEach(function(lt){rdmg+=rivalFuturePts(lt.team);});\n' +
+              '        if(!best||rdmg>best.rdmg)best={forTeam:rootFor,againstTeam:losing[0]||null,rdmg:rdmg};\n' +
+              '      });\n' +
+              '      if(best){\n' +
+              '        var inRivalDeepFor=!!rivalDeepSameSet[best.forTeam.team];\n' +
+              '        var inRivalDeepAgainst=best.againstTeam&&(!!rivalDeepSameSet[best.againstTeam.team]||!!rivalAllF4Set[best.againstTeam.team]);\n' +
+              '        if(inRivalDeepAgainst&&!inRivalDeepFor){\n' +
+              '          rows.push({tier:"ta",round:sl.round,forTeam:best.forTeam,againstTeam:best.againstTeam,pts:rivalFuturePts(best.againstTeam.team),ptsLabel:"rivals lose"});\n' +
+              '        } else {\n' +
+              '          rows.push({tier:inRivalDeepFor?"t6":"t3",round:sl.round,forTeam:best.forTeam,againstTeam:best.againstTeam,pts:inRivalDeepFor?best.rdmg:myFuturePts(best.forTeam.team),ptsLabel:inRivalDeepFor?"rivals lose":"your pts"});\n' +
+              '        }\n' +
+              '      }\n' +
+              '    }\n' +
+              '  });\n' +
+              '  var ROUND_ORDER=["R64","R32","S16","E8","F4","Final"];\n' +
+              '  function tierColor(t){if(t==="tf"||t==="tr"||t==="t1"||t==="t2")return"#4a9d6f";if(t==="t3")return"var(--hint-color,#98b8ec)";if(t==="t4")return"#c9a227";if(t==="t5")return"#c97a27";if(t==="ts")return"#9b59b6";return"#c94040";}\n' +
+              '  var sorted=[];\n' +
+              '  ROUND_ORDER.forEach(function(r){\n' +
+              '    var rRows=rows.filter(function(x){return x.round===r;});\n' +
+              '    var t1=rRows.filter(function(x){return x.tier==="t1";}).sort(function(a,b){return b.pts-a.pts;});\n' +
+              '    var tr=rRows.filter(function(x){return x.tier==="tr";}).sort(function(a,b){return b.pts-a.pts;});\n' +
+              '    var tf=rRows.filter(function(x){return x.tier==="tf";}).sort(function(a,b){return b.pts-a.pts;});\n' +
+              '    var t2=rRows.filter(function(x){return x.tier==="t2";}).sort(function(a,b){return b.pts-a.pts;});\n' +
+              '    var t3=rRows.filter(function(x){return x.tier==="t3";}).sort(function(a,b){return b.pts-a.pts;});\n' +
+              '    var t4=rRows.filter(function(x){return x.tier==="t4";}).sort(function(a,b){return a.pts-b.pts;});\n' +
+              '    var t5=rRows.filter(function(x){return x.tier==="t5";}).sort(function(a,b){return a.pts-b.pts;});\n' +
+              '    var t6=rRows.filter(function(x){return x.tier==="t6";}).sort(function(a,b){return a.pts-b.pts;});\n' +
+              '    var ta=rRows.filter(function(x){return x.tier==="ta";}).sort(function(a,b){return a.pts-b.pts;});\n' +
+              '    var ts=rRows.filter(function(x){return x.tier==="ts";}).sort(function(a,b){return a.pts-b.pts;});\n' +
+              '    t1.concat(tr,tf,t2,t3,t4,t5,t6,ta,ts).forEach(function(x){sorted.push(x);});\n' +
+              '  });\n' +
+              '  if(!sorted.length){bodyEl.innerHTML=\'<p style="color:var(--accent-dim);font-size:0.75rem;letter-spacing:0.15em;padding-top:0.5rem">No pending games.</p>\';return;}\n' +
+              '  var nextRound=sorted[0].round;\n' +
+              '  sorted=sorted.filter(function(r){return r.round===nextRound;});\n' +
+              '  var html=\'<div class="league-section-heading" style="margin-bottom:0.5rem">Rooting Picks Chart</div>\';\n' +
+              '  html+=\'<div style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;margin-bottom:0.9rem;padding-bottom:0.7rem;border-bottom:1px solid var(--drawer-border);justify-content:center">\';\n' +
+              '  html+=\'<span style="font-family:var(--font-body);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:#4a9d6f;white-space:nowrap">\u25CF Root Hardest For</span>\';\n' +
+              '  html+=\'<span style="font-family:var(--font-body);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--hint-color,#98b8ec);white-space:nowrap">\u25CF Fun Game</span>\';\n' +
+              '  html+=\'<span style="font-family:var(--font-body);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:#c9a227;white-space:nowrap">\u25CF Rivals Riding Too</span>\';\n' +
+              '  html+=\'<span style="font-family:var(--font-body);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:#c97a27;white-space:nowrap">\u25CF Bigger For Rival</span>\';\n' +
+              '  html+=\'<span style="font-family:var(--font-body);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:#c94040;white-space:nowrap">\u25CF Root Against</span>\';\n' +
+              '  html+=\'<span style="font-family:var(--font-body);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:#9b59b6;white-space:nowrap">\u25CF Picking Sabotage</span>\';\n' +
+              '  html+=\'</div>\';\n' +
+              '  html+=\'<table class="brc-rootfor-table"><thead><tr>\';\n' +
+              '  html+=\'<th>Round</th><th>Teams</th><th class="r">Pts</th>\';\n' +
+              '  html+=\'</tr></thead><tbody>\';\n' +
+              '  var lastRound="";\n' +
+              '  sorted.forEach(function(row){\n' +
+              '    if(row.round!==lastRound){\n' +
+              '      if(lastRound!=="")html+=\'<tr><td colspan="3" style="padding:0;border-bottom:none"><div style="height:1px;background:var(--drawer-border);margin:0.5rem 0"></div></td></tr>\';\n' +
+              '      lastRound=row.round;\n' +
+              '    }\n' +
+              '    var color=tierColor(row.tier);\n' +
+              '    var isBold=row.tier!=="t3";\n' +
+              '    var isHeavy=row.tier==="tf"||row.tier==="tr"||row.tier==="t1"||row.tier==="t6"||row.tier==="ta";\n' +
+              '    var forStyle="color:"+color+";font-weight:"+(isHeavy?"800":isBold?"600":"400")+";"+(isHeavy?"font-size:0.9rem;letter-spacing:-0.02em;":"letter-spacing:0.05em;");\n' +
+              '    var topTeam,topSeed,botTeam,botSeed;\n' +
+              '    if(row.tier==="t6"||row.tier==="ta"){\n' +
+              '      topTeam=row.againstTeam?esc2(row.againstTeam.team):"";topSeed=row.againstTeam?row.againstTeam.seed:"";\n' +
+              '      botTeam=row.forTeam?esc2(row.forTeam.team):"";botSeed=row.forTeam?row.forTeam.seed:"";\n' +
+              '    } else {\n' +
+              '      topTeam=esc2(row.forTeam?row.forTeam.team:"");topSeed=row.forTeam?row.forTeam.seed:"";\n' +
+              '      botTeam=row.againstTeam?esc2(row.againstTeam.team):"";botSeed=row.againstTeam?row.againstTeam.seed:"";\n' +
+              '    }\n' +
+              '    html+=\'<tr>\';\n' +
+              '    html+=\'<td style="font-size:0.58rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent-dim);white-space:nowrap">\'+esc2(row.round)+\'</td>\';\n' +
+              '    html+=\'<td><div class="brc-rootfor-teams">\';\n' +
+              '    html+=\'<div style="\'+forStyle+\'">\'+topTeam+\'<span class="brc-rootfor-seed">(\'+topSeed+\')</span></div>\';\n' +
+              '    if(botTeam)html+=\'<div class="brc-rootfor-team-against">\'+botTeam+\'<span class="brc-rootfor-seed">(\'+botSeed+\')</span></div>\';\n' +
+              '    html+=\'</div></td>\';\n' +
+              '    var tierLabel=row.tier==="tr"?"TR":row.tier==="ta"?"TA":row.tier==="tf"?"TF":row.tier==="ts"?"TS":row.tier.toUpperCase();\n' +
+              '    html+=\'<td class="brc-rootfor-pts" style="color:\'+color+\'">\'+tierLabel+\' - \'+row.pts+\'<span class="brc-rootfor-pts-label">\'+row.ptsLabel+\'</span></td>\';\n' +
+              '    html+=\'</tr>\';\n' +
+              '  });\n' +
+              '  html+=\'</tbody></table>\';\n' +
+              '  bodyEl.innerHTML=html;\n' +
+              '}\n' +
+
+              '})();';
+            })(analysis, pillsId, viewId, scenSelId, scenTblId, scenHntId, h2hSelAId, h2hSelBId, h2hBodyId, upsetsBodyId, survivalSelId, survivalCardId, survivalBodyId, rosterMap, defaultSurvivalMid, defaultH2hMidA, defaultH2hMidB);
+
+            sectionEl._brcScript = inlineScript;
+
+          } else {
+            // ── Normal standings (preseason / no analysis / final)
+            var standingsHtml = renderStandingsTable(current, league, config);
+            var standingsWrap = (league.sport === 'madness')
+              ? standingsHtml
+              : '<div class="league-standings-wrap">' + standingsHtml + '</div>';
+            sectionEl.innerHTML =
+              '<div class="league-section-heading">' + (isFinal ? 'Final Standings' : 'Standings') +
+                (current.year ? ' \u2014 ' + esc(current.year) : '') +
+              '</div>' + standingsWrap;
+          }
         }
 
         // ── Playoff Bracket ───────────────────────────────
@@ -1029,6 +2500,8 @@
         // ── Season Roster ─────────────────────────────────
         else if (key === 'roster') {
           if (!current) return;
+          // BRC: hide roster during active season — only show preseason or final
+          if (league.sport === 'madness' && !isPreseason && !isFinal) return;
           var rosterHtml = renderRoster(current, league, config);
           if (!rosterHtml) return;
           sectionEl = document.createElement('div');
@@ -1070,6 +2543,21 @@
         revealDelay += 0.15;
         isFirst = false;
         body.appendChild(sectionEl);
+
+        // BRC inline script must run after sectionEl is in the DOM
+        if (sectionEl._brcScript) {
+          sectionEl.appendChild(sectionEl._brcScript);
+          delete sectionEl._brcScript;
+        }
+
+        // For BRC, scroll the wrap so the last active round is visible on load
+        if (key === 'standings' && league.sport === 'madness') {
+          requestAnimationFrame(function () {
+            var wrap = sectionEl.querySelector('.brc-standings-wrap');
+            if (!wrap) return;
+            wrap.scrollLeft = wrap.scrollWidth - wrap.clientWidth;
+          });
+        }
       });
 
       // ── Footer (always)
