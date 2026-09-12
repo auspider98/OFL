@@ -898,7 +898,7 @@
       }).join('');
 
       var cols = Math.ceil(roster.length / 2);
-      return '<div class="roster-grid" style="grid-template-columns: repeat(' + cols + ', 1fr);">' + html + '</div>';
+      return '<div class="roster-grid" style="--roster-cols: ' + cols + ';">' + html + '</div>';
     }
 
     // ── Find a season by id or year string ──────────────────
