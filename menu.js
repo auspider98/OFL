@@ -154,13 +154,28 @@
     var cardsEl = document.querySelector('.league-cards');
     if (cardsEl && config.leagueData) {
       cardsEl.innerHTML = '';
+      // ofl-data.js holds cardLogoOnLanding/cardLogoSize — merge by league id
+      var oflLeagueMap = {};
+      if (window.OFL_DATA && window.OFL_DATA.leagueData) {
+        window.OFL_DATA.leagueData.forEach(function (l) {
+          if (l.id) oflLeagueMap[l.id] = l;
+        });
+      }
       config.leagueData.forEach(function (league) {
+        var oflLg = oflLeagueMap[league.id] || {};
+        var useLogoOnCard = oflLg.cardLogoOnLanding;
+        var cardLogoSize  = oflLg.cardLogoSize || 120;
+        var logoPath      = oflLg.logo || league.logo || '';
         var card       = document.createElement('a');
         card.href      = league.link || '#';
         card.className = 'league-card';
         card.innerHTML =
           '<div class="league-card-sport">' + league.sport + ' \u00b7 ' + league.season + '</div>' +
-          '<div class="league-card-name">'  + league.name  + '</div>' +
+          '<div class="league-card-name' + (useLogoOnCard && logoPath ? ' league-card-name--logo' : '') + '">'  +
+            (useLogoOnCard && logoPath
+              ? '<img src="' + logoPath + '" alt="' + league.name + '" style="max-width:' + cardLogoSize + 'px;" />'
+              : league.name) +
+          '</div>' +
           '<div class="league-card-cta">'   + league.linkLabel + ' \u2197</div>';
         cardsEl.appendChild(card);
       });

@@ -170,6 +170,20 @@
 <div class="admin-toast" id="adminToast"></div>
 
 <style>
+/* ── Team sort arrows ────────────────────────────────── */
+.team-sort-arrows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  align-self: flex-start;
+  margin-top: 1.4rem;
+  flex-shrink: 0;
+}
+.team-sort-arrows .btn[disabled] {
+  opacity: 0.18;
+  cursor: default;
+  pointer-events: none;
+}
 /* ── BRC Round Grid ─────────────────────────────────── */
 .brc-round-inputs {
   display: flex;
@@ -782,16 +796,36 @@ document.addEventListener('DOMContentLoaded', function () {
               '<input class="admin-input lg-name-field" type="text" value="'+esc(lg.leagueName||'')+'" placeholder="e.g. Poker Night" /></div>'
           : '';
 
+        var teamCount = (lg.teams || []).length;
         var teamsHtml = (lg.teams || []).map(function (t, tIdx) {
+          var isFirst = tIdx === 0;
+          var isLast  = tIdx === teamCount - 1;
           var logoField = isOFC
             ? '<div class="admin-field-group"><label>Team Logo URL</label>' +
                 '<input class="admin-input team-logo-field" type="text" value="'+esc(t.logo||'')+'" placeholder="assets/logos/team.png" /></div>'
             : '';
+          var colorFields = isOFC
+            ? '<div class="admin-field-group"><label>Primary Color</label>' +
+                '<div class="color-field">' +
+                  '<input class="color-swatch team-primary-sw" type="color" value="'+(t.primaryColor && t.primaryColor.charAt(0)==='#' ? esc(t.primaryColor.slice(0,7)) : '#888888')+'" />' +
+                  '<input class="admin-input team-primary-hex" type="text" value="'+esc(t.primaryColor||'')+'" placeholder="#e8e8e8 or blank" />' +
+                '</div></div>' +
+              '<div class="admin-field-group"><label>Secondary Color</label>' +
+                '<div class="color-field">' +
+                  '<input class="color-swatch team-secondary-sw" type="color" value="'+(t.secondaryColor && t.secondaryColor.charAt(0)==='#' ? esc(t.secondaryColor.slice(0,7)) : '#888888')+'" />' +
+                  '<input class="admin-input team-secondary-hex" type="text" value="'+esc(t.secondaryColor||'')+'" placeholder="#888888 or blank" />' +
+                '</div></div>'
+            : '';
           return '<div class="team-entry-v2" data-tidx="'+tIdx+'">' +
+            '<div class="team-sort-arrows">' +
+              '<button class="btn btn-sm btn-icon team-move-up"'  +(isFirst?' disabled':'')+' title="Move up">\u25B2</button>' +
+              '<button class="btn btn-sm btn-icon team-move-down"'+(isLast ?' disabled':'')+' title="Move down">\u25BC</button>' +
+            '</div>' +
             '<div class="team-entry-fields">' +
               '<div class="admin-field-group"><label>Team Name</label>' +
                 '<input class="admin-input team-name-field" type="text" value="'+esc(t.name||'')+'" placeholder="Team name" /></div>' +
               logoField +
+              colorFields +
             '</div>' +
             '<button class="btn btn-sm btn-danger btn-icon team-del-v2" style="align-self:flex-start;margin-top:1.4rem;">&#x2715;</button>' +
           '</div>';
@@ -900,6 +934,45 @@ document.addEventListener('DOMContentLoaded', function () {
           if (nameField) nameField.addEventListener('input', function () { t.name = this.value; markDirty(); });
           var logoField = te.querySelector('.team-logo-field');
           if (logoField) logoField.addEventListener('input', function () { t.logo = this.value; markDirty(); });
+          /* Primary color */
+          var primSw  = te.querySelector('.team-primary-sw');
+          var primHex = te.querySelector('.team-primary-hex');
+          if (primSw) primSw.addEventListener('input', function () {
+            t.primaryColor = this.value; if (primHex) primHex.value = this.value; markDirty();
+          });
+          if (primHex) primHex.addEventListener('input', function () {
+            t.primaryColor = this.value.trim();
+            if (primSw && this.value.match(/^#[0-9a-fA-F]{6}$/)) primSw.value = this.value.slice(0,7);
+            markDirty();
+          });
+          /* Secondary color */
+          var secSw  = te.querySelector('.team-secondary-sw');
+          var secHex = te.querySelector('.team-secondary-hex');
+          if (secSw) secSw.addEventListener('input', function () {
+            t.secondaryColor = this.value; if (secHex) secHex.value = this.value; markDirty();
+          });
+          if (secHex) secHex.addEventListener('input', function () {
+            t.secondaryColor = this.value.trim();
+            if (secSw && this.value.match(/^#[0-9a-fA-F]{6}$/)) secSw.value = this.value.slice(0,7);
+            markDirty();
+          });
+          /* Sort arrows */
+          var upBtn   = te.querySelector('.team-move-up');
+          var downBtn = te.querySelector('.team-move-down');
+          if (upBtn) upBtn.addEventListener('click', function () {
+            if (tIdx === 0) return;
+            var tmp = lg.teams[tIdx - 1];
+            lg.teams[tIdx - 1] = lg.teams[tIdx];
+            lg.teams[tIdx]     = tmp;
+            refreshMemberLeagues(section, member); markDirty();
+          });
+          if (downBtn) downBtn.addEventListener('click', function () {
+            if (tIdx === lg.teams.length - 1) return;
+            var tmp = lg.teams[tIdx + 1];
+            lg.teams[tIdx + 1] = lg.teams[tIdx];
+            lg.teams[tIdx]     = tmp;
+            refreshMemberLeagues(section, member); markDirty();
+          });
           te.querySelector('.team-del-v2').addEventListener('click', function () {
             lg.teams.splice(tIdx, 1);
             refreshMemberLeagues(section, member); markDirty();
@@ -1100,11 +1173,60 @@ document.addEventListener('DOMContentLoaded', function () {
         sec.innerHTML =
           heroRow('Eyebrow',  'Small text above title', 'lg-hero-eyebrow',  league.heroEyebrow  || '', 'e.g. Osborne Fantasy Commission', 'showEyebrow')  +
           heroRow('Title',    'Large hero title',       'lg-hero-title',    league.heroTitle    || '', 'e.g. OFC',                        'showTitle')    +
+          '<div class="field-row" id="row_heroTitleImage">' +
+            '<div class="field-label">Title Logo<span class="field-hint">Image shown instead of title text when enabled</span></div>' +
+            '<div style="display:flex;flex-direction:column;gap:0.5rem;flex:1;">' +
+              '<div style="display:flex;align-items:center;gap:0.75rem;">' +
+                '<input class="admin-input lg-hero-title-image" type="text" value="' + esc(league.heroTitleImage || '') + '" placeholder="assets/logos/ofc.png" style="flex:1;" />' +
+                '<input class="admin-input lg-hero-title-image-width" type="number" min="20" max="800" value="' + esc(league.heroTitleImageWidth || '') + '" placeholder="px" style="width:72px;" title="Logo width in pixels" />' +
+                '<label class="toggle-switch" title="Use logo instead of title text">' +
+                  '<input type="checkbox" class="lg-use-title-image"' + (pl.useTitleImage ? ' checked' : '') + ' />' +
+                  '<span class="toggle-track"></span>' +
+                '</label>' +
+              '</div>' +
+              '<div class="image-preview-placeholder lg-title-img-ph">Enter path above</div>' +
+              '<img class="image-preview lg-title-img-el" src="" alt="" style="max-height:80px;object-fit:contain;" />' +
+            '</div>' +
+          '</div>' +
           heroRow('Subtitle', 'Below the title',        'lg-hero-subtitle', league.heroSubtitle || '', 'e.g. Football League',             'showSubtitle');
 
         sec.querySelector('.lg-hero-eyebrow').addEventListener('input',  function () { league.heroEyebrow  = this.value; markDirty(); });
         sec.querySelector('.lg-hero-title').addEventListener('input',    function () { league.heroTitle    = this.value; markDirty(); });
         sec.querySelector('.lg-hero-subtitle').addEventListener('input', function () { league.heroSubtitle = this.value; markDirty(); });
+
+        // Title logo path + preview
+        var titleImgInput = sec.querySelector('.lg-hero-title-image');
+        var titleImgEl    = sec.querySelector('.lg-title-img-el');
+        var titleImgPh    = sec.querySelector('.lg-title-img-ph');
+        function refreshTitleLogoPreview(path) {
+          if (!path) {
+            titleImgEl.classList.remove('visible');
+            titleImgPh.style.display = '';
+            titleImgPh.textContent   = 'Enter path above';
+            return;
+          }
+          titleImgEl.src     = path;
+          titleImgEl.onload  = function () { titleImgEl.classList.add('visible'); titleImgPh.style.display = 'none'; };
+          titleImgEl.onerror = function () { titleImgEl.classList.remove('visible'); titleImgPh.style.display = ''; titleImgPh.textContent = 'Not found: ' + path; };
+        }
+        refreshTitleLogoPreview(league.heroTitleImage || '');
+        titleImgInput.addEventListener('input', function () {
+          league.heroTitleImage = this.value.trim();
+          refreshTitleLogoPreview(league.heroTitleImage);
+          markDirty();
+        });
+
+        // Use title image toggle
+        sec.querySelector('.lg-use-title-image').addEventListener('change', function () {
+          pl.useTitleImage = this.checked; markDirty();
+        });
+
+        // Logo width
+        sec.querySelector('.lg-hero-title-image-width').addEventListener('input', function () {
+          var v = parseInt(this.value, 10);
+          league.heroTitleImageWidth = v > 0 ? v : '';
+          markDirty();
+        });
         sec.querySelectorAll('.hero-show-toggle').forEach(function (cb) {
           cb.addEventListener('change', function () {
             pl[this.getAttribute('data-key')] = this.checked; markDirty();
@@ -1116,9 +1238,11 @@ document.addEventListener('DOMContentLoaded', function () {
       wrap.appendChild(buildNestedSection('Background Slideshow', true, function (sec) {
         if (!league.slideshow) league.slideshow = { slides:[], overlay:'rgba(0,0,0,0.55)' };
         if (!league.slideshow.slides) league.slideshow.slides = [];
+        if (!league.slideshow.teamOverlay) league.slideshow.teamOverlay = 'rgba(0,0,0,0.88)';
 
         sec.innerHTML =
-          '<div class="field-row"><div class="field-label">Overlay Darkness<span class="field-hint">0 = none · 0.9 = very dark</span></div><input class="admin-input lg-ss-overlay" type="number" min="0" max="1" step="0.05" value="'+ esc(parseOverlayAlpha(league.slideshow.overlay)) +'" style="max-width:120px;" /></div>' +
+          '<div class="field-row"><div class="field-label">League Page Overlay<span class="field-hint">0 = none · 0.9 = very dark</span></div><input class="admin-input lg-ss-overlay" type="number" min="0" max="1" step="0.05" value="'+ esc(parseOverlayAlpha(league.slideshow.overlay)) +'" style="max-width:120px;" /></div>' +
+          '<div class="field-row"><div class="field-label">Team Page Overlay<span class="field-hint">0 = none · 0.9 = very dark</span></div><input class="admin-input lg-ss-team-overlay" type="number" min="0" max="1" step="0.05" value="'+ esc(parseOverlayAlpha(league.slideshow.teamOverlay)) +'" style="max-width:120px;" /></div>' +
           '<div class="card-list" id="lgSlides_'+league.id+'"></div>' +
           '<button class="btn btn-sm" style="margin-top:0.75rem;" id="lgAddSlide_'+league.id+'">+ Add Slide</button>';
 
@@ -1127,6 +1251,11 @@ document.addEventListener('DOMContentLoaded', function () {
         sec.querySelector('.lg-ss-overlay').addEventListener('input', function () {
           var alpha = Math.min(1, Math.max(0, parseFloat(this.value) || 0));
           league.slideshow.overlay = 'rgba(0,0,0,' + alpha + ')';
+          markDirty();
+        });
+        sec.querySelector('.lg-ss-team-overlay').addEventListener('input', function () {
+          var alpha = Math.min(1, Math.max(0, parseFloat(this.value) || 0));
+          league.slideshow.teamOverlay = 'rgba(0,0,0,' + alpha + ')';
           markDirty();
         });
         sec.querySelector('#lgAddSlide_'+league.id).addEventListener('click', function () {
@@ -1265,7 +1394,9 @@ document.addEventListener('DOMContentLoaded', function () {
           '<div class="field-row"><div class="field-label">Page Link<span class="field-hint">URL for this league page</span></div><input class="admin-input lg-link" type="text" value="'+esc(league.link||'')+'" /></div>' +
           '<div class="field-row"><div class="field-label">Link Label<span class="field-hint">CTA button text</span></div><input class="admin-input lg-linklabel" type="text" value="'+esc(league.linkLabel||'')+'" /></div>' +
           '<div class="field-row"><div class="field-label">Accent Color<span class="field-hint">Leave blank to use global</span></div><div class="color-field"><input class="color-swatch lg-accent-sw" type="color" value="'+(league.accentColor&&league.accentColor.charAt(0)==='#'?league.accentColor:'#e8e8e8')+'" /><input class="admin-input lg-accent" type="text" value="'+esc(league.accentColor||'')+'" placeholder="#e8e8e8" /></div></div>' +
-          '<div class="field-row"><div class="field-label">League Logo<span class="field-hint">Filepath to logo image</span></div><input class="admin-input lg-logo" type="text" value="'+esc(league.logo||'')+'" placeholder="assets/logos/ofc.png" /></div>';
+          '<div class="field-row"><div class="field-label">League Logo<span class="field-hint">Filepath to logo image</span></div><input class="admin-input lg-logo" type="text" value="'+esc(league.logo||'')+'" placeholder="assets/logos/ofc.png" /></div>' +
+          '<div class="field-row"><div class="field-label">Logo on Landing Card<span class="field-hint">Show logo image instead of league name on the home page card</span></div><label class="toggle-switch"><input class="lg-card-logo-toggle" type="checkbox"'+(league.cardLogoOnLanding?' checked':'')+' /><span class="toggle-track"></span></label></div>' +
+          '<div class="field-row"><div class="field-label">Landing Card Logo Size<span class="field-hint">Max width in px (e.g. 120)</span></div><input class="admin-input lg-card-logo-size" type="number" min="20" max="400" value="'+esc(String(league.cardLogoSize||'120'))+'" placeholder="120" style="max-width:100px;" /></div>';
 
         sec.querySelector('.lg-name').addEventListener('input', function () {
           league.name = this.value;
@@ -1284,6 +1415,8 @@ document.addEventListener('DOMContentLoaded', function () {
         sec.querySelector('.lg-link').addEventListener('input', function () { league.link = this.value; markDirty(); });
         sec.querySelector('.lg-linklabel').addEventListener('input', function () { league.linkLabel = this.value; markDirty(); });
         sec.querySelector('.lg-logo').addEventListener('input', function () { league.logo = this.value; markDirty(); });
+        sec.querySelector('.lg-card-logo-toggle').addEventListener('change', function () { league.cardLogoOnLanding = this.checked; markDirty(); });
+        sec.querySelector('.lg-card-logo-size').addEventListener('input', function () { league.cardLogoSize = parseInt(this.value, 10) || 120; markDirty(); });
         var swEl = sec.querySelector('.lg-accent-sw');
         var hxEl = sec.querySelector('.lg-accent');
         swEl.addEventListener('input', function () { hxEl.value = swEl.value; league.accentColor = swEl.value; markDirty(); });
@@ -1937,6 +2070,7 @@ document.addEventListener('DOMContentLoaded', function () {
             '</label>';
           finalRow.querySelector('.s-is-final').addEventListener('change', function () {
             season.isFinal = this.checked;
+            if (this.checked) deriveFromStandings();
             markDirty();
           });
           sec.appendChild(finalRow);
@@ -2176,12 +2310,19 @@ document.addEventListener('DOMContentLoaded', function () {
             if (row.predictedScoreWinner === undefined) row.predictedScoreWinner = '';
             if (row.predictedScoreLoser  === undefined) row.predictedScoreLoser  = '';
 
-            /* Derive sums — only if round data has been entered */
+            /* Derive picksByRound from pointsByRound / pointsStructure, then sum totals */
             function calcSums() {
-              var hasPickRounds  = row.picksByRound.some(function (v)  { return (parseFloat(v)||0) > 0; });
+              var structure      = season.pointsStructure || [];
               var hasPointRounds = row.pointsByRound.some(function (v) { return (parseFloat(v)||0) > 0; });
-              if (hasPickRounds)  row.correctPicks = row.picksByRound.reduce(function (s, v)  { return s + (parseFloat(v)||0); }, 0);
-              if (hasPointRounds) row.totalPoints  = row.pointsByRound.reduce(function (s, v) { return s + (parseFloat(v)||0); }, 0);
+              if (hasPointRounds) {
+                row.pointsByRound.forEach(function (pts, i) {
+                  var ptsVal     = parseFloat(pts) || 0;
+                  var ptsPerPick = parseFloat(structure[i]) || 0;
+                  row.picksByRound[i] = (ptsPerPick > 0) ? Math.round(ptsVal / ptsPerPick) : 0;
+                });
+                row.totalPoints  = row.pointsByRound.reduce(function (s, v) { return s + (parseFloat(v)||0); }, 0);
+                row.correctPicks = row.picksByRound.reduce(function (s, v) { return s + (parseFloat(v)||0); }, 0);
+              }
             }
             calcSums();
 
@@ -2193,21 +2334,6 @@ document.addEventListener('DOMContentLoaded', function () {
             var fieldsHtml = isMadness
               ? /* ── BRC per-round grid ── */
                 '<div class="brc-standings-grid">' +
-                  /* Picks row */
-                  '<div class="brc-grid-section-label">Picks</div>' +
-                  '<div class="brc-round-inputs">' +
-                    ROUND_LABELS.map(function (lbl, i) {
-                      return '<div class="brc-round-col">' +
-                        '<label class="brc-round-label">'+lbl+'</label>' +
-                        '<input class="admin-input brc-picks-inp" type="number" min="0" step="1" ' +
-                          'data-ridx="'+i+'" value="'+esc(String(row.picksByRound[i]||''))+'" style="width:100%;" />' +
-                      '</div>';
-                    }).join('') +
-                    '<div class="brc-round-col brc-total-col">' +
-                      '<label class="brc-round-label">Total</label>' +
-                      '<input class="admin-input brc-total-display picks-total" type="number" min="0" step="1" value="'+esc(String(row.correctPicks||0))+'" style="width:100%;" />' +
-                    '</div>' +
-                  '</div>' +
                   /* Points row */
                   '<div class="brc-grid-section-label">Points</div>' +
                   '<div class="brc-round-inputs">' +
@@ -2219,8 +2345,12 @@ document.addEventListener('DOMContentLoaded', function () {
                       '</div>';
                     }).join('') +
                     '<div class="brc-round-col brc-total-col">' +
-                      '<label class="brc-round-label">Total</label>' +
-                      '<input class="admin-input brc-total-display points-total" type="number" min="0" step="0.01" value="'+esc(String(row.totalPoints||0))+'" style="width:100%;" />' +
+                      '<label class="brc-round-label">Total Pts</label>' +
+                      '<input class="admin-input brc-total-display points-total" type="number" min="0" step="0.01" value="'+esc(String(row.totalPoints||0))+'" style="width:100%;" readonly />' +
+                    '</div>' +
+                    '<div class="brc-round-col brc-total-col">' +
+                      '<label class="brc-round-label">Total Picks</label>' +
+                      '<input class="admin-input brc-total-display picks-total" type="number" min="0" step="1" value="'+esc(String(row.correctPicks||0))+'" style="width:100%;opacity:0.6;" readonly />' +
                     '</div>' +
                   '</div>' +
                   /* Predicted champion + score */
@@ -2254,39 +2384,20 @@ document.addEventListener('DOMContentLoaded', function () {
               '</div>' + fieldsHtml;
 
             if (isMadness) {
-              /* Picks inputs */
-              card.querySelectorAll('.brc-picks-inp').forEach(function (inp) {
-                inp.addEventListener('input', function () {
-                  var idx = parseInt(this.getAttribute('data-ridx'), 10);
-                  row.picksByRound[idx] = this.value !== '' ? parseFloat(this.value) || 0 : 0;
-                  calcSums();
-                  card.querySelector('.picks-total').value = String(row.correctPicks);
-                  deriveFromStandings(); markDirty();
-                });
-              });
-              /* Picks total — manual override */
-              card.querySelector('.picks-total').addEventListener('input', function () {
-                row.correctPicks = parseFloat(this.value) || 0;
-                deriveFromStandings(); markDirty();
-              });
-              /* Points inputs */
+              /* Points inputs — auto-derive picksByRound on entry */
               card.querySelectorAll('.brc-points-inp').forEach(function (inp) {
                 inp.addEventListener('input', function () {
                   var idx = parseInt(this.getAttribute('data-ridx'), 10);
                   row.pointsByRound[idx] = this.value !== '' ? parseFloat(this.value) || 0 : 0;
                   calcSums();
                   card.querySelector('.points-total').value = String(row.totalPoints);
+                  card.querySelector('.picks-total').value  = String(row.correctPicks);
                   deriveFromStandings(); markDirty();
                 });
                 inp.addEventListener('change', function () {
                   calcSums();
                   autoSortStandings(); renderStandings(); deriveFromStandings(); markDirty();
                 });
-              });
-              /* Points total — manual override */
-              card.querySelector('.points-total').addEventListener('input', function () {
-                row.totalPoints = parseFloat(this.value) || 0;
-                autoSortStandings(); renderStandings(); deriveFromStandings(); markDirty();
               });
               /* Predicted champion + score */
               card.querySelector('.brc-pred-champ').addEventListener('input', function () {
@@ -2800,8 +2911,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if (cs.predictedWinner !== '' && cs.predictedLoser !== '') csParts.push('— predicted '+cs.predictedWinner+'-'+cs.predictedLoser);
             csDisplayVal = csParts.join(' ');
           }
+          var csAwardLabel = (awards && awards['closestScore'])
+            ? ' <em class="stat-award-tag">'+esc(awards['closestScore'])+'</em>' : '';
           csGroup.innerHTML =
-            '<div class="stat-group-header"><span class="stat-group-label">Closest Score</span>' +
+            '<div class="stat-group-header"><span class="stat-group-label">Closest Score</span>'+csAwardLabel+
               '<span class="stat-derived-badge">Auto</span></div>' +
             '<div class="admin-card-fields"><div class="admin-field-group full-width">' +
               '<div class="stat-derived-display" data-derived-stat="closestScore">'+esc(csDisplayVal)+'</div>' +
@@ -2813,7 +2926,54 @@ document.addEventListener('DOMContentLoaded', function () {
           sec.appendChild(csDivider);
         }
 
-        /* ── Custom Awards — per-season winner + value only ── */
+        /* ── Runner-Up override (BRC / madness only) ── */
+        if (isMadness) {
+          var ruDivider = document.createElement('div');
+          ruDivider.style.cssText = 'border-top:1px solid rgba(232,232,232,0.08);margin:1.2rem 0 0.8rem;';
+          sec.appendChild(ruDivider);
+
+          var ruLabel = document.createElement('div');
+          ruLabel.className = 'admin-subsection-label';
+          ruLabel.style.marginBottom = '0.5rem';
+          ruLabel.textContent = awards['runnerUp'] || 'Runner-Up';
+          sec.appendChild(ruLabel);
+
+          var ruCard = document.createElement('div');
+          ruCard.className = 'admin-card';
+          var ruWinnerOpts = buildTeamDropdown(season.roster, season.runnerUpTeamName || '', true);
+          ruCard.innerHTML =
+            '<div class="stat-group-header">' +
+              '<span class="stat-group-hint">Auto-derived from standings #2. Override here if needed.</span>' +
+            '</div>' +
+            '<div class="admin-card-fields">' +
+              '<div class="admin-field-group"><label>Winner</label>' +
+                '<select class="admin-input ru-winner">'+ruWinnerOpts+'</select></div>' +
+              '<div class="admin-field-group"><label>Winner Name Override <span style="opacity:.5;font-weight:400;">(optional)</span></label>' +
+                '<input class="admin-input ru-name" type="text" value="'+esc(season.runnerUpName||'')+'" placeholder="Leave blank to use roster name" /></div>' +
+            '</div>';
+
+          var ruWinnerSel = ruCard.querySelector('.ru-winner');
+          (function () {
+            var r = resolveTeamSelection(ruWinnerSel, season.roster);
+            if (r.teamName) {
+              season.runnerUpMemberId = r.memberId;
+              season.runnerUpTeamName = r.teamName;
+              if (!season.runnerUpName) season.runnerUpName = r.ownerName;
+            }
+          })();
+          ruWinnerSel.addEventListener('change', function () {
+            var r = resolveTeamSelection(this, season.roster);
+            season.runnerUpMemberId = r.memberId;
+            season.runnerUpTeamName = r.teamName;
+            if (!ruCard.querySelector('.ru-name').value) season.runnerUpName = r.ownerName;
+            markDirty();
+          });
+          ruCard.querySelector('.ru-name').addEventListener('input', function () {
+            season.runnerUpName = this.value || ruCard.querySelector('.ru-winner').options[ruCard.querySelector('.ru-winner').selectedIndex]?.dataset?.owner || '';
+            markDirty();
+          });
+          sec.appendChild(ruCard);
+        }
         if (league.customAwards && league.customAwards.length) {
           var csLabel = document.createElement('div');
           csLabel.className = 'admin-subsection-label';
@@ -2970,7 +3130,53 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
           var text = ev.target.result;
 
-          // ── OFL_WEEK_IMPORT: single week from Tool 3 ──
+          // ── Check for BRC Standings import first ──────────────
+          var brcImport = extractBrcStandingsImport(text);
+          if (brcImport) {
+            var brcLeague = (workingConfig.leagueData || []).find(function (lg) { return lg.id === brcImport.leagueId; });
+            if (!brcLeague) throw new Error('League "' + brcImport.leagueId + '" not found. Import ofl-data.js first.');
+            var brcSeason = (brcLeague.seasons || []).find(function (s) { return String(s.year) === String(brcImport.year); });
+            if (!brcSeason) throw new Error('No ' + brcImport.year + ' season found in league ' + brcImport.leagueId + '. Check the year in the import file.');
+            var matched = 0, unmatched = [];
+            (brcImport.entries || []).forEach(function (entry) {
+              var row = (brcSeason.standings || []).find(function (r) { return r.memberId === entry.memberId; });
+              if (row) {
+                row.pointsByRound = entry.pointsByRound;
+                matched++;
+              } else {
+                unmatched.push(entry.memberId);
+              }
+            });
+            // Recalculate totals and re-sort standings from pointsByRound + pointsStructure
+            var structure = brcSeason.pointsStructure || [];
+            (brcSeason.standings || []).forEach(function (row) {
+              if (!row.pointsByRound || !row.pointsByRound.some(function(v){ return (parseFloat(v)||0) > 0; })) return;
+              row.pointsByRound.forEach(function (pts, i) {
+                var ptsVal    = parseFloat(pts) || 0;
+                var ptsPerPick = parseFloat(structure[i]) || 0;
+                if (!row.picksByRound) row.picksByRound = [0,0,0,0,0,0];
+                row.picksByRound[i] = ptsPerPick > 0 ? Math.round(ptsVal / ptsPerPick) : 0;
+              });
+              row.totalPoints  = row.pointsByRound.reduce(function(s,v){ return s + (parseFloat(v)||0); }, 0);
+              row.correctPicks = row.picksByRound.reduce(function(s,v){ return s + (parseFloat(v)||0); }, 0);
+            });
+            brcSeason.standings.sort(function (a, b) {
+              return (parseFloat(b.totalPoints)||0) - (parseFloat(a.totalPoints)||0);
+            });
+            brcSeason.standings.forEach(function (r, i) { r.rank = i + 1; });
+            localStorage.setItem('ofc_data_config', JSON.stringify(workingConfig));
+            if (window.SITE_CONFIG) {
+              window.SITE_CONFIG.masterRoster = workingConfig.masterRoster;
+              window.SITE_CONFIG.leagueData   = workingConfig.leagueData;
+            }
+            populateAllFields(); markClean();
+            var msg = '✓  BRC scores imported — ' + matched + ' brackets updated for ' + brcImport.year;
+            if (unmatched.length) msg += ' (⚠ ' + unmatched.length + ' unmatched: ' + unmatched.join(', ') + ')';
+            showToast(msg, unmatched.length ? 5000 : 3000);
+            return;
+          }
+
+          // ── OFL_WEEK_IMPORT: single week from Tool 3 ──────────
           var weekImport = extractWeekImport(text);
           if (weekImport) {
             var wLeagueId = weekImport.leagueId, wYear = String(weekImport.year), wData = weekImport.week;
@@ -2978,8 +3184,8 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!wLeague) throw new Error('No league found with id "' + wLeagueId + '".');
             var wSeason = (wLeague.seasons || []).find(function(s){ return String(s.year) === wYear; });
             if (!wSeason) throw new Error('No season found for ' + wLeagueId + ' year ' + wYear + '.');
-            var wIdx = (wSeason.weeks || []).findIndex(function(w){ return w.weekNumber === wData.weekNumber; });
             if (!wSeason.weeks) wSeason.weeks = [];
+            var wIdx = wSeason.weeks.findIndex(function(w){ return w.weekNumber === wData.weekNumber; });
             if (wIdx >= 0) wSeason.weeks[wIdx] = wData;
             else wSeason.weeks.push(wData);
             wSeason.weeks.sort(function(a,b){ return a.weekNumber - b.weekNumber; });
@@ -2989,7 +3195,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
           }
 
-          // ── OFL_WEEKS_IMPORT: full season weeks from Tool 2 ──
+          // ── OFL_WEEKS_IMPORT: full season weeks from Tool 2 ───
           var weeksImport = extractWeeksImport(text);
           if (weeksImport) {
             var leagueId = weeksImport.leagueId, year = String(weeksImport.year), weeks = weeksImport.weeks;
@@ -3004,7 +3210,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
           }
 
-          // ── Standard ofl-data.js / admin-config.js ──
+          // ── Try ofl-data.js format (OFL_DATA), then admin-config.js fallback ──
           var parsed = extractDataConfig(text);
           var source = 'ofl-data.js';
           if (!parsed) {
@@ -3014,7 +3220,7 @@ document.addEventListener('DOMContentLoaded', function () {
               source = 'admin-config.js';
             }
           }
-          if (!parsed) throw new Error('Could not find data. Import ofl-data.js, admin-config.js, or an OFL import file.');
+          if (!parsed) throw new Error('Could not find roster/league data. Import either ofl-data.js, admin-config.js, or a BRC standings import file.');
 
           if (parsed.masterRoster) workingConfig.masterRoster = parsed.masterRoster;
           if (parsed.leagueData)   workingConfig.leagueData   = parsed.leagueData;
@@ -3064,6 +3270,15 @@ document.addEventListener('DOMContentLoaded', function () {
       var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
       if (file) processImportFile(file);
     });
+
+    function extractBrcStandingsImport(text) {
+      try {
+        var fn = new Function('var window = {}; var OFL_BRC_STANDINGS_IMPORT; ' + text + '; return typeof OFL_BRC_STANDINGS_IMPORT !== "undefined" ? OFL_BRC_STANDINGS_IMPORT : window.OFL_BRC_STANDINGS_IMPORT || null;');
+        var r = fn();
+        if (r && r.leagueId && r.year && Array.isArray(r.entries)) return r;
+      } catch (e) { /* fall through */ }
+      return null;
+    }
 
     function extractWeekImport(text) {
       try {

@@ -321,6 +321,22 @@ img {
   margin-bottom: 0.9rem;
 }
 
+.league-card-name--logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80px;
+  overflow: hidden;
+  margin-bottom: 0.9rem;
+}
+
+.league-card-name--logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
 .league-card-cta {
   font-family: var(--font-body);
   font-weight: var(--weight-card-cta, 400);
