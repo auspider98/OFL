@@ -3471,15 +3471,18 @@ select.admin-input option {
 /* Mobile */
 @media (max-width: 600px) {
   .wm-game {
-    grid-template-columns: 1fr;
+    grid-template-columns: auto 1fr auto;
     gap: 0.5rem;
-    text-align: center;
+    align-items: center;
   }
   .wm-team-home,
   .wm-team-away {
     justify-content: center;
     flex-direction: row;
-    text-align: left;
+  }
+  .wm-team-name,
+  .wm-team-name-home {
+    display: none;
   }
   .wm-scores {
     min-width: unset;
