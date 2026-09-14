@@ -3416,11 +3416,15 @@ var SITE_CONFIG_DEFAULTS = {
             "enabled": true
           },
           {
-            "key": "roster",
+            "key": "story",
             "enabled": true
           },
           {
-            "key": "story",
+            "key": "weekly",
+            "enabled": true
+          },
+          {
+            "key": "yahoo",
             "enabled": true
           },
           {
@@ -3429,6 +3433,10 @@ var SITE_CONFIG_DEFAULTS = {
           },
           {
             "key": "bracket",
+            "enabled": true
+          },
+          {
+            "key": "roster",
             "enabled": true
           },
           {
@@ -7789,11 +7797,15 @@ var SITE_CONFIG_DEFAULTS = {
             "enabled": true
           },
           {
-            "key": "roster",
+            "key": "story",
             "enabled": true
           },
           {
-            "key": "story",
+            "key": "weekly",
+            "enabled": true
+          },
+          {
+            "key": "yahoo",
             "enabled": true
           },
           {
@@ -7802,6 +7814,10 @@ var SITE_CONFIG_DEFAULTS = {
           },
           {
             "key": "bracket",
+            "enabled": true
+          },
+          {
+            "key": "roster",
             "enabled": true
           },
           {

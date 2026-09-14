@@ -35,7 +35,7 @@
     }
     .yahoo-link-btn svg { flex-shrink: 0; }
     .preseason-message {
-      text-align: center;
+      text-align: left;
       font-family: var(--font-body, sans-serif);
       font-size: 0.9rem;
       line-height: 1.7;
@@ -1496,7 +1496,7 @@
         awards:      pl.showAwards      !== false,
         pastSeasons: pl.showPastSeasons !== false
       };
-      var defaultOrder = ['champion','story','weekly','standings','bracket','yahoo','roster','awards','pastSeasons'];
+      var defaultOrder = ['champion','story','weekly','yahoo','standings','bracket','roster','awards','pastSeasons'];
       pl.sections = defaultOrder.map(function (key) {
         return { key: key, enabled: legacyMap.hasOwnProperty(key) ? legacyMap[key] : true };
       });
@@ -1506,22 +1506,12 @@
     function getResolvedSections(league) {
       migratePageLayout(league);
       var pl = league.pageLayout;
-      var defaultOrder = ['champion','story','weekly','standings','bracket','yahoo','roster','awards','pastSeasons'];
+      var defaultOrder = ['champion','story','weekly','yahoo','standings','bracket','roster','awards','pastSeasons'];
       var savedKeys = (pl.sections || []).map(function (s) { return s.key; });
       var merged = (pl.sections || []).slice();
       defaultOrder.forEach(function (key) {
         if (savedKeys.indexOf(key) === -1) {
           var newEntry = { key: key, enabled: key !== 'roster' };
-          // For yahoo specifically: always insert directly before roster
-          if (key === 'yahoo') {
-            var rosterIdx = merged.findIndex(function (s) { return s.key === 'roster'; });
-            if (rosterIdx !== -1) {
-              merged.splice(rosterIdx, 0, newEntry);
-            } else {
-              merged.push(newEntry);
-            }
-            return;
-          }
           // For other new keys: insert at correct position relative to defaultOrder neighbors
           var defaultIdx = defaultOrder.indexOf(key);
           var insertAfter = -1;

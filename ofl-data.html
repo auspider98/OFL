@@ -390,6 +390,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize from localStorage if available, otherwise fall back to deployed config
     var _savedData = localStorage.getItem('ofc_data_config');
     var workingConfig;
+    var _weekRenderers = {}; // leagueId+year → renderWeeks fn
     if (_savedData) {
       try { workingConfig = JSON.parse(_savedData); } catch (e) { workingConfig = null; }
     }
@@ -2455,6 +2456,7 @@ document.addEventListener('DOMContentLoaded', function () {
           addWeekBtn.textContent = '+ Add Week';
           sec.appendChild(addWeekBtn);
 
+          _weekRenderers[(league.id||'') + '_' + (season.year||'')] = function() { renderWeeks(); };
           function renderWeeks() {
             weeksContainer.innerHTML = '';
             season.weeks.forEach(function (wk, wkIdx) {
@@ -3220,7 +3222,8 @@ document.addEventListener('DOMContentLoaded', function () {
             wSeason.weeks.sort(function(a,b){ return a.weekNumber - b.weekNumber; });
             localStorage.setItem('ofc_data_config', JSON.stringify(workingConfig));
             // Re-render weekly UI so imported scores show immediately
-            if (typeof renderWeeks === 'function') renderWeeks();
+            var _wr = _weekRenderers[(wLeagueId||'') + '_' + (wYear||'')];
+            if (_wr) _wr();
             markDirty();
             showToast('\u2713  Week ' + wData.weekNumber + ' imported \u2014 ' + (wData.games||[]).length + ' games written to ' + wLeagueId + ' ' + wYear);
             return;
@@ -3236,7 +3239,8 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!season) throw new Error('No season found for ' + leagueId + ' year ' + year + '.');
             season.weeks = weeks;
             localStorage.setItem('ofc_data_config', JSON.stringify(workingConfig));
-            if (typeof renderWeeks === 'function') renderWeeks();
+            var _wr2 = _weekRenderers[(leagueId||'') + '_' + (year||'')];
+            if (_wr2) _wr2();
             markDirty();
             showToast('\u2713  Weeks imported \u2014 ' + weeks.length + ' weeks written to ' + leagueId + ' ' + year);
             return;
