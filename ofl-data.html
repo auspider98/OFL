@@ -1720,6 +1720,7 @@ document.addEventListener('DOMContentLoaded', function () {
             tally[r.memberId] = { wins: 0, losses: 0, pf: 0, pa: 0 };
           });
           (season.weeks || []).forEach(function (wk) {
+            if (!wk.isComplete) return; // only count completed weeks
             (wk.games || []).forEach(function (gm) {
               var hid = gm.home && gm.home.memberId;
               var aid = gm.away && gm.away.memberId;
@@ -1764,13 +1765,13 @@ document.addEventListener('DOMContentLoaded', function () {
           season.standings.forEach(function (r) {
             var t = tally[r.memberId];
             if (t) {
-              /* Only overwrite if field appears auto-generated (matches computed value) or is empty */
+              /* Always overwrite auto-generated fields — this allows toggling isComplete to remove data */
               var computedRecord = t.wins + '-' + t.losses;
-              var computedPF     = t.pf.toFixed(2);
-              var computedPA     = t.pa.toFixed(2);
-              if (!r._manualRecord) r.record     = computedRecord;
-              if (!r._manualPF)     r.pointsFor  = t.pf > 0 ? computedPF : r.pointsFor;
-              if (!r._manualPA)     r.pointsAgainst = t.pa > 0 ? computedPA : r.pointsAgainst;
+              var computedPF     = t.pf > 0 ? t.pf.toFixed(2) : '';
+              var computedPA     = t.pa > 0 ? t.pa.toFixed(2) : '';
+              if (!r._manualRecord) r.record        = computedRecord;
+              if (!r._manualPF)     r.pointsFor     = computedPF;
+              if (!r._manualPA)     r.pointsAgainst = computedPA;
             }
           });
 
@@ -2080,8 +2081,8 @@ document.addEventListener('DOMContentLoaded', function () {
           var preseasonRow = document.createElement('div');
           preseasonRow.className = 'field-row';
           preseasonRow.innerHTML =
-            '<div class="field-label">Pre-Season' +
-              '<span class="field-hint">Hides standings, bracket, awards &amp; story — shows only Yahoo link, roster &amp; past seasons</span>' +
+            '<div class="field-label">Season Message' +
+              '<span class="field-hint">When on: shows season message &amp; roster. When off: shows season message, weekly matchups &amp; standings</span>' +
             '</div>' +
             '<label class="toggle-switch">' +
               '<input type="checkbox" class="s-preseason"' + (season.preseason ? ' checked' : '') + ' />' +
@@ -2098,8 +2099,8 @@ document.addEventListener('DOMContentLoaded', function () {
           var preseasonMsgRow = document.createElement('div');
           preseasonMsgRow.className = 'field-row';
           preseasonMsgRow.innerHTML =
-            '<div class="field-label">Pre-Season Message' +
-              '<span class="field-hint">Shown at the top of the league page when Pre-Season is on</span>' +
+            '<div class="field-label">Season Message' +
+              '<span class="field-hint">Shown at the top of the league page in both season message on and off states</span>' +
             '</div>' +
             '<textarea class="admin-input s-preseason-message" rows="3" style="resize:vertical;width:100%;" placeholder="e.g. Sign-ups are open! Click the Yahoo link below to join.">' +
               esc(season.preseasonMessage) +
@@ -2577,6 +2578,28 @@ document.addEventListener('DOMContentLoaded', function () {
                 wk.highScorer.points = this.value; deriveFromStandings(); markDirty();
               });
               wkBody.appendChild(hsEl);
+
+              /* ── Week Complete toggle ── */
+              var completeDivider = document.createElement('div');
+              completeDivider.style.cssText = 'border-top:1px solid rgba(232,232,232,0.08);margin:0.75rem 0 0.5rem;';
+              wkBody.appendChild(completeDivider);
+
+              var completeRow = document.createElement('div');
+              completeRow.className = 'field-row';
+              completeRow.innerHTML =
+                '<div class="field-label">Week Complete' +
+                  '<span class="field-hint">Marks scores official — highlights winners on the league page. Auto-set when next week is added.</span>' +
+                '</div>' +
+                '<label class="toggle-switch">' +
+                  '<input type="checkbox" class="wk-complete"' + (wk.isComplete ? ' checked' : '') + ' />' +
+                  '<span class="toggle-track"></span>' +
+                '</label>';
+              completeRow.querySelector('.wk-complete').addEventListener('change', function () {
+                wk.isComplete = this.checked;
+                deriveFromStandings();
+                markDirty();
+              });
+              wkBody.appendChild(completeRow);
               weeksContainer.appendChild(wkSection);
             });
           }
@@ -2592,8 +2615,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 away: { memberId:'', ownerName:'', teamName:'', score:'' }
               });
             }
+            // Auto-complete the previous week when a new week is added
+            if (season.weeks.length > 0) {
+              season.weeks[season.weeks.length - 1].isComplete = true;
+              deriveFromStandings();
+            }
             season.weeks.push({
               weekNumber: season.weeks.length + 1,
+              isComplete: false,
               highScorer: { memberId:'', ownerName:'', teamName:'', playerName:'', points:'' },
               games: games
             });
@@ -3190,6 +3219,8 @@ document.addEventListener('DOMContentLoaded', function () {
             else wSeason.weeks.push(wData);
             wSeason.weeks.sort(function(a,b){ return a.weekNumber - b.weekNumber; });
             localStorage.setItem('ofc_data_config', JSON.stringify(workingConfig));
+            // Re-render weekly UI so imported scores show immediately
+            if (typeof renderWeeks === 'function') renderWeeks();
             markDirty();
             showToast('\u2713  Week ' + wData.weekNumber + ' imported \u2014 ' + (wData.games||[]).length + ' games written to ' + wLeagueId + ' ' + wYear);
             return;
@@ -3205,6 +3236,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!season) throw new Error('No season found for ' + leagueId + ' year ' + year + '.');
             season.weeks = weeks;
             localStorage.setItem('ofc_data_config', JSON.stringify(workingConfig));
+            if (typeof renderWeeks === 'function') renderWeeks();
             markDirty();
             showToast('\u2713  Weeks imported \u2014 ' + weeks.length + ' weeks written to ' + leagueId + ' ' + year);
             return;
