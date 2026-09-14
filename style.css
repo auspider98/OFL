@@ -3469,9 +3469,9 @@ select.admin-input option {
 }
 
 /* Mobile */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .wm-game {
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto 1fr auto !important;
     gap: 0.5rem;
     align-items: center;
   }
@@ -3482,7 +3482,7 @@ select.admin-input option {
   }
   .wm-team-name,
   .wm-team-name-home {
-    display: none;
+    display: none !important;
   }
   .wm-scores {
     min-width: unset;
