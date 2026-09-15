@@ -1029,7 +1029,9 @@
         var imgHtml = logo
           ? '<img class="standings-team-logo" src="' + esc(logo) + '" alt="' + esc(teamName) + '" />'
           : '<span class="standings-team-initial">' + esc(initial) + '</span>';
-        return '<span class="standings-team-cell">' + imgHtml + esc(teamName) + '</span>';
+        var teamUrl = (league.sport === 'football' && row.memberId) ? 'team.html?id=' + encodeURIComponent(row.memberId) : null;
+        var inner = '<span class="standings-team-cell">' + imgHtml + esc(teamName) + '</span>';
+        return teamUrl ? '<a class="standings-team-link" href="' + esc(teamUrl) + '">' + inner + '</a>' : inner;
       }
 
       var thead = '<tr>' +
@@ -2522,9 +2524,12 @@
 
           function teamLogoHtml(memberId, teamName) {
             var logo = logoMap[memberId] || '';
-            if (logo) return '<img class="wm-team-logo" src="' + esc(logo) + '" alt="' + esc(teamName) + '" />';
-            var initial = (teamName || '?').charAt(0).toUpperCase();
-            return '<div class="wm-team-initial">' + esc(initial) + '</div>';
+            var url  = memberId ? 'team.html?id=' + encodeURIComponent(memberId) : null;
+            var inner = logo
+              ? '<img class="wm-team-logo" src="' + esc(logo) + '" alt="' + esc(teamName) + '" />'
+              : '<div class="wm-team-initial">' + esc((teamName || '?').charAt(0).toUpperCase()) + '</div>';
+            if (url) return '<a class="wm-team-link" href="' + esc(url) + '">' + inner + '</a>';
+            return inner;
           }
 
           var gamesHtml = (currentWeek.games || []).map(function (g) {

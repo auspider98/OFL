@@ -3287,6 +3287,39 @@ select.admin-input option {
   margin: 0 auto 1.4em;
 }
 
+/* ── Team page links in matchups + standings ────────────────── */
+.wm-team-link {
+  display: contents;
+  text-decoration: none;
+}
+
+.wm-team-link img,
+.wm-team-link .wm-team-initial {
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.wm-team-link:hover img,
+.wm-team-link:hover .wm-team-initial {
+  opacity: 0.75;
+  transform: scale(1.08);
+}
+
+.standings-team-link {
+  text-decoration: none;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+}
+
+.standings-team-link:hover .standings-team-cell {
+  opacity: 0.75;
+}
+
+.standings-team-link:hover .standings-team-logo {
+  transform: scale(1.08);
+  transition: transform 0.2s;
+}
+
 /* ── Power Rankings + Luck Index ────────────────────────────── */
 .pr-heading {
   display: flex;
