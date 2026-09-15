@@ -3320,6 +3320,14 @@ select.admin-input option {
   transition: transform 0.2s;
 }
 
+.standings-luck-cell {
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
 /* ── Power Rankings + Luck Index ────────────────────────────── */
 .pr-heading {
   display: flex;

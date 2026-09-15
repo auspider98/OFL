@@ -1748,7 +1748,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Josh Allen",
                 "points": "38.76"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 2,
@@ -1802,7 +1803,8 @@ var OFL_DATA = {
                 "teamName": "Boknowsbest",
                 "playerName": "Amon-Ra St. Brown",
                 "points": "30.2"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 3,
@@ -1856,7 +1858,8 @@ var OFL_DATA = {
                 "teamName": "Molly Defenders",
                 "playerName": "Vikings Defense",
                 "points": "30"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 4,
@@ -1910,7 +1913,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Ashton Jeanty",
                 "points": "31.5"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 5,
@@ -1964,7 +1968,8 @@ var OFL_DATA = {
                 "teamName": "ATLiens",
                 "playerName": "Jonathan Taylor",
                 "points": "28.6"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 6,
@@ -2018,7 +2023,8 @@ var OFL_DATA = {
                 "teamName": "Spiders",
                 "playerName": "Patrick Mahomes",
                 "points": "31.48"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 7,
@@ -2072,7 +2078,8 @@ var OFL_DATA = {
                 "teamName": "Boknowsbest",
                 "playerName": "Jahmyr Gibbs",
                 "points": "33.5"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 8,
@@ -2126,7 +2133,8 @@ var OFL_DATA = {
                 "teamName": "ATLiens",
                 "playerName": "Jonathan Taylor",
                 "points": "35.4"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 9,
@@ -2180,7 +2188,8 @@ var OFL_DATA = {
                 "teamName": "ATLiens",
                 "playerName": "Brock Bowers",
                 "points": "31.3"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 10,
@@ -2234,7 +2243,8 @@ var OFL_DATA = {
                 "teamName": "ATLiens",
                 "playerName": "Jonathan Taylor",
                 "points": "46.6"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 11,
@@ -2288,7 +2298,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Josh Allen",
                 "points": "44.68"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 12,
@@ -2342,7 +2353,8 @@ var OFL_DATA = {
                 "teamName": "Boknowsbest",
                 "playerName": "Jahmyr Gibbs",
                 "points": "44.4"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 13,
@@ -2396,7 +2408,8 @@ var OFL_DATA = {
                 "teamName": "Spiders",
                 "playerName": "Patrick Mahomes",
                 "points": "29.44"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 14,
@@ -2450,7 +2463,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Josh Allen",
                 "points": "37.84"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 15,
@@ -2504,7 +2518,8 @@ var OFL_DATA = {
                 "teamName": "Ozsome",
                 "playerName": "Kyle Pitts Sr.",
                 "points": "34.6"
-              }
+              },
+              "isComplete": true
             }
           ]
         },
@@ -2937,7 +2952,8 @@ var OFL_DATA = {
                 "teamName": "Ozsome",
                 "playerName": "Saquon Barkley",
                 "points": "31.2"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 2,
@@ -2991,7 +3007,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "James Cook III",
                 "points": "27.5"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 3,
@@ -3045,7 +3062,8 @@ var OFL_DATA = {
                 "teamName": "Boknowsbest",
                 "playerName": "Josh Allen",
                 "points": "30.92"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 4,
@@ -3099,7 +3117,8 @@ var OFL_DATA = {
                 "teamName": "Molly Defenders",
                 "playerName": "Derrick Henry",
                 "points": "32.9"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 5,
@@ -3153,7 +3172,8 @@ var OFL_DATA = {
                 "teamName": "Ozsome",
                 "playerName": "Joe Burrow",
                 "points": "34.78"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 6,
@@ -3207,7 +3227,8 @@ var OFL_DATA = {
                 "teamName": "Molly Defenders",
                 "playerName": "Derrick Henry",
                 "points": "25.2"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 7,
@@ -3261,7 +3282,8 @@ var OFL_DATA = {
                 "teamName": "ATLiens",
                 "playerName": "Lamar Jackson",
                 "points": "34.44"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 8,
@@ -3315,7 +3337,8 @@ var OFL_DATA = {
                 "teamName": "Molly Defenders",
                 "playerName": "Jalen Hurts",
                 "points": "35.14"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 9,
@@ -3369,7 +3392,8 @@ var OFL_DATA = {
                 "teamName": "Ozsome",
                 "playerName": "Joe Burrow",
                 "points": "30.14"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 10,
@@ -3423,7 +3447,8 @@ var OFL_DATA = {
                 "teamName": "Spiders",
                 "playerName": "Ja'Marr Chase",
                 "points": "44.4"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 11,
@@ -3477,7 +3502,8 @@ var OFL_DATA = {
                 "teamName": "ATLiens",
                 "playerName": "Joe Mixon",
                 "points": "33.3"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 12,
@@ -3531,7 +3557,8 @@ var OFL_DATA = {
                 "teamName": "Ozsome",
                 "playerName": "Saquon Barkley",
                 "points": "42.2"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 13,
@@ -3585,7 +3612,8 @@ var OFL_DATA = {
                 "teamName": "Spiders",
                 "playerName": "Jayden Daniels",
                 "points": "28.64"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 14,
@@ -3639,7 +3667,8 @@ var OFL_DATA = {
                 "teamName": "Boknowsbest",
                 "playerName": "Josh Allen",
                 "points": "51.88"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 15,
@@ -3693,7 +3722,8 @@ var OFL_DATA = {
                 "teamName": "Boknowsbest",
                 "playerName": "Josh Allen",
                 "points": "41.28"
-              }
+              },
+              "isComplete": true
             }
           ]
         },
@@ -4119,7 +4149,8 @@ var OFL_DATA = {
                 "teamName": "Molly Defenders",
                 "playerName": "Cowboys Defense",
                 "points": "37"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 2,
@@ -4173,7 +4204,8 @@ var OFL_DATA = {
                 "teamName": "ATLiens",
                 "playerName": "Jalen Hurts",
                 "points": "26.22"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 3,
@@ -4227,7 +4259,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Bills Defense",
                 "points": "32"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 4,
@@ -4281,7 +4314,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Christian McCaffrey",
                 "points": "40.7"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 5,
@@ -4335,7 +4369,8 @@ var OFL_DATA = {
                 "teamName": "ATLiens",
                 "playerName": "Ja'Marr Chase",
                 "points": "37.2"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 6,
@@ -4389,7 +4424,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Raheem Mostert",
                 "points": "31.2"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 7,
@@ -4443,7 +4479,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Patrick Mahomes",
                 "points": "34.86"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 8,
@@ -4497,7 +4534,8 @@ var OFL_DATA = {
                 "teamName": "Spiders",
                 "playerName": "Josh Allen",
                 "points": "30.06"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 9,
@@ -4551,7 +4589,8 @@ var OFL_DATA = {
                 "teamName": "ATLiens",
                 "playerName": "Jalen Hurts",
                 "points": "25.88"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 10,
@@ -4605,7 +4644,8 @@ var OFL_DATA = {
                 "teamName": "ATLiens",
                 "playerName": "Keenan Allen",
                 "points": "29.5"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 11,
@@ -4659,7 +4699,8 @@ var OFL_DATA = {
                 "teamName": "Ozsome",
                 "playerName": "Saquon Barkley",
                 "points": "26"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 12,
@@ -4713,7 +4754,8 @@ var OFL_DATA = {
                 "teamName": "Spiders",
                 "playerName": "Josh Allen",
                 "points": "40.66"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 13,
@@ -4767,7 +4809,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Deebo Samuel",
                 "points": "31.8"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 14,
@@ -4821,7 +4864,8 @@ var OFL_DATA = {
                 "teamName": "Ozsome",
                 "playerName": "Lamar Jackson",
                 "points": "32.64"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 15,
@@ -4875,7 +4919,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Christian McCaffrey",
                 "points": "36.7"
-              }
+              },
+              "isComplete": true
             }
           ],
           "preseason": false,
@@ -5303,7 +5348,8 @@ var OFL_DATA = {
                 "teamName": "Ozsome",
                 "playerName": "Patrick Mahomes",
                 "points": "34.9"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 2,
@@ -5357,7 +5403,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Lamar Jackson",
                 "points": "42.62"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 3,
@@ -5411,7 +5458,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Lamar Jackson",
                 "points": "40.42"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 4,
@@ -5465,7 +5513,8 @@ var OFL_DATA = {
                 "teamName": "Molly Defenders",
                 "playerName": "Austin Ekeler",
                 "points": "28.9"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 5,
@@ -5519,7 +5568,8 @@ var OFL_DATA = {
                 "teamName": "Molly Defenders",
                 "playerName": "Josh Allen",
                 "points": "36.16"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 6,
@@ -5573,7 +5623,8 @@ var OFL_DATA = {
                 "teamName": "Spiders",
                 "playerName": "Joe Burrow",
                 "points": "32.50"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 7,
@@ -5627,7 +5678,8 @@ var OFL_DATA = {
                 "teamName": "Spiders",
                 "playerName": "Joe Burrow",
                 "points": "39.24"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 8,
@@ -5681,7 +5733,8 @@ var OFL_DATA = {
                 "teamName": "Molly Defenders",
                 "playerName": "Derrick Henry",
                 "points": "34.8"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 9,
@@ -5735,7 +5788,8 @@ var OFL_DATA = {
                 "teamName": "Ozsome",
                 "playerName": "Patrick Mahomes",
                 "points": "35.14"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 10,
@@ -5789,7 +5843,8 @@ var OFL_DATA = {
                 "teamName": "Ozsome",
                 "playerName": "Patrick Mahomes",
                 "points": "32.14"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 11,
@@ -5843,7 +5898,8 @@ var OFL_DATA = {
                 "teamName": "Ozsome",
                 "playerName": "Travis Kelce",
                 "points": "29.5"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 12,
@@ -5897,7 +5953,8 @@ var OFL_DATA = {
                 "teamName": "Molly Defenders",
                 "playerName": "Josh Allen",
                 "points": "30.92"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 13,
@@ -5951,7 +6008,8 @@ var OFL_DATA = {
                 "teamName": "Boknowsbest",
                 "playerName": "Jalen Hurts",
                 "points": "34.4"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 14,
@@ -6005,7 +6063,8 @@ var OFL_DATA = {
                 "teamName": "Boknowsbest",
                 "playerName": "Jalen Hurts",
                 "points": "30.38"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 15,
@@ -6059,7 +6118,8 @@ var OFL_DATA = {
                 "teamName": "Boknowsbest",
                 "playerName": "Jalen Hurts",
                 "points": "36.7"
-              }
+              },
+              "isComplete": true
             }
           ],
           "preseason": false,
@@ -6487,7 +6547,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Kyler Murray",
                 "points": "34.56"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 2,
@@ -6541,7 +6602,8 @@ var OFL_DATA = {
                 "teamName": "Boknowsbest",
                 "playerName": "Derrick Henry",
                 "points": "34.7"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 3,
@@ -6595,7 +6657,8 @@ var OFL_DATA = {
                 "teamName": "Molly Defenders",
                 "playerName": "Josh Allen",
                 "points": "37.22"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 4,
@@ -6649,7 +6712,8 @@ var OFL_DATA = {
                 "teamName": "Boknowsbest",
                 "playerName": "Tyreek Hill",
                 "points": "36.6"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 5,
@@ -6703,7 +6767,8 @@ var OFL_DATA = {
                 "teamName": "Boknowsbest",
                 "playerName": "Lamar Jackson",
                 "points": "41.88"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 6,
@@ -6757,7 +6822,8 @@ var OFL_DATA = {
                 "teamName": "Boknowsbest",
                 "playerName": "Derrick Henry",
                 "points": "33.6"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 7,
@@ -6811,7 +6877,8 @@ var OFL_DATA = {
                 "teamName": "Spiders",
                 "playerName": "Cooper Kupp",
                 "points": "27.6"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 8,
@@ -6865,7 +6932,8 @@ var OFL_DATA = {
                 "teamName": "Molly Defenders",
                 "playerName": "Josh Allen",
                 "points": "29.46"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 9,
@@ -6919,7 +6987,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "James Conner",
                 "points": "35.3"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 10,
@@ -6973,7 +7042,8 @@ var OFL_DATA = {
                 "teamName": "ATLiens",
                 "playerName": "Patrick Mahomes",
                 "points": "36.24"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 11,
@@ -7027,7 +7097,8 @@ var OFL_DATA = {
                 "teamName": "Spiders",
                 "playerName": "Jonathan Taylor",
                 "points": "50.4"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 12,
@@ -7081,7 +7152,8 @@ var OFL_DATA = {
                 "teamName": "Molly Defenders",
                 "playerName": "Josh Allen",
                 "points": "28.7"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 13,
@@ -7135,7 +7207,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Kyler Murray",
                 "points": "30.82"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 14,
@@ -7189,7 +7262,8 @@ var OFL_DATA = {
                 "teamName": "Molly Defenders",
                 "playerName": "Josh Allen",
                 "points": "36.22"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 15,
@@ -7243,7 +7317,8 @@ var OFL_DATA = {
                 "teamName": "Spiders",
                 "playerName": "Travis Kelce",
                 "points": "31.1"
-              }
+              },
+              "isComplete": true
             }
           ],
           "preseason": false,
@@ -7671,7 +7746,8 @@ var OFL_DATA = {
                 "teamName": "Spiders",
                 "playerName": "Josh Jacobs",
                 "points": "31.9"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 2,
@@ -7725,7 +7801,8 @@ var OFL_DATA = {
                 "teamName": "Spiders",
                 "playerName": "Dak Prescott",
                 "points": "39.8"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 3,
@@ -7779,7 +7856,8 @@ var OFL_DATA = {
                 "teamName": "ATLiens",
                 "playerName": "Patrick Mahomes",
                 "points": "40"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 4,
@@ -7833,7 +7911,8 @@ var OFL_DATA = {
                 "teamName": "Spiders",
                 "playerName": "Dak Prescott",
                 "points": "38.28"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 5,
@@ -7887,7 +7966,8 @@ var OFL_DATA = {
                 "teamName": "ATLiens",
                 "playerName": "Patrick Mahomes",
                 "points": "30.7"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 6,
@@ -7941,7 +8021,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Derrick Henry",
                 "points": "38.4"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 7,
@@ -7995,7 +8076,8 @@ var OFL_DATA = {
                 "teamName": "Spiders",
                 "playerName": "Kyler Murray",
                 "points": "38.1"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 8,
@@ -8049,7 +8131,8 @@ var OFL_DATA = {
                 "teamName": "ATLiens",
                 "playerName": "Dalvin Cook",
                 "points": "46.6"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 9,
@@ -8103,7 +8186,8 @@ var OFL_DATA = {
                 "teamName": "Spiders",
                 "playerName": "Kyler Murray",
                 "points": "37.9"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 10,
@@ -8157,7 +8241,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Tom Brady",
                 "points": "31.84"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 11,
@@ -8211,7 +8296,8 @@ var OFL_DATA = {
                 "teamName": "Molly Defenders",
                 "playerName": "Deshaun Watson",
                 "points": "31.36"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 12,
@@ -8265,7 +8351,8 @@ var OFL_DATA = {
                 "teamName": "Spiders",
                 "playerName": "Tyreek Hill",
                 "points": "40.9"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 13,
@@ -8319,7 +8406,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Derek Carr",
                 "points": "32.74"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 14,
@@ -8373,7 +8461,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Derrick Henry",
                 "points": "34.2"
-              }
+              },
+              "isComplete": true
             }
           ],
           "preseason": false,
@@ -8801,7 +8890,8 @@ var OFL_DATA = {
                 "teamName": "Boknowsbest",
                 "playerName": "Patriots Defense",
                 "points": "37"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 3,
@@ -8855,7 +8945,8 @@ var OFL_DATA = {
                 "teamName": "Boknowsbest",
                 "playerName": "Mike Evans",
                 "points": "37"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 4,
@@ -8909,7 +9000,8 @@ var OFL_DATA = {
                 "teamName": "Molly Defenders",
                 "playerName": "Chris Godwin Jr.",
                 "points": "29.2"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 5,
@@ -8963,7 +9055,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Deshaun Watson",
                 "points": "41.74"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 6,
@@ -9017,7 +9110,8 @@ var OFL_DATA = {
                 "teamName": "ATLiens",
                 "playerName": "Stefon Diggs",
                 "points": "36.5"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 7,
@@ -9071,7 +9165,8 @@ var OFL_DATA = {
                 "teamName": "ATLiens",
                 "playerName": "Dalvin Cook",
                 "points": "26.9"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 8,
@@ -9125,7 +9220,8 @@ var OFL_DATA = {
                 "teamName": "Ozsome",
                 "playerName": "Aaron Jones Sr.",
                 "points": "34.6"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 9,
@@ -9179,7 +9275,8 @@ var OFL_DATA = {
                 "teamName": "Spiders",
                 "playerName": "Russell Wilson",
                 "points": "39.22"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 10,
@@ -9233,7 +9330,8 @@ var OFL_DATA = {
                 "teamName": "Ozsome",
                 "playerName": "Lamar Jackson",
                 "points": "33.42"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 11,
@@ -9287,7 +9385,8 @@ var OFL_DATA = {
                 "teamName": "Ozsome",
                 "playerName": "Lamar Jackson",
                 "points": "32.78"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 12,
@@ -9341,7 +9440,8 @@ var OFL_DATA = {
                 "teamName": "Ozsome",
                 "playerName": "Lamar Jackson",
                 "points": "36.26"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 13,
@@ -9395,7 +9495,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Deshaun Watson",
                 "points": "27.86"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 14,
@@ -9449,7 +9550,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Deshaun Watson",
                 "points": "30.08"
-              }
+              },
+              "isComplete": true
             }
           ],
           "preseason": false,
@@ -9898,7 +10000,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Tyreek Hill",
                 "points": "35.3"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 2,
@@ -9952,7 +10055,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Todd Gurley",
                 "points": "29.3"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 3,
@@ -10006,7 +10110,8 @@ var OFL_DATA = {
                 "teamName": "GoldenOzzy",
                 "playerName": "Drew Brees",
                 "points": "40.54"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 4,
@@ -10060,7 +10165,8 @@ var OFL_DATA = {
                 "teamName": "Spiders",
                 "playerName": "Alvin Kamara",
                 "points": "36.1"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 5,
@@ -10114,7 +10220,8 @@ var OFL_DATA = {
                 "teamName": "DukeBoss33",
                 "playerName": "James Conner",
                 "points": "30.5"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 6,
@@ -10168,7 +10275,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Todd Gurley",
                 "points": "34.5"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 7,
@@ -10222,7 +10330,8 @@ var OFL_DATA = {
                 "teamName": "DukeBoss33",
                 "playerName": "Patrick Mahomes",
                 "points": "33.82"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 8,
@@ -10276,7 +10385,8 @@ var OFL_DATA = {
                 "teamName": "DukeBoss33",
                 "playerName": "James Conner",
                 "points": "33.2"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 9,
@@ -10330,7 +10440,8 @@ var OFL_DATA = {
                 "teamName": "ATLiens",
                 "playerName": "Kareem Hunt",
                 "points": "32.1"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 10,
@@ -10384,7 +10495,8 @@ var OFL_DATA = {
                 "teamName": "Molly Defenders",
                 "playerName": "Ben Roethlisberger",
                 "points": "35.82"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 11,
@@ -10438,7 +10550,8 @@ var OFL_DATA = {
                 "teamName": "DukeBoss33",
                 "playerName": "Patrick Mahomes",
                 "points": "38.92"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 12,
@@ -10492,7 +10605,8 @@ var OFL_DATA = {
                 "teamName": "GoldenOzzy",
                 "playerName": "Christian McCaffrey",
                 "points": "35.7"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 13,
@@ -10546,7 +10660,8 @@ var OFL_DATA = {
                 "teamName": "DukeBoss33",
                 "playerName": "Patrick Mahomes",
                 "points": "33"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 14,
@@ -10600,7 +10715,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Tom Brady",
                 "points": "26.62"
-              }
+              },
+              "isComplete": true
             }
           ],
           "preseason": false,
@@ -11028,7 +11144,8 @@ var OFL_DATA = {
                 "teamName": "DukeBoss33",
                 "playerName": "Derek Carr ",
                 "points": "18.68"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 2,
@@ -11082,7 +11199,8 @@ var OFL_DATA = {
                 "teamName": "Molly Defenders",
                 "playerName": "Tom Brady",
                 "points": "30.78"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 3,
@@ -11136,7 +11254,8 @@ var OFL_DATA = {
                 "teamName": "Molly Defenders",
                 "playerName": "Tom Brady",
                 "points": "35.72"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 4,
@@ -11190,7 +11309,8 @@ var OFL_DATA = {
                 "teamName": "DukeBoss33",
                 "playerName": "Le'Veon Bell",
                 "points": "30.60"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 5,
@@ -11244,7 +11364,8 @@ var OFL_DATA = {
                 "teamName": "DukeBoss33",
                 "playerName": "Deshaun Watson",
                 "points": "35.54"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 6,
@@ -11298,7 +11419,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Melvin Gordon III",
                 "points": "27"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 7,
@@ -11352,7 +11474,8 @@ var OFL_DATA = {
                 "teamName": "Molly Defenders",
                 "playerName": "Ezekiel Elliott",
                 "points": "39.9"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 8,
@@ -11406,7 +11529,8 @@ var OFL_DATA = {
                 "teamName": "Redbacks",
                 "playerName": "Ravens Defense",
                 "points": "29"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 9,
@@ -11460,7 +11584,8 @@ var OFL_DATA = {
                 "teamName": "Molly Defenders",
                 "playerName": "Dak Prescott",
                 "points": "26.66"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 10,
@@ -11514,7 +11639,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Cam Newton",
                 "points": "35.66"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 11,
@@ -11568,7 +11694,8 @@ var OFL_DATA = {
                 "teamName": "ATLiens",
                 "playerName": "Antonio Brown",
                 "points": "32.4"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 12,
@@ -11622,7 +11749,8 @@ var OFL_DATA = {
                 "teamName": "ATLiens",
                 "playerName": "Antonio Brown",
                 "points": "30.9"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 13,
@@ -11676,7 +11804,8 @@ var OFL_DATA = {
                 "teamName": "GoldenOzzy",
                 "playerName": "Tyreek Hill",
                 "points": "30.5"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 14,
@@ -11730,7 +11859,8 @@ var OFL_DATA = {
                 "teamName": "DukeBoss33",
                 "playerName": "Le'Veon Bell",
                 "points": "30.5"
-              }
+              },
+              "isComplete": true
             }
           ],
           "preseason": false,
@@ -12158,7 +12288,8 @@ var OFL_DATA = {
                 "teamName": "Flying Bubbas",
                 "playerName": "Andrew Luck",
                 "points": "35.5"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 2,
@@ -12212,7 +12343,8 @@ var OFL_DATA = {
                 "teamName": "las Arañas",
                 "playerName": "Can Newton",
                 "points": "32.82"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 3,
@@ -12266,7 +12398,8 @@ var OFL_DATA = {
                 "teamName": "GoldenOzzy",
                 "playerName": "Drew Breeze",
                 "points": "26.94"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 4,
@@ -12320,7 +12453,8 @@ var OFL_DATA = {
                 "teamName": "DukeBoss33",
                 "playerName": "Ben Roethlisberger",
                 "points": "33.9"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 5,
@@ -12374,7 +12508,8 @@ var OFL_DATA = {
                 "teamName": "GoldenOzzy",
                 "playerName": "Marcus Mariota",
                 "points": "30.52"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 6,
@@ -12428,7 +12563,8 @@ var OFL_DATA = {
                 "teamName": "las Arañas",
                 "playerName": "LeSean McCoy",
                 "points": "32.2"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 7,
@@ -12482,7 +12618,8 @@ var OFL_DATA = {
                 "teamName": "ATLiens",
                 "playerName": "Melvin Gordon III",
                 "points": "30.1"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 8,
@@ -12536,7 +12673,8 @@ var OFL_DATA = {
                 "teamName": "Amy's Team",
                 "playerName": "Aaron Rodgers",
                 "points": "33.84"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 9,
@@ -12590,7 +12728,8 @@ var OFL_DATA = {
                 "teamName": "ATLiens",
                 "playerName": "Melvin Gordon III",
                 "points": "32.1"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 10,
@@ -12644,7 +12783,8 @@ var OFL_DATA = {
                 "teamName": "DukeBoss33",
                 "playerName": "Ezekiel Elliott",
                 "points": "38.9"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 11,
@@ -12698,7 +12838,8 @@ var OFL_DATA = {
                 "teamName": "Amy's Team",
                 "playerName": "Aaron Rodgers",
                 "points": "29.34"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 12,
@@ -12752,7 +12893,8 @@ var OFL_DATA = {
                 "teamName": "GoldenOzzy",
                 "playerName": "Drew Breeze ",
                 "points": "32.5"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 13,
@@ -12806,7 +12948,8 @@ var OFL_DATA = {
                 "teamName": "Amy's Team",
                 "playerName": "David Johnson",
                 "points": "29.5"
-              }
+              },
+              "isComplete": true
             },
             {
               "weekNumber": 14,
@@ -12860,7 +13003,8 @@ var OFL_DATA = {
                 "teamName": "ATLiens",
                 "playerName": "Le'Veon Bell",
                 "points": "47.8"
-              }
+              },
+              "isComplete": true
             }
           ],
           "preseason": false,

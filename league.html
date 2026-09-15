@@ -1034,9 +1034,56 @@
         return teamUrl ? '<a class="standings-team-link" href="' + esc(teamUrl) + '">' + inner + '</a>' : inner;
       }
 
+      // ── Luck Index for football standings ──────────────
+      var luckMap = {};
+      var hasLuck = false;
+      if (isFootball && season.isFinal) {
+        var allWeeks = (season.weeks || []).filter(function (w) { return w.isComplete; });
+        if (allWeeks.length > 0) {
+          hasLuck = true;
+          var memberIds = rows.map(function (r) { return r.memberId; }).filter(Boolean);
+          memberIds.forEach(function (mid) { luckMap[mid] = 0; });
+          allWeeks.forEach(function (wk) {
+            var weekScores = {};
+            var actualWins = {};
+            memberIds.forEach(function (mid) { weekScores[mid] = 0; actualWins[mid] = 0; });
+            (wk.games || []).forEach(function (g) {
+              var hid = g.home && g.home.memberId;
+              var aid = g.away && g.away.memberId;
+              var hs  = parseFloat(g.home && g.home.score) || 0;
+              var as_ = parseFloat(g.away && g.away.score) || 0;
+              if (hid) weekScores[hid] = hs;
+              if (aid) weekScores[aid] = as_;
+              if (hid && aid) {
+                if (hs > as_) actualWins[hid] = 1;
+                else if (as_ > hs) actualWins[aid] = 1;
+              }
+            });
+            var allScores = Object.values(weekScores).filter(function (s) { return s > 0; });
+            var n = allScores.length;
+            memberIds.forEach(function (mid) {
+              var myScore = weekScores[mid] || 0;
+              if (!myScore) return;
+              var expectedWins = allScores.filter(function (s) { return myScore > s; }).length;
+              var expWinPct = n > 1 ? (expectedWins / (n - 1)) : 0;
+              luckMap[mid] = (luckMap[mid] || 0) + ((actualWins[mid] || 0) - expWinPct);
+            });
+          });
+        }
+      }
+
+      function luckCellHtml(memberId) {
+        if (!hasLuck || !memberId || luckMap[memberId] === undefined) return '<td></td>';
+        var val = luckMap[memberId];
+        var sign = val >= 0 ? '+' : '';
+        var color = val >= 0.5 ? '#4caf7d' : val >= 0.1 ? '#8bc49f' : val > -0.1 ? 'var(--accent-dim)' : val > -0.5 ? '#e07070' : '#d94f4f';
+        return '<td class="standings-luck-cell" style="color:' + color + ';font-weight:700;">' + sign + val.toFixed(1) + '</td>';
+      }
+
       var thead = '<tr>' +
         (rankCol ? '<th class="standings-rank-cell">' + esc(rankCol.label) + '</th>' : '') +
         cols.map(function (c) { return '<th>' + esc(c.label) + '</th>'; }).join('') +
+        (hasLuck ? '<th class="standings-luck-cell">Luck</th>' : '') +
       '</tr>';
 
       var tbody = rows.map(function (row, i) {
@@ -1046,6 +1093,7 @@
             if (c.key === 'team') return '<td>' + teamCellHtml(row) + '</td>';
             return '<td>' + esc(resolveCell(row, c.key)) + '</td>';
           }).join('') +
+          (hasLuck ? luckCellHtml(row.memberId) : '') +
         '</tr>';
       }).join('');
 
