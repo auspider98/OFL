@@ -1490,13 +1490,14 @@
         champion:    pl.showChampion    !== false,
         story:       true,
         weekly:      true,
+        power:       true,
         standings:   pl.showStandings   !== false,
         bracket:     true,
         roster:      false,
         awards:      pl.showAwards      !== false,
         pastSeasons: pl.showPastSeasons !== false
       };
-      var defaultOrder = ['champion','story','weekly','yahoo','standings','bracket','roster','awards','pastSeasons'];
+      var defaultOrder = ['champion','story','weekly','yahoo','power','standings','bracket','roster','awards','pastSeasons'];
       pl.sections = defaultOrder.map(function (key) {
         return { key: key, enabled: legacyMap.hasOwnProperty(key) ? legacyMap[key] : true };
       });
@@ -1506,7 +1507,7 @@
     function getResolvedSections(league) {
       migratePageLayout(league);
       var pl = league.pageLayout;
-      var defaultOrder = ['champion','story','weekly','yahoo','standings','bracket','roster','awards','pastSeasons'];
+      var defaultOrder = ['champion','story','weekly','yahoo','power','standings','bracket','roster','awards','pastSeasons'];
       var savedKeys = (pl.sections || []).map(function (s) { return s.key; });
       var merged = (pl.sections || []).slice();
       defaultOrder.forEach(function (key) {
@@ -2577,6 +2578,260 @@
             '<div class="league-section-heading">Week ' + esc(String(currentWeek.weekNumber || '')) + ' Matchups</div>' +
             '<div class="wm-grid">' + gamesHtml + '</div>' +
             hsHtml;
+        }
+
+        // ── Power Rankings + Luck Index ───────────────────
+        else if (key === 'power') {
+          if (!current || isPreseason || isFinal || league.sport !== 'football') return;
+          var pwWeeks = current.weeks || [];
+          var completedWeeks = pwWeeks.filter(function (w) { return w.isComplete; });
+          if (!completedWeeks.length) return;
+
+          // Build roster map: memberId → { teamName, logo }
+          var pwRosterMap = {};
+          (current.roster || []).forEach(function (r) {
+            if (r.memberId) pwRosterMap[r.memberId] = { teamName: r.teamName || r.name || '', logo: r.logo || '' };
+          });
+
+          // Collect all memberIds from standings
+          var pwMembers = (current.standings || []).map(function (s) { return s.memberId; }).filter(Boolean);
+
+          // Build per-member score history from completed weeks
+          var scoreHistory = {}; // memberId → [scores in order]
+          pwMembers.forEach(function (mid) { scoreHistory[mid] = []; });
+          completedWeeks.forEach(function (wk) {
+            (wk.games || []).forEach(function (g) {
+              var hid = g.home && g.home.memberId;
+              var aid = g.away && g.away.memberId;
+              var hs  = parseFloat(g.home && g.home.score) || 0;
+              var as_ = parseFloat(g.away && g.away.score) || 0;
+              if (hid && scoreHistory[hid] !== undefined) scoreHistory[hid].push(hs);
+              if (aid && scoreHistory[aid] !== undefined) scoreHistory[aid].push(as_);
+            });
+          });
+
+          // Power score: weighted sum of last 3 scores (most recent = highest weight)
+          function powerScore(scores) {
+            var weights = [0.5, 0.3, 0.2];
+            var recent = scores.slice(-3).reverse();
+            var total = 0, wSum = 0;
+            recent.forEach(function (s, i) {
+              var w = weights[i] || 0.1;
+              total += s * w; wSum += w;
+            });
+            return wSum > 0 ? total / wSum : 0;
+          }
+
+          // Luck index: for each completed week, count how many opponents a team would have beaten
+          var luckSeason = {}; // memberId → cumulative luck (actual wins - expected wins)
+          var luckWeek   = {}; // memberId → this week luck
+          pwMembers.forEach(function (mid) { luckSeason[mid] = 0; luckWeek[mid] = 0; });
+
+          completedWeeks.forEach(function (wk, wkIdx) {
+            // Collect all scores this week
+            var weekScores = {}; // memberId → score
+            var actualWins = {}; // memberId → actual win (1/0)
+            pwMembers.forEach(function (mid) { weekScores[mid] = 0; actualWins[mid] = 0; });
+            (wk.games || []).forEach(function (g) {
+              var hid = g.home && g.home.memberId;
+              var aid = g.away && g.away.memberId;
+              var hs  = parseFloat(g.home && g.home.score) || 0;
+              var as_ = parseFloat(g.away && g.away.score) || 0;
+              if (hid) weekScores[hid] = hs;
+              if (aid) weekScores[aid] = as_;
+              if (hid && aid) {
+                if (hs > as_) actualWins[hid] = 1;
+                else if (as_ > hs) actualWins[aid] = 1;
+              }
+            });
+            var allScores = Object.values(weekScores).filter(function (s) { return s > 0; });
+            var n = allScores.length;
+            pwMembers.forEach(function (mid) {
+              var myScore = weekScores[mid] || 0;
+              if (!myScore) return;
+              // Expected wins = how many opponents this score would beat
+              var expectedWins = allScores.filter(function (s) { return myScore > s; }).length - (myScore > myScore ? 1 : 0);
+              // Normalize: expected wins out of (n-1) opponents, then scale to match actual win scale
+              var expWinPct = n > 1 ? (expectedWins / (n - 1)) : 0;
+              var luck = (actualWins[mid] || 0) - expWinPct;
+              luckSeason[mid] += luck;
+              if (wkIdx === completedWeeks.length - 1) luckWeek[mid] = luck;
+            });
+          });
+
+          // Compute power scores and rank
+          var pwRanked = pwMembers.map(function (mid) {
+            var scores = scoreHistory[mid] || [];
+            return { memberId: mid, power: powerScore(scores), luckSeason: luckSeason[mid] || 0, luckWeek: luckWeek[mid] || 0 };
+          }).sort(function (a, b) { return b.power - a.power; });
+
+          // Previous week ranking (for trend arrow) — use scores up to second-to-last completed week
+          var prevRankMap = {};
+          if (completedWeeks.length > 1) {
+            var prevWeeks = completedWeeks.slice(0, -1);
+            var prevHistory = {};
+            pwMembers.forEach(function (mid) { prevHistory[mid] = []; });
+            prevWeeks.forEach(function (wk) {
+              (wk.games || []).forEach(function (g) {
+                var hid = g.home && g.home.memberId;
+                var aid = g.away && g.away.memberId;
+                var hs  = parseFloat(g.home && g.home.score) || 0;
+                var as_ = parseFloat(g.away && g.away.score) || 0;
+                if (hid && prevHistory[hid] !== undefined) prevHistory[hid].push(hs);
+                if (aid && prevHistory[aid] !== undefined) prevHistory[aid].push(as_);
+              });
+            });
+            var prevRanked = pwMembers.map(function (mid) {
+              return { memberId: mid, power: powerScore(prevHistory[mid] || []) };
+            }).sort(function (a, b) { return b.power - a.power; });
+            prevRanked.forEach(function (r, i) { prevRankMap[r.memberId] = i + 1; });
+          }
+
+          // Build table rows
+          function luckColor(val) {
+            if (val >= 0.5)       return '#4caf7d';
+            if (val >= 0.1)       return '#8bc49f';
+            if (val > -0.1)       return 'var(--accent-dim)';
+            if (val > -0.5)       return '#e07070';
+            return '#d94f4f';
+          }
+
+          function arrowHtml(rank, prevRank) {
+            if (!prevRank) return '<span class="pr-arrow pr-arrow-neutral">→</span>';
+            if (rank < prevRank)  return '<span class="pr-arrow pr-arrow-up">↑</span>';
+            if (rank > prevRank)  return '<span class="pr-arrow pr-arrow-down">↓</span>';
+            return '<span class="pr-arrow pr-arrow-neutral">→</span>';
+          }
+
+          var rowsHtml = pwRanked.map(function (r, i) {
+            var rank = i + 1;
+            var prevRank = prevRankMap[r.memberId] || null;
+            var rInfo = pwRosterMap[r.memberId] || {};
+            var logoHtml = rInfo.logo
+              ? '<img class="pr-logo" src="' + esc(rInfo.logo) + '" alt="' + esc(rInfo.teamName) + '" />'
+              : '<div class="pr-logo-initial">' + esc((rInfo.teamName || '?').charAt(0)) + '</div>';
+
+            // Last 3 scores
+            var scores = (scoreHistory[r.memberId] || []).slice(-3);
+            var scoresHtml = scores.map(function (s) {
+              return '<span class="pr-score">' + s.toFixed(2) + '</span>';
+            }).join('');
+
+            // Record from standings
+            var stRow = (current.standings || []).find(function (s) { return s.memberId === r.memberId; });
+            var record = stRow ? (stRow.record || '0-0') : '0-0';
+
+            // Luck display
+            var wkSign  = r.luckWeek   >= 0 ? '+' : '';
+            var szSign  = r.luckSeason >= 0 ? '+' : '';
+            var wkVal   = wkSign  + r.luckWeek.toFixed(1);
+            var szVal   = szSign  + r.luckSeason.toFixed(1);
+            var luckHtml = '<span class="pr-luck-week" style="color:' + luckColor(r.luckWeek) + '">' + esc(wkVal) + '</span>' +
+                           '<span class="pr-luck-sep">/</span>' +
+                           '<span class="pr-luck-season" style="color:' + luckColor(r.luckSeason) + '">' + esc(szVal) + '</span>';
+
+            var isTop = rank === 1;
+            return '<tr class="pr-row' + (isTop ? ' pr-row-top' : '') + '" data-luck-season="' + r.luckSeason.toFixed(3) + '" data-rank="' + rank + '">' +
+              '<td class="pr-rank">' + rank + arrowHtml(rank, prevRank) + '</td>' +
+              '<td class="pr-team">' + logoHtml + '<span class="pr-team-name">' + esc(rInfo.teamName || '') + '</span></td>' +
+              '<td class="pr-record">' + esc(record) + '</td>' +
+              '<td class="pr-scores pr-desktop-only">' + scoresHtml + '</td>' +
+              '<td class="pr-luck">' + luckHtml + '</td>' +
+            '</tr>';
+          }).join('');
+
+          sectionEl = document.createElement('div');
+          sectionEl.innerHTML =
+            '<div class="league-section-heading pr-heading">' +
+              '<span>Power Rankings / Luck Index</span>' +
+              '<button class="pr-toggle" aria-expanded="false" aria-label="Toggle Power Rankings"><span class="pr-toggle-icon">▶</span></button>' +
+            '</div>' +
+            '<div class="pr-body" hidden>' +
+            '<div class="pr-table-wrap"><table class="pr-table" id="pr-table">' +
+              '<thead><tr>' +
+                '<th class="pr-rank pr-sortable pr-sort-active" data-sort="rank" title="Sort by Power Rank">Rank <span class="pr-sort-icon">▼</span></th>' +
+                '<th class="pr-team">Team</th>' +
+                '<th class="pr-record">Record</th>' +
+                '<th class="pr-scores pr-desktop-only">Last 3</th>' +
+                '<th class="pr-luck pr-sortable" data-sort="luck" title="Sort by Season Luck"">Luck <span class="pr-sort-icon">▼</span></th>' +
+              '</tr></thead>' +
+              '<tbody id="pr-tbody">' + rowsHtml + '</tbody>' +
+            '</table>' +
+            '<div class="pr-luck-legend">Luck: <span style="color:#4caf7d">week</span> / <span style="color:#4caf7d;opacity:0.6">season</span></div>' +
+            '</div>' + // close pr-table-wrap
+            '</div>'; // close pr-body
+
+          // Sort logic
+          sectionEl._prRows = pwRanked;
+          sectionEl._prScoreHistory = scoreHistory;
+          sectionEl._prSort = 'rank';
+          sectionEl._prSortDir = 1;
+
+          setTimeout(function () {
+            // Collapsible toggle
+            var prHeading = sectionEl.querySelector('.pr-heading');
+            var prBody    = sectionEl.querySelector('.pr-body');
+            var prToggle  = sectionEl.querySelector('.pr-toggle');
+            if (prToggle && prBody) {
+              prToggle.addEventListener('click', function () {
+                var expanded = prToggle.getAttribute('aria-expanded') === 'true';
+                prToggle.setAttribute('aria-expanded', String(!expanded));
+                var icon = prToggle.querySelector('.pr-toggle-icon');
+                if (icon) icon.textContent = expanded ? '▶' : '▼';
+                if (expanded) { prBody.hidden = true; }
+                else          { prBody.hidden = false; }
+              });
+              if (prHeading) {
+                prHeading.style.cursor = 'pointer';
+                prHeading.addEventListener('click', function (e) {
+                  if (e.target.closest('.pr-toggle')) return;
+                  prToggle.click();
+                });
+              }
+            }
+
+            var table = document.getElementById('pr-table');
+            if (!table) return;
+            var headers = table.querySelectorAll('.pr-sortable');
+            headers.forEach(function (th) {
+              th.addEventListener('click', function () {
+                var sortKey = th.getAttribute('data-sort');
+                var tbody = document.getElementById('pr-tbody');
+                if (!tbody) return;
+                var rows = Array.from(tbody.querySelectorAll('tr'));
+                var activeSort = table.getAttribute('data-sort') || 'rank';
+                var activeDir  = parseInt(table.getAttribute('data-dir')  || '1');
+                var newDir = (activeSort === sortKey) ? -activeDir : (sortKey === 'luck' ? -1 : 1);
+                table.setAttribute('data-sort', sortKey);
+                table.setAttribute('data-dir',  String(newDir));
+
+                // Update header indicators
+                headers.forEach(function (h) {
+                  h.classList.remove('pr-sort-active');
+                  var icon = h.querySelector('.pr-sort-icon');
+                  if (icon) icon.textContent = '▼';
+                });
+                th.classList.add('pr-sort-active');
+                var thIcon = th.querySelector('.pr-sort-icon');
+                if (thIcon) thIcon.textContent = newDir === 1 ? '▼' : '▲';
+
+                // Sort rows
+                rows.sort(function (a, b) {
+                  var aVal, bVal;
+                  if (sortKey === 'rank') {
+                    aVal = parseInt(a.getAttribute('data-rank') || '99');
+                    bVal = parseInt(b.getAttribute('data-rank') || '99');
+                  } else {
+                    // luck — read season luck from data attribute
+                    aVal = parseFloat(a.getAttribute('data-luck-season') || '0');
+                    bVal = parseFloat(b.getAttribute('data-luck-season') || '0');
+                  }
+                  return (aVal - bVal) * newDir;
+                });
+                rows.forEach(function (r) { tbody.appendChild(r); });
+              });
+            });
+          }, 0);
         }
 
         // ── Season Awards ─────────────────────────────────

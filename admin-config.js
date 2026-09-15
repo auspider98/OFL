@@ -3432,6 +3432,10 @@ var SITE_CONFIG_DEFAULTS = {
             "enabled": true
           },
           {
+            "key": "power",
+            "enabled": true
+          },
+          {
             "key": "bracket",
             "enabled": true
           },
@@ -7810,6 +7814,10 @@ var SITE_CONFIG_DEFAULTS = {
           },
           {
             "key": "standings",
+            "enabled": true
+          },
+          {
+            "key": "power",
             "enabled": true
           },
           {
