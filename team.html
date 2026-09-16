@@ -642,6 +642,7 @@
 
     /* ── Determine playoff result from bracket data ─────── */
     function getPlayoffResult(memberId, season, league) {
+      if (!season.isFinal) return null;
       var p = season.playoffs;
       if (!p) return 'missed';
 
@@ -815,6 +816,7 @@
     ══════════════════════════════════════════════════════════ */
 
     function renderPlayoffBadge(result) {
+      if (!result) return '';
       var labels = {
         champion: '&#x2605; Champion',
         finals:   'Finals',
