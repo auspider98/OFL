@@ -107,6 +107,19 @@
       border-color: var(--team-primary, var(--hint-color, var(--drawer-border)));
     }
 
+    .team-power-tier {
+      font-family: var(--font-body);
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      border: 1px solid;
+      border-radius: 3px;
+      padding: 0.2rem 1.2rem;
+      margin-top: 0.4rem;
+      display: inline-block;
+      opacity: 0.9;
+    }
+
     /* ══════════════════════════════════════════════════════════
        BODY
     ══════════════════════════════════════════════════════════ */
@@ -635,7 +648,38 @@
           pointsAgainst:row.pointsAgainst || '',
           rank:         rank,
           playoff:      playoffResult,
-          isChamp:      season.championMemberId === memberId
+          isChamp:      season.championMemberId === memberId,
+          luck:         (function () {
+            if (!season.isFinal) return null;
+            var allWeeks = (season.weeks || []).filter(function (w) { return w.isComplete; });
+            if (!allWeeks.length) return null;
+            var memberIds = (season.standings || []).map(function (r) { return r.memberId; }).filter(Boolean);
+            var luckTotal = 0;
+            allWeeks.forEach(function (wk) {
+              var weekScores = {}, actualWins = {};
+              memberIds.forEach(function (mid) { weekScores[mid] = 0; actualWins[mid] = 0; });
+              (wk.games || []).forEach(function (g) {
+                var hid = g.home && g.home.memberId;
+                var aid = g.away && g.away.memberId;
+                var hs  = parseFloat(g.home && g.home.score) || 0;
+                var as_ = parseFloat(g.away && g.away.score) || 0;
+                if (hid) weekScores[hid] = hs;
+                if (aid) weekScores[aid] = as_;
+                if (hid && aid) {
+                  if (hs > as_) actualWins[hid] = 1;
+                  else if (as_ > hs) actualWins[aid] = 1;
+                }
+              });
+              var allSc = Object.values(weekScores).filter(function (s) { return s > 0; });
+              var n = allSc.length;
+              var my = weekScores[memberId] || 0;
+              if (!my) return;
+              var exp = allSc.filter(function (s) { return my > s; }).length;
+              var expPct = n > 1 ? exp / (n - 1) : 0;
+              luckTotal += (actualWins[memberId] || 0) - expPct;
+            });
+            return luckTotal;
+          })()
         };
       }).filter(Boolean);
     }
@@ -827,6 +871,129 @@
       return '<span class="result-badge ' + result + '">' + (labels[result] || result) + '</span>';
     }
 
+    // ── Compute cross-season power ranking tier ───────────────
+    function computePowerTier(memberId, ofcLeague) {
+      if (!ofcLeague) return null;
+      var finalSeasons = (ofcLeague.seasons || []).filter(function (s) { return s.isFinal; });
+      if (!finalSeasons.length) return null;
+
+      // Get last 3 final seasons
+      var recent = finalSeasons.slice(0, 3);
+
+      // Score each season: compute season power score for this member
+      function seasonScore(season) {
+        var weeks = (season.weeks || []).filter(function (w) { return w.isComplete; });
+        var allScores = [];
+        weeks.forEach(function (wk) {
+          (wk.games || []).forEach(function (g) {
+            var hid = g.home && g.home.memberId;
+            var aid = g.away && g.away.memberId;
+            if (hid === memberId) allScores.push(parseFloat(g.home.score) || 0);
+            if (aid === memberId) allScores.push(parseFloat(g.away.score) || 0);
+          });
+        });
+        var REAL_PO = { 'Semifinal': true, 'Championship': true };
+        var p = season.playoffs || {};
+        ['wildcard','semis','finals'].forEach(function (round) {
+          (p[round] || []).forEach(function (g) {
+            if (g.gameType && !REAL_PO[g.gameType]) return;
+            if (g.homeMemberId === memberId) allScores.push(parseFloat(g.homeScore) || 0);
+            else if (g.awayMemberId === memberId) allScores.push(parseFloat(g.awayScore) || 0);
+          });
+        });
+        if (!allScores.length) return 0;
+        var avg = allScores.reduce(function (s, v) { return s + v; }, 0) / allScores.length;
+        var last3 = allScores.slice(-3).reverse();
+        var weights = [0.5, 0.3, 0.2];
+        var w3 = 0, wSum = 0;
+        last3.forEach(function (s, i) { var w = weights[i] || 0.1; w3 += s * w; wSum += w; });
+        return (avg * 0.6) + ((wSum > 0 ? w3 / wSum : avg) * 0.4);
+      }
+
+      // Weight seasons: most recent 50%, next 30%, oldest 20%
+      var seasonWeights = [0.5, 0.3, 0.2];
+      var totalScore = 0, wSum = 0;
+      recent.forEach(function (s, i) {
+        var w = seasonWeights[i] || 0.1;
+        totalScore += seasonScore(s) * w;
+        wSum += w;
+      });
+      var myScore = wSum > 0 ? totalScore / wSum : 0;
+      if (!myScore) return null;
+
+      // Rank against all members using same formula
+      var allMembers = [];
+      (ofcLeague.seasons || []).slice(0, 1).forEach(function (s) {
+        (s.standings || []).forEach(function (r) { if (r.memberId) allMembers.push(r.memberId); });
+      });
+      // Fall back to all unique memberIds across recent seasons
+      if (!allMembers.length) {
+        var seen = {};
+        recent.forEach(function (s) {
+          (s.standings || []).forEach(function (r) {
+            if (r.memberId && !seen[r.memberId]) { seen[r.memberId] = true; allMembers.push(r.memberId); }
+          });
+        });
+      }
+
+      var allScored = allMembers.map(function (mid) {
+        var ts = 0, ws = 0;
+        recent.forEach(function (s, i) {
+          var w = seasonWeights[i] || 0.1;
+          ts += seasonScore(s) * w; // simplified — reuse seasonScore
+          ws += w;
+        });
+        return mid; // We'll rank by actual scores below
+      });
+
+      // Proper ranking
+      var ranked = allMembers.map(function (mid) {
+        var ts = 0, ws = 0;
+        recent.forEach(function (s, i) {
+          var wks = (s.weeks || []).filter(function (w) { return w.isComplete; });
+          var scores = [];
+          wks.forEach(function (wk) {
+            (wk.games || []).forEach(function (g) {
+              var hid = g.home && g.home.memberId;
+              var aid = g.away && g.away.memberId;
+              if (hid === mid) scores.push(parseFloat(g.home.score) || 0);
+              if (aid === mid) scores.push(parseFloat(g.away.score) || 0);
+            });
+          });
+          var REAL_PO2 = { 'Semifinal': true, 'Championship': true };
+          var p2 = s.playoffs || {};
+          ['wildcard','semis','finals'].forEach(function (round) {
+            (p2[round] || []).forEach(function (g) {
+              if (g.gameType && !REAL_PO2[g.gameType]) return;
+              if (g.homeMemberId === mid) scores.push(parseFloat(g.homeScore) || 0);
+              else if (g.awayMemberId === mid) scores.push(parseFloat(g.awayScore) || 0);
+            });
+          });
+          if (!scores.length) return;
+          var avg2 = scores.reduce(function (a, v) { return a + v; }, 0) / scores.length;
+          var l3 = scores.slice(-3).reverse();
+          var w3b = 0, ws3 = 0;
+          l3.forEach(function (sc, j) { var wj = [0.5,0.3,0.2][j] || 0.1; w3b += sc * wj; ws3 += wj; });
+          var sc2 = (avg2 * 0.6) + ((ws3 > 0 ? w3b / ws3 : avg2) * 0.4);
+          var sw = seasonWeights[i] || 0.1;
+          ts += sc2 * sw; ws += sw;
+        });
+        return { memberId: mid, score: ws > 0 ? ts / ws : 0 };
+      }).sort(function (a, b) { return b.score - a.score; });
+
+      var n = ranked.length;
+      var myRank = ranked.findIndex(function (r) { return r.memberId === memberId; }) + 1;
+      if (!myRank) return null;
+
+      var pct = myRank / n;
+      if (pct <= 0.15)      return { tier: 'Dynasty',    color: '#e8c864' };
+      if (pct <= 0.35)      return { tier: 'Contender',  color: '#b0b8c8' };
+      if (pct <= 0.5)       return { tier: 'Rising',     color: '#4caf7d' };
+      if (pct <= 0.65)      return { tier: 'Steady',     color: 'var(--accent-dim)' };
+      if (pct <= 0.85)      return { tier: 'Fading',     color: '#e0944a' };
+      return                       { tier: 'Rebuilding', color: '#d94f4f' };
+    }
+
     function renderPage(member, ofcLeague, config) {
       var data = window.OFL_DATA;
       var roster = data.masterRoster || [];
@@ -885,6 +1052,11 @@
               (career.seasonsPlayed ? '<span class="team-hero-pill">' + career.seasonsPlayed + ' Season' + (career.seasonsPlayed !== 1 ? 's' : '') + '</span>' : '') +
               (career.championships ? '<span class="team-hero-pill">' + career.championships + ' Title' + (career.championships !== 1 ? 's' : '') + '</span>' : '') +
             '</div>' +
+            (function () {
+              var tier = computePowerTier(member.id, ofcLeague);
+              if (!tier) return '';
+              return '<div class="team-power-tier" style="color:' + tier.color + ';border-color:' + tier.color + '">' + tier.tier + '</div>';
+            })() +
           '</div>' +
         '</header>';
 
@@ -936,6 +1108,9 @@
           '<td class="num">' + esc(s.record) + '</td>' +
           '<td class="num">' + esc(s.pointsFor ? parseFloat(s.pointsFor).toFixed(1) : '—') + '</td>' +
           '<td class="num">' + esc(s.pointsAgainst ? parseFloat(s.pointsAgainst).toFixed(1) : '—') + '</td>' +
+          (s.luck !== null && s.luck !== undefined
+            ? '<td class="num" style="color:' + (s.luck >= 0.1 ? '#4caf7d' : s.luck > -0.1 ? 'var(--accent-dim)' : '#d94f4f') + ';font-weight:700;">' + (s.luck >= 0 ? '+' : '') + s.luck.toFixed(1) + '</td>'
+            : '<td class="num">—</td>') +
           '<td class="num">' + (s.rank ? '#' + s.rank : '—') + '</td>' +
           '<td>' + renderPlayoffBadge(s.playoff) + '</td>' +
         '</tr>';
@@ -949,6 +1124,7 @@
                 '<th class="num">Record</th>' +
                 '<th class="num">PF</th>' +
                 '<th class="num">PA</th>' +
+                '<th class="num">Luck</th>' +
                 '<th class="num">Finish</th>' +
                 '<th>Playoff</th>' +
               '</tr></thead>' +

@@ -3328,6 +3328,164 @@ select.admin-input option {
   white-space: nowrap;
 }
 
+/* ── Last Season Section ────────────────────────────────────── */
+.ls-layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1.5rem;
+  align-items: stretch;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.ls-champ-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 1rem 1rem;
+  border: 1px solid rgba(232,200,100,0.35);
+  border-radius: 4px;
+  background: rgba(232,200,100,0.04);
+  box-shadow: inset 0 0 30px rgba(232,200,100,0.05);
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+  cursor: pointer;
+}
+
+.ls-champ-card:hover {
+  background: rgba(232,200,100,0.08);
+  border-color: rgba(232,200,100,0.6);
+}
+
+.ls-champ-img {
+  width: 170px;
+  height: 170px;
+  object-fit: contain;
+}
+
+.ls-champ-initial {
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: var(--drawer-border);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 4rem;
+  font-weight: 700;
+}
+
+.ls-champ-team {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+.ls-champ-owner {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--accent-dim);
+  text-transform: uppercase;
+}
+
+.ls-standings-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.ls-st-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-body);
+}
+
+.ls-st-table thead th {
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--hint-color);
+  padding: 0.4rem 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid var(--drawer-border);
+}
+
+.ls-st-row {
+  border-bottom: 1px solid var(--drawer-border);
+}
+
+.ls-st-champ {
+  background: rgba(232,200,100,0.05);
+}
+
+.ls-st-table td {
+  padding: 0.45rem 0.5rem;
+  font-size: 0.62rem;
+  color: var(--accent-dim);
+  vertical-align: middle;
+}
+
+.ls-st-team {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--accent) !important;
+}
+
+.ls-st-logo {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.ls-st-initial {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--drawer-border);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.ls-st-pr {
+  text-align: center;
+  color: var(--accent) !important;
+  font-weight: 700;
+}
+
+.ls-legend {
+  font-family: var(--font-body);
+  font-size: 0.48rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--hint-color);
+  margin-top: 0.5rem;
+  text-align: right;
+}
+
+@media (max-width: 768px) {
+  .ls-layout {
+    grid-template-columns: 1fr;
+  }
+  .ls-champ-card {
+    padding: 1rem;
+  }
+}
+
 /* ── Power Rankings + Luck Index ────────────────────────────── */
 .pr-heading {
   display: flex;
