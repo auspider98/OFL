@@ -3334,6 +3334,44 @@ select.admin-input option {
   }
 }
 
+/* ── Season History Collapsible ─────────────────────────────── */
+.sh-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.sh-toggle {
+  background: none;
+  border: none;
+  padding: 0.2rem 0.4rem;
+  cursor: pointer;
+  color: var(--hint-color);
+  transition: color 0.2s;
+  line-height: 1;
+}
+
+.sh-toggle:hover { color: var(--accent); }
+
+.sh-toggle-icon {
+  font-size: 0.55rem;
+  display: inline-block;
+}
+
+.sh-sub-label {
+  font-family: var(--font-body);
+  font-size: 0.55rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--hint-color);
+  margin-bottom: 0.75rem;
+}
+
+.sh-past-label {
+  margin-top: 2rem;
+}
+
 /* ── Last Season Section ────────────────────────────────────── */
 .ls-layout {
   display: grid;

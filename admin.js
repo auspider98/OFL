@@ -823,7 +823,7 @@ var PAGE_SECTION_DEFS = [
   { key: 'bracket',     label: 'Playoff Bracket',    defaultOn: true  },
   { key: 'roster',      label: 'Season Roster',      defaultOn: false },
   { key: 'awards',      label: 'Season Awards',      defaultOn: true  },
-  { key: 'pastSeasons', label: 'Past Seasons',       defaultOn: true  }
+  { key: 'seasonHistory', label: 'League History — Seasonal Breakdowns', defaultOn: true  }
 ];
 
 // ══════════════════════════════════════════════════════════════
@@ -860,7 +860,7 @@ var PageLayoutEngine = {
       bracket:     true,
       roster:      false,
       awards:      pl.showAwards      !== false,
-      pastSeasons: pl.showPastSeasons !== false
+      seasonHistory: pl.showPastSeasons !== false
     };
 
     pl.sections = PAGE_SECTION_DEFS.map(function (d) {

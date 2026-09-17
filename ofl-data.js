@@ -13058,7 +13058,7 @@ var OFL_DATA = {
             "enabled": true
           },
           {
-            "key": "pastSeasons",
+            "key": "seasonHistory",
             "enabled": true
           }
         ],
@@ -21698,7 +21698,7 @@ var OFL_DATA = {
             "enabled": true
           },
           {
-            "key": "pastSeasons",
+            "key": "seasonHistory",
             "enabled": true
           }
         ],

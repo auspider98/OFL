@@ -1608,10 +1608,9 @@
         bracket:     true,
         roster:      false,
         awards:      pl.showAwards      !== false,
-        lastSeason:  true,
-        pastSeasons: pl.showPastSeasons !== false
+        seasonHistory: pl.showPastSeasons !== false
       };
-      var defaultOrder = ['champion','story','weekly','yahoo','power','standings','bracket','roster','awards','lastSeason','pastSeasons'];
+      var defaultOrder = ['champion','story','weekly','yahoo','power','standings','bracket','roster','awards','seasonHistory'];
       pl.sections = defaultOrder.map(function (key) {
         return { key: key, enabled: legacyMap.hasOwnProperty(key) ? legacyMap[key] : true };
       });
@@ -1621,7 +1620,7 @@
     function getResolvedSections(league) {
       migratePageLayout(league);
       var pl = league.pageLayout;
-      var defaultOrder = ['champion','story','weekly','yahoo','power','standings','bracket','roster','awards','lastSeason','pastSeasons'];
+      var defaultOrder = ['champion','story','weekly','yahoo','power','standings','bracket','roster','awards','seasonHistory'];
       var savedKeys = (pl.sections || []).map(function (s) { return s.key; });
       var merged = (pl.sections || []).slice();
       defaultOrder.forEach(function (key) {
@@ -1808,10 +1807,8 @@
       // Only applies to the live (non-archive) view.
       var isPreseason = !isArchive && !isFinal && !!(current && current.preseason);
 
-      var _lastFinal = (league.seasons || []).find(function (s) { return s.isFinal; });
       var pastSeasons = isArchive ? [] : (league.seasons || []).filter(function (s) {
         if (s.id === (current ? current.id : null)) return false;
-        if (_lastFinal && s.id === _lastFinal.id) return false; // skip last season — shown in lastSeason section
         return true;
       });
 
@@ -2966,8 +2963,8 @@
         }
 
         // ── Past Seasons ──────────────────────────────────
-        // ── Last Season ───────────────────────────────────────
-        else if (key === 'lastSeason') {
+        // ── Season History (Last Season + Past Seasons) ──────
+        else if (key === 'seasonHistory') {
           if (isArchive) return;
           // Find most recently completed season
           var lastSzn = (league.seasons || []).find(function (s) { return s.isFinal; });
@@ -3056,42 +3053,53 @@
             '</tr>';
           }).join('');
 
+          /* ── Last Season block (hidden — re-enable by uncommenting) ──
+          var lsBlock = lsImgHtml + lsChampTeam + lsChampName + lsSeasonUrl + lsRows;
+          ── End Last Season block ── */
+
+          // Build past seasons grid
+          var psGrid = null;
+          if (!isArchive && pastSeasons.length) {
+            psGrid = document.createElement('div');
+            psGrid.className = 'past-seasons-grid';
+            pastSeasons.forEach(function (s) {
+              psGrid.appendChild(buildPastSeasonCard(s, league, config));
+            });
+          }
+
           sectionEl = document.createElement('div');
           sectionEl.innerHTML =
-            '<div class="league-section-heading">Last Season — ' + esc(lsYear) + '</div>' +
-            '<div class="ls-layout">' +
-              '<a class="ls-champ-card" href="' + esc(lsSeasonUrl) + '" aria-label="' + esc(lsYear) + ' season details">' +
-                lsImgHtml +
-                '<div class="ls-champ-team">' + esc(lsChampTeam) + '</div>' +
-                '<div class="ls-champ-owner">' + esc(lsChampName) + '</div>' +
-              '</a>' +
-              '<div class="ls-standings-col">' +
-                '<table class="ls-st-table">' +
-                  '<thead><tr>' +
-                    '<th class="ls-st-team">Team</th>' +
-                    '<th>Record</th>' +
-                    '<th>PF</th>' +
-                    '<th>PA</th>' +
-                    '<th>Luck</th>' +
-                    '<th class="ls-st-pr">PR</th>' +
-                  '</tr></thead>' +
-                  '<tbody>' + lsRows + '</tbody>' +
-                '</table>' +
-                '<div class="ls-legend">PF — Points For &nbsp;/&nbsp; PA — Points Against &nbsp;/&nbsp; PR — Power Ranking</div>' +
-              '</div>' +
-            '</div>';
-        }
+            '<div class="league-section-heading sh-heading">' +
+              '<span>Past Seasons</span>' +
+              '<button class="sh-toggle" aria-expanded="false" aria-label="Toggle Past Seasons"><span class="sh-toggle-icon">▶</span></button>' +
+            '</div>' +
+            '<div class="sh-body" hidden></div>';
 
-        else if (key === 'pastSeasons') {
-          if (isArchive || !pastSeasons.length) return;
-          sectionEl = document.createElement('div');
-          sectionEl.innerHTML = '<div class="league-section-heading">Past Seasons</div>';
-          var grid = document.createElement('div');
-          grid.className = 'past-seasons-grid';
-          pastSeasons.forEach(function (s) {
-            grid.appendChild(buildPastSeasonCard(s, league, config));
-          });
-          sectionEl.appendChild(grid);
+          // Append past seasons grid into sh-body
+          if (psGrid) sectionEl.querySelector('.sh-body').appendChild(psGrid);
+
+          // Collapsible toggle
+          setTimeout(function () {
+            var shHeading = sectionEl.querySelector('.sh-heading');
+            var shBody    = sectionEl.querySelector('.sh-body');
+            var shToggle  = sectionEl.querySelector('.sh-toggle');
+            if (shToggle && shBody) {
+              shToggle.addEventListener('click', function () {
+                var expanded = shToggle.getAttribute('aria-expanded') === 'true';
+                shToggle.setAttribute('aria-expanded', String(!expanded));
+                var icon = shToggle.querySelector('.sh-toggle-icon');
+                if (icon) icon.textContent = expanded ? '▶' : '▼';
+                shBody.hidden = expanded;
+              });
+              if (shHeading) {
+                shHeading.style.cursor = 'pointer';
+                shHeading.addEventListener('click', function (e) {
+                  if (e.target.closest('.sh-toggle')) return;
+                  shToggle.click();
+                });
+              }
+            }
+          }, 0);
         }
 
         if (!sectionEl) return;

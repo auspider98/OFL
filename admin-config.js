@@ -3448,7 +3448,7 @@ var SITE_CONFIG_DEFAULTS = {
             "enabled": true
           },
           {
-            "key": "pastSeasons",
+            "key": "seasonHistory",
             "enabled": true
           }
         ],
