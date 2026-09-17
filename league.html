@@ -1038,7 +1038,7 @@
       // ── Luck Index for football standings ──────────────
       var luckMap = {};
       var hasLuck = false;
-      if (isFootball && season.isFinal) {
+      if (isFootball) {
         var allWeeks = (season.weeks || []).filter(function (w) { return w.isComplete; });
         if (allWeeks.length > 0) {
           hasLuck = true;
@@ -3311,28 +3311,25 @@
               '<td class="pr-team">' + logoHtml + '<span class="pr-team-name">' + esc(rInfo.teamName || '') + '</span></td>' +
               '<td class="pr-record">' + esc(record) + '</td>' +
               '<td class="pr-scores pr-desktop-only">' + scoresHtml + '</td>' +
-              '<td class="pr-luck">' + luckHtml + '</td>' +
             '</tr>';
           }).join('');
 
           sectionEl = document.createElement('div');
           sectionEl.innerHTML =
             '<div class="league-section-heading pr-heading">' +
-              '<span>Power Rankings / Luck Index</span>' +
+              '<span>Power Rankings</span>' +
               '<button class="pr-toggle" aria-expanded="false" aria-label="Toggle Power Rankings"><span class="pr-toggle-icon">▶</span></button>' +
             '</div>' +
             '<div class="pr-body" hidden>' +
             '<div class="pr-table-wrap"><table class="pr-table" id="pr-table">' +
               '<thead><tr>' +
-                '<th class="pr-rank pr-sortable pr-sort-active" data-sort="rank" title="Sort by Power Rank">Rank <span class="pr-sort-icon">▼</span></th>' +
+                '<th class="pr-rank pr-sort-active" data-sort="rank" title="Power Rank">Rank</th>' +
                 '<th class="pr-team">Team</th>' +
                 '<th class="pr-record">Record</th>' +
                 '<th class="pr-scores pr-desktop-only">Last 3</th>' +
-                '<th class="pr-luck pr-sortable" data-sort="luck" title="Sort by Season Luck"">Luck <span class="pr-sort-icon">▼</span></th>' +
               '</tr></thead>' +
               '<tbody id="pr-tbody">' + rowsHtml + '</tbody>' +
             '</table>' +
-            '<div class="pr-luck-legend">Luck: <span style="color:#4caf7d">week</span> / <span style="color:#4caf7d;opacity:0.6">season</span></div>' +
             '</div>' + // close pr-table-wrap
             '<div class="pr-chart-inner"><div id="' + prChartId + '" class="pr-chart-canvas-wrap"></div><div id="' + prChartId + '-legend" class="pr-custom-legend"></div></div>' +
             '</div>'; // close pr-body
