@@ -1031,7 +1031,7 @@
           ? '<img class="standings-team-logo" src="' + esc(logo) + '" alt="' + esc(teamName) + '" />'
           : '<span class="standings-team-initial">' + esc(initial) + '</span>';
         var teamUrl = (league.sport === 'football' && row.memberId) ? 'team.html?id=' + encodeURIComponent(row.memberId) : null;
-        var inner = '<span class="standings-team-cell">' + imgHtml + esc(teamName) + '</span>';
+        var inner = '<span class="standings-team-cell">' + imgHtml + '<span class="standings-team-name-text">' + esc(teamName) + '</span></span>';
         return teamUrl ? '<a class="standings-team-link" href="' + esc(teamUrl) + '">' + inner + '</a>' : inner;
       }
 

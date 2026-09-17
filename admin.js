@@ -148,7 +148,7 @@ var SPORT_STAT_SCHEMAS = {
       { key: "rank",       label: "#" },
       { key: "team",       label: "Team" },
       { key: "owner",      label: "Owner" },
-      { key: "record",     label: "Record" },
+      { key: "record",     label: "W-L" },
       { key: "pointsFor",  label: "PF" },
       { key: "pointsAgainst", label: "PA" }
     ],

@@ -2666,6 +2666,7 @@ select.admin-input option {
   padding: 0.5rem 0.75rem;
   border-bottom: 1px solid var(--drawer-border);
   opacity: 0.7;
+  white-space: nowrap;
 }
 
 .league-standings-table td {
@@ -3329,8 +3330,21 @@ select.admin-input option {
 }
 
 @media (max-width: 600px) {
-  .standings-luck-cell {
+  .league-standings-table {
+    font-size: 0.65rem;
+  }
+  .league-standings-table th,
+  .league-standings-table td {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+  }
+  .standings-team-name-text {
     display: none;
+  }
+  .standings-team-logo,
+  .standings-team-initial {
+    width: 40px;
+    height: 40px;
   }
 }
 
