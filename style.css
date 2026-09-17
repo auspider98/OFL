@@ -3748,6 +3748,133 @@ select.admin-input option {
   }
 }
 
+/* ── Season Trajectory Chart ────────────────────────────────── */
+.pr-chart-section {
+  max-width: 860px;
+  margin: 1.5rem auto 0;
+}
+
+.pr-chart-heading {
+  margin-bottom: 0 !important;
+  border-bottom: 1px solid var(--drawer-border);
+  padding-bottom: 0.6rem;
+  margin-top: 1rem;
+}
+
+.pr-chart-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .pr-chart-title {
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+  }
+}
+
+.pr-chart-body {
+  padding-top: 1rem;
+}
+
+.pr-chart-canvas-wrap {
+  position: relative;
+  width: 100%;
+  height: 280px;
+}
+
+.pr-chart-inner {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--drawer-border);
+}
+
+.pr-chart-no-data {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--hint-color);
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+/* Mobile logo row above chart */
+.pr-mobile-logo-row {
+  display: none;
+}
+
+.pr-mobile-logo-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pr-mobile-logo {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.pr-mobile-logo-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: block;
+}
+
+/* Custom mobile legend */
+.pr-custom-legend {
+  display: none;
+}
+
+.pr-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0;
+}
+
+.pr-legend-line {
+  display: inline-block;
+  width: 24px;
+  height: 0;
+  border-top-width: 2px;
+  flex-shrink: 0;
+}
+
+.pr-legend-label {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+  .pr-chart-canvas-wrap {
+    width: 100%;
+    /* height set dynamically by JS */
+  }
+
+  .pr-custom-legend {
+    display: grid;
+    gap: 0.1rem 0.5rem;
+    margin-top: 1rem;
+    padding: 0 0.25rem;
+  }
+
+  .pr-mobile-logo-row {
+    display: grid;
+    align-items: end;
+    margin-bottom: 0;
+    height: 34px;
+  }
+}
+
 /* ── Weekly Matchups ────────────────────────────────────────── */
 .wm-grid {
   display: flex;

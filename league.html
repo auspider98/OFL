@@ -6,6 +6,7 @@
   <title>OFL</title>
   <link rel="icon" type="image/png" href="assets/favicon.png" />
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <script src="admin-config.js"></script>
   <script src="ofl-data.js"></script>
   <script src="ofl-brc-analysis.js"></script>
@@ -1458,6 +1459,403 @@
       return html || '<p style="color:var(--accent-dim);font-size:0.75rem;letter-spacing:0.15em;">No awards data yet.</p>';
     }
 
+    // ── Build Power Trajectory Chart ─────────────────────────
+    var _chartRegistry = {}; // canvasId → Chart instance
+
+    // Resolve team primary color from masterRoster
+    function resolveTeamColor(memberId, leagueName) {
+      var masterR = (window.OFL_DATA && window.OFL_DATA.masterRoster) || [];
+      var mbr = masterR.find(function (m) { return m.id === memberId; });
+      if (!mbr) return '#888888';
+      var lgEntry = (mbr.leagues || []).find(function (l) {
+        return l.leagueKey === leagueName || l.leagueKey === (leagueName || '').toUpperCase();
+      });
+      if (!lgEntry) return '#888888';
+      // Find the team entry that has a primaryColor
+      var teamWithColor = (lgEntry.teams || []).slice().reverse().find(function (t) { return t.primaryColor; });
+      return (teamWithColor && teamWithColor.primaryColor) || '#888888';
+    }
+
+    function buildTrajectoryChart(containerId, weeks, memberIds, teamNames, teamColors, teamLogos) {
+      // Only count regular season completed weeks
+      var rsWeeks = weeks.filter(function (w) { return w.isComplete; });
+      if (rsWeeks.length < 1) return; // need at least 1 week
+
+      // Build score history per member
+      var scoreHistory = {};
+      memberIds.forEach(function (mid) { scoreHistory[mid] = []; });
+      rsWeeks.forEach(function (wk) {
+        (wk.games || []).forEach(function (g) {
+          var hid = g.home && g.home.memberId;
+          var aid = g.away && g.away.memberId;
+          var hs  = parseFloat(g.home && g.home.score) || 0;
+          var as_ = parseFloat(g.away && g.away.score) || 0;
+          if (hid && scoreHistory[hid] !== undefined) scoreHistory[hid].push(hs);
+          if (aid && scoreHistory[aid] !== undefined) scoreHistory[aid].push(as_);
+        });
+      });
+
+      // Compute power rank after each week
+      function pwScore(scores) {
+        if (!scores.length) return 0;
+        var avg = scores.reduce(function (s, v) { return s + v; }, 0) / scores.length;
+        var w = [0.5, 0.3, 0.2];
+        var rec = scores.slice(-3).reverse();
+        var w3 = 0, ws = 0;
+        rec.forEach(function (s, i) { var wi = w[i] || 0.1; w3 += s * wi; ws += wi; });
+        return (avg * 0.6) + ((ws > 0 ? w3 / ws : avg) * 0.4);
+      }
+
+      var ranksByWeek = []; // ranksByWeek[weekIdx][memberId] = rank
+      for (var wi = 1; wi <= rsWeeks.length; wi++) {
+        var sc = {};
+        memberIds.forEach(function (mid) {
+          sc[mid] = pwScore(scoreHistory[mid].slice(0, wi));
+        });
+        var sorted = memberIds.slice().sort(function (a, b) { return sc[b] - sc[a]; });
+        var rankMap = {};
+        sorted.forEach(function (mid, i) { rankMap[mid] = i + 1; });
+        ranksByWeek.push(rankMap);
+      }
+
+      var labels = rsWeeks.map(function (w, i) { return 'Wk ' + (w.weekNumber || (i + 1)); });
+      var isMobile = window.innerWidth <= 768;
+      var dashPatterns = [[], [8,4], [2,4]];
+
+      var datasets = memberIds.map(function (mid, idx) {
+        var color = teamColors[mid] || '#888888';
+        var ranks = ranksByWeek.map(function (rm) { return rm[mid] || memberIds.length; });
+        var dash = dashPatterns[idx % dashPatterns.length];
+        return {
+          label: teamNames[mid] || mid,
+          _mid: mid,
+          data: isMobile
+            ? ranks.map(function (r, i) { return { x: r, y: i + 1 }; })
+            : ranks,
+          borderColor: color,
+          backgroundColor: color + '22',
+          borderWidth: 2.5,
+          borderDash: dash,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          tension: 0.3,
+          fill: false
+        };
+      });
+
+      var container = document.getElementById(containerId);
+      if (!container) return;
+
+      // Destroy existing chart if any
+      if (_chartRegistry[containerId]) {
+        _chartRegistry[containerId].destroy();
+        delete _chartRegistry[containerId];
+      }
+
+      // Dynamic height: mobile grows with weeks, desktop fixed
+      var mobileRowHeight = 50;
+      var mobileLogoRowHeight = 34;
+      var chartHeight = isMobile
+        ? Math.max(260, rsWeeks.length * mobileRowHeight)
+        : 280;
+
+      var canvas = document.createElement('canvas');
+      canvas.style.width = '100%';
+      canvas.style.height = chartHeight + 'px';
+      canvas.style.maxHeight = chartHeight + 'px';
+      container.style.height = isMobile
+        ? (chartHeight + mobileLogoRowHeight) + 'px'
+        : chartHeight + 'px';
+      container.innerHTML = '';
+      container.appendChild(canvas);
+
+      var n = memberIds.length;
+      var chartConfig;
+
+      if (isMobile) {
+        // Mobile vertical: Y = week (top=1), X = rank (left=1)
+        // Sort each dataset's points by week (y value)
+        datasets.forEach(function (ds) {
+          ds.data.sort(function (a, b) { return a.y - b.y; });
+        });
+        chartConfig = {
+          type: 'line',
+          data: { datasets: datasets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                type: 'linear',
+                min: 0.5, max: n + 0.5,
+                title: { display: true, text: 'Rank', color: 'rgba(232,232,232,0.5)', font: { size: 10 } },
+                ticks: {
+                  color: 'rgba(232,232,232,0.5)', font: { size: 10 },
+                  callback: function (v) { return '#' + Math.round(v); }
+                },
+                afterBuildTicks: function (axis) {
+                  axis.ticks = [];
+                  for (var i = 1; i <= n; i++) axis.ticks.push({ value: i });
+                },
+                grid: { color: 'rgba(255,255,255,0.08)' }
+              },
+              y: {
+                type: 'linear',
+                min: 0.5, max: rsWeeks.length + 0.5,
+                title: { display: true, text: 'Week', color: 'rgba(232,232,232,0.5)', font: { size: 10 } },
+                ticks: {
+                  color: 'rgba(232,232,232,0.5)', font: { size: 10 },
+                  callback: function (v) { return 'W' + Math.round(v); }
+                },
+                afterBuildTicks: function (axis) {
+                  axis.ticks = [];
+                  for (var i = 1; i <= rsWeeks.length; i++) axis.ticks.push({ value: i });
+                },
+                grid: { color: 'rgba(255,255,255,0.08)' }
+              }
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: function (ctx) {
+                    return ctx.dataset.label + ': Rank #' + ctx.parsed.x + ' (Wk ' + ctx.parsed.y + ')';
+                  }
+                }
+              }
+            }
+          }
+        };
+      } else {
+        // Desktop: x = week, y = rank (1=top, inverted)
+        chartConfig = {
+          type: 'line',
+          data: { labels: labels, datasets: datasets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: { right: 36 } },
+            scales: {
+              y: {
+                min: 0.5, max: n + 0.5,
+                reverse: true,
+                title: { display: true, text: 'Rank', color: 'rgba(232,232,232,0.4)', font: { size: 9 } },
+                ticks: {
+                  color: 'rgba(232,232,232,0.4)', font: { size: 9 },
+                  callback: function (v) { return '#' + Math.round(v); }
+                },
+                afterBuildTicks: function (axis) {
+                  axis.ticks = [];
+                  for (var i = 1; i <= n; i++) axis.ticks.push({ value: i });
+                },
+                grid: { color: 'rgba(255,255,255,0.08)' }
+              },
+              x: {
+                ticks: { color: 'rgba(232,232,232,0.4)', font: { size: 9 } },
+                grid: { color: 'rgba(255,255,255,0.08)' }
+              }
+            },
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: { color: 'rgba(232,232,232,0.6)', font: { size: 9 }, boxWidth: 12, padding: 8 }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function (ctx) {
+                    return ctx.dataset.label + ': #' + ctx.parsed.y;
+                  }
+                }
+              }
+            }
+          }
+        };
+      }
+
+      // Preload logo images for end-of-line thumbnails (desktop only)
+      var logoImgs = {};
+      var logoLoadPromises = [];
+      if (!isMobile && teamLogos) {
+        memberIds.forEach(function (mid) {
+          var src = teamLogos[mid];
+          if (!src) return;
+          var img = new Image();
+          logoImgs[mid] = img;
+          var p = new Promise(function (resolve) {
+            if (img.complete) {
+              // Already cached — resolve immediately
+              resolve();
+            } else {
+              img.onload  = resolve;
+              img.onerror = resolve;
+            }
+          });
+          logoLoadPromises.push(p);
+          img.src = src; // set src AFTER binding handlers
+        });
+      }
+
+      var LOGO_SIZE = 20;
+
+      // Use a separate overlay canvas for logos so Chart.js can't clear them
+      var logoCanvas = document.createElement('canvas');
+      logoCanvas.style.position = 'absolute';
+      logoCanvas.style.top = '0';
+      logoCanvas.style.left = '0';
+      logoCanvas.style.pointerEvents = 'none';
+      canvas.parentNode.style.position = 'relative';
+
+      if (!isMobile) chartConfig.plugins = [];
+      _chartRegistry[containerId] = new Chart(canvas, chartConfig);
+
+      function drawLogosOverlay() {
+        if (isMobile) return;
+        var chart = _chartRegistry[containerId];
+        if (!chart) return;
+
+        // Match overlay exactly to chart canvas CSS size (not pixel size)
+        var cw = canvas.offsetWidth;
+        var ch2 = canvas.offsetHeight;
+        logoCanvas.style.width  = cw + 'px';
+        logoCanvas.style.height = ch2 + 'px';
+        // Use device pixel ratio for crisp rendering
+        var dpr = window.devicePixelRatio || 1;
+        logoCanvas.width  = cw * dpr;
+        logoCanvas.height = ch2 * dpr;
+        if (!logoCanvas.parentNode) canvas.parentNode.appendChild(logoCanvas);
+
+        var ctx2 = logoCanvas.getContext('2d');
+        ctx2.clearRect(0, 0, logoCanvas.width, logoCanvas.height);
+        ctx2.scale(dpr, dpr);
+
+        // Use chart scales to get correct CSS pixel positions for last data point
+        var yScale = chart.scales.y;
+        var xScale = chart.scales.x;
+        var lastLabel = chart.data.labels[chart.data.labels.length - 1];
+        var lastXPx = xScale.getPixelForValue(chart.data.labels.length - 1);
+
+        var endPoints = [];
+        chart.data.datasets.forEach(function (ds, i) {
+          var meta = chart.getDatasetMeta(i);
+          if (!meta.visible || !meta.data || !meta.data.length) return;
+          var lastPt = meta.data[meta.data.length - 1];
+          // Use the element's direct x/y which are already in canvas CSS pixels
+          var px = lastPt.x !== undefined ? lastPt.x : lastXPx;
+          var py = lastPt.y !== undefined ? lastPt.y : 0;
+          endPoints.push({
+            x: px,
+            y: py,
+            mid: ds._mid,
+            color: ds.borderColor
+          });
+        });
+
+        endPoints.sort(function (a, b) { return a.y - b.y; });
+        for (var i = 1; i < endPoints.length; i++) {
+          if (Math.abs(endPoints[i].y - endPoints[i-1].y) < LOGO_SIZE + 2) {
+            endPoints[i].y = endPoints[i-1].y + LOGO_SIZE + 2;
+          }
+        }
+
+        endPoints.forEach(function (ep) {
+          var img = logoImgs[ep.mid];
+          var x = ep.x + 6;
+          var y = ep.y - LOGO_SIZE / 2;
+          if (img && img.src) {
+            try { ctx2.drawImage(img, x, y, LOGO_SIZE, LOGO_SIZE); }
+            catch(e) {
+              ctx2.save();
+              ctx2.fillStyle = ep.color;
+              ctx2.fillRect(x, y, LOGO_SIZE, LOGO_SIZE);
+              ctx2.restore();
+            }
+          } else {
+            ctx2.save();
+            ctx2.fillStyle = ep.color;
+            ctx2.fillRect(x, y, LOGO_SIZE, LOGO_SIZE);
+            ctx2.restore();
+          }
+        });
+        // Reset scale for next call
+        ctx2.setTransform(1, 0, 0, 1, 0, 0);
+      }
+
+      // Draw logos once chart animation completes, then again when images load
+      if (!isMobile) {
+        setTimeout(drawLogosOverlay, 600);
+        if (logoLoadPromises.length) {
+          Promise.all(logoLoadPromises).then(function () {
+            setTimeout(drawLogosOverlay, 50);
+          });
+        }
+      }
+
+      // Mobile: render logo row above chart, aligned to final week rank positions
+      if (isMobile && teamLogos) {
+        var finalRanks = ranksByWeek[ranksByWeek.length - 1] || {};
+        // Sort members by their final rank
+        var rankOrdered = memberIds.slice().sort(function (a, b) {
+          return (finalRanks[a] || 99) - (finalRanks[b] || 99);
+        });
+
+        var logoRow = document.createElement('div');
+        logoRow.className = 'pr-mobile-logo-row';
+        logoRow.style.gridTemplateColumns = 'repeat(' + n + ', 1fr)';
+
+        rankOrdered.forEach(function (mid) {
+          var src = teamLogos[mid];
+          var cell = document.createElement('div');
+          cell.className = 'pr-mobile-logo-cell';
+          if (src) {
+            var im = document.createElement('img');
+            im.src = src;
+            im.alt = teamNames[mid] || '';
+            im.className = 'pr-mobile-logo';
+            cell.appendChild(im);
+          } else {
+            var dot = document.createElement('span');
+            dot.className = 'pr-mobile-logo-dot';
+            dot.style.background = teamColors[mid] || '#888';
+            cell.appendChild(dot);
+          }
+          logoRow.appendChild(cell);
+        });
+
+        // Insert above the canvas
+        container.insertBefore(logoRow, canvas);
+
+        // Align logo row to chart plot area once chart is laid out
+        setTimeout(function () {
+          var ch3 = _chartRegistry[containerId];
+          if (!ch3 || !ch3.chartArea) return;
+          var ca = ch3.chartArea;
+          logoRow.style.marginLeft  = ca.left + 'px';
+          logoRow.style.marginRight = (canvas.offsetWidth - ca.right) + 'px';
+        }, 400);
+      }
+
+      // Build custom mobile legend
+      if (isMobile) {
+        var legendEl = document.getElementById(containerId + '-legend');
+        if (legendEl) {
+          var cols = memberIds.length <= 6 ? 3 : 4;
+          var dashCssMap = [
+            'none', '6px 3px', '2px 3px', '8px 3px 2px 3px', '4px 2px', '10px 3px'
+          ];
+          var legendItems = datasets.map(function (ds, idx) {
+            var patternIdx = idx % 3;
+            var lineStyle = patternIdx === 0 ? 'solid' : patternIdx === 1 ? 'dashed' : 'dotted';
+            return '<div class="pr-legend-item">' +
+              '<span class="pr-legend-line" style="border-color:' + ds.borderColor + ';border-top-style:' + lineStyle + ';"></span>' +
+              '<span class="pr-legend-label" style="color:' + ds.borderColor + '">' + ds.label + '</span>' +
+            '</div>';
+          });
+          legendEl.style.gridTemplateColumns = 'repeat(' + cols + ', 1fr)';
+          legendEl.innerHTML = legendItems.join('');
+        }
+      }
+    }
+
     // ── Compute final season power score (60% season avg, 40% last 3 games weighted) ──
     function computeSeasonPowerScore(memberId, season) {
       var weeks = (season.weeks || []).filter(function (w) { return w.isComplete; });
@@ -2586,10 +2984,70 @@
             var standingsWrap = (league.sport === 'madness')
               ? standingsHtml
               : '<div class="league-standings-wrap">' + standingsHtml + '</div>';
+            sectionEl = document.createElement('div');
             sectionEl.innerHTML =
               '<div class="league-section-heading">' + (isFinal ? 'Final Standings' : 'Standings') +
                 (current.year ? ' \u2014 ' + esc(current.year) : '') +
               '</div>' + standingsWrap;
+
+            // Add trajectory chart for final football seasons
+            if (isFinal && league.sport === 'football') {
+              var stMemberIds = (current.standings || []).map(function (r) { return r.memberId; }).filter(Boolean);
+              var stRosterMap = {};
+              (current.roster || []).forEach(function (r) {
+                if (r.memberId) stRosterMap[r.memberId] = { teamName: r.teamName || r.name || '', logo: r.logo || '' };
+              });
+              var stTeamNames = {};
+              var stTeamColors = {};
+              var stTeamLogos = {};
+              stMemberIds.forEach(function (mid) {
+                stTeamNames[mid] = (stRosterMap[mid] || {}).teamName || mid;
+                stTeamColors[mid] = resolveTeamColor(mid, league.name || league.id);
+                stTeamLogos[mid] = resolveRosterLogo({ memberId: mid, teamName: (stRosterMap[mid] || {}).teamName || '' }, league);
+              });
+
+              var stChartId = 'st-trajectory-' + (current.id || current.year || 'szn');
+              var stChartWrap = document.createElement('div');
+              stChartWrap.className = 'pr-chart-section';
+              stChartWrap.innerHTML =
+                '<div class="league-section-heading pr-heading pr-chart-heading">' +
+                  '<span class="pr-chart-title">Season Ending Power Rankings</span>' +
+                  '<button class="pr-toggle" aria-expanded="true" aria-label="Toggle Power Rankings"><span class="pr-toggle-icon">▼</span></button>' +
+                '</div>' +
+                '<div class="pr-chart-body"><div id="' + stChartId + '" class="pr-chart-canvas-wrap"></div><div id="' + stChartId + '-legend" class="pr-custom-legend"></div></div>';
+              sectionEl.appendChild(stChartWrap);
+
+              var _stWeeks = current.weeks || [];
+              var _stMembers = stMemberIds;
+              var _stColors = stTeamColors;
+              var _stLogos  = stTeamLogos;
+              var _stNames = stTeamNames;
+              var _stChartId = stChartId;
+
+              setTimeout(function () {
+                var stChartHeading = stChartWrap.querySelector('.pr-chart-heading');
+                var stChartBody    = stChartWrap.querySelector('.pr-chart-body');
+                var stChartToggle  = stChartHeading ? stChartHeading.querySelector('.pr-toggle') : null;
+                if (stChartToggle && stChartBody) {
+                  stChartToggle.addEventListener('click', function () {
+                    var expanded = stChartToggle.getAttribute('aria-expanded') === 'true';
+                    stChartToggle.setAttribute('aria-expanded', String(!expanded));
+                    var icon = stChartToggle.querySelector('.pr-toggle-icon');
+                    if (icon) icon.textContent = expanded ? '▶' : '▼';
+                    stChartBody.hidden = expanded;
+                    if (!expanded) buildTrajectoryChart(_stChartId, _stWeeks, _stMembers, _stNames, _stColors, _stLogos);
+                  });
+                  // Default expanded — render chart immediately
+                  buildTrajectoryChart(_stChartId, _stWeeks, _stMembers, _stNames, _stColors, _stLogos);
+                  if (stChartHeading) {
+                    stChartHeading.addEventListener('click', function (e) {
+                      if (e.target.closest('.pr-toggle')) return;
+                      stChartToggle.click();
+                    });
+                  }
+                }
+              }, 0);
+            }
           }
         }
 
@@ -2876,7 +3334,22 @@
             '</table>' +
             '<div class="pr-luck-legend">Luck: <span style="color:#4caf7d">week</span> / <span style="color:#4caf7d;opacity:0.6">season</span></div>' +
             '</div>' + // close pr-table-wrap
+            '<div class="pr-chart-inner"><div id="' + prChartId + '" class="pr-chart-canvas-wrap"></div><div id="' + prChartId + '-legend" class="pr-custom-legend"></div></div>' +
             '</div>'; // close pr-body
+
+          // Build team colors and names maps for chart
+          var prTeamColors = {};
+          var prTeamNames = {};
+          var prTeamLogos = {};
+          pwMembers.forEach(function (mid) {
+            var rInfo = pwRosterMap[mid] || {};
+            prTeamNames[mid] = rInfo.teamName || mid;
+            prTeamColors[mid] = resolveTeamColor(mid, league.name || league.id);
+            prTeamLogos[mid] = resolveRosterLogo({ memberId: mid, teamName: rInfo.teamName || '' }, league);
+          });
+
+          // Add trajectory chart inside power rankings body
+          var prChartId = 'pr-trajectory-' + (league.id || 'ofc');
 
           // Sort logic
           sectionEl._prRows = pwRanked;
@@ -2896,7 +3369,19 @@
                 var icon = prToggle.querySelector('.pr-toggle-icon');
                 if (icon) icon.textContent = expanded ? '▶' : '▼';
                 if (expanded) { prBody.hidden = true; }
-                else          { prBody.hidden = false; }
+                else {
+                  prBody.hidden = false;
+                  // Render trajectory chart when opening
+                  var completedWks = pwWeeks.filter(function(w){return w.isComplete;});
+                  var prChartInner = sectionEl.querySelector('.pr-chart-inner');
+                  if (completedWks.length >= 2) {
+                    if (prChartInner) prChartInner.style.display = '';
+                    buildTrajectoryChart(prChartId, pwWeeks, pwMembers, prTeamNames, prTeamColors, prTeamLogos);
+                  } else {
+                    if (prChartInner) prChartInner.style.display = 'none';
+                  }
+                  // Default chart expanded — render immediately on section open
+                }
               });
               if (prHeading) {
                 prHeading.style.cursor = 'pointer';
