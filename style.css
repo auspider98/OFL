@@ -3328,6 +3328,12 @@ select.admin-input option {
   white-space: nowrap;
 }
 
+@media (max-width: 600px) {
+  .standings-luck-cell {
+    display: none;
+  }
+}
+
 /* ── Last Season Section ────────────────────────────────────── */
 .ls-layout {
   display: grid;
