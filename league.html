@@ -3191,14 +3191,16 @@
 
           // Power score: weighted sum of last 3 scores (most recent = highest weight)
           function powerScore(scores) {
+            if (!scores.length) return 0;
+            var avg = scores.reduce(function (s, v) { return s + v; }, 0) / scores.length;
             var weights = [0.5, 0.3, 0.2];
             var recent = scores.slice(-3).reverse();
-            var total = 0, wSum = 0;
+            var w3 = 0, wSum = 0;
             recent.forEach(function (s, i) {
               var w = weights[i] || 0.1;
-              total += s * w; wSum += w;
+              w3 += s * w; wSum += w;
             });
-            return wSum > 0 ? total / wSum : 0;
+            return (avg * 0.6) + ((wSum > 0 ? w3 / wSum : avg) * 0.4);
           }
 
           // Luck index: for each completed week, count how many opponents a team would have beaten
