@@ -3162,6 +3162,10 @@
           var completedWeeks = pwWeeks.filter(function (w) { return w.isComplete; });
           if (!completedWeeks.length) return;
 
+          // Chart container id — must be defined before sectionEl.innerHTML is built below,
+          // since that HTML string embeds this id directly.
+          var prChartId = 'pr-trajectory-' + (league.id || 'ofc');
+
           // Build roster map: memberId → { teamName, logo }
           var pwRosterMap = {};
           (current.roster || []).forEach(function (r) {
@@ -3344,9 +3348,6 @@
             prTeamColors[mid] = resolveTeamColor(mid, league.name || league.id);
             prTeamLogos[mid] = resolveRosterLogo({ memberId: mid, teamName: rInfo.teamName || '' }, league);
           });
-
-          // Add trajectory chart inside power rankings body
-          var prChartId = 'pr-trajectory-' + (league.id || 'ofc');
 
           // Sort logic
           sectionEl._prRows = pwRanked;
