@@ -144,7 +144,8 @@ var SPORT_STAT_SCHEMAS = {
       { key: "lastPlace",             defaultLabel: "The Toilet Bowl Crown", hint: "Last Place Finisher" },
       { key: "closestWin",            defaultLabel: "The Nail Biter",        hint: "Closest Win of the Season" },
       { key: "lucklace",              defaultLabel: "The Lucklace",          hint: "Luckiest Team" },
-      { key: "jinxed",                defaultLabel: "Jinxed Award",          hint: "Unluckiest Team" }
+      { key: "jinxed",                defaultLabel: "Jinxed Award",          hint: "Unluckiest Team" },
+      { key: "avgPowerRank",          defaultLabel: "Power RanKING",         hint: "Most Consistent Power" }
     ],
     standingsColumns: [
       { key: "rank",       label: "#" },

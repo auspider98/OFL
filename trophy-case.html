@@ -365,7 +365,7 @@
       football: [
         'champion', 'regularSeasonChamp', 'highestTeamGameScore',
         'highestIndividualScore', 'seasonPointsLeader', 'mostPointsFor',
-        'mostPointsAgainst', 'closestWin', 'lucklace', 'jinxed'
+        'mostPointsAgainst', 'closestWin', 'lucklace', 'jinxed', 'avgPowerRank'
         // custom awards slot in here (isCustom)
         // lastPlace always last
       ],
@@ -490,6 +490,49 @@
       return totals;
     }
 
+    // ── Compute per-week power rank for every member (Power RanKING) ──
+    // Same weighted power-score formula as league.html's trajectory
+    // chart / standings (60% season avg + 40% last-3 games weighted 50/30/20).
+    function computeWeeklyPowerRanks(season) {
+      var weeks   = (season.weeks || []).filter(function(w) { return w.isComplete; });
+      var members = (season.standings || []).map(function(r) { return r.memberId; }).filter(Boolean);
+      var ranksByWeek = {};
+      members.forEach(function(mid) { ranksByWeek[mid] = []; });
+      if (!weeks.length || !members.length) return ranksByWeek;
+
+      weeks = weeks.slice().sort(function(a, b) { return (a.weekNumber || 0) - (b.weekNumber || 0); });
+
+      var scoreHistory = {};
+      members.forEach(function(mid) { scoreHistory[mid] = []; });
+
+      function pwScore(scores) {
+        if (!scores.length) return 0;
+        var avg = scores.reduce(function(s, v) { return s + v; }, 0) / scores.length;
+        var w = [0.5, 0.3, 0.2];
+        var rec = scores.slice(-3).reverse();
+        var w3 = 0, ws = 0;
+        rec.forEach(function(s, i) { var wi = w[i] || 0.1; w3 += s * wi; ws += wi; });
+        return (avg * 0.6) + ((ws > 0 ? w3 / ws : avg) * 0.4);
+      }
+
+      weeks.forEach(function(wk) {
+        (wk.games || []).forEach(function(g) {
+          var hid = g.home && g.home.memberId;
+          var aid = g.away && g.away.memberId;
+          var hs  = parseFloat(g.home && g.home.score) || 0;
+          var as_ = parseFloat(g.away && g.away.score) || 0;
+          if (hid && scoreHistory[hid] !== undefined) scoreHistory[hid].push(hs);
+          if (aid && scoreHistory[aid] !== undefined) scoreHistory[aid].push(as_);
+        });
+        var sc = {};
+        members.forEach(function(mid) { sc[mid] = pwScore(scoreHistory[mid]); });
+        var sorted = members.slice().sort(function(a, b) { return sc[b] - sc[a]; });
+        sorted.forEach(function(mid, i) { ranksByWeek[mid].push(i + 1); });
+      });
+
+      return ranksByWeek;
+    }
+
     // ── Extract winner for a standard award key ───────────
     function getWinnerForKey(season, awardKey) {
       var stats = season.stats || {};
@@ -518,6 +561,45 @@
         var team = row.teamName || row.team || '';
         if (!name) return null;
         return { name: name, team: team, extra: 'Luck Index: ' + ((val >= 0 ? '+' : '') + val.toFixed(1)) };
+      }
+
+      if (awardKey === 'avgPowerRank') {
+        var storedPR = stats[awardKey];
+        if (storedPR && storedPR.ownerName) {
+          return {
+            name: storedPR.ownerName,
+            team: storedPR.teamName || storedPR.bracketName || '',
+            extra: storedPR.avgRank != null ? 'Avg Rank: ' + storedPR.avgRank : ''
+          };
+        }
+        var prRanksByWeek = computeWeeklyPowerRanks(season);
+        var prMids = Object.keys(prRanksByWeek).filter(function(mid) { return prRanksByWeek[mid].length; });
+        if (!prMids.length) return null;
+        var prAvgRanks = {};
+        prMids.forEach(function(mid) {
+          var arr = prRanksByWeek[mid];
+          prAvgRanks[mid] = arr.reduce(function(s, v) { return s + v; }, 0) / arr.length;
+        });
+        var prPick = null;
+        prMids.forEach(function(mid) {
+          if (prPick === null) { prPick = mid; return; }
+          var diff = prAvgRanks[mid] - prAvgRanks[prPick];
+          if (diff < -1e-9) { prPick = mid; return; }
+          if (diff > 1e-9) return;
+          // Tie: most #1 finishes, then #2, then #3, etc., until broken
+          var maxRank = Math.max(prMids.length, prRanksByWeek[mid].length, prRanksByWeek[prPick].length);
+          for (var r = 1; r <= maxRank; r++) {
+            var cA = prRanksByWeek[mid].filter(function(v) { return v === r; }).length;
+            var cB = prRanksByWeek[prPick].filter(function(v) { return v === r; }).length;
+            if (cA !== cB) { if (cA > cB) prPick = mid; break; }
+          }
+        });
+        if (!prPick) return null;
+        var prRow = (season.standings || []).find(function(r) { return r.memberId === prPick; }) || {};
+        var prName = prRow.owner || prRow.ownerName || '';
+        var prTeam = prRow.teamName || prRow.team || '';
+        if (!prName) return null;
+        return { name: prName, team: prTeam, extra: 'Avg Rank: ' + prAvgRanks[prPick].toFixed(1) };
       }
 
       if (awardKey === 'champion') {

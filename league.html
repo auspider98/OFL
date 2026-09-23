@@ -1108,6 +1108,51 @@
       return '<table class="league-standings-table"><thead>' + thead + '</thead><tbody>' + tbody + '</tbody></table>';
     }
 
+    // ── Compute per-week power rank for every team across a season ──
+    // Mirrors the weighted power-score formula used by the trajectory
+    // chart and the live Power Rankings table (60% season avg + 40%
+    // last-3 games weighted 50/30/20). Returns { memberId: [rank at
+    // each completed week, in chronological order] }.
+    function computeWeeklyPowerRanks(season) {
+      var weeks   = (season.weeks || []).filter(function (w) { return w.isComplete; });
+      var members = (season.standings || []).map(function (r) { return r.memberId; }).filter(Boolean);
+      var ranksByWeek = {};
+      members.forEach(function (mid) { ranksByWeek[mid] = []; });
+      if (!weeks.length || !members.length) return ranksByWeek;
+
+      weeks = weeks.slice().sort(function (a, b) { return (a.weekNumber || 0) - (b.weekNumber || 0); });
+
+      var scoreHistory = {};
+      members.forEach(function (mid) { scoreHistory[mid] = []; });
+
+      function pwScore(scores) {
+        if (!scores.length) return 0;
+        var avg = scores.reduce(function (s, v) { return s + v; }, 0) / scores.length;
+        var w = [0.5, 0.3, 0.2];
+        var rec = scores.slice(-3).reverse();
+        var w3 = 0, ws = 0;
+        rec.forEach(function (s, i) { var wi = w[i] || 0.1; w3 += s * wi; ws += wi; });
+        return (avg * 0.6) + ((ws > 0 ? w3 / ws : avg) * 0.4);
+      }
+
+      weeks.forEach(function (wk) {
+        (wk.games || []).forEach(function (g) {
+          var hid = g.home && g.home.memberId;
+          var aid = g.away && g.away.memberId;
+          var hs  = parseFloat(g.home && g.home.score) || 0;
+          var as_ = parseFloat(g.away && g.away.score) || 0;
+          if (hid && scoreHistory[hid] !== undefined) scoreHistory[hid].push(hs);
+          if (aid && scoreHistory[aid] !== undefined) scoreHistory[aid].push(as_);
+        });
+        var sc = {};
+        members.forEach(function (mid) { sc[mid] = pwScore(scoreHistory[mid]); });
+        var sorted = members.slice().sort(function (a, b) { return sc[b] - sc[a]; });
+        sorted.forEach(function (mid, i) { ranksByWeek[mid].push(i + 1); });
+      });
+
+      return ranksByWeek;
+    }
+
     // ── Auto-compute stats from weeks + standings data ───────
     // Returns a stats object with derived values for any key that
     // is empty/zero in the stored season.stats. Stored values win.
@@ -1307,6 +1352,47 @@
         }
       }
 
+      // avgPowerRank — lowest average weekly power rank across the season
+      // (rewards sustained standing throughout the year, not just a final-week
+      // finish). Tie-break: most weeks at #1, then #2, then #3, etc.
+      if (!hasStored('avgPowerRank')) {
+        var prRanksByWeek = computeWeeklyPowerRanks(season);
+        var prMids = Object.keys(prRanksByWeek).filter(function (mid) { return prRanksByWeek[mid].length; });
+        if (prMids.length) {
+          var prAvgRanks = {};
+          prMids.forEach(function (mid) {
+            var arr = prRanksByWeek[mid];
+            prAvgRanks[mid] = arr.reduce(function (s, v) { return s + v; }, 0) / arr.length;
+          });
+
+          var prBest = null;
+          prMids.forEach(function (mid) {
+            if (prBest === null) { prBest = mid; return; }
+            var diff = prAvgRanks[mid] - prAvgRanks[prBest];
+            if (diff < -1e-9) { prBest = mid; return; }
+            if (diff > 1e-9) return;
+            // Tie: most #1 finishes, then #2, then #3, etc., until broken
+            var maxRank = Math.max(prMids.length, prRanksByWeek[mid].length, prRanksByWeek[prBest].length);
+            for (var r = 1; r <= maxRank; r++) {
+              var cA = prRanksByWeek[mid].filter(function (v) { return v === r; }).length;
+              var cB = prRanksByWeek[prBest].filter(function (v) { return v === r; }).length;
+              if (cA !== cB) { if (cA > cB) prBest = mid; break; }
+            }
+          });
+
+          if (prBest) {
+            var prRe  = rosterEntry(prBest);
+            var prRow = standings.find(function (r) { return r.memberId === prBest; }) || {};
+            computed['avgPowerRank'] = {
+              memberId:  prBest,
+              ownerName: (prRe && prRe.ownerName) || prRow.owner || prRow.ownerName || '',
+              teamName:  (prRe && prRe.teamName)  || prRow.teamName || prRow.team || '',
+              avgRank:   prAvgRanks[prBest].toFixed(1)
+            };
+          }
+        }
+      }
+
       // ── From standings[] ──────────────────────────────────
 
       if (standings.length) {
@@ -1491,6 +1577,8 @@
           extraLines = [stat.round];
         if ((a.key === 'lucklace' || a.key === 'jinxed') && stat.luck != null && stat.luck !== '')
           extraLines = ['Luck Index: ' + stat.luck];
+        if (a.key === 'avgPowerRank' && stat.avgRank != null && stat.avgRank !== '')
+          extraLines = ['Avg Rank: ' + stat.avgRank];
 
         html += buildStatCard(
           awards[a.key] || a.defaultLabel,
