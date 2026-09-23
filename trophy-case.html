@@ -365,7 +365,7 @@
       football: [
         'champion', 'regularSeasonChamp', 'highestTeamGameScore',
         'highestIndividualScore', 'seasonPointsLeader', 'mostPointsFor',
-        'mostPointsAgainst', 'closestWin'
+        'mostPointsAgainst', 'closestWin', 'lucklace', 'jinxed'
         // custom awards slot in here (isCustom)
         // lastPlace always last
       ],
@@ -452,9 +452,73 @@
       return sortAwardDefs(defs, league.sport);
     }
 
+    // ── Compute season Luck Index totals per member ────────
+    // Same calculation as league.html's standings Luck column / awards.
+    function computeLuckTotals(season) {
+      var weeks = (season.weeks || []).filter(function(w) { return w.isComplete; });
+      var mids  = (season.standings || []).map(function(r) { return r.memberId; }).filter(Boolean);
+      var totals = {};
+      mids.forEach(function(mid) { totals[mid] = 0; });
+      if (!weeks.length || !mids.length) return totals;
+
+      weeks.forEach(function(wk) {
+        var weekScores = {};
+        var actualWins = {};
+        mids.forEach(function(mid) { weekScores[mid] = 0; actualWins[mid] = 0; });
+        (wk.games || []).forEach(function(g) {
+          var hid = g.home && g.home.memberId;
+          var aid = g.away && g.away.memberId;
+          var hs  = parseFloat(g.home && g.home.score) || 0;
+          var as_ = parseFloat(g.away && g.away.score) || 0;
+          if (hid) weekScores[hid] = hs;
+          if (aid) weekScores[aid] = as_;
+          if (hid && aid) {
+            if (hs > as_) actualWins[hid] = 1;
+            else if (as_ > hs) actualWins[aid] = 1;
+          }
+        });
+        var allScores = Object.values(weekScores).filter(function(s) { return s > 0; });
+        var n = allScores.length;
+        mids.forEach(function(mid) {
+          var myScore = weekScores[mid] || 0;
+          if (!myScore) return;
+          var expectedWins = allScores.filter(function(s) { return myScore > s; }).length;
+          var expWinPct = n > 1 ? (expectedWins / (n - 1)) : 0;
+          totals[mid] += (actualWins[mid] || 0) - expWinPct;
+        });
+      });
+      return totals;
+    }
+
     // ── Extract winner for a standard award key ───────────
     function getWinnerForKey(season, awardKey) {
       var stats = season.stats || {};
+
+      if (awardKey === 'lucklace' || awardKey === 'jinxed') {
+        var storedLuck = stats[awardKey];
+        if (storedLuck && storedLuck.ownerName) {
+          return {
+            name: storedLuck.ownerName,
+            team: storedLuck.teamName || storedLuck.bracketName || '',
+            extra: storedLuck.luck != null ? 'Luck Index: ' + storedLuck.luck : ''
+          };
+        }
+        var luckTotals = computeLuckTotals(season);
+        var mids = Object.keys(luckTotals);
+        if (!mids.length) return null;
+        var pick = null;
+        mids.forEach(function(mid) {
+          if (pick === null) { pick = mid; return; }
+          if (awardKey === 'lucklace' ? (luckTotals[mid] > luckTotals[pick]) : (luckTotals[mid] < luckTotals[pick])) pick = mid;
+        });
+        if (pick === null) return null;
+        var row = (season.standings || []).find(function(r) { return r.memberId === pick; }) || {};
+        var val = luckTotals[pick];
+        var name = row.owner || row.ownerName || '';
+        var team = row.teamName || row.team || '';
+        if (!name) return null;
+        return { name: name, team: team, extra: 'Luck Index: ' + ((val >= 0 ? '+' : '') + val.toFixed(1)) };
+      }
 
       if (awardKey === 'champion') {
         if (!season.championName) return null;

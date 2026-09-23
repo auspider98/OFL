@@ -1249,6 +1249,64 @@
         }
       }
 
+      // lucklace / jinxed — highest / lowest season Luck Index total
+      // (same calculation as the standings Luck column)
+      if (!hasStored('lucklace') || !hasStored('jinxed')) {
+        var luckWeeks = weeks.filter(function (w) { return w.isComplete; });
+        var luckMids  = standings.map(function (r) { return r.memberId; }).filter(Boolean);
+        if (luckWeeks.length && luckMids.length) {
+          var luckTotals = {};
+          luckMids.forEach(function (mid) { luckTotals[mid] = 0; });
+          luckWeeks.forEach(function (wk) {
+            var weekScores = {};
+            var actualWins = {};
+            luckMids.forEach(function (mid) { weekScores[mid] = 0; actualWins[mid] = 0; });
+            (wk.games || []).forEach(function (g) {
+              var hid = g.home && g.home.memberId;
+              var aid = g.away && g.away.memberId;
+              var hs  = parseFloat(g.home && g.home.score) || 0;
+              var as_ = parseFloat(g.away && g.away.score) || 0;
+              if (hid) weekScores[hid] = hs;
+              if (aid) weekScores[aid] = as_;
+              if (hid && aid) {
+                if (hs > as_) actualWins[hid] = 1;
+                else if (as_ > hs) actualWins[aid] = 1;
+              }
+            });
+            var allScores = Object.values(weekScores).filter(function (s) { return s > 0; });
+            var n = allScores.length;
+            luckMids.forEach(function (mid) {
+              var myScore = weekScores[mid] || 0;
+              if (!myScore) return;
+              var expectedWins = allScores.filter(function (s) { return myScore > s; }).length;
+              var expWinPct = n > 1 ? (expectedWins / (n - 1)) : 0;
+              luckTotals[mid] += (actualWins[mid] || 0) - expWinPct;
+            });
+          });
+
+          var luckiest = null, unluckiest = null;
+          luckMids.forEach(function (mid) {
+            if (luckiest === null   || luckTotals[mid] > luckTotals[luckiest])   luckiest = mid;
+            if (unluckiest === null || luckTotals[mid] < luckTotals[unluckiest]) unluckiest = mid;
+          });
+
+          function luckStat(mid) {
+            var re  = rosterEntry(mid);
+            var row = standings.find(function (r) { return r.memberId === mid; }) || {};
+            var val = luckTotals[mid];
+            return {
+              memberId:  mid,
+              ownerName: (re && re.ownerName) || row.owner || row.ownerName || '',
+              teamName:  (re && re.teamName)  || row.teamName || row.team || '',
+              luck:      (val >= 0 ? '+' : '') + val.toFixed(1)
+            };
+          }
+
+          if (!hasStored('lucklace') && luckiest)   computed['lucklace'] = luckStat(luckiest);
+          if (!hasStored('jinxed')   && unluckiest) computed['jinxed']   = luckStat(unluckiest);
+        }
+      }
+
       // ── From standings[] ──────────────────────────────────
 
       if (standings.length) {
@@ -1431,6 +1489,8 @@
           extraLines = [stat.predicted + ' / ' + stat.correct + ' — ' + stat.predictionPct + '%'];
         if (a.key === 'perfectBracketThrough' && stat.round)
           extraLines = [stat.round];
+        if ((a.key === 'lucklace' || a.key === 'jinxed') && stat.luck != null && stat.luck !== '')
+          extraLines = ['Luck Index: ' + stat.luck];
 
         html += buildStatCard(
           awards[a.key] || a.defaultLabel,

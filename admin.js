@@ -142,7 +142,9 @@ var SPORT_STAT_SCHEMAS = {
       { key: "mostPointsFor",         defaultLabel: "Unstoppable Trophy",    hint: "Most Season Points For" },
       { key: "mostPointsAgainst",     defaultLabel: "The Hard Luck Trophy",  hint: "Most Season Points Against" },
       { key: "lastPlace",             defaultLabel: "The Toilet Bowl Crown", hint: "Last Place Finisher" },
-      { key: "closestWin",            defaultLabel: "The Nail Biter",        hint: "Closest Win of the Season" }
+      { key: "closestWin",            defaultLabel: "The Nail Biter",        hint: "Closest Win of the Season" },
+      { key: "lucklace",              defaultLabel: "The Lucklace",          hint: "Luckiest Team" },
+      { key: "jinxed",                defaultLabel: "Jinxed Award",          hint: "Unluckiest Team" }
     ],
     standingsColumns: [
       { key: "rank",       label: "#" },
