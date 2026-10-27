@@ -3250,27 +3250,82 @@
             return inner;
           }
 
+          // ── Win probability (live games only) ──────────────
+          // P(home) = normalCDF(margin / (k * sqrt(remH^2 + remA^2)))
+          // margin = projected home - projected away; rem = projected - current score.
+          var WM_K   = 0.4;   // spread factor (constant)
+          var WM_CAP = 0.97;  // display cap: probabilities are held to 3%–97%
+
+          function wmNormCdf(z) {
+            // Abramowitz & Stegun 7.1.26 erf approximation (JS has no built-in erf)
+            var sign = z < 0 ? -1 : 1;
+            var x = Math.abs(z) / Math.SQRT2;
+            var t = 1 / (1 + 0.3275911 * x);
+            var erf = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+            return 0.5 * (1 + sign * erf);
+          }
+
+          function wmWinProb(hScore, hProj, aScore, aProj) {
+            var remH   = Math.max(0, hProj - hScore);
+            var remA   = Math.max(0, aProj - aScore);
+            var margin = hProj - aProj;
+            var spread = WM_K * Math.sqrt(remH * remH + remA * remA);
+            var p = spread === 0 ? (margin > 0 ? 1 : margin < 0 ? 0 : 0.5) : wmNormCdf(margin / spread);
+            return Math.min(WM_CAP, Math.max(1 - WM_CAP, p));
+          }
+
+          function wmProjected(side) {
+            var v = parseFloat(side && side.projected);
+            return isFinite(v) ? v : null;
+          }
+
+          function wmBarHtml(pHome) {
+            var pAway = 1 - pHome;
+            function fill(p) {
+              return '<div class="wm-prob-fill ' + (p >= 0.5 ? 'wm-prob-win' : 'wm-prob-lose') + '" style="width:' + (p * 100).toFixed(1) + '%"></div>';
+            }
+            return '<div class="wm-prob" role="img" aria-label="Win probability ' + Math.round(pHome * 100) + '% to ' + Math.round(pAway * 100) + '%">' +
+              '<div class="wm-prob-half wm-prob-half-l">' + fill(pHome) + '</div>' +
+              '<div class="wm-prob-half wm-prob-half-r">' + fill(pAway) + '</div>' +
+            '</div>';
+          }
+
           var gamesHtml = (currentWeek.games || []).map(function (g) {
             var hScore = parseFloat(g.home && g.home.score) || 0;
             var aScore = parseFloat(g.away && g.away.score) || 0;
-            var hWin = wComplete && hScore > aScore;
-            var aWin = wComplete && aScore > hScore;
+            var hProj  = wmProjected(g.home);
+            var aProj  = wmProjected(g.away);
+            var hasProj = hProj !== null && aProj !== null;
+            // A game is over when the week is complete, or when nothing is left
+            // to play (projected equals current score for both teams).
+            var gameOver = wComplete || (hasProj && (hProj - hScore) < 0.005 && (aProj - aScore) < 0.005);
+            var showLive = hasProj && !gameOver;
+            var hWin = gameOver && hScore > aScore;
+            var aWin = gameOver && aScore > hScore;
             var hScoreClass = hWin ? 'wm-score wm-score-win' : 'wm-score';
             var aScoreClass = aWin ? 'wm-score wm-score-win' : 'wm-score';
+            var projRow = showLive
+              ? '<span class="wm-proj">' + esc(hProj.toFixed(2)) + '</span><span></span><span class="wm-proj">' + esc(aProj.toFixed(2)) + '</span>'
+              : '';
+            var barHtml = showLive ? wmBarHtml(wmWinProb(hScore, hProj, aScore, aProj)) : '';
             return '<div class="wm-game">' +
               '<div class="wm-team wm-team-home">' +
                 teamLogoHtml(g.home && g.home.memberId, g.home && g.home.teamName || '') +
                 '<div class="wm-team-name wm-team-name-home">' + esc((g.home && g.home.teamName) || '—') + '</div>' +
               '</div>' +
-              '<div class="wm-scores">' +
-                '<span class="' + hScoreClass + '">' + esc((hScore || 0).toFixed(2)) + '</span>' +
-                '<span class="wm-vs">vs</span>' +
-                '<span class="' + aScoreClass + '">' + esc((aScore || 0).toFixed(2)) + '</span>' +
+              '<div class="wm-scorecol">' +
+                '<div class="wm-scores">' +
+                  '<span class="' + hScoreClass + '">' + esc((hScore || 0).toFixed(2)) + '</span>' +
+                  '<span class="wm-vs">vs</span>' +
+                  '<span class="' + aScoreClass + '">' + esc((aScore || 0).toFixed(2)) + '</span>' +
+                '</div>' +
+                projRow +
               '</div>' +
               '<div class="wm-team wm-team-away">' +
                 '<div class="wm-team-name">' + esc((g.away && g.away.teamName) || '—') + '</div>' +
                 teamLogoHtml(g.away && g.away.memberId, g.away && g.away.teamName || '') +
               '</div>' +
+              barHtml +
             '</div>';
           }).join('');
 
