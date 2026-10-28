@@ -3253,7 +3253,7 @@
           // ── Win probability (live games only) ──────────────
           // P(home) = normalCDF(margin / (k * sqrt(remH^2 + remA^2)))
           // margin = projected home - projected away; rem = projected - current score.
-          var WM_K   = 0.4;   // spread factor (constant)
+          var WM_K   = 0.285;   // spread factor (constant)
           var WM_CAP = 0.97;  // display cap: probabilities are held to 3%–97%
 
           function wmNormCdf(z) {
