@@ -2507,9 +2507,15 @@ document.addEventListener('DOMContentLoaded', function () {
                   var aopts = buildTeamDropdown(season.roster, gm.away && gm.away.teamName, true);
                   gmRow.innerHTML =
                     '<div class="admin-field-group" style="flex:4 1 0;min-width:0;"><label>Home</label><select class="admin-input gm-home-team">'+hopts+'</select></div>' +
-                    '<div class="admin-field-group" style="flex:0 0 80px;"><label>Score</label><input class="admin-input gm-home-score" type="number" min="0" step="0.01" value="'+esc(String((gm.home&&gm.home.score)||''))+'" /></div>' +
+                    '<div style="display:flex;gap:0.7rem;min-width:0;">' +
+                      '<div class="admin-field-group" style="flex:1 1 0;min-width:0;"><label>Score</label><input class="admin-input gm-home-score" type="number" min="0" step="0.01" value="'+esc(String((gm.home&&gm.home.score)||''))+'" /></div>' +
+                      '<div class="admin-field-group" style="flex:1 1 0;min-width:0;"><label>Proj</label><input class="admin-input gm-home-proj" type="number" min="0" step="0.01" value="'+esc(String((gm.home&&gm.home.projected)||''))+'" /></div>' +
+                    '</div>' +
                     '<div class="admin-field-group" style="flex:4 1 0;min-width:0;"><label>Away</label><select class="admin-input gm-away-team">'+aopts+'</select></div>' +
-                    '<div class="admin-field-group" style="flex:0 0 80px;"><label>Score</label><input class="admin-input gm-away-score" type="number" min="0" step="0.01" value="'+esc(String((gm.away&&gm.away.score)||''))+'" /></div>';
+                    '<div style="display:flex;gap:0.7rem;min-width:0;">' +
+                      '<div class="admin-field-group" style="flex:1 1 0;min-width:0;"><label>Score</label><input class="admin-input gm-away-score" type="number" min="0" step="0.01" value="'+esc(String((gm.away&&gm.away.score)||''))+'" /></div>' +
+                      '<div class="admin-field-group" style="flex:1 1 0;min-width:0;"><label>Proj</label><input class="admin-input gm-away-proj" type="number" min="0" step="0.01" value="'+esc(String((gm.away&&gm.away.projected)||''))+'" /></div>' +
+                    '</div>';
 
                   var homeSel = gmRow.querySelector('.gm-home-team');
                   var awaySel = gmRow.querySelector('.gm-away-team');
@@ -2536,11 +2542,65 @@ document.addEventListener('DOMContentLoaded', function () {
                   gmRow.querySelector('.gm-away-score').addEventListener('input', function () {
                     gm.away.score = this.value; deriveFromStandings(); markDirty();
                   });
+                  /* Projected final scores (optional) — blank removes the value so no win-probability bar shows */
+                  gmRow.querySelector('.gm-home-proj').addEventListener('input', function () {
+                    if (this.value === '') delete gm.home.projected; else gm.home.projected = this.value;
+                    markDirty();
+                  });
+                  gmRow.querySelector('.gm-away-proj').addEventListener('input', function () {
+                    if (this.value === '') delete gm.away.projected; else gm.away.projected = this.value;
+                    markDirty();
+                  });
 
                   gamesEl.appendChild(gmRow);
                 });
               }
               renderGames();
+
+              /* ── Matchup of the Week override ──
+                 Stored on the season (not the week) so weekly imports never wipe it:
+                 season.motwOverrides[weekNumber] = "memberIdA|memberIdB". Auto = no entry. */
+              var motwDivider = document.createElement('div');
+              motwDivider.style.cssText = 'border-top:1px solid rgba(232,232,232,0.08);margin:0.75rem 0 0.5rem;';
+              wkBody.appendChild(motwDivider);
+
+              var motwRow = document.createElement('div');
+              motwRow.className = 'field-row';
+              motwRow.innerHTML =
+                '<div class="field-label">Matchup of the Week' +
+                  '<span class="field-hint">Auto = most combined wins, tie-break best power rank</span>' +
+                '</div>' +
+                '<select class="admin-input wk-motw"></select>';
+              var motwSel = motwRow.querySelector('.wk-motw');
+              var motwWkKey = String(wk.weekNumber || wkIdx + 1);
+
+              function refreshMotwOptions() {
+                var cur  = (season.motwOverrides || {})[motwWkKey] || '';
+                var opts = '<option value="">Auto</option>';
+                (wk.games || []).forEach(function (gm) {
+                  var hid = gm.home && gm.home.memberId, aid = gm.away && gm.away.memberId;
+                  if (!hid || !aid) return;
+                  var val = hid + '|' + aid;
+                  var sel = (cur === val || cur === aid + '|' + hid) ? ' selected' : '';
+                  opts += '<option value="' + esc(val) + '"' + sel + '>' +
+                    esc((gm.home.teamName || gm.home.ownerName || '?') + ' vs ' + (gm.away.teamName || gm.away.ownerName || '?')) +
+                  '</option>';
+                });
+                motwSel.innerHTML = opts;
+              }
+              refreshMotwOptions();
+
+              motwSel.addEventListener('change', function () {
+                if (!season.motwOverrides) season.motwOverrides = {};
+                if (this.value) season.motwOverrides[motwWkKey] = this.value;
+                else delete season.motwOverrides[motwWkKey];
+                markDirty();
+              });
+              /* Keep the game list current when a team dropdown above changes */
+              gamesEl.addEventListener('change', function (e) {
+                if (e.target.matches('.gm-home-team, .gm-away-team')) refreshMotwOptions();
+              });
+              wkBody.appendChild(motwRow);
 
               /* ── Week High Scorer ── */
               if (!wk.highScorer) wk.highScorer = { memberId:'', ownerName:'', teamName:'', playerName:'', points:'' };
