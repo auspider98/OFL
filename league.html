@@ -3290,7 +3290,168 @@
             '</div>';
           }
 
-          var gamesHtml = (currentWeek.games || []).map(function (g) {
+          // ── Matchup of the Week ────────────────────────────
+          // Pick: manual override (season.motwOverrides[weekNumber] = "memberIdA|memberIdB"),
+          // else most combined wins entering this week, tie-broken by the single
+          // best-ranked team (latest power rank before this week). Week 1 (no prior
+          // completed weeks) falls back to the closest projected spread.
+          var motwWeekNum = currentWeek.weekNumber || weeks.length;
+          var motwGames   = currentWeek.games || [];
+          var motwPrior   = weeks.filter(function (w) { return w.isComplete && (w.weekNumber || 0) < motwWeekNum; });
+          var motwAllDone = weeks.filter(function (w) { return w.isComplete; });
+
+          // memberId → { w, l, ties, pf, high, results[] } from completed weeks (chronological)
+          function motwTally(wkList) {
+            var t = {};
+            wkList.slice().sort(function (a, b) { return (a.weekNumber || 0) - (b.weekNumber || 0); }).forEach(function (wk) {
+              (wk.games || []).forEach(function (g) {
+                var hid = g.home && g.home.memberId;
+                var aid = g.away && g.away.memberId;
+                var hs  = parseFloat(g.home && g.home.score) || 0;
+                var as_ = parseFloat(g.away && g.away.score) || 0;
+                if (!hid || !aid || (!hs && !as_)) return;
+                [[hid, hs, as_], [aid, as_, hs]].forEach(function (s) {
+                  var r = t[s[0]] || (t[s[0]] = { w: 0, l: 0, ties: 0, pf: 0, high: 0, results: [] });
+                  r.pf += s[1];
+                  if (s[1] > r.high) r.high = s[1];
+                  var res = s[1] > s[2] ? 'W' : (s[1] < s[2] ? 'L' : 'T');
+                  if (res === 'W') r.w++; else if (res === 'L') r.l++; else r.ties++;
+                  r.results.push(res);
+                });
+              });
+            });
+            return t;
+          }
+
+          var motwIdx = -1;
+          var motwOverride = (current.motwOverrides || {})[String(motwWeekNum)] || '';
+          if (motwOverride) {
+            var motwOvIds = motwOverride.split('|');
+            motwGames.forEach(function (g, i) {
+              var h = g.home && g.home.memberId, a = g.away && g.away.memberId;
+              if (motwIdx === -1 && h && a &&
+                  ((h === motwOvIds[0] && a === motwOvIds[1]) || (h === motwOvIds[1] && a === motwOvIds[0]))) motwIdx = i;
+            });
+          }
+          if (motwIdx === -1 && motwGames.length) {
+            if (motwPrior.length) {
+              var motwPriorTally = motwTally(motwPrior);
+              var motwPriorRanks = {};
+              var motwRankHist   = computeWeeklyPowerRanks({ weeks: motwPrior, standings: current.standings || [] });
+              Object.keys(motwRankHist).forEach(function (mid) {
+                var arr = motwRankHist[mid];
+                if (arr.length) motwPriorRanks[mid] = arr[arr.length - 1];
+              });
+              var motwBest = null;
+              motwGames.forEach(function (g, i) {
+                var h = g.home && g.home.memberId, a = g.away && g.away.memberId;
+                if (!h || !a) return;
+                var wins    = ((motwPriorTally[h] || {}).w || 0) + ((motwPriorTally[a] || {}).w || 0);
+                var topRank = Math.min(motwPriorRanks[h] || 99, motwPriorRanks[a] || 99);
+                if (!motwBest || wins > motwBest.wins || (wins === motwBest.wins && topRank < motwBest.rank)) {
+                  motwBest = { i: i, wins: wins, rank: topRank };
+                }
+              });
+              if (motwBest) motwIdx = motwBest.i;
+            } else {
+              var motwClosest = null;
+              motwGames.forEach(function (g, i) {
+                var hp = wmProjected(g.home), ap = wmProjected(g.away);
+                if (hp === null || ap === null) return;
+                var d = Math.abs(hp - ap);
+                if (!motwClosest || d < motwClosest.d) motwClosest = { i: i, d: d };
+              });
+              if (motwClosest) motwIdx = motwClosest.i;
+            }
+          }
+
+          // ── Tale of the Tape helpers ───────────────────────
+          var motwNow = motwTally(motwAllDone);
+
+          function motwFmt(n) {
+            return (n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          }
+
+          function motwStreak(r) {
+            if (!r || !r.results.length) return '';
+            var last = r.results[r.results.length - 1], n = 0;
+            for (var i = r.results.length - 1; i >= 0 && r.results[i] === last; i--) n++;
+            return last + n;
+          }
+
+          function motwRecordHtml(mid) {
+            var r = motwNow[mid] || { w: 0, l: 0, ties: 0, results: [] };
+            var rec = r.w + '-' + r.l + (r.ties ? '-' + r.ties : '');
+            var s = motwStreak(r);
+            return esc(rec) + (s ? ' <span class="wm-streak wm-streak-' + s.charAt(0).toLowerCase() + '">(' + esc(s) + ')</span>' : '');
+          }
+
+          // All-time regular-season head-to-head across every season, matched by owner
+          function motwH2H(hid, aid) {
+            var out = { winsH: 0, winsA: 0, ties: 0, ptsH: 0, ptsA: 0, lastH: null, lastA: null };
+            (league.seasons || []).forEach(function (s) {
+              var yr = parseInt(s.year, 10) || 0;
+              (s.weeks || []).forEach(function (wk) {
+                if (!wk.isComplete) return;
+                (wk.games || []).forEach(function (g) {
+                  var gh = g.home && g.home.memberId, ga = g.away && g.away.memberId;
+                  var sh = parseFloat(g.home && g.home.score) || 0;
+                  var sa = parseFloat(g.away && g.away.score) || 0;
+                  if (!sh && !sa) return;
+                  var hS, aS;
+                  if (gh === hid && ga === aid)      { hS = sh; aS = sa; }
+                  else if (gh === aid && ga === hid) { hS = sa; aS = sh; }
+                  else return;
+                  out.ptsH += hS; out.ptsA += aS;
+                  var key = yr * 100 + (wk.weekNumber || 0);
+                  if (hS > aS) {
+                    out.winsH++;
+                    if (!out.lastH || key > out.lastH.key) out.lastH = { year: s.year, week: wk.weekNumber, w: hS, l: aS, key: key };
+                  } else if (aS > hS) {
+                    out.winsA++;
+                    if (!out.lastA || key > out.lastA.key) out.lastA = { year: s.year, week: wk.weekNumber, w: aS, l: hS, key: key };
+                  } else {
+                    out.ties++;
+                  }
+                });
+              });
+            });
+            return out;
+          }
+
+          function motwTapeHtml(g) {
+            var hid = g.home && g.home.memberId, aid = g.away && g.away.memberId;
+            var hr  = motwNow[hid] || { pf: 0, high: 0 };
+            var ar  = motwNow[aid] || { pf: 0, high: 0 };
+            var h2h = motwH2H(hid, aid);
+            function row(hv, label, av) {
+              return '<div class="wm-tape-row">' +
+                '<div class="wm-tape-val wm-tape-val-home">' + hv + '</div>' +
+                '<div class="wm-tape-label">' + label + '</div>' +
+                '<div class="wm-tape-val wm-tape-val-away">' + av + '</div>' +
+              '</div>';
+            }
+            function lastWin(lw) {
+              return lw
+                ? esc(lw.year + ' · Wk ' + lw.week) + '<span class="wm-tape-sub">' + esc(lw.w.toFixed(2) + ' – ' + lw.l.toFixed(2)) + '</span>'
+                : '<span class="wm-tape-never">Never</span>';
+            }
+            var tieNote = h2h.ties ? ' (' + h2h.ties + ' tie' + (h2h.ties > 1 ? 's' : '') + ')' : '';
+            var rows =
+              row(motwRecordHtml(hid), 'Record', motwRecordHtml(aid)) +
+              row(esc(motwFmt(hr.pf)), 'PF', esc(motwFmt(ar.pf))) +
+              row(hr.high ? esc(hr.high.toFixed(2)) : '—', 'Season High', ar.high ? esc(ar.high.toFixed(2)) : '—') +
+              row(esc(String(h2h.winsH)), 'All-Time H2H Wins' + esc(tieNote), esc(String(h2h.winsA))) +
+              row(esc(motwFmt(h2h.ptsH)), 'All-Time H2H Points', esc(motwFmt(h2h.ptsA))) +
+              row(lastWin(h2h.lastH), 'Last Win', lastWin(h2h.lastA));
+            return '<div class="wm-tape">' +
+              '<button type="button" class="wm-tape-toggle" aria-expanded="false">Tale of the Tape <span class="wm-tape-caret">▾</span></button>' +
+              '<div class="wm-tape-body" hidden>' + rows + '</div>' +
+            '</div>';
+          }
+
+          var gameCards = (currentWeek.games || []).map(function (g, gIdx) {
+            var isMotw = gIdx === motwIdx;
             var hScore = parseFloat(g.home && g.home.score) || 0;
             var aScore = parseFloat(g.away && g.away.score) || 0;
             var hProj  = wmProjected(g.home);
@@ -3308,7 +3469,12 @@
               ? '<span class="wm-proj">' + esc(hProj.toFixed(2)) + '</span><span></span><span class="wm-proj">' + esc(aProj.toFixed(2)) + '</span>'
               : '';
             var barHtml = showLive ? wmBarHtml(wmWinProb(hScore, hProj, aScore, aProj)) : '';
-            return '<div class="wm-game">' +
+            var gameOpen = '<div class="wm-game">';
+            if (isMotw) {
+              gameOpen = '<div class="wm-game wm-game--motw">' +
+                '<div class="wm-motw-tag">Matchup of the Week</div>';
+            }
+            return gameOpen +
               '<div class="wm-team wm-team-home">' +
                 teamLogoHtml(g.home && g.home.memberId, g.home && g.home.teamName || '') +
                 '<div class="wm-team-name wm-team-name-home">' + esc((g.home && g.home.teamName) || '—') + '</div>' +
@@ -3316,7 +3482,7 @@
               '<div class="wm-scorecol">' +
                 '<div class="wm-scores">' +
                   '<span class="' + hScoreClass + '">' + esc((hScore || 0).toFixed(2)) + '</span>' +
-                  '<span class="wm-vs">vs</span>' +
+                  (isMotw ? '<span class="wm-vs wm-vs--fire" aria-label="vs">🔥</span>' : '<span class="wm-vs">vs</span>') +
                   '<span class="' + aScoreClass + '">' + esc((aScore || 0).toFixed(2)) + '</span>' +
                 '</div>' +
                 projRow +
@@ -3326,8 +3492,13 @@
                 teamLogoHtml(g.away && g.away.memberId, g.away && g.away.teamName || '') +
               '</div>' +
               barHtml +
+              (isMotw ? motwTapeHtml(g) : '') +
             '</div>';
-          }).join('');
+          });
+
+          // Featured matchup is pinned first
+          if (motwIdx > -1) gameCards.unshift(gameCards.splice(motwIdx, 1)[0]);
+          var gamesHtml = gameCards.join('');
 
           // High scorer block
           var hs = currentWeek.highScorer || {};
@@ -3356,6 +3527,18 @@
             '<div class="league-section-heading">Week ' + esc(String(currentWeek.weekNumber || '')) + ' Matchups</div>' +
             '<div class="wm-grid">' + gamesHtml + '</div>' +
             hsHtml;
+
+          // Tale of the Tape expander
+          sectionEl.querySelectorAll('.wm-tape-toggle').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              var tapeBody = btn.nextElementSibling;
+              var isOpen   = btn.getAttribute('aria-expanded') === 'true';
+              btn.setAttribute('aria-expanded', String(!isOpen));
+              if (tapeBody) tapeBody.hidden = isOpen;
+              var caret = btn.querySelector('.wm-tape-caret');
+              if (caret) caret.textContent = isOpen ? '▾' : '▴';
+            });
+          });
         }
 
         // ── Power Rankings + Luck Index ───────────────────

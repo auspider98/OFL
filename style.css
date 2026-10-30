@@ -4083,6 +4083,134 @@ select.admin-input option {
 .wm-prob-win  { background: #4caf7d; }
 .wm-prob-lose { background: #d94f4f; }
 
+/* ── Matchup of the Week ────────────────────────────────────
+   Featured card is pinned first, with the same gold treatment as the
+   #1 Power Rankings row. The tag straddles the top border. */
+.wm-game--motw {
+  position: relative;
+  margin-top: 0.7rem;
+  background:
+    radial-gradient(ellipse 45% 85% at 50% 50%, rgba(232,200,100,0.18) 0%, rgba(232,200,100,0.07) 55%, transparent 100%),
+    rgba(255,255,255,0.02);
+  border-color: rgba(232,200,100,0.5);
+  box-shadow: inset 0 0 30px rgba(232,200,100,0.08);
+}
+
+.wm-motw-tag {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0.18rem 0.75rem;
+  font-family: var(--font-body);
+  font-size: 0.55rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #e8c864;
+  background: #0a0a0a;
+  border: 1px solid rgba(232,200,100,0.5);
+  border-radius: 3px;
+}
+
+.wm-vs--fire {
+  font-size: 1rem;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+/* Tale of the Tape expander — spans the full card */
+.wm-tape {
+  grid-column: 1 / -1;
+}
+
+.wm-tape-toggle {
+  display: block;
+  margin: 0.15rem auto 0;
+  padding: 0.3rem 0.6rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.55rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--hint-color, var(--accent-dim));
+  transition: color 0.2s;
+}
+
+.wm-tape-toggle:hover { color: var(--accent); }
+
+.wm-tape-caret {
+  letter-spacing: 0;
+  margin-left: 0.2rem;
+}
+
+.wm-tape-body {
+  max-width: 520px;
+  margin: 0.35rem auto 0;
+  padding-top: 0.35rem;
+  border-top: 1px solid var(--drawer-border);
+}
+
+.wm-tape-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(232,232,232,0.05);
+}
+
+.wm-tape-row:last-child { border-bottom: none; }
+
+.wm-tape-val {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent);
+  line-height: 1.2;
+}
+
+.wm-tape-val-home { text-align: right; }
+.wm-tape-val-away { text-align: left; }
+
+.wm-tape-label {
+  font-family: var(--font-body);
+  font-size: 0.5rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+  text-align: center;
+  min-width: 7rem;
+  max-width: 9rem;
+  line-height: 1.4;
+}
+
+.wm-tape-sub {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--accent-dim);
+}
+
+.wm-tape-never {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 400;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+  opacity: 0.6;
+}
+
+.wm-streak   { font-weight: 700; }
+.wm-streak-w { color: #4caf7d; }
+.wm-streak-l { color: #d94f4f; }
+.wm-streak-t { color: var(--accent-dim); }
+
 /* High scorer */
 .wm-high-scorer {
   max-width: 860px;
@@ -4171,6 +4299,21 @@ select.admin-input option {
   .wm-prob {
     grid-column: 1 / -1;
     margin: 0;
+  }
+}
+
+/* Matchup of the Week — mobile */
+@media (max-width: 768px) {
+  .wm-tape-row {
+    gap: 0.5rem;
+  }
+  .wm-tape-label {
+    min-width: 5.5rem;
+    max-width: 6.5rem;
+    letter-spacing: 0.15em;
+  }
+  .wm-tape-val {
+    font-size: 0.82rem;
   }
 }
 
