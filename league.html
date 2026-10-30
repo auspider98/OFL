@@ -3388,7 +3388,8 @@
 
           // All-time regular-season head-to-head across every season, matched by owner
           function motwH2H(hid, aid) {
-            var out = { winsH: 0, winsA: 0, ties: 0, ptsH: 0, ptsA: 0, lastH: null, lastA: null };
+            var out = { winsH: 0, winsA: 0, ties: 0, ptsH: 0, ptsA: 0, lastH: null, lastA: null, streakH: 0, streakA: 0 };
+            var meetings = []; // { key, res: 'H' | 'A' | 'T' } for the H2H streak
             (league.seasons || []).forEach(function (s) {
               var yr = parseInt(s.year, 10) || 0;
               (s.weeks || []).forEach(function (wk) {
@@ -3404,6 +3405,7 @@
                   else return;
                   out.ptsH += hS; out.ptsA += aS;
                   var key = yr * 100 + (wk.weekNumber || 0);
+                  meetings.push({ key: key, res: hS > aS ? 'H' : (aS > hS ? 'A' : 'T') });
                   if (hS > aS) {
                     out.winsH++;
                     if (!out.lastH || key > out.lastH.key) out.lastH = { year: s.year, week: wk.weekNumber, w: hS, l: aS, key: key };
@@ -3416,6 +3418,14 @@
                 });
               });
             });
+            // Current H2H streak: consecutive wins by the same side in the most recent meetings (a tie breaks it)
+            meetings.sort(function (a, b) { return a.key - b.key; });
+            if (meetings.length) {
+              var lastRes = meetings[meetings.length - 1].res, run = 0;
+              for (var mi = meetings.length - 1; mi >= 0 && meetings[mi].res === lastRes; mi--) run++;
+              if (lastRes === 'H') out.streakH = run;
+              else if (lastRes === 'A') out.streakA = run;
+            }
             return out;
           }
 
@@ -3436,14 +3446,18 @@
                 ? esc(lw.year + ' · Wk ' + lw.week) + '<span class="wm-tape-sub">' + esc(lw.w.toFixed(2) + ' – ' + lw.l.toFixed(2)) + '</span>'
                 : '<span class="wm-tape-never">Never</span>';
             }
+            function h2hWins(wins, streak) {
+              return esc(String(wins)) +
+                (streak >= 2 ? ' <span class="wm-streak wm-streak-w">(W' + streak + ')</span>' : '');
+            }
             var tieNote = h2h.ties ? ' (' + h2h.ties + ' tie' + (h2h.ties > 1 ? 's' : '') + ')' : '';
             var rows =
               row(motwRecordHtml(hid), 'Record', motwRecordHtml(aid)) +
-              row(esc(motwFmt(hr.pf)), 'PF', esc(motwFmt(ar.pf))) +
+              row(esc(motwFmt(hr.pf)), 'Season PF', esc(motwFmt(ar.pf))) +
               row(hr.high ? esc(hr.high.toFixed(2)) : '—', 'Season High', ar.high ? esc(ar.high.toFixed(2)) : '—') +
-              row(esc(String(h2h.winsH)), 'All-Time H2H Wins' + esc(tieNote), esc(String(h2h.winsA))) +
-              row(esc(motwFmt(h2h.ptsH)), 'All-Time H2H Points', esc(motwFmt(h2h.ptsA))) +
-              row(lastWin(h2h.lastH), 'Last Win', lastWin(h2h.lastA));
+              row(h2hWins(h2h.winsH, h2h.streakH), 'H2H Wins' + esc(tieNote), h2hWins(h2h.winsA, h2h.streakA)) +
+              row(esc(motwFmt(h2h.ptsH)), 'H2H Points', esc(motwFmt(h2h.ptsA))) +
+              row(lastWin(h2h.lastH), 'Last H2H Win', lastWin(h2h.lastA));
             return '<div class="wm-tape">' +
               '<button type="button" class="wm-tape-toggle" aria-expanded="false">Tale of the Tape <span class="wm-tape-caret">▾</span></button>' +
               '<div class="wm-tape-body" hidden>' + rows + '</div>' +
