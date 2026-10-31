@@ -3296,8 +3296,6 @@
           // best-ranked team (latest power rank before this week). Week 1 (no prior
           // completed weeks) falls back to the closest projected spread.
           var motwWeekNum = currentWeek.weekNumber || weeks.length;
-          var motwGames   = currentWeek.games || [];
-          var motwPrior   = weeks.filter(function (w) { return w.isComplete && (w.weekNumber || 0) < motwWeekNum; });
           var motwAllDone = weeks.filter(function (w) { return w.isComplete; });
 
           // memberId → { w, l, ties, pf, high, results[] } from completed weeks (chronological)
@@ -3323,46 +3321,81 @@
             return t;
           }
 
-          var motwIdx = -1;
-          var motwOverride = (current.motwOverrides || {})[String(motwWeekNum)] || '';
-          if (motwOverride) {
-            var motwOvIds = motwOverride.split('|');
-            motwGames.forEach(function (g, i) {
-              var h = g.home && g.home.memberId, a = g.away && g.away.memberId;
-              if (motwIdx === -1 && h && a &&
-                  ((h === motwOvIds[0] && a === motwOvIds[1]) || (h === motwOvIds[1] && a === motwOvIds[0]))) motwIdx = i;
-            });
-          }
-          if (motwIdx === -1 && motwGames.length) {
-            if (motwPrior.length) {
-              var motwPriorTally = motwTally(motwPrior);
-              var motwPriorRanks = {};
-              var motwRankHist   = computeWeeklyPowerRanks({ weeks: motwPrior, standings: current.standings || [] });
-              Object.keys(motwRankHist).forEach(function (mid) {
-                var arr = motwRankHist[mid];
-                if (arr.length) motwPriorRanks[mid] = arr[arr.length - 1];
+          // Index of the featured game in week `wk` of season `ssn`, or -1.
+          // Used for the live pick and, retroactively, for every past week (MOTW Record).
+          function motwPickIndex(ssn, wk) {
+            var games = wk.games || [];
+            if (!games.length) return -1;
+            var wkNum = wk.weekNumber || 0;
+            var idx = -1;
+            var ov = (ssn.motwOverrides || {})[String(wkNum)] || '';
+            if (ov) {
+              var ovIds = ov.split('|');
+              games.forEach(function (g, i) {
+                var h = g.home && g.home.memberId, a = g.away && g.away.memberId;
+                if (idx === -1 && h && a &&
+                    ((h === ovIds[0] && a === ovIds[1]) || (h === ovIds[1] && a === ovIds[0]))) idx = i;
               });
-              var motwBest = null;
-              motwGames.forEach(function (g, i) {
+              if (idx > -1) return idx;
+            }
+            var prior = (ssn.weeks || []).filter(function (w) { return w.isComplete && (w.weekNumber || 0) < wkNum; });
+            if (prior.length) {
+              var tally = motwTally(prior);
+              var ranks = {};
+              var hist  = computeWeeklyPowerRanks({ weeks: prior, standings: ssn.standings || [] });
+              Object.keys(hist).forEach(function (mid) {
+                var arr = hist[mid];
+                if (arr.length) ranks[mid] = arr[arr.length - 1];
+              });
+              var best = null;
+              games.forEach(function (g, i) {
                 var h = g.home && g.home.memberId, a = g.away && g.away.memberId;
                 if (!h || !a) return;
-                var wins    = ((motwPriorTally[h] || {}).w || 0) + ((motwPriorTally[a] || {}).w || 0);
-                var topRank = Math.min(motwPriorRanks[h] || 99, motwPriorRanks[a] || 99);
-                if (!motwBest || wins > motwBest.wins || (wins === motwBest.wins && topRank < motwBest.rank)) {
-                  motwBest = { i: i, wins: wins, rank: topRank };
+                var wins    = ((tally[h] || {}).w || 0) + ((tally[a] || {}).w || 0);
+                var topRank = Math.min(ranks[h] || 99, ranks[a] || 99);
+                if (!best || wins > best.wins || (wins === best.wins && topRank < best.rank)) {
+                  best = { i: i, wins: wins, rank: topRank };
                 }
               });
-              if (motwBest) motwIdx = motwBest.i;
-            } else {
-              var motwClosest = null;
-              motwGames.forEach(function (g, i) {
-                var hp = wmProjected(g.home), ap = wmProjected(g.away);
-                if (hp === null || ap === null) return;
-                var d = Math.abs(hp - ap);
-                if (!motwClosest || d < motwClosest.d) motwClosest = { i: i, d: d };
-              });
-              if (motwClosest) motwIdx = motwClosest.i;
+              return best ? best.i : -1;
             }
+            // Week 1: closest projected spread (only when projections were saved)
+            var closest = null;
+            games.forEach(function (g, i) {
+              var hp = wmProjected(g.home), ap = wmProjected(g.away);
+              if (hp === null || ap === null) return;
+              var d = Math.abs(hp - ap);
+              if (!closest || d < closest.d) closest = { i: i, d: d };
+            });
+            return closest ? closest.i : -1;
+          }
+
+          var motwIdx = motwPickIndex(current, currentWeek);
+
+          // MOTW record per owner across every season (completed weeks only)
+          var motwRecords = null;
+          function motwRecordFor(mid) {
+            if (!motwRecords) {
+              motwRecords = {};
+              (league.seasons || []).forEach(function (ssn) {
+                (ssn.weeks || []).forEach(function (wk) {
+                  if (!wk.isComplete) return;
+                  var i = motwPickIndex(ssn, wk);
+                  if (i < 0) return;
+                  var g  = wk.games[i];
+                  var hid = g.home && g.home.memberId, aid = g.away && g.away.memberId;
+                  var hs = parseFloat(g.home && g.home.score) || 0;
+                  var as_ = parseFloat(g.away && g.away.score) || 0;
+                  if (!hid || !aid || (!hs && !as_)) return;
+                  [[hid, hs, as_], [aid, as_, hs]].forEach(function (s) {
+                    var r = motwRecords[s[0]] || (motwRecords[s[0]] = { w: 0, l: 0, t: 0 });
+                    if (s[1] > s[2]) r.w++; else if (s[1] < s[2]) r.l++; else r.t++;
+                  });
+                });
+              });
+            }
+            var rec = motwRecords[mid] || { w: 0, l: 0, t: 0 };
+            return rec.w + '-' + rec.l + (rec.t ? '-' + rec.t : '');
           }
 
           // ── Tale of the Tape helpers ───────────────────────
@@ -3457,7 +3490,8 @@
               row(hr.high ? esc(hr.high.toFixed(2)) : '—', 'Season High', ar.high ? esc(ar.high.toFixed(2)) : '—') +
               row(h2hWins(h2h.winsH, h2h.streakH), 'H2H Wins' + esc(tieNote), h2hWins(h2h.winsA, h2h.streakA)) +
               row(esc(motwFmt(h2h.ptsH)), 'H2H Points', esc(motwFmt(h2h.ptsA))) +
-              row(lastWin(h2h.lastH), 'Last H2H Win', lastWin(h2h.lastA));
+              row(lastWin(h2h.lastH), 'Last H2H Win', lastWin(h2h.lastA)) +
+              row(esc(motwRecordFor(hid)), 'MOTW Record', esc(motwRecordFor(aid)));
             return '<div class="wm-tape">' +
               '<button type="button" class="wm-tape-toggle" aria-expanded="false">Tale of the Tape <span class="wm-tape-caret">▾</span></button>' +
               '<div class="wm-tape-body" hidden>' + rows + '</div>' +
@@ -3514,6 +3548,274 @@
           if (motwIdx > -1) gameCards.unshift(gameCards.splice(motwIdx, 1)[0]);
           var gamesHtml = gameCards.join('');
 
+          // ── Shared helpers for Week Awards + History ───────
+          // Current team name for an owner (from this season's roster)
+          function waCurrentName(mid) {
+            var r = (current.roster || []).find(function (x) { return x.memberId === mid; });
+            return (r && r.teamName) || '';
+          }
+          function waNameHtml(mid, nameThen) {
+            var nowName = waCurrentName(mid);
+            var html = esc(nameThen || nowName || '—');
+            if (nameThen && nowName && nameThen.toLowerCase() !== nowName.toLowerCase()) {
+              html += ' <span class="wh-now">(now ' + esc(nowName) + ')</span>';
+            }
+            return html;
+          }
+          // One entry per team for a week's scored, non-tied games
+          function waSides(wk) {
+            var out = [];
+            (wk.games || []).forEach(function (g) {
+              var hid = g.home && g.home.memberId, aid = g.away && g.away.memberId;
+              var hs  = parseFloat(g.home && g.home.score) || 0;
+              var as_ = parseFloat(g.away && g.away.score) || 0;
+              if (!hid || !aid || (!hs && !as_) || hs === as_) return;
+              var hn = (g.home && g.home.teamName) || '', an = (g.away && g.away.teamName) || '';
+              out.push({ mid: hid, name: hn, score: hs, oppMid: aid, oppName: an, oppScore: as_, won: hs > as_ });
+              out.push({ mid: aid, name: an, score: as_, oppMid: hid, oppName: hn, oppScore: hs, won: as_ > hs });
+            });
+            return out;
+          }
+          function waRec(r) {
+            r = r || { w: 0, l: 0, ties: 0 };
+            return r.w + '-' + r.l + (r.ties ? '-' + r.ties : '');
+          }
+          function waStreakOf(r) {
+            if (!r || !r.results.length) return { type: '', n: 0 };
+            var last = r.results[r.results.length - 1], n = 0;
+            for (var i = r.results.length - 1; i >= 0 && r.results[i] === last; i--) n++;
+            return { type: last, n: n };
+          }
+          // Standings leader: most wins, then most PF
+          function waLeader(tally) {
+            var best = null;
+            Object.keys(tally).forEach(function (mid) {
+              var r = tally[mid];
+              if (!best || r.w > best.r.w || (r.w === best.r.w && r.pf > best.r.pf)) best = { mid: mid, r: r };
+            });
+            return best;
+          }
+
+          // ── Week Awards (only once the week is complete) ───
+          var awardsHtml = '';
+          if (wComplete) {
+            var waWkNum  = currentWeek.weekNumber || 0;
+            var waSidesL = waSides(currentWeek);
+            var waPrior  = weeks.filter(function (w) { return w.isComplete && (w.weekNumber || 0) < waWkNum; });
+            var waBefore = motwTally(waPrior);
+            var waAfter  = motwTally(waPrior.concat([currentWeek]));
+            var waList   = [];
+
+            if (waSidesL.length) {
+              var waScores = waSidesL.map(function (s) { return s.score; }).sort(function (a, b) { return a - b; });
+              var waN      = waScores.length;
+              var waMedian = waN % 2 ? waScores[(waN - 1) / 2] : (waScores[waN / 2 - 1] + waScores[waN / 2]) / 2;
+              var waAvg    = waScores.reduce(function (s, v) { return s + v; }, 0) / waN;
+              function pick(list, better) {
+                return list.reduce(function (b, s) { return (!b || better(s, b)) ? s : b; }, null);
+              }
+
+              // 1. Enforcer — highest score
+              var enf = pick(waSidesL, function (s, b) { return s.score > b.score; });
+              waList.push({ award: 'Enforcer', side: enf, detail: enf.score.toFixed(2) });
+
+              // 2–3. Pickpocket / Mugged — median-based (always appear together or not at all)
+              var pp = pick(waSidesL.filter(function (s) { return s.won && s.score < waMedian; }),
+                            function (s, b) { return s.score < b.score; });
+              var mg = pick(waSidesL.filter(function (s) { return !s.won && s.score > waMedian; }),
+                            function (s, b) { return s.score > b.score; });
+              if (pp) waList.push({ award: 'Pickpocket', side: pp, detail: pp.score.toFixed(2) + ' · beat ' + esc(pp.oppName) });
+              if (mg) waList.push({ award: 'Mugged',     side: mg, detail: mg.score.toFixed(2) + ' · lost to ' + esc(mg.oppName) });
+
+              // 4. Heist — winner had 2+ fewer wins going in
+              if (waPrior.length) {
+                var heist = null;
+                waSidesL.forEach(function (s) {
+                  if (!s.won) return;
+                  var gap = ((waBefore[s.oppMid] || {}).w || 0) - ((waBefore[s.mid] || {}).w || 0);
+                  if (gap >= 2 && (!heist || gap > heist.gap)) heist = { side: s, gap: gap };
+                });
+                if (heist) {
+                  waList.push({ award: 'Heist', side: heist.side,
+                    detail: esc(waRec(waBefore[heist.side.mid])) + ' beat ' + esc(waRec(waBefore[heist.side.oppMid])) + ' ' + esc(heist.side.oppName) });
+                }
+              }
+
+              // 5. Coup — took over 1st place (wins, then PF)
+              if (waPrior.length) {
+                var ldBefore = waLeader(waBefore), ldAfter = waLeader(waAfter);
+                if (ldBefore && ldAfter && ldBefore.mid !== ldAfter.mid) {
+                  var coupSide = waSidesL.find(function (s) { return s.mid === ldAfter.mid; });
+                  if (coupSide) waList.push({ award: 'Coup', side: coupSide, detail: 'Takes 1st at ' + esc(waRec(ldAfter.r)) });
+                }
+              }
+
+              // 6. Getaway — closest win, margin under 3
+              var get = pick(waSidesL.filter(function (s) { return s.won && (s.score - s.oppScore) < 3; }),
+                             function (s, b) { return (s.score - s.oppScore) < (b.score - b.oppScore); });
+              if (get) waList.push({ award: 'Getaway', side: get, detail: 'Won by ' + (get.score - get.oppScore).toFixed(2) + ' over ' + esc(get.oppName) });
+
+              // 7. Busted — lowest score, 25+ below the week's average
+              var bust = pick(waSidesL, function (s, b) { return s.score < b.score; });
+              if (bust && bust.score <= waAvg - 25) waList.push({ award: 'Busted', side: bust, detail: bust.score.toFixed(2) });
+
+              // 8. Jailbreak — won, ending a losing streak of L3+
+              var jb = null;
+              waSidesL.forEach(function (s) {
+                if (!s.won) return;
+                var st = waStreakOf(waBefore[s.mid]);
+                if (st.type === 'L' && st.n >= 3 && (!jb || st.n > jb.n)) jb = { side: s, n: st.n };
+              });
+              if (jb) waList.push({ award: 'Jailbreak', side: jb.side, detail: 'Ends L' + jb.n });
+
+              // 9. Spree — winning streak now W4+
+              var spree = null;
+              waSidesL.forEach(function (s) {
+                if (!s.won) return;
+                var st = waStreakOf(waAfter[s.mid]);
+                if (st.type === 'W' && st.n >= 4 &&
+                    (!spree || st.n > spree.n || (st.n === spree.n && s.score > spree.side.score))) spree = { side: s, n: st.n };
+              });
+              if (spree) waList.push({ award: 'Spree', side: spree.side, detail: 'W' + spree.n });
+            }
+
+            if (waList.length) {
+              awardsHtml =
+                '<div class="wa-strip">' +
+                  '<div class="wm-hs-label">Week ' + esc(String(waWkNum)) + ' Awards</div>' +
+                  '<div class="wa-grid">' +
+                    waList.slice(0, 6).map(function (a) {
+                      var logo = logoMap[a.side.mid] || '';
+                      var logoHtml = logo
+                        ? '<img class="wa-logo" src="' + esc(logo) + '" alt="" />'
+                        : '<span class="wa-logo wa-initial">' + esc((a.side.name || '?').charAt(0).toUpperCase()) + '</span>';
+                      return '<a class="wa-tile" href="team.html?id=' + encodeURIComponent(a.side.mid) + '">' +
+                        '<div class="wa-award">' + esc(a.award) + '</div>' +
+                        '<div class="wa-team">' + logoHtml + '<span class="wa-team-name">' + esc(a.side.name) + '</span></div>' +
+                        '<div class="wa-detail">' + a.detail + '</div>' +
+                      '</a>';
+                    }).join('') +
+                  '</div>' +
+                '</div>';
+            }
+          }
+
+          // ── This Week in OFC History (only while the week is in progress) ──
+          var historyHtml = '';
+          if (!wComplete && currentWeek.weekNumber) {
+            var whWk   = currentWeek.weekNumber;
+            var whPast = [];   // { year, wk } for the same week number in past seasons
+            (league.seasons || []).forEach(function (ssn) {
+              if (ssn === current || (ssn.id && ssn.id === current.id)) return;
+              (ssn.weeks || []).forEach(function (wk) {
+                if (wk.isComplete && wk.weekNumber === whWk) whPast.push({ year: ssn.year, wk: wk });
+              });
+            });
+
+            var whPick = null;   // { cat, year, lead: side, other: side, line1 }
+
+            // 1. Rematch — this week's pairs (MOTW first), most recent meeting
+            var whPairs = (currentWeek.games || []).map(function (g, i) {
+              return { h: g.home && g.home.memberId, a: g.away && g.away.memberId, pri: i === motwIdx ? 0 : 1 };
+            }).filter(function (p) { return p.h && p.a; });
+            var whRematch = null;
+            whPast.forEach(function (p) {
+              waSides(p.wk).forEach(function (s) {
+                if (!s.won) return;
+                whPairs.forEach(function (pr) {
+                  if (!((s.mid === pr.h && s.oppMid === pr.a) || (s.mid === pr.a && s.oppMid === pr.h))) return;
+                  var yr = parseInt(p.year, 10) || 0;
+                  if (!whRematch || pr.pri < whRematch.pri || (pr.pri === whRematch.pri && yr > whRematch.yr)) {
+                    whRematch = { pri: pr.pri, yr: yr, year: p.year, side: s, pair: pr };
+                  }
+                });
+              });
+            });
+            if (whRematch) {
+              var whH2H = motwH2H(whRematch.pair.h, whRematch.pair.a);
+              var hNow = waCurrentName(whRematch.pair.h), aNow = waCurrentName(whRematch.pair.a);
+              var series = whH2H.winsH === whH2H.winsA
+                ? 'Series tied ' + whH2H.winsH + '-' + whH2H.winsA + '.'
+                : 'Series: ' + (whH2H.winsH > whH2H.winsA ? hNow : aNow) + ' lead ' +
+                  Math.max(whH2H.winsH, whH2H.winsA) + '-' + Math.min(whH2H.winsH, whH2H.winsA) + '.';
+              whPick = { cat: 'Rematch', year: whRematch.year, side: whRematch.side,
+                         line: 'They meet again this week. ' + series };
+            }
+
+            // 2. Rotation — Big Score, Beatdown, Heartbreaker, Dud
+            if (!whPick && whPast.length) {
+              var whCat = ['Big Score', 'Beatdown', 'Heartbreaker', 'Dud'][(whWk - 1) % 4];
+              var whBest = null;
+              whPast.forEach(function (p) {
+                waSides(p.wk).forEach(function (s) {
+                  var val, better;
+                  if (whCat === 'Big Score')    { val = s.score; better = whBest ? val > whBest.val : true; }
+                  else if (whCat === 'Dud')     { val = s.score; better = whBest ? val < whBest.val : true; }
+                  else {
+                    if (!s.won) return;
+                    val = s.score - s.oppScore;
+                    better = whBest ? (whCat === 'Beatdown' ? val > whBest.val : val < whBest.val) : true;
+                  }
+                  if (better) whBest = { val: val, year: p.year, side: s };
+                });
+              });
+              if (whBest) {
+                // Live comparison from this week's projections (when available)
+                var projSides = [];
+                (currentWeek.games || []).forEach(function (g) {
+                  var hp = wmProjected(g.home), ap = wmProjected(g.away);
+                  if (hp === null || ap === null) return;
+                  projSides.push({ name: (g.home && g.home.teamName) || '', proj: hp, gap: Math.abs(hp - ap) });
+                  projSides.push({ name: (g.away && g.away.teamName) || '', proj: ap, gap: Math.abs(hp - ap) });
+                });
+                var lead, cmp = '';
+                if (whCat === 'Big Score') {
+                  lead = 'Highest Week ' + whWk + ' score ever.';
+                  if (projSides.length) {
+                    var bp = projSides.reduce(function (b, s) { return s.proj > b.proj ? s : b; });
+                    cmp = " This week's best projection: " + bp.name + ' ' + bp.proj.toFixed(2) + '.';
+                  }
+                } else if (whCat === 'Dud') {
+                  lead = 'Lowest Week ' + whWk + ' score ever.';
+                  if (projSides.length) {
+                    var lp = projSides.reduce(function (b, s) { return s.proj < b.proj ? s : b; });
+                    cmp = " This week's lowest projection: " + lp.name + ' ' + lp.proj.toFixed(2) + '.';
+                  }
+                } else if (whCat === 'Beatdown') {
+                  lead = 'Biggest Week ' + whWk + ' margin ever.';
+                  if (projSides.length) {
+                    var wg = projSides.reduce(function (b, s) { return s.gap > b.gap ? s : b; });
+                    cmp = " This week's widest projected gap: " + wg.gap.toFixed(2) + '.';
+                  }
+                } else {
+                  lead = 'Closest Week ' + whWk + ' game ever.';
+                  if (projSides.length) {
+                    var tg = projSides.reduce(function (b, s) { return s.gap < b.gap ? s : b; });
+                    cmp = " This week's tightest projected gap: " + tg.gap.toFixed(2) + '.';
+                  }
+                }
+                whPick = { cat: whCat, year: whBest.year, side: whBest.side, line: lead + cmp };
+              }
+            }
+
+            if (whPick) {
+              var s0 = whPick.side;
+              historyHtml =
+                '<div class="wh-card">' +
+                  '<div class="wh-title">This Week in ' + esc(league.name || 'OFC') + ' History</div>' +
+                  '<div class="wh-cat">' + esc(whPick.cat) + ' · Week ' + esc(String(whWk)) + ' in ' + esc(String(whPick.year)) + '</div>' +
+                  '<div class="wh-game">' +
+                    '<span class="wh-team wh-team-lead">' + waNameHtml(s0.mid, s0.name) + '</span>' +
+                    '<span class="wh-score wh-score-lead">' + esc(s0.score.toFixed(2)) + '</span>' +
+                    '<span class="wh-dash">–</span>' +
+                    '<span class="wh-score">' + esc(s0.oppScore.toFixed(2)) + '</span>' +
+                    '<span class="wh-team">' + waNameHtml(s0.oppMid, s0.oppName) + '</span>' +
+                  '</div>' +
+                  '<div class="wh-line">' + esc(whPick.line) + '</div>' +
+                '</div>';
+            }
+          }
+
           // High scorer block
           var hs = currentWeek.highScorer || {};
           var hsHtml = '';
@@ -3540,6 +3842,8 @@
           sectionEl.innerHTML =
             '<div class="league-section-heading">Week ' + esc(String(currentWeek.weekNumber || '')) + ' Matchups</div>' +
             '<div class="wm-grid">' + gamesHtml + '</div>' +
+            awardsHtml +
+            historyHtml +
             hsHtml;
 
           // Tale of the Tape expander

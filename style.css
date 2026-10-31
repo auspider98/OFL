@@ -4273,8 +4273,174 @@ select.admin-input option {
   white-space: nowrap;
 }
 
+/* ── Week Awards strip (shown once the week is complete) ── */
+.wa-strip {
+  max-width: 860px;
+  margin: 1rem auto 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--drawer-border);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.02);
+}
+
+.wa-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+}
+
+.wa-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.6rem 0.5rem;
+  border: 1px solid rgba(232,232,232,0.06);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.015);
+  text-align: center;
+  transition: border-color 0.2s;
+  min-width: 0;
+}
+
+.wa-tile:hover { border-color: rgba(232,232,232,0.2); }
+
+.wa-award {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--hint-color, var(--accent));
+}
+
+.wa-team {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.wa-logo {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.wa-initial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--drawer-border);
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.wa-team-name {
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wa-detail {
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  letter-spacing: 0.03em;
+  color: var(--accent-dim);
+  line-height: 1.35;
+}
+
+/* ── This Week in OFC History (shown while the week is in progress) ── */
+.wh-card {
+  max-width: 860px;
+  margin: 1rem auto 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--drawer-border);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.02);
+  text-align: center;
+}
+
+/* Header and category line swap treatments: the header is the larger,
+   bolder line; the category line uses the smaller label style. */
+.wh-title {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--hint-color, var(--accent));
+  margin-bottom: 0.35rem;
+}
+
+.wh-cat {
+  font-family: var(--font-body);
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--hint-color);
+  margin-bottom: 0.5rem;
+}
+
+.wh-game {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.25rem 0.5rem;
+}
+
+.wh-team {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+}
+
+.wh-team-lead { color: var(--accent); }
+
+.wh-now {
+  text-transform: none;
+  font-size: 0.6rem;
+  opacity: 0.7;
+}
+
+.wh-score {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent-dim);
+}
+
+.wh-score-lead { color: var(--accent); }
+
+.wh-dash { color: var(--accent-dim); }
+
+.wh-line {
+  margin-top: 0.4rem;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 0.72rem;
+  color: var(--accent-dim);
+}
+
 /* Mobile */
 @media (max-width: 768px) {
+  .wa-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
   .wm-game {
     grid-template-columns: auto 1fr auto !important;
     gap: 0.5rem;
