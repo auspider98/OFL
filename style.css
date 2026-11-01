@@ -4211,123 +4211,63 @@ select.admin-input option {
 .wm-streak-l { color: #d94f4f; }
 .wm-streak-t { color: var(--accent-dim); }
 
-/* High scorer */
-.wm-high-scorer {
+/* ── Week Awards list (shown once the week is complete) ──
+   Rows mirror the Most Valuable Player box: each row's logo, name/description
+   (centered over each other) and big number form one tight group, centered under its
+   award label. */
+.wa-list {
   max-width: 860px;
   margin: 1rem auto 0;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1rem 0.35rem;
   border: 1px solid var(--drawer-border);
   border-radius: 4px;
   background: rgba(255,255,255,0.02);
 }
 
-.wm-hs-label {
-  font-family: var(--font-body);
-  font-size: 0.55rem;
-  letter-spacing: 0.12em;
-  color: var(--hint-color);
-  text-transform: uppercase;
-  margin-bottom: 0.5rem;
-  text-align: center;
-}
-
-.wm-hs-content {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  justify-content: center;
-}
-
-.wm-hs-logo {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  flex-shrink: 0;
-}
-
-.wm-hs-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-}
-
-.wm-hs-player {
-  font-family: var(--font-body);
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
-  color: var(--accent);
-}
-
-.wm-hs-team {
-  font-family: var(--font-body);
-  font-size: 0.58rem;
-  letter-spacing: 0.04em;
-  color: var(--accent-dim);
-}
-
-.wm-hs-points {
-  font-family: var(--font-display);
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--accent);
-  white-space: nowrap;
-}
-
-/* ── Week Awards strip (shown once the week is complete) ── */
-.wa-strip {
-  max-width: 860px;
-  margin: 1rem auto 0;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--drawer-border);
-  border-radius: 4px;
-  background: rgba(255,255,255,0.02);
-}
-
-.wa-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.6rem;
-}
-
-.wa-tile {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.6rem 0.5rem;
-  border: 1px solid rgba(232,232,232,0.06);
-  border-radius: 4px;
-  background: rgba(255,255,255,0.015);
-  text-align: center;
-  transition: border-color 0.2s;
-  min-width: 0;
-}
-
-.wa-tile:hover { border-color: rgba(232,232,232,0.2); }
-
-.wa-award {
+.wa-title {
   font-family: var(--font-body);
   font-size: 0.6rem;
   font-weight: 600;
   letter-spacing: 0.25em;
   text-transform: uppercase;
   color: var(--hint-color, var(--accent));
+  text-align: center;
+  margin-bottom: 0.4rem;
 }
 
-.wa-team {
+.wa-row {
+  padding: 0.65rem 0;
+  border-top: 1px solid rgba(232,232,232,0.06);
+}
+
+.wa-award {
+  font-family: var(--font-body);
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  color: var(--hint-color);
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 0.45rem;
+}
+
+.wa-line {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  min-width: 0;
-  max-width: 100%;
+  gap: 0.75rem;
 }
 
-.wa-logo {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
+.wa-line .wa-logo,
+.wa-logo-link {
   flex-shrink: 0;
+}
+
+.wa-logo-link { display: block; }
+
+.wa-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
 }
 
 .wa-initial {
@@ -4338,28 +4278,41 @@ select.admin-input option {
   background: var(--drawer-border);
   color: var(--accent);
   font-family: var(--font-display);
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   font-weight: 700;
 }
 
-.wa-team-name {
-  font-family: var(--font-body);
-  font-size: 0.68rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--accent);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.wa-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+  text-align: center;
 }
 
-.wa-detail {
+.wa-name {
   font-family: var(--font-body);
-  font-size: 0.62rem;
-  letter-spacing: 0.03em;
-  color: var(--accent-dim);
-  line-height: 1.35;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--accent);
 }
+
+.wa-sub {
+  font-family: var(--font-body);
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+  color: var(--accent-dim);
+}
+
+.wa-big {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+  text-align: left;
+}
+
 
 /* ── This Week in OFC History (shown while the week is in progress) ── */
 .wh-card {
@@ -4438,9 +4391,6 @@ select.admin-input option {
 
 /* Mobile */
 @media (max-width: 768px) {
-  .wa-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
   .wm-game {
     grid-template-columns: auto 1fr auto !important;
     gap: 0.5rem;

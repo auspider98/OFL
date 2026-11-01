@@ -3586,14 +3586,15 @@
             for (var i = r.results.length - 1; i >= 0 && r.results[i] === last; i--) n++;
             return { type: last, n: n };
           }
-          // Standings leader: most wins, then most PF
-          function waLeader(tally) {
-            var best = null;
+          // Teams tied for 1st by record only (wins, a tie counts as half a win). No PF tiebreak.
+          function waFirstPlace(tally) {
+            var top = -1, ids = [];
             Object.keys(tally).forEach(function (mid) {
-              var r = tally[mid];
-              if (!best || r.w > best.r.w || (r.w === best.r.w && r.pf > best.r.pf)) best = { mid: mid, r: r };
+              var v = tally[mid].w + 0.5 * tally[mid].ties;
+              if (v > top) { top = v; ids = [mid]; }
+              else if (v === top) ids.push(mid);
             });
-            return best;
+            return ids;
           }
 
           // ── Week Awards (only once the week is complete) ───
@@ -3617,15 +3618,15 @@
 
               // 1. Enforcer — highest score
               var enf = pick(waSidesL, function (s, b) { return s.score > b.score; });
-              waList.push({ award: 'Enforcer', side: enf, detail: enf.score.toFixed(2) });
+              waList.push({ award: 'Enforcer', side: enf, big: enf.score.toFixed(2), sub: 'Most Points' });
 
               // 2–3. Pickpocket / Mugged — median-based (always appear together or not at all)
               var pp = pick(waSidesL.filter(function (s) { return s.won && s.score < waMedian; }),
                             function (s, b) { return s.score < b.score; });
               var mg = pick(waSidesL.filter(function (s) { return !s.won && s.score > waMedian; }),
                             function (s, b) { return s.score > b.score; });
-              if (pp) waList.push({ award: 'Pickpocket', side: pp, detail: pp.score.toFixed(2) + ' · beat ' + esc(pp.oppName) });
-              if (mg) waList.push({ award: 'Mugged',     side: mg, detail: mg.score.toFixed(2) + ' · lost to ' + esc(mg.oppName) });
+              if (pp) waList.push({ award: 'Pickpocket', side: pp, big: pp.score.toFixed(2), sub: 'Low Points Win' });
+              if (mg) waList.push({ award: 'Mugged',     side: mg, big: mg.score.toFixed(2), sub: 'High Points Loss' });
 
               // 4. Heist — winner had 2+ fewer wins going in
               if (waPrior.length) {
@@ -3636,28 +3637,34 @@
                   if (gap >= 2 && (!heist || gap > heist.gap)) heist = { side: s, gap: gap };
                 });
                 if (heist) {
-                  waList.push({ award: 'Heist', side: heist.side,
-                    detail: esc(waRec(waBefore[heist.side.mid])) + ' beat ' + esc(waRec(waBefore[heist.side.oppMid])) + ' ' + esc(heist.side.oppName) });
+                  waList.push({ award: 'Heist', side: heist.side, big: waRec(waBefore[heist.side.mid]) + ' vs ' + waRec(waBefore[heist.side.oppMid]),
+                    sub: 'Big Upset Win' });
                 }
               }
 
-              // 5. Coup — took over 1st place (wins, then PF)
+              // 5. Coup — alone in 1st after this week, and was not alone in 1st before it
               if (waPrior.length) {
-                var ldBefore = waLeader(waBefore), ldAfter = waLeader(waAfter);
-                if (ldBefore && ldAfter && ldBefore.mid !== ldAfter.mid) {
-                  var coupSide = waSidesL.find(function (s) { return s.mid === ldAfter.mid; });
-                  if (coupSide) waList.push({ award: 'Coup', side: coupSide, detail: 'Takes 1st at ' + esc(waRec(ldAfter.r)) });
+                var firstBefore = waFirstPlace(waBefore), firstAfter = waFirstPlace(waAfter);
+                if (firstAfter.length === 1) {
+                  var coupMid = firstAfter[0];
+                  var wasTied = firstBefore.indexOf(coupMid) > -1;   // in 1st before, so it was a tie
+                  var wasSole = wasTied && firstBefore.length === 1;
+                  if (!wasSole) {
+                    var coupSide = waSidesL.find(function (s) { return s.mid === coupMid; });
+                    if (coupSide) waList.push({ award: 'Coup', side: coupSide, big: waRec(waAfter[coupMid]),
+                      sub: 'Takes 1st Place' });
+                  }
                 }
               }
 
               // 6. Getaway — closest win, margin under 3
               var get = pick(waSidesL.filter(function (s) { return s.won && (s.score - s.oppScore) < 3; }),
                              function (s, b) { return (s.score - s.oppScore) < (b.score - b.oppScore); });
-              if (get) waList.push({ award: 'Getaway', side: get, detail: 'Won by ' + (get.score - get.oppScore).toFixed(2) + ' over ' + esc(get.oppName) });
+              if (get) waList.push({ award: 'Getaway', side: get, big: '+' + (get.score - get.oppScore).toFixed(2), sub: 'Closest Win' });
 
               // 7. Busted — lowest score, 25+ below the week's average
               var bust = pick(waSidesL, function (s, b) { return s.score < b.score; });
-              if (bust && bust.score <= waAvg - 25) waList.push({ award: 'Busted', side: bust, detail: bust.score.toFixed(2) });
+              if (bust && bust.score <= waAvg - 25) waList.push({ award: 'Busted', side: bust, big: bust.score.toFixed(2), sub: 'Lowest Points' });
 
               // 8. Jailbreak — won, ending a losing streak of L3+
               var jb = null;
@@ -3666,7 +3673,7 @@
                 var st = waStreakOf(waBefore[s.mid]);
                 if (st.type === 'L' && st.n >= 3 && (!jb || st.n > jb.n)) jb = { side: s, n: st.n };
               });
-              if (jb) waList.push({ award: 'Jailbreak', side: jb.side, detail: 'Ends L' + jb.n });
+              if (jb) waList.push({ award: 'Jailbreak', side: jb.side, big: 'L' + jb.n, sub: 'Snapped Losing Streak' });
 
               // 9. Spree — winning streak now W4+
               var spree = null;
@@ -3676,28 +3683,9 @@
                 if (st.type === 'W' && st.n >= 4 &&
                     (!spree || st.n > spree.n || (st.n === spree.n && s.score > spree.side.score))) spree = { side: s, n: st.n };
               });
-              if (spree) waList.push({ award: 'Spree', side: spree.side, detail: 'W' + spree.n });
+              if (spree) waList.push({ award: 'Spree', side: spree.side, big: 'W' + spree.n, sub: 'Win Streak' });
             }
 
-            if (waList.length) {
-              awardsHtml =
-                '<div class="wa-strip">' +
-                  '<div class="wm-hs-label">Week ' + esc(String(waWkNum)) + ' Awards</div>' +
-                  '<div class="wa-grid">' +
-                    waList.slice(0, 6).map(function (a) {
-                      var logo = logoMap[a.side.mid] || '';
-                      var logoHtml = logo
-                        ? '<img class="wa-logo" src="' + esc(logo) + '" alt="" />'
-                        : '<span class="wa-logo wa-initial">' + esc((a.side.name || '?').charAt(0).toUpperCase()) + '</span>';
-                      return '<a class="wa-tile" href="team.html?id=' + encodeURIComponent(a.side.mid) + '">' +
-                        '<div class="wa-award">' + esc(a.award) + '</div>' +
-                        '<div class="wa-team">' + logoHtml + '<span class="wa-team-name">' + esc(a.side.name) + '</span></div>' +
-                        '<div class="wa-detail">' + a.detail + '</div>' +
-                      '</a>';
-                    }).join('') +
-                  '</div>' +
-                '</div>';
-            }
           }
 
           // ── This Week in OFC History (only while the week is in progress) ──
@@ -3816,25 +3804,51 @@
             }
           }
 
-          // High scorer block
+          // ── Most Valuable Player + Week Awards ─────────────
+          // MVP is its own section above the awards, in the same row style.
+          // In progress: "Current Most Valuable Player". Complete: "Week N Most Valuable Player".
           var hs = currentWeek.highScorer || {};
           var hsHtml = '';
-          if (hs.playerName && hs.points) {
-            var hsLogo = logoMap[hs.memberId] || '';
-            var hsLogoHtml = hsLogo
-              ? '<img class="wm-hs-logo" src="' + esc(hsLogo) + '" alt="' + esc(hs.teamName || '') + '" />'
-              : '';
+          var hasMvp = !!(hs.playerName && hs.points);
+
+          // One award-style row: logo (linked to the team page) · name over description · big number
+          function waRowHtml(r, label) {
+            var logo = logoMap[r.mid] || '';
+            var logoHtml = logo
+              ? '<img class="wa-logo" src="' + esc(logo) + '" alt="" />'
+              : '<span class="wa-logo wa-initial">' + esc((r.name || '?').charAt(0).toUpperCase()) + '</span>';
+            if (r.mid) logoHtml = '<a class="wa-logo-link" href="team.html?id=' + encodeURIComponent(r.mid) + '">' + logoHtml + '</a>';
+            return '<div class="wa-row">' +
+              (label ? '<div class="wa-award">' + esc(label) + '</div>' : '') +
+              '<div class="wa-line">' +
+                logoHtml +
+                '<span class="wa-info">' +
+                  '<span class="wa-name">' + esc(r.name || '\u2014') + '</span>' +
+                  '<span class="wa-sub">' + esc(r.sub || '') + '</span>' +
+                '</span>' +
+                '<span class="wa-big">' + esc(r.big) + '</span>' +
+              '</div>' +
+            '</div>';
+          }
+
+          if (hasMvp) {
             hsHtml =
-              '<div class="wm-high-scorer">' +
-                '<div class="wm-hs-label">Week ' + esc(String(currentWeek.weekNumber || '')) + ' — Most Valuable Player</div>' +
-                '<div class="wm-hs-content">' +
-                  hsLogoHtml +
-                  '<div class="wm-hs-info">' +
-                    '<span class="wm-hs-player">' + esc(hs.playerName) + '</span>' +
-                    '<span class="wm-hs-team">' + esc(hs.teamName || '') + '</span>' +
-                  '</div>' +
-                  '<span class="wm-hs-points">' + esc(String(hs.points)) + ' pts</span>' +
+              '<div class="wa-list wa-list--mvp">' +
+                '<div class="wa-title">' +
+                  (wComplete ? 'Week ' + esc(String(currentWeek.weekNumber || '')) + ' Most Valuable Player'
+                             : 'Current Most Valuable Player') +
                 '</div>' +
+                waRowHtml({ mid: hs.memberId, name: hs.playerName, sub: hs.teamName || '', big: String(hs.points) + ' pts' }, '') +
+              '</div>';
+          }
+
+          if (wComplete && waList && waList.length) {
+            awardsHtml =
+              '<div class="wa-list">' +
+                '<div class="wa-title">Week ' + esc(String(currentWeek.weekNumber || '')) + ' Rap Sheet</div>' +
+                waList.slice(0, 6).map(function (a) {
+                  return waRowHtml({ mid: a.side.mid, name: a.side.name, sub: a.sub, big: a.big }, a.award);
+                }).join('') +
               '</div>';
           }
 
@@ -3842,9 +3856,9 @@
           sectionEl.innerHTML =
             '<div class="league-section-heading">Week ' + esc(String(currentWeek.weekNumber || '')) + ' Matchups</div>' +
             '<div class="wm-grid">' + gamesHtml + '</div>' +
-            awardsHtml +
+            hsHtml +
             historyHtml +
-            hsHtml;
+            awardsHtml;
 
           // Tale of the Tape expander
           sectionEl.querySelectorAll('.wm-tape-toggle').forEach(function (btn) {
