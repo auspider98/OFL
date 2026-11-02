@@ -3279,14 +3279,24 @@
             return isFinite(v) ? v : null;
           }
 
-          function wmBarHtml(pHome) {
+          // rx (optional) = bar reactions: { nail, blowout, upsetSide: 'l' | 'r' | '' }
+          function wmBarHtml(pHome, rx) {
+            rx = rx || {};
             var pAway = 1 - pHome;
             function fill(p) {
               return '<div class="wm-prob-fill ' + (p >= 0.5 ? 'wm-prob-win' : 'wm-prob-lose') + '" style="width:' + (p * 100).toFixed(1) + '%"></div>';
             }
-            return '<div class="wm-prob" role="img" aria-label="Win probability ' + Math.round(pHome * 100) + '% to ' + Math.round(pAway * 100) + '%">' +
-              '<div class="wm-prob-half wm-prob-half-l">' + fill(pHome) + '</div>' +
-              '<div class="wm-prob-half wm-prob-half-r">' + fill(pAway) + '</div>' +
+            function halfCls(side, p) {
+              var c = 'wm-prob-half wm-prob-half-' + side;
+              if (rx.upsetSide === side) c += ' wm-prob-half--glow';                 // Upset Alert: underdog side glows
+              if (rx.blowout && p < 0.5)  c += ' wm-prob-half--faded';                // Blowout Alert: trailing side fades
+              if (p >= WM_CAP - 0.0001)   c += ' wm-prob-half--locked';               // Locked: odds at the cap
+              return c;
+            }
+            var barCls = 'wm-prob' + (rx.nail ? ' wm-prob--nail' : '');               // Nail-Biter: center tick pulses
+            return '<div class="' + barCls + '" role="img" aria-label="Win probability ' + Math.round(pHome * 100) + '% to ' + Math.round(pAway * 100) + '%">' +
+              '<div class="' + halfCls('l', pHome) + '">' + fill(pHome) + '</div>' +
+              '<div class="' + halfCls('r', pAway) + '">' + fill(pAway) + '</div>' +
             '</div>';
           }
 
@@ -3498,6 +3508,57 @@
             '</div>';
           }
 
+          // ── Matchup badges (bottom-edge, one per card) ─────
+          // Live: based on projections + records going into the week.
+          // Final: based on what happened (Alert versions drop "Alert").
+          var bdWkNum   = currentWeek.weekNumber || 0;
+          var bdPrior   = weeks.filter(function (w) { return w.isComplete && (w.weekNumber || 0) < bdWkNum; });
+          var bdTally   = motwTally(bdPrior);
+          var bdLateOK  = bdWkNum >= 8 && bdPrior.length > 0;   // Bubble Battle + Basement Bash start in Week 8
+          function bdVal(mid) { var r = bdTally[mid]; return r ? r.w + 0.5 * r.ties : 0; }
+          // Standings order (wins, then PF) across this season's roster
+          var bdIds = (current.roster || []).map(function (r) { return r.memberId; }).filter(Boolean);
+          var bdOrder = bdIds.slice().sort(function (a, b) {
+            return (bdVal(b) - bdVal(a)) || (((bdTally[b] || {}).pf || 0) - ((bdTally[a] || {}).pf || 0));
+          });
+          var bdVals = bdIds.map(bdVal).sort(function (a, b) { return a - b; });
+          var bdBasementLine = bdVals.length > 1 ? bdVals[1] : -1;   // two worst records (ties count)
+
+          // Returns { label, type } or null
+          function matchupBadge(hid, aid, hScore, aScore, hProj, aProj, hasProj, gameOver) {
+            if (!hid || !aid) return null;
+            var live = !gameOver;
+            var hV = bdVal(hid), aV = bdVal(aid);
+            var margin = Math.abs(hScore - aScore);
+            var pGap   = hasProj ? Math.abs(hProj - aProj) : null;
+
+            // 1. Upset — team with 2+ fewer wins going in
+            if (Math.abs(hV - aV) >= 2) {
+              var dogIsHome = hV < aV;
+              if (live && hasProj && (dogIsHome ? hProj > aProj : aProj > hProj)) return { label: 'Upset Alert', type: 'upset' };
+              if (gameOver && (dogIsHome ? hScore > aScore : aScore > hScore))     return { label: 'Upset', type: 'upset' };
+            }
+            // 2. Nail-Biter — gap under 5
+            if (live ? (hasProj && pGap < 5) : margin < 5) return { label: 'Nail-Biter', type: 'nail' };
+            // 3. Bubble Battle — one inside the top 4, one outside, records within 1 win
+            if (bdLateOK) {
+              var hIn = bdOrder.indexOf(hid) < 4, aIn = bdOrder.indexOf(aid) < 4;
+              if (hIn !== aIn && Math.abs(hV - aV) <= 1) return { label: 'Bubble Battle', type: 'bubble' };
+            }
+            // 4. Rivalry — 20+ all-time meetings, series within 2 wins
+            var h2h = motwH2H(hid, aid);
+            if ((h2h.winsH + h2h.winsA + h2h.ties) >= 20 && Math.abs(h2h.winsH - h2h.winsA) <= 2) return { label: 'Rivalry', type: 'rivalry' };
+            // 5. Shootout — both over 120
+            if (live ? (hasProj && hProj > 120 && aProj > 120) : (hScore > 120 && aScore > 120)) return { label: 'Shootout', type: 'shootout' };
+            // 6. Rock Fight — both under 85
+            if (live ? (hasProj && hProj < 85 && aProj < 85) : (hScore < 85 && aScore < 85)) return { label: 'Rock Fight', type: 'rock' };
+            // 7. Blowout — gap of 30 or more
+            if (live ? (hasProj && pGap >= 30) : margin >= 30) return { label: live ? 'Blowout Alert' : 'Blowout', type: 'blowout' };
+            // 8. Basement Bash — both have one of the two worst records
+            if (bdLateOK && hV <= bdBasementLine && aV <= bdBasementLine) return { label: 'Basement Bash', type: 'basement' };
+            return null;
+          }
+
           var gameCards = (currentWeek.games || []).map(function (g, gIdx) {
             var isMotw = gIdx === motwIdx;
             var hScore = parseFloat(g.home && g.home.score) || 0;
@@ -3516,12 +3577,24 @@
             var projRow = showLive
               ? '<span class="wm-proj">' + esc(hProj.toFixed(2)) + '</span><span></span><span class="wm-proj">' + esc(aProj.toFixed(2)) + '</span>'
               : '';
-            var barHtml = showLive ? wmBarHtml(wmWinProb(hScore, hProj, aScore, aProj)) : '';
-            var gameOpen = '<div class="wm-game">';
-            if (isMotw) {
-              gameOpen = '<div class="wm-game wm-game--motw">' +
-                '<div class="wm-motw-tag">Matchup of the Week</div>';
+            var gHid = g.home && g.home.memberId, gAid = g.away && g.away.memberId;
+            var barHtml = '';
+            if (showLive) {
+              // Bar reactions follow their own conditions, independent of the badge shown
+              var rxGap = Math.abs(hProj - aProj);
+              var rxUpset = '';
+              if (Math.abs(bdVal(gHid) - bdVal(gAid)) >= 2) {
+                var rxDogHome = bdVal(gHid) < bdVal(gAid);
+                if (rxDogHome ? hProj > aProj : aProj > hProj) rxUpset = rxDogHome ? 'l' : 'r';
+              }
+              barHtml = wmBarHtml(wmWinProb(hScore, hProj, aScore, aProj),
+                                  { nail: rxGap < 5, blowout: rxGap >= 30, upsetSide: rxUpset });
             }
+            var badge = matchupBadge(gHid, gAid, hScore, aScore, hProj, aProj, hasProj, gameOver);
+            var badgeHtml = badge ? '<div class="wm-badge wm-badge--' + badge.type + '">' + esc(badge.label) + '</div>' : '';
+            var gameCls = 'wm-game' + (isMotw ? ' wm-game--motw' : '') + (badge ? ' wm-game--badged' : '');
+            var gameOpen = '<div class="' + gameCls + '">' +
+              (isMotw ? '<div class="wm-motw-tag">Matchup of the Week</div>' : '');
             return gameOpen +
               '<div class="wm-team wm-team-home">' +
                 teamLogoHtml(g.home && g.home.memberId, g.home && g.home.teamName || '') +
@@ -3541,6 +3614,7 @@
               '</div>' +
               barHtml +
               (isMotw ? motwTapeHtml(g) : '') +
+              badgeHtml +
             '</div>';
           });
 

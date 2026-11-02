@@ -4083,6 +4083,75 @@ select.admin-input option {
 .wm-prob-win  { background: #4caf7d; }
 .wm-prob-lose { background: #d94f4f; }
 
+/* ── Win bar reactions (live games only) ─────────────────── */
+/* Nail-Biter: the center tick pulses */
+.wm-prob--nail::after {
+  animation: wmTickPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes wmTickPulse {
+  0%, 100% { opacity: 0.55; transform: scaleY(1);   box-shadow: none; }
+  50%      { opacity: 1;    transform: scaleY(1.9); box-shadow: 0 0 6px rgba(232,232,232,0.8); }
+}
+
+/* Upset Alert: the underdog's side glows */
+.wm-prob-half--glow .wm-prob-fill {
+  box-shadow: 0 0 8px 1px rgba(76,175,125,0.75);
+}
+
+/* Blowout Alert: the trailing side fades to gray */
+.wm-prob-half--faded .wm-prob-fill {
+  background: #5a5a5a;
+}
+
+/* Locked (odds at the cap): solid cap on the leading end */
+.wm-prob-half-l.wm-prob-half--locked .wm-prob-fill { box-shadow: inset 3px 0 0 #e8e8e8; }
+.wm-prob-half-r.wm-prob-half--locked .wm-prob-fill { box-shadow: inset -3px 0 0 #e8e8e8; }
+
+@media (prefers-reduced-motion: reduce) {
+  .wm-prob--nail::after {
+    animation: none;
+    opacity: 1;
+    transform: scaleY(1.9);
+    box-shadow: 0 0 6px rgba(232,232,232,0.8);
+  }
+}
+
+/* ── Matchup badges ──────────────────────────────────────────
+   Rounded outline badge centered on the card's bottom border
+   (the MOTW tag sits on the top border, square-cornered, gold).
+   One muted color per type. */
+.wm-game--badged {
+  position: relative;
+  margin-bottom: 0.7rem;
+  padding-bottom: 1rem;
+}
+
+.wm-badge {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 50%);
+  padding: 0.2rem 0.85rem;
+  font-family: var(--font-body);
+  font-size: 0.55rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: #0a0a0a;
+  border: 1px solid;
+  border-radius: 6px;
+}
+
+.wm-badge--upset    { color: #d27474; border-color: rgba(210,116,116,0.6); }
+.wm-badge--nail     { color: #d4a24c; border-color: rgba(212,162,76,0.6); }
+.wm-badge--bubble   { color: #a58bd0; border-color: rgba(165,139,208,0.6); }
+.wm-badge--rivalry  { color: #7a9ccc; border-color: rgba(122,156,204,0.6); }
+.wm-badge--shootout { color: #d98a52; border-color: rgba(217,138,82,0.6); }
+.wm-badge--rock     { color: #a3a862; border-color: rgba(163,168,98,0.6); }
+.wm-badge--blowout  { color: #a0a0a0; border-color: rgba(160,160,160,0.55); }
+.wm-badge--basement { color: #ab8463; border-color: rgba(171,132,99,0.6); }
+
 /* ── Matchup of the Week ────────────────────────────────────
    Featured card is pinned first, with the same gold treatment as the
    #1 Power Rankings row. The tag straddles the top border. */
