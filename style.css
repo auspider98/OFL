@@ -4152,6 +4152,17 @@ select.admin-input option {
 .wm-badge--blowout  { color: #a0a0a0; border-color: rgba(160,160,160,0.55); }
 .wm-badge--basement { color: #ab8463; border-color: rgba(171,132,99,0.6); }
 
+/* Card border takes the badge color (border only, softer than the badge).
+   Matchup of the Week keeps its gold border. */
+.wm-game--b-upset:not(.wm-game--motw)    { border-color: rgba(210,116,116,0.45); }
+.wm-game--b-nail:not(.wm-game--motw)     { border-color: rgba(212,162,76,0.45); }
+.wm-game--b-bubble:not(.wm-game--motw)   { border-color: rgba(165,139,208,0.45); }
+.wm-game--b-rivalry:not(.wm-game--motw)  { border-color: rgba(122,156,204,0.45); }
+.wm-game--b-shootout:not(.wm-game--motw) { border-color: rgba(217,138,82,0.45); }
+.wm-game--b-rock:not(.wm-game--motw)     { border-color: rgba(163,168,98,0.45); }
+.wm-game--b-blowout:not(.wm-game--motw)  { border-color: rgba(160,160,160,0.4); }
+.wm-game--b-basement:not(.wm-game--motw) { border-color: rgba(171,132,99,0.45); }
+
 /* ── Matchup of the Week ────────────────────────────────────
    Featured card is pinned first, with the same gold treatment as the
    #1 Power Rankings row. The tag straddles the top border. */

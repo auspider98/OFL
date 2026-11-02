@@ -3592,7 +3592,7 @@
             }
             var badge = matchupBadge(gHid, gAid, hScore, aScore, hProj, aProj, hasProj, gameOver);
             var badgeHtml = badge ? '<div class="wm-badge wm-badge--' + badge.type + '">' + esc(badge.label) + '</div>' : '';
-            var gameCls = 'wm-game' + (isMotw ? ' wm-game--motw' : '') + (badge ? ' wm-game--badged' : '');
+            var gameCls = 'wm-game' + (isMotw ? ' wm-game--motw' : '') + (badge ? ' wm-game--badged wm-game--b-' + badge.type : '');
             var gameOpen = '<div class="' + gameCls + '">' +
               (isMotw ? '<div class="wm-motw-tag">Matchup of the Week</div>' : '');
             return gameOpen +
