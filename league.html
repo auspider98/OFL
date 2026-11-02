@@ -3864,6 +3864,8 @@
               var s0 = whPick.side;
               historyHtml =
                 '<div class="wh-card">' +
+                  '<div class="wh-year" aria-hidden="true">' + esc(String(whPick.year)) + '</div>' +
+                  '<div class="wh-stamp">From the Archives</div>' +
                   '<div class="wh-title">This Week in ' + esc(league.name || 'OFC') + ' History</div>' +
                   '<div class="wh-cat">' + esc(whPick.cat) + ' · Week ' + esc(String(whWk)) + ' in ' + esc(String(whPick.year)) + '</div>' +
                   '<div class="wh-game">' +

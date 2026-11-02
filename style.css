@@ -4425,15 +4425,67 @@ select.admin-input option {
 }
 
 
-/* ── This Week in OFC History (shown while the week is in progress) ── */
+/* ── This Week in OFC History (shown while the week is in progress) ──
+   "Newspaper clipping": bronze double-line border, faint sepia tint,
+   serif type for the moment itself, a big faint year watermark on the
+   right, and a tilted "From the Archives" stamp in the top-left corner. */
 .wh-card {
+  --wh-bronze: #b8925a;
+  --wh-serif: 'Cormorant Garamond', Georgia, serif;
+  position: relative;
+  overflow: hidden;
   max-width: 860px;
   margin: 1rem auto 0;
   padding: 0.75rem 1rem;
-  border: 1px solid var(--drawer-border);
-  border-radius: 4px;
-  background: rgba(255,255,255,0.02);
+  border: 3px double rgba(184,146,90,0.55);
+  border-radius: 2px;
+  background: rgba(184,146,90,0.07);
   text-align: center;
+}
+
+/* Medium paper grain: a tiny tiling noise texture built into the CSS
+   (no image file), warm-tinted to match the sepia. */
+.wh-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.85  0 0 0 0 0.72  0 0 0 0 0.5  0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  opacity: 0.09;
+  pointer-events: none;
+}
+
+/* Keep the content above the watermark and grain */
+.wh-card > *:not(.wh-year):not(.wh-stamp) { position: relative; }
+
+.wh-year {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--wh-serif);
+  font-size: 5.2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: rgba(184,146,90,0.09);
+  pointer-events: none;
+  user-select: none;
+}
+
+.wh-stamp {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  transform: rotate(-8deg);
+  padding: 2px 6px;
+  border: 1.5px solid rgba(184,146,90,0.5);
+  border-radius: 3px;
+  font-family: var(--font-body);
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(184,146,90,0.65);
+  white-space: nowrap;
 }
 
 /* Header and category line swap treatments: the header is the larger,
@@ -4444,7 +4496,7 @@ select.admin-input option {
   font-weight: 600;
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: var(--hint-color, var(--accent));
+  color: var(--wh-bronze);
   margin-bottom: 0.35rem;
 }
 
@@ -4453,7 +4505,7 @@ select.admin-input option {
   font-size: 0.55rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--hint-color);
+  color: var(--wh-bronze);
   margin-bottom: 0.5rem;
 }
 
@@ -4466,38 +4518,56 @@ select.admin-input option {
 }
 
 .wh-team {
-  font-family: var(--font-body);
-  font-size: 0.7rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-family: var(--wh-serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   color: var(--accent-dim);
 }
 
 .wh-team-lead { color: var(--accent); }
 
 .wh-now {
-  text-transform: none;
-  font-size: 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 400;
   opacity: 0.7;
 }
 
 .wh-score {
-  font-family: var(--font-display);
-  font-size: 1rem;
-  font-weight: 600;
+  font-family: var(--wh-serif);
+  font-size: 1.35rem;
+  font-weight: 700;
   color: var(--accent-dim);
 }
 
 .wh-score-lead { color: var(--accent); }
 
-.wh-dash { color: var(--accent-dim); }
+.wh-dash {
+  font-family: var(--wh-serif);
+  color: var(--accent-dim);
+}
 
 .wh-line {
   margin-top: 0.4rem;
-  font-family: var(--font-display);
+  font-family: var(--wh-serif);
   font-style: italic;
-  font-size: 0.72rem;
+  font-size: 0.95rem;
   color: var(--accent-dim);
+}
+
+/* Mobile: the stamp gets its own line above the title (left, same tilt),
+   and the year watermark shrinks. */
+@media (max-width: 768px) {
+  .wh-stamp {
+    position: relative;
+    top: auto;
+    left: auto;
+    display: table;
+    margin: 0.1rem 0 0.5rem;
+  }
+  .wh-year {
+    font-size: 3.6rem;
+  }
 }
 
 /* Mobile */
