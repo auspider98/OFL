@@ -3692,15 +3692,15 @@
 
               // 1. Enforcer — highest score
               var enf = pick(waSidesL, function (s, b) { return s.score > b.score; });
-              waList.push({ award: 'Enforcer', side: enf, big: enf.score.toFixed(2), sub: 'Most Points' });
+              waList.push({ key: 'enforcer', award: 'Enforcer', side: enf, big: enf.score.toFixed(2), sub: 'Most Points' });
 
               // 2–3. Pickpocket / Mugged — median-based (always appear together or not at all)
               var pp = pick(waSidesL.filter(function (s) { return s.won && s.score < waMedian; }),
                             function (s, b) { return s.score < b.score; });
               var mg = pick(waSidesL.filter(function (s) { return !s.won && s.score > waMedian; }),
                             function (s, b) { return s.score > b.score; });
-              if (pp) waList.push({ award: 'Pickpocket', side: pp, big: pp.score.toFixed(2), sub: 'Low Points Win' });
-              if (mg) waList.push({ award: 'Mugged',     side: mg, big: mg.score.toFixed(2), sub: 'High Points Loss' });
+              if (pp) waList.push({ key: 'pickpocket', award: 'Pickpocket', side: pp, big: pp.score.toFixed(2), sub: 'Low Points Win' });
+              if (mg) waList.push({ key: 'mugged', award: 'Mugged',     side: mg, big: mg.score.toFixed(2), sub: 'High Points Loss' });
 
               // 4. Heist — winner had 2+ fewer wins going in
               if (waPrior.length) {
@@ -3711,7 +3711,7 @@
                   if (gap >= 2 && (!heist || gap > heist.gap)) heist = { side: s, gap: gap };
                 });
                 if (heist) {
-                  waList.push({ award: 'Heist', side: heist.side, big: waRec(waBefore[heist.side.mid]) + ' vs ' + waRec(waBefore[heist.side.oppMid]),
+                  waList.push({ key: 'heist', award: 'Heist', side: heist.side, big: waRec(waBefore[heist.side.mid]) + ' vs ' + waRec(waBefore[heist.side.oppMid]),
                     sub: 'Big Upset Win' });
                 }
               }
@@ -3725,7 +3725,7 @@
                   var wasSole = wasTied && firstBefore.length === 1;
                   if (!wasSole) {
                     var coupSide = waSidesL.find(function (s) { return s.mid === coupMid; });
-                    if (coupSide) waList.push({ award: 'Coup', side: coupSide, big: waRec(waAfter[coupMid]),
+                    if (coupSide) waList.push({ key: 'coup', award: 'Coup', side: coupSide, big: waRec(waAfter[coupMid]),
                       sub: 'Takes 1st Place' });
                   }
                 }
@@ -3734,11 +3734,11 @@
               // 6. Getaway — closest win, margin under 3
               var get = pick(waSidesL.filter(function (s) { return s.won && (s.score - s.oppScore) < 3; }),
                              function (s, b) { return (s.score - s.oppScore) < (b.score - b.oppScore); });
-              if (get) waList.push({ award: 'Getaway', side: get, big: '+' + (get.score - get.oppScore).toFixed(2), sub: 'Closest Win' });
+              if (get) waList.push({ key: 'getaway', award: 'Getaway', side: get, big: '+' + (get.score - get.oppScore).toFixed(2), sub: 'Closest Win' });
 
               // 7. Busted — lowest score, 25+ below the week's average
               var bust = pick(waSidesL, function (s, b) { return s.score < b.score; });
-              if (bust && bust.score <= waAvg - 25) waList.push({ award: 'Busted', side: bust, big: bust.score.toFixed(2), sub: 'Lowest Points' });
+              if (bust && bust.score <= waAvg - 25) waList.push({ key: 'busted', award: 'Busted', side: bust, big: bust.score.toFixed(2), sub: 'Lowest Points' });
 
               // 8. Jailbreak — won, ending a losing streak of L3+
               var jb = null;
@@ -3747,7 +3747,7 @@
                 var st = waStreakOf(waBefore[s.mid]);
                 if (st.type === 'L' && st.n >= 3 && (!jb || st.n > jb.n)) jb = { side: s, n: st.n };
               });
-              if (jb) waList.push({ award: 'Jailbreak', side: jb.side, big: 'L' + jb.n, sub: 'Snapped Losing Streak' });
+              if (jb) waList.push({ key: 'jailbreak', award: 'Jailbreak', side: jb.side, big: 'L' + jb.n, sub: 'Snapped Losing Streak' });
 
               // 9. Spree — winning streak now W4+
               var spree = null;
@@ -3757,7 +3757,7 @@
                 if (st.type === 'W' && st.n >= 4 &&
                     (!spree || st.n > spree.n || (st.n === spree.n && s.score > spree.side.score))) spree = { side: s, n: st.n };
               });
-              if (spree) waList.push({ award: 'Spree', side: spree.side, big: 'W' + spree.n, sub: 'Win Streak' });
+              if (spree) waList.push({ key: 'spree', award: 'Spree', side: spree.side, big: 'W' + spree.n, sub: 'Win Streak' });
             }
 
           }
@@ -3917,12 +3917,21 @@
           }
 
           if (wComplete && waList && waList.length) {
+            // Custom title / tagline / names from ofl-data.html (league.rapSheet); blank = admin.js defaults
+            var rsCfg    = league.rapSheet || {};
+            var rsSchema = (window.SPORT_STAT_SCHEMAS && SPORT_STAT_SCHEMAS[league.sport]) || {};
+            var rsTitle  = rsCfg.title || rsSchema.rapSheetTitle || 'Rap Sheet';
+            var rsNames  = rsCfg.names || {};
             awardsHtml =
               '<div class="wa-list">' +
-                '<div class="wa-title">Week ' + esc(String(currentWeek.weekNumber || '')) + ' Rap Sheet</div>' +
-                waList.slice(0, 6).map(function (a) {
-                  return waRowHtml({ mid: a.side.mid, name: a.side.name, sub: a.sub, big: a.big }, a.award);
-                }).join('') +
+                '<div class="wa-title">Week ' + esc(String(currentWeek.weekNumber || '')) + ' ' + esc(rsTitle) + '</div>' +
+                (rsCfg.tagline ? '<div class="wa-tagline">' + esc(rsCfg.tagline) + '</div>' : '') +
+                // 4+ awards: two columns on wide screens (rows read left → right)
+                '<div class="wa-rows' + (Math.min(waList.length, 6) >= 4 ? ' wa-rows--two' : '') + '">' +
+                  waList.slice(0, 6).map(function (a) {
+                    return waRowHtml({ mid: a.side.mid, name: a.side.name, sub: a.sub, big: a.big }, rsNames[a.key] || a.award);
+                  }).join('') +
+                '</div>' +
               '</div>';
           }
 

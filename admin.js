@@ -147,6 +147,20 @@ var SPORT_STAT_SCHEMAS = {
       { key: "jinxed",                defaultLabel: "Jinxed Award",          hint: "Unluckiest Team" },
       { key: "avgPowerRank",          defaultLabel: "Power RanKING",         hint: "Most Consistent Power" }
     ],
+    // Weekly Rap Sheet (league.html, Week N section). Names are editable per
+    // league in ofl-data.html (league.rapSheet); blank there = these defaults.
+    rapSheetTitle: "Rap Sheet",
+    weeklyAwards: [
+      { key: "enforcer",   defaultLabel: "Enforcer",   hint: "Most points" },
+      { key: "pickpocket", defaultLabel: "Pickpocket", hint: "Low points win" },
+      { key: "mugged",     defaultLabel: "Mugged",     hint: "High points loss" },
+      { key: "heist",      defaultLabel: "Heist",      hint: "Big upset win" },
+      { key: "coup",       defaultLabel: "Coup",       hint: "Takes 1st place" },
+      { key: "getaway",    defaultLabel: "Getaway",    hint: "Closest win" },
+      { key: "busted",     defaultLabel: "Busted",     hint: "Lowest points" },
+      { key: "jailbreak",  defaultLabel: "Jailbreak",  hint: "Snapped losing streak" },
+      { key: "spree",      defaultLabel: "Spree",      hint: "Win streak" }
+    ],
     standingsColumns: [
       { key: "rank",       label: "#" },
       { key: "team",       label: "Team" },

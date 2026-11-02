@@ -4315,6 +4315,37 @@ select.admin-input option {
   margin-bottom: 0.4rem;
 }
 
+/* Rap Sheet: two columns on wide screens when there are 4+ awards.
+   Rows read left → right (#1 | #2, #3 | #4 …); an odd last award spans
+   the full width. A faint vertical line separates the columns. */
+@media (min-width: 769px) {
+  .wa-rows--two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .wa-rows--two .wa-row {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  .wa-rows--two .wa-row:nth-child(odd) {
+    border-right: 1px solid rgba(232,232,232,0.06);
+  }
+  .wa-rows--two .wa-row:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    border-right: none;
+  }
+}
+
+/* Optional tagline under the Rap Sheet title (set in ofl-data.html) */
+.wa-tagline {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 0.72rem;
+  color: var(--accent-dim);
+  text-align: center;
+  margin: -0.15rem 0 0.55rem;
+}
+
 .wa-row {
   padding: 0.65rem 0;
   border-top: 1px solid rgba(232,232,232,0.06);
