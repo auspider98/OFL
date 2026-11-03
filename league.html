@@ -3695,10 +3695,12 @@
               var enf = pick(waSidesL, function (s, b) { return s.score > b.score; });
               waList.push({ key: 'enforcer', award: 'Enforcer', side: enf, big: enf.score.toFixed(2), sub: 'Most Points' });
 
-              // 2–3. Pickpocket / Mugged — median-based (always appear together or not at all)
-              var pp = pick(waSidesL.filter(function (s) { return s.won && s.score < waMedian; }),
+              // 2–3. Pickpocket / Mugged — independent of each other:
+              //   Pickpocket: lowest winning score, below the week's median AND under 90
+              //   Mugged:     highest losing score, above the week's median AND 110 or more
+              var pp = pick(waSidesL.filter(function (s) { return s.won && s.score < waMedian && s.score < 90; }),
                             function (s, b) { return s.score < b.score; });
-              var mg = pick(waSidesL.filter(function (s) { return !s.won && s.score > waMedian; }),
+              var mg = pick(waSidesL.filter(function (s) { return !s.won && s.score > waMedian && s.score >= 110; }),
                             function (s, b) { return s.score > b.score; });
               if (pp) waList.push({ key: 'pickpocket', award: 'Pickpocket', side: pp, big: pp.score.toFixed(2), sub: 'Low Points Win' });
               if (mg) waList.push({ key: 'mugged', award: 'Mugged',     side: mg, big: mg.score.toFixed(2), sub: 'High Points Loss' });
