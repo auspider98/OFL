@@ -3538,8 +3538,9 @@
               if (live && hasProj && (dogIsHome ? hProj > aProj : aProj > hProj)) return { label: 'Upset Alert', type: 'upset' };
               if (gameOver && (dogIsHome ? hScore > aScore : aScore > hScore))     return { label: 'Upset', type: 'upset' };
             }
-            // 2. Nail-Biter — gap under 5
-            if (live ? (hasProj && pGap < 5) : margin < 5) return { label: 'Nail-Biter', type: 'nail' };
+            // 2. Nail-Biter (live: projected gap under 5) → Instant Classic (final: margin under 2)
+            if (live && hasProj && pGap < 5) return { label: 'Nail-Biter', type: 'nail' };
+            if (gameOver && margin < 2)      return { label: 'Instant Classic', type: 'nail' };
             // 3. Bubble Battle — one inside the top 4, one outside, records within 1 win
             if (bdLateOK) {
               var hIn = bdOrder.indexOf(hid) < 4, aIn = bdOrder.indexOf(aid) < 4;
