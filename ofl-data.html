@@ -1514,6 +1514,63 @@ document.addEventListener('DOMContentLoaded', function () {
         sec.appendChild(caAddBtn);
       }));
 
+      /* ── Weekly Rap Sheet (football only) ─────────────────
+         Stored on the league as league.rapSheet = { title, tagline, names: {key: name} }.
+         Blank = use the default from admin.js (nothing is written for defaults). */
+      if (schema.weeklyAwards && schema.weeklyAwards.length) {
+        wrap.appendChild(buildNestedSection('Weekly Rap Sheet', true, function (sec) {
+          function rs() {
+            if (!league.rapSheet) league.rapSheet = {};
+            if (!league.rapSheet.names) league.rapSheet.names = {};
+            return league.rapSheet;
+          }
+          // Remove the whole object again when everything is blank
+          function tidy() {
+            var r = league.rapSheet;
+            if (!r) return;
+            if (r.names && !Object.keys(r.names).length) delete r.names;
+            if (!Object.keys(r).length) delete league.rapSheet;
+          }
+          var cur = league.rapSheet || {};
+          var curNames = cur.names || {};
+
+          var desc = document.createElement('p');
+          desc.className = 'field-hint';
+          desc.style.marginBottom = '0.5rem';
+          desc.textContent = 'Shown in the Week N section once the week is complete. Leave a field blank to use the default.';
+          sec.appendChild(desc);
+
+          function addRow(label, hint, value, placeholder, onInput) {
+            var row = document.createElement('div');
+            row.className = 'field-row';
+            row.innerHTML =
+              '<div class="field-label">' + esc(label) + (hint ? '<span class="field-hint">' + esc(hint) + '</span>' : '') + '</div>' +
+              '<input class="admin-input" type="text" value="' + esc(value || '') + '" placeholder="' + esc(placeholder) + '" />';
+            row.querySelector('input').addEventListener('input', function () { onInput(this.value.trim()); tidy(); markDirty(); });
+            sec.appendChild(row);
+          }
+
+          addRow('Title', 'Header after "Week N"', cur.title, schema.rapSheetTitle || 'Rap Sheet', function (v) {
+            if (v) rs().title = v; else if (league.rapSheet) delete league.rapSheet.title;
+          });
+          addRow('Tagline', 'Optional line under the title', cur.tagline, 'Optional, hidden when blank', function (v) {
+            if (v) rs().tagline = v; else if (league.rapSheet) delete league.rapSheet.tagline;
+          });
+
+          var namesLabel = document.createElement('div');
+          namesLabel.className = 'admin-subsection-label';
+          namesLabel.textContent = 'Award Names';
+          sec.appendChild(namesLabel);
+
+          schema.weeklyAwards.forEach(function (a) {
+            addRow(a.defaultLabel, a.hint, curNames[a.key], a.defaultLabel, function (v) {
+              if (v) rs().names[a.key] = v;
+              else if (league.rapSheet && league.rapSheet.names) delete league.rapSheet.names[a.key];
+            });
+          });
+        }));
+      }
+
       /* ── Card Template ────────────────────────────────── */
       wrap.appendChild(buildNestedSection('Card Template', true, function (sec) {
         if (!league.cardTemplate || !league.cardTemplate.length) {
@@ -2111,6 +2168,76 @@ document.addEventListener('DOMContentLoaded', function () {
             markDirty();
           });
           sec.appendChild(preseasonMsgRow);
+
+          /* ── Season Message images ─────────────────────────
+             Stored as season.preseasonImages = [{ src, caption }].
+             Rows with a blank address are kept while editing but
+             skipped on the league page. */
+          if (!Array.isArray(season.preseasonImages)) season.preseasonImages = [];
+          var imgRow = document.createElement('div');
+          imgRow.className = 'field-row';
+          imgRow.innerHTML =
+            '<div class="field-label">Season Message Images' +
+              '<span class="field-hint">Shown right after the Season Message. One image is full width; two or more sit two per row on wide screens</span>' +
+            '</div>' +
+            '<div class="s-msg-images"></div>';
+          var imgList = imgRow.querySelector('.s-msg-images');
+          sec.appendChild(imgRow);
+
+          function renderMsgImages() {
+            imgList.innerHTML = '';
+            season.preseasonImages.forEach(function (im, i) {
+              var r = document.createElement('div');
+              r.style.cssText = 'display:flex;gap:0.6rem;align-items:flex-start;margin-bottom:0.6rem;padding:0.6rem;border:1px solid rgba(232,232,232,0.06);';
+              r.innerHTML =
+                '<img class="mi-thumb" alt="" style="width:56px;height:56px;object-fit:cover;flex-shrink:0;border:1px solid rgba(232,232,232,0.1);background:rgba(255,255,255,0.03);' + (im.src ? '' : 'visibility:hidden;') + '" />' +
+                '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:0.4rem;">' +
+                  '<input class="admin-input mi-src" type="text" placeholder="Image address, e.g. assets/week8.png" value="' + esc(im.src || '') + '" />' +
+                  '<input class="admin-input mi-cap" type="text" placeholder="Caption (optional)" value="' + esc(im.caption || '') + '" />' +
+                '</div>' +
+                '<div style="display:flex;flex-direction:column;gap:0.25rem;flex-shrink:0;">' +
+                  '<button class="btn btn-sm btn-icon mi-up" title="Move up"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
+                  '<button class="btn btn-sm btn-icon mi-down" title="Move down"' + (i === season.preseasonImages.length - 1 ? ' disabled' : '') + '>↓</button>' +
+                  '<button class="btn btn-sm btn-icon btn-danger mi-del" title="Remove">✕</button>' +
+                '</div>';
+              var thumb = r.querySelector('.mi-thumb');
+              if (im.src) thumb.src = im.src;
+              thumb.addEventListener('error', function () { thumb.style.visibility = 'hidden'; });
+              thumb.addEventListener('load',  function () { thumb.style.visibility = 'visible'; });
+              r.querySelector('.mi-src').addEventListener('input', function () {
+                im.src = this.value.trim();
+                if (im.src) thumb.src = im.src; else thumb.style.visibility = 'hidden';
+                markDirty();
+              });
+              r.querySelector('.mi-cap').addEventListener('input', function () {
+                im.caption = this.value; markDirty();
+              });
+              r.querySelector('.mi-up').addEventListener('click', function () {
+                if (i === 0) return;
+                var t = season.preseasonImages[i - 1]; season.preseasonImages[i - 1] = im; season.preseasonImages[i] = t;
+                renderMsgImages(); markDirty();
+              });
+              r.querySelector('.mi-down').addEventListener('click', function () {
+                if (i === season.preseasonImages.length - 1) return;
+                var t = season.preseasonImages[i + 1]; season.preseasonImages[i + 1] = im; season.preseasonImages[i] = t;
+                renderMsgImages(); markDirty();
+              });
+              r.querySelector('.mi-del').addEventListener('click', function () {
+                season.preseasonImages.splice(i, 1);
+                renderMsgImages(); markDirty();
+              });
+              imgList.appendChild(r);
+            });
+            var add = document.createElement('button');
+            add.className = 'btn btn-sm';
+            add.textContent = '+ Add Image';
+            add.addEventListener('click', function () {
+              season.preseasonImages.push({ src: '', caption: '' });
+              renderMsgImages(); markDirty();
+            });
+            imgList.appendChild(add);
+          }
+          renderMsgImages();
         }
 
         /* ── Yahoo! League Link ───────────────────────────── */
@@ -3326,6 +3453,7 @@ document.addEventListener('DOMContentLoaded', function () {
             window.SITE_CONFIG.leagueData   = workingConfig.leagueData;
           }
           populateAllFields(); markClean(); unlockVersion();
+          cleanOfcWildcards();
           showToast('\u2713  Imported from ' + source + ' \u2014 ' + (workingConfig.masterRoster||[]).length + ' members, ' + (workingConfig.leagueData||[]).length + ' leagues');
         } catch (err) {
           showToast('\u2717  Import failed: ' + err.message, 5000);
@@ -3504,10 +3632,42 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     /* ══════════════════════════════════════════════════════
+       CLEANUP: hidden OFC Wild Card games
+       OFC has no Wild Card round (the bracket editor hides it), but a
+       leftover copy of the 2018 semifinals was stored there, which
+       double-counted those games on records.html. Empty the round for
+       every OFC season; does nothing once the data is clean.
+    ══════════════════════════════════════════════════════ */
+    function cleanOfcWildcards() {
+      var removed = 0, years = [];
+      (workingConfig.leagueData || []).forEach(function (lg) {
+        if (lg.name !== 'OFC') return;
+        (lg.seasons || []).forEach(function (ssn) {
+          var wc = ssn.playoffs && ssn.playoffs.wildcard;
+          if (!Array.isArray(wc)) return;
+          var real = wc.filter(function (m) {
+            return m && (m.homeMemberId || m.awayMemberId || m.homeTeamName || m.awayTeamName ||
+                         parseFloat(m.homeScore) || parseFloat(m.awayScore));
+          });
+          if (real.length) { removed += real.length; years.push(ssn.year); }
+          if (wc.length) ssn.playoffs.wildcard = [];
+        });
+      });
+      if (removed) {
+        markDirty();
+        setTimeout(function () {
+          showToast('\u2713  Removed ' + removed + ' hidden Wild Card game' + (removed > 1 ? 's' : '') + ' (' + years.join(', ') + ') \u2014 Export Config to save', 6000);
+        }, 2600);
+      }
+      return removed;
+    }
+
+    /* ══════════════════════════════════════════════════════
        BOOT
     ══════════════════════════════════════════════════════ */
     populateAllFields();
     initCollapsible();
+    cleanOfcWildcards();
 
   } /* end initAdmin() */
 

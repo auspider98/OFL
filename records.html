@@ -447,9 +447,9 @@
       var allSeasonPF=[], allSeasonLowPF=[];
       var careerWins={}, mostPlayoffs={}, mostLastPlace={};
       var consPlayoffs={}, consLastPlace={};
-      var sgHighScoreArr=[], sgLowScoreArr=[], sgBlowoutArr=[], sgClosestArr=[], sgHighLosingArr=[], sgMvpHighArr=[], sgMvpLowArr=[];
+      var sgHighScoreArr=[], sgLowScoreArr=[], sgBlowoutArr=[], sgClosestArr=[], sgHighLosingArr=[], sgLowWinningArr=[], sgMvpHighArr=[], sgMvpLowArr=[];
       var recBestMissedArr=[], recWorstWonArr=[], recBigGapArr=[];
-      var poHighArr=[], poLowArr=[], poBlowoutArr=[], poClosestArr=[], poHighLosingArr=[];
+      var poHighArr=[], poLowArr=[], poBlowoutArr=[], poClosestArr=[], poHighLosingArr=[], poLowWinningArr=[];
       var poChampHighArr=[], poChampBlowoutArr=[], poChampClosestArr=[];
       var poCareerWins={}, poChampAppArr={}, poChampWonArr={};
       var mvpSeasonArr=[], mvpCareer={};
@@ -582,12 +582,16 @@
             sgBlowoutArr.push(   {value:margin,    memberId:hi.mid, name:hi.name, team:hi.team, sub:wl, oppTeam:lo.team, oppScore:lo.score, winScore:hi.score});
             sgClosestArr.push(   {value:margin,    memberId:hi.mid, name:hi.name, team:hi.team, sub:wl, oppTeam:lo.team, oppScore:lo.score, winScore:hi.score});
             sgHighLosingArr.push({value:lo.score,  memberId:lo.mid, name:lo.name, team:lo.team, sub:wl, oppTeam:hi.team});
+            // Lowest Winning Score — ties aren't wins, so they're left out
+            if (hs !== as_) sgLowWinningArr.push({value:hi.score, memberId:hi.mid, name:hi.name, team:hi.team, sub:wl, oppTeam:lo.team, oppScore:lo.score});
           });
         });
 
         // Playoff game records
+        // OFC has no Wild Card round (ofl-data.html hides it), so skip any stray entries there
         var po = s.playoffs || {};
-        ['wildcard','semis','finals','consolation'].forEach(function(roundKey) {
+        var poRounds = league.name === 'OFC' ? ['semis','finals','consolation'] : ['wildcard','semis','finals','consolation'];
+        poRounds.forEach(function(roundKey) {
           (po[roundKey]||[]).forEach(function(mu) {
             var hs = parseFloat(mu.homeScore) || 0;
             var as_ = parseFloat(mu.awayScore) || 0;
@@ -607,6 +611,7 @@
             poBlowoutArr.push({value:margin, memberId:hi.mid, name:hi.name, team:hi.team, sub:lbl, oppTeam:lo.team, oppScore:lo.score, winScore:hi.score});
             poClosestArr.push({value:margin, memberId:hi.mid, name:hi.name, team:hi.team, sub:lbl, oppTeam:lo.team, oppScore:lo.score, winScore:hi.score});
             poHighLosingArr.push(loEntry);
+            if (hs !== as_) poLowWinningArr.push({value:hi.score, memberId:hi.mid, name:hi.name, team:hi.team, sub:lbl, oppTeam:lo.team, oppScore:lo.score});
             // Career playoff wins
             if (!poCareerWins[hi.mid]) poCareerWins[hi.mid] = {memberId:hi.mid, name:hi.name, wins:0};
             poCareerWins[hi.mid].wins++;
@@ -640,6 +645,7 @@
         t3SgBlowout:    topN(sgBlowoutArr,    'value', true),
         t3SgClosest:    topN(sgClosestArr,    'value', false),
         t3SgHighLosing: topN(sgHighLosingArr, 'value', true),
+        t3SgLowWinning: topN(sgLowWinningArr, 'value', false),
         t3SgMvpHigh:    topN(sgMvpHighArr,    'value', true),
         t3SgMvpLow:     topN(sgMvpLowArr,     'value', false),
         t3BestMissed:   recBestMissedArr.slice().sort(function(a,b){return b.value-a.value;}).slice(0,5),
@@ -665,6 +671,7 @@
         poBlowout:       topN(poBlowoutArr,     'value', true),
         poClosest:       topN(poClosestArr,     'value', false),
         poHighLosing:    topN(poHighLosingArr,  'value', true),
+        poLowWinning:    topN(poLowWinningArr,  'value', false),
         poChampHigh:     topN(poChampHighArr,   'value', true),
         poChampBlowout:  topN(poChampBlowoutArr,'value', true),
         poChampClosest:  topN(poChampClosestArr,'value', false),
@@ -782,6 +789,7 @@
         defs.push({section:SG, label:'Biggest Blowout',         top3: r.t3SgBlowout.map(   function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||'',oppScore:x.oppScore||0,winScore:x.winScore||0};})});
         defs.push({section:SG, label:'Closest Game',            top3: r.t3SgClosest.map(   function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||'',oppScore:x.oppScore||0,winScore:x.winScore||0};})});
         defs.push({section:SG, label:'Highest Losing Score',    top3: r.t3SgHighLosing.map(function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||''};})});
+        defs.push({section:SG, label:'Lowest Winning Score',    top3: r.t3SgLowWinning.map(function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||'',oppScore:x.oppScore||0};})});
         defs.push({section:SG, label:'Highest Scoring Weekly MVP', top3: r.t3SgMvpHigh.map(   function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',player:x.player||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||''};})});
         defs.push({section:SG, label:'Lowest Scoring Weekly MVP',  top3: r.t3SgMvpLow.map(    function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',player:x.player||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||''};})});
       }
@@ -806,6 +814,7 @@
       defs.push({section:PS, label:'Biggest Playoff Blowout',        top3: r.poBlowout.map(      function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||'',oppScore:x.oppScore||0,winScore:x.winScore||0};})});
       defs.push({section:PS, label:'Closest Playoff Game',           top3: r.poClosest.map(      function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||'',oppScore:x.oppScore||0,winScore:x.winScore||0};})});
       defs.push({section:PS, label:'Highest Losing Playoff Score',   top3: r.poHighLosing.map(   function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||''};})});
+      defs.push({section:PS, label:'Lowest Winning Playoff Score',   top3: r.poLowWinning.map(   function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||'',oppScore:x.oppScore||0};})});
       defs.push({section:PS, label:'Highest Championship Score',     top3: r.poChampHigh.map(    function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||''};})});
       defs.push({section:PS, label:'Biggest Championship Blowout',   top3: r.poChampBlowout.map( function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||'',oppScore:x.oppScore||0,winScore:x.winScore||0};})});
       defs.push({section:PS, label:'Closest Championship Game',      top3: r.poChampClosest.map( function(x){return{memberId:x.memberId,name:x.name,team:x.team||'',value:fmt(x.value,2),sub:x.sub,oppTeam:x.oppTeam||'',oppScore:x.oppScore||0,winScore:x.winScore||0};})});

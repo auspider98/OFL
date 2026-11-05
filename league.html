@@ -2385,12 +2385,65 @@
       var PRESEASON_ALLOWED = { yahoo: true, roster: true, pastSeasons: true, weekly: false };
 
       // ── Season message block — shown in both preseason on and off states ──
-      if (!isArchive && !isFinal && current && current.preseasonMessage) {
+      // Season Message images (season.preseasonImages = [{ src, caption }]), shown after the text
+      var msgImgs = (current && Array.isArray(current.preseasonImages) ? current.preseasonImages : [])
+        .filter(function (im) { return im && im.src; });
+      if (!isArchive && !isFinal && current && (current.preseasonMessage || msgImgs.length)) {
         var msgEl = document.createElement('div');
         msgEl.className = 'league-section section-reveal' + (isFirst ? ' league-section-first' : '');
         msgEl.style.animationDelay = revealDelay + 's';
+        var msgImgsHtml = '';
+        if (msgImgs.length) {
+          msgImgsHtml =
+            '<div class="sm-images' + (msgImgs.length === 1 ? ' sm-images--single' : '') + '">' +
+              msgImgs.map(function (im) {
+                return '<figure class="sm-fig">' +
+                  '<button type="button" class="sm-img-btn" aria-label="Enlarge image">' +
+                    '<img class="sm-img" src="' + esc(im.src) + '" alt="' + esc(im.caption || '') + '" loading="lazy" />' +
+                  '</button>' +
+                  (im.caption ? '<figcaption class="sm-cap">' + esc(im.caption) + '</figcaption>' : '') +
+                '</figure>';
+              }).join('') +
+            '</div>';
+        }
         msgEl.innerHTML =
-          '<div class="preseason-message">' + esc(current.preseasonMessage) + '</div>';
+          (current.preseasonMessage ? '<div class="preseason-message">' + esc(current.preseasonMessage) + '</div>' : '') +
+          msgImgsHtml;
+
+        // Broken images are quietly hidden; tap any image to view it full-screen
+        msgEl.querySelectorAll('.sm-fig').forEach(function (fig) {
+          var img = fig.querySelector('.sm-img');
+          img.addEventListener('error', function () {
+            fig.remove();
+            var grid = msgEl.querySelector('.sm-images');
+            if (grid) {
+              var left = grid.querySelectorAll('.sm-fig').length;
+              if (!left) grid.remove();
+              else if (left === 1) grid.classList.add('sm-images--single');
+            }
+          });
+          fig.querySelector('.sm-img-btn').addEventListener('click', function () {
+            var capEl = fig.querySelector('.sm-cap');
+            var lb = document.createElement('div');
+            lb.className = 'sm-lightbox';
+            lb.setAttribute('role', 'dialog');
+            lb.setAttribute('aria-modal', 'true');
+            lb.innerHTML =
+              '<button type="button" class="sm-lb-close" aria-label="Close">✕</button>' +
+              '<img class="sm-lb-img" src="' + esc(img.getAttribute('src')) + '" alt="' + esc(img.getAttribute('alt') || '') + '" />' +
+              (capEl ? '<div class="sm-lb-cap">' + esc(capEl.textContent) + '</div>' : '');
+            function close() {
+              document.removeEventListener('keydown', onKey);
+              lb.remove();
+              document.body.style.overflow = '';
+            }
+            function onKey(e) { if (e.key === 'Escape') close(); }
+            lb.addEventListener('click', close);
+            document.addEventListener('keydown', onKey);
+            document.body.style.overflow = 'hidden';
+            document.body.appendChild(lb);
+          });
+        });
         revealDelay += 0.15;
         isFirst = false;
         body.appendChild(msgEl);
@@ -3768,99 +3821,169 @@
           // ── This Week in OFC History (only while the week is in progress) ──
           var historyHtml = '';
           if (!wComplete && currentWeek.weekNumber) {
-            var whWk   = currentWeek.weekNumber;
-            var whPast = [];   // { year, wk } for the same week number in past seasons
+            var whWk = currentWeek.weekNumber;
+
+            // ── 1. Every past regular-season game (seasons before this one) ──
+            function whYr(ssn) { return parseInt(ssn.year, 10) || 0; }
+            var whCurYr = whYr(current);
+            var whGames = [];
             (league.seasons || []).forEach(function (ssn) {
               if (ssn === current || (ssn.id && ssn.id === current.id)) return;
+              var yr = whYr(ssn);
+              if (!yr || (whCurYr && yr >= whCurYr)) return;
               (ssn.weeks || []).forEach(function (wk) {
-                if (wk.isComplete && wk.weekNumber === whWk) whPast.push({ year: ssn.year, wk: wk });
-              });
-            });
-
-            var whPick = null;   // { cat, year, lead: side, other: side, line1 }
-
-            // 1. Rematch — this week's pairs (MOTW first), most recent meeting
-            var whPairs = (currentWeek.games || []).map(function (g, i) {
-              return { h: g.home && g.home.memberId, a: g.away && g.away.memberId, pri: i === motwIdx ? 0 : 1 };
-            }).filter(function (p) { return p.h && p.a; });
-            var whRematch = null;
-            whPast.forEach(function (p) {
-              waSides(p.wk).forEach(function (s) {
-                if (!s.won) return;
-                whPairs.forEach(function (pr) {
-                  if (!((s.mid === pr.h && s.oppMid === pr.a) || (s.mid === pr.a && s.oppMid === pr.h))) return;
-                  var yr = parseInt(p.year, 10) || 0;
-                  if (!whRematch || pr.pri < whRematch.pri || (pr.pri === whRematch.pri && yr > whRematch.yr)) {
-                    whRematch = { pri: pr.pri, yr: yr, year: p.year, side: s, pair: pr };
-                  }
+                if (!wk.isComplete) return;
+                (wk.games || []).forEach(function (g) {
+                  var hid = g.home && g.home.memberId, aid = g.away && g.away.memberId;
+                  var hs  = parseFloat(g.home && g.home.score) || 0;
+                  var as_ = parseFloat(g.away && g.away.score) || 0;
+                  if (!hid || !aid || (!hs && !as_)) return;
+                  var H = { mid: hid, name: (g.home && g.home.teamName) || '', score: hs };
+                  var A = { mid: aid, name: (g.away && g.away.teamName) || '', score: as_ };
+                  var hi = hs >= as_ ? H : A, lo = hs >= as_ ? A : H;
+                  whGames.push({ id: yr + '-' + (wk.weekNumber || 0) + '-' + hid + '-' + aid,
+                                 year: yr, wk: wk.weekNumber || 0, hi: hi, lo: lo,
+                                 margin: hi.score - lo.score, tie: hs === as_ });
                 });
               });
             });
-            if (whRematch) {
-              var whH2H = motwH2H(whRematch.pair.h, whRematch.pair.a);
-              var hNow = waCurrentName(whRematch.pair.h), aNow = waCurrentName(whRematch.pair.a);
-              var series = whH2H.winsH === whH2H.winsA
-                ? 'Series tied ' + whH2H.winsH + '-' + whH2H.winsA + '.'
-                : 'Series: ' + (whH2H.winsH > whH2H.winsA ? hNow : aNow) + ' lead ' +
-                  Math.max(whH2H.winsH, whH2H.winsA) + '-' + Math.min(whH2H.winsH, whH2H.winsA) + '.';
-              whPick = { cat: 'Rematch', year: whRematch.year, side: whRematch.side,
-                         line: 'They meet again this week. ' + series };
+
+            // ── 2. Drama for each game (strongest first) ──
+            // Record Book uses the same top-5 lists as records.html.
+            function whTop5(f, desc) {
+              return whGames.slice().sort(function (x, y) { return desc ? f(y) - f(x) : f(x) - f(y); }).slice(0, 5);
+            }
+            var whRecLists = [
+              { txt: 'biggest blowout',      list: whTop5(function (g) { return g.margin; }, true),   lead: 'hi' },
+              { txt: 'highest score',        list: whTop5(function (g) { return g.hi.score; }, true), lead: 'hi' },
+              { txt: 'closest game',         list: whTop5(function (g) { return g.margin; }, false),  lead: 'hi' },
+              { txt: 'lowest score',         list: whTop5(function (g) { return g.lo.score; }, false),lead: 'lo' },
+              { txt: 'highest losing score', list: whTop5(function (g) { return g.lo.score; }, true), lead: 'lo' },
+              // Ties aren't wins, so they can't be a lowest winning score
+              { txt: 'lowest winning score', list: whGames.filter(function (g) { return !g.tie; })
+                                                    .sort(function (x, y) { return x.hi.score - y.hi.score; }).slice(0, 5), lead: 'hi' }
+            ];
+            var whOwn = {};   // owner → { hi, lo } all-time single-game scores
+            whGames.forEach(function (g) {
+              [g.hi, g.lo].forEach(function (x) {
+                var o = whOwn[x.mid] || (whOwn[x.mid] = { hi: -1, lo: 1e9 });
+                if (x.score > o.hi) o.hi = x.score;
+                if (x.score < o.lo) o.lo = x.score;
+              });
+            });
+            var whByWk = {};
+            whGames.forEach(function (g) { (whByWk[g.wk] = whByWk[g.wk] || []).push(g); });
+            function whOrdinal(n) { return n === 1 ? '' : n === 2 ? '2nd-' : n === 3 ? '3rd-' : n + 'th-'; }
+            function whPoss(name) {
+              var n = (name || 'Their').charAt(0).toUpperCase() + (name || 'Their').slice(1);
+              return /s$/i.test(n) ? n + "'" : n + "'s";
+            }
+            // Returns { tier, strength, label, line, lead: side, opp: side } or null
+            function whDrama(g) {
+              // Tier 0: Record Book (best rank across the five lists)
+              var best = null;
+              whRecLists.forEach(function (r) {
+                var i = r.list.indexOf(g);
+                if (i > -1 && (!best || i < best.i)) best = { i: i, r: r };
+              });
+              if (best) {
+                var rk = best.i + 1;
+                return { tier: 0, strength: rk, label: 'Record Book',
+                  line: (rk === 1 ? best.r.txt.charAt(0).toUpperCase() + best.r.txt.slice(1) : '#' + rk + ' ' + best.r.txt) + ' in OFC history.',
+                  lead: best.r.lead === 'lo' ? g.lo : g.hi, opp: best.r.lead === 'lo' ? g.hi : g.lo };
+              }
+              // Tier 1: Heartbreaker (under 2 points)
+              if (g.margin < 2) {
+                return { tier: 1, strength: g.margin, label: 'Heartbreaker',
+                  line: g.tie ? 'Ended in a tie.' : 'Decided by ' + g.margin.toFixed(2) + '.', lead: g.hi, opp: g.lo };
+              }
+              // Tier 2: Big Score / Dud (top 3 in that week number)
+              var wkList = whByWk[g.wk] || [];
+              var hiRank = wkList.filter(function (x) { return x.hi.score > g.hi.score; }).length + 1;
+              var loRank = wkList.filter(function (x) { return x.lo.score < g.lo.score; }).length + 1;
+              if (hiRank <= 3 && hiRank <= loRank) {
+                return { tier: 2, strength: hiRank, label: 'Big Score',
+                  line: (hiRank === 1 ? 'Highest' : whOrdinal(hiRank) + 'highest') + ' Week ' + g.wk + ' score ever.', lead: g.hi, opp: g.lo };
+              }
+              if (loRank <= 3) {
+                return { tier: 2, strength: loRank, label: 'Dud',
+                  line: (loRank === 1 ? 'Lowest' : whOrdinal(loRank) + 'lowest') + ' Week ' + g.wk + ' score ever.', lead: g.lo, opp: g.hi };
+              }
+              // Tier 3: Franchise High / Low (an owner's all-time best or worst)
+              if (whOwn[g.hi.mid] && g.hi.score === whOwn[g.hi.mid].hi) {
+                return { tier: 3, strength: 0, label: 'Franchise High',
+                  line: whPoss(waCurrentName(g.hi.mid) || g.hi.name) + ' best score ever.', lead: g.hi, opp: g.lo };
+              }
+              if (whOwn[g.lo.mid] && g.lo.score === whOwn[g.lo.mid].lo) {
+                return { tier: 3, strength: 0, label: 'Franchise Low',
+                  line: whPoss(waCurrentName(g.lo.mid) || g.lo.name) + ' worst score ever.', lead: g.lo, opp: g.hi };
+              }
+              // Tier 4: Beatdown (won by 40+)
+              if (g.margin >= 40) {
+                return { tier: 4, strength: -g.margin, label: 'Beatdown',
+                  line: 'Won by ' + g.margin.toFixed(2) + '.', lead: g.hi, opp: g.lo };
+              }
+              return null;
+            }
+            var whDramaById = {};
+            whGames.forEach(function (g) { whDramaById[g.id] = whDrama(g); });
+
+            // ── 3. Pick for one season's Week N ──
+            // Order: not yet featured → featured longest ago; rematch before any-teams;
+            // then strongest drama; MOTW pairing first among rematches; then most recent.
+            function whPickFor(yr, pairs, motwPair, featured) {
+              function isPair(g, p) { return (g.hi.mid === p[0] && g.lo.mid === p[1]) || (g.hi.mid === p[1] && g.lo.mid === p[0]); }
+              var cands = [];
+              (whByWk[whWk] || []).forEach(function (g) {
+                if (g.year >= yr) return;
+                var d = whDramaById[g.id];
+                if (!d) return;
+                var rematch = pairs.some(function (p) { return isPair(g, p); });
+                cands.push({ g: g, d: d, rematch: rematch, motw: !!(motwPair && isPair(g, motwPair)),
+                             fy: featured[g.id] || 0 });
+              });
+              cands.sort(function (x, y) {
+                return ((x.fy ? 1 : 0) - (y.fy ? 1 : 0)) ||
+                       (x.fy - y.fy) ||
+                       ((y.rematch ? 1 : 0) - (x.rematch ? 1 : 0)) ||
+                       (x.d.tier - y.d.tier) ||
+                       ((y.motw ? 1 : 0) - (x.motw ? 1 : 0)) ||
+                       (x.d.strength - y.d.strength) ||
+                       (y.g.year - x.g.year);
+              });
+              return cands[0] || null;
+            }
+            function whPairsOf(wk) {
+              return (wk.games || []).map(function (g) { return [g.home && g.home.memberId, g.away && g.away.memberId]; })
+                .filter(function (p) { return p[0] && p[1]; });
             }
 
-            // 2. Rotation — Big Score, Beatdown, Heartbreaker, Dud
-            if (!whPick && whPast.length) {
-              var whCat = ['Big Score', 'Beatdown', 'Heartbreaker', 'Dud'][(whWk - 1) % 4];
-              var whBest = null;
-              whPast.forEach(function (p) {
-                waSides(p.wk).forEach(function (s) {
-                  var val, better;
-                  if (whCat === 'Big Score')    { val = s.score; better = whBest ? val > whBest.val : true; }
-                  else if (whCat === 'Dud')     { val = s.score; better = whBest ? val < whBest.val : true; }
-                  else {
-                    if (!s.won) return;
-                    val = s.score - s.oppScore;
-                    better = whBest ? (whCat === 'Beatdown' ? val > whBest.val : val < whBest.val) : true;
-                  }
-                  if (better) whBest = { val: val, year: p.year, side: s };
-                });
-              });
-              if (whBest) {
-                // Live comparison from this week's projections (when available)
-                var projSides = [];
-                (currentWeek.games || []).forEach(function (g) {
-                  var hp = wmProjected(g.home), ap = wmProjected(g.away);
-                  if (hp === null || ap === null) return;
-                  projSides.push({ name: (g.home && g.home.teamName) || '', proj: hp, gap: Math.abs(hp - ap) });
-                  projSides.push({ name: (g.away && g.away.teamName) || '', proj: ap, gap: Math.abs(hp - ap) });
-                });
-                var lead, cmp = '';
-                if (whCat === 'Big Score') {
-                  lead = 'Highest Week ' + whWk + ' score ever.';
-                  if (projSides.length) {
-                    var bp = projSides.reduce(function (b, s) { return s.proj > b.proj ? s : b; });
-                    cmp = " This week's best projection: " + bp.name + ' ' + bp.proj.toFixed(2) + '.';
-                  }
-                } else if (whCat === 'Dud') {
-                  lead = 'Lowest Week ' + whWk + ' score ever.';
-                  if (projSides.length) {
-                    var lp = projSides.reduce(function (b, s) { return s.proj < b.proj ? s : b; });
-                    cmp = " This week's lowest projection: " + lp.name + ' ' + lp.proj.toFixed(2) + '.';
-                  }
-                } else if (whCat === 'Beatdown') {
-                  lead = 'Biggest Week ' + whWk + ' margin ever.';
-                  if (projSides.length) {
-                    var wg = projSides.reduce(function (b, s) { return s.gap > b.gap ? s : b; });
-                    cmp = " This week's widest projected gap: " + wg.gap.toFixed(2) + '.';
-                  }
-                } else {
-                  lead = 'Closest Week ' + whWk + ' game ever.';
-                  if (projSides.length) {
-                    var tg = projSides.reduce(function (b, s) { return s.gap < b.gap ? s : b; });
-                    cmp = " This week's tightest projected gap: " + tg.gap.toFixed(2) + '.';
-                  }
-                }
-                whPick = { cat: whCat, year: whBest.year, side: whBest.side, line: lead + cmp };
-              }
+            // ── 4. Replay past seasons' Week N picks so each game gets its turn ──
+            var whFeatured = {};   // game id → season year it was featured
+            (league.seasons || []).slice().sort(function (x, y) { return whYr(x) - whYr(y); }).forEach(function (ssn) {
+              var yr = whYr(ssn);
+              if (!yr || ssn === current || (whCurYr && yr >= whCurYr)) return;
+              var wkN = (ssn.weeks || []).find(function (w) { return w.weekNumber === whWk; });
+              if (!wkN) return;
+              var mi = motwPickIndex(ssn, wkN);
+              var mg = mi > -1 ? wkN.games[mi] : null;
+              var pk = whPickFor(yr, whPairsOf(wkN), mg ? [mg.home.memberId, mg.away.memberId] : null, whFeatured);
+              if (pk) whFeatured[pk.g.id] = yr;
+            });
+
+            // ── 5. This season's pick ──
+            var whMotwG = motwIdx > -1 ? currentWeek.games[motwIdx] : null;
+            var whChoice = whPickFor(whCurYr || 9999, whPairsOf(currentWeek),
+                                     whMotwG ? [whMotwG.home.memberId, whMotwG.away.memberId] : null, whFeatured);
+            var whPick = null;
+            if (whChoice) {
+              whPick = {
+                cat:  whChoice.d.label + (whChoice.rematch ? ' · Rematch' : ''),
+                year: whChoice.g.year,
+                side: { mid: whChoice.d.lead.mid, name: whChoice.d.lead.name, score: whChoice.d.lead.score,
+                        oppMid: whChoice.d.opp.mid, oppName: whChoice.d.opp.name, oppScore: whChoice.d.opp.score },
+                line: whChoice.d.line + (whChoice.rematch ? ' They meet again this week.' : '')
+              };
             }
 
             if (whPick) {

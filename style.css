@@ -4144,24 +4144,24 @@ select.admin-input option {
 }
 
 .wm-badge--upset    { color: #d27474; border-color: rgba(210,116,116,0.6); }
-.wm-badge--nail     { color: #d4a24c; border-color: rgba(212,162,76,0.6); }
+.wm-badge--nail     { color: #e6e1d3; border-color: rgba(230,225,211,0.6); }
 .wm-badge--bubble   { color: #a58bd0; border-color: rgba(165,139,208,0.6); }
 .wm-badge--rivalry  { color: #7a9ccc; border-color: rgba(122,156,204,0.6); }
 .wm-badge--shootout { color: #d98a52; border-color: rgba(217,138,82,0.6); }
 .wm-badge--rock     { color: #a3a862; border-color: rgba(163,168,98,0.6); }
 .wm-badge--blowout  { color: #a0a0a0; border-color: rgba(160,160,160,0.55); }
-.wm-badge--basement { color: #ab8463; border-color: rgba(171,132,99,0.6); }
+.wm-badge--basement { color: #5fa8a0; border-color: rgba(95,168,160,0.6); }
 
 /* Card border takes the badge color (border only, softer than the badge).
    Matchup of the Week keeps its gold border. */
 .wm-game--b-upset:not(.wm-game--motw)    { border-color: rgba(210,116,116,0.45); }
-.wm-game--b-nail:not(.wm-game--motw)     { border-color: rgba(212,162,76,0.45); }
+.wm-game--b-nail:not(.wm-game--motw)     { border-color: rgba(230,225,211,0.45); }
 .wm-game--b-bubble:not(.wm-game--motw)   { border-color: rgba(165,139,208,0.45); }
 .wm-game--b-rivalry:not(.wm-game--motw)  { border-color: rgba(122,156,204,0.45); }
 .wm-game--b-shootout:not(.wm-game--motw) { border-color: rgba(217,138,82,0.45); }
 .wm-game--b-rock:not(.wm-game--motw)     { border-color: rgba(163,168,98,0.45); }
 .wm-game--b-blowout:not(.wm-game--motw)  { border-color: rgba(160,160,160,0.4); }
-.wm-game--b-basement:not(.wm-game--motw) { border-color: rgba(171,132,99,0.45); }
+.wm-game--b-basement:not(.wm-game--motw) { border-color: rgba(95,168,160,0.45); }
 
 /* ── Matchup of the Week ────────────────────────────────────
    Featured card is pinned first, with the same gold treatment as the
@@ -4612,6 +4612,108 @@ select.admin-input option {
   .wm-tape-val {
     font-size: 0.82rem;
   }
+}
+
+/* ── Season Message images ──────────────────────────────────
+   Shown right after the Season Message text. One image is full width;
+   two or more sit two per row on wide screens (an odd last image spans
+   the row). Mobile is always one per row. Tap opens the full-screen viewer. */
+.sm-images {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem 0.5rem;
+}
+
+@media (min-width: 769px) {
+  .sm-images:not(.sm-images--single) { grid-template-columns: 1fr 1fr; }
+  .sm-images:not(.sm-images--single) .sm-fig:last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+
+.sm-fig {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.sm-img-btn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 1px solid var(--drawer-border);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.02);
+  cursor: zoom-in;
+  overflow: hidden;
+}
+
+.sm-img {
+  display: block;
+  width: 100%;
+  max-height: 520px;
+  object-fit: contain;
+  margin: 0 auto;
+}
+
+.sm-images:not(.sm-images--single) .sm-img { max-height: 340px; }
+
+/* Wide screens: equal frame heights so two-per-row images and captions line up */
+@media (min-width: 769px) {
+  .sm-images:not(.sm-images--single) .sm-img { height: 340px; }
+}
+
+.sm-cap {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 0.75rem;
+  color: var(--accent-dim);
+  text-align: center;
+}
+
+/* Full-screen viewer */
+.sm-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem 1.5rem;
+  background: rgba(0,0,0,0.92);
+  cursor: zoom-out;
+}
+
+.sm-lb-img {
+  max-width: 100%;
+  max-height: calc(100vh - 7rem);
+  object-fit: contain;
+}
+
+.sm-lb-cap {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--accent-dim);
+  text-align: center;
+  max-width: 700px;
+}
+
+.sm-lb-close {
+  position: absolute;
+  top: 0.9rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.4rem;
 }
 
 /* ── League page footer ─────────────────────────────────────── */
