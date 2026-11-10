@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="OFL Rivalries — every OFC head-to-head meeting, settled." />
+  <title>OFL — Rivalries</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="admin-config.js"></script>
+  <script src="ofl-data.js"></script>
+  <script src="admin.js"></script>
+
+  <style>
+    /* ══════════════════════════════════════════════════════════
+       RIVALRIES PAGE — all classes prefixed rv-
+    ══════════════════════════════════════════════════════════ */
+    .rv-page {
+      position: relative; width: 100%; min-height: 100vh;
+      display: flex; flex-direction: column; overflow-x: hidden;
+      --rv-a: #d94f4f; --rv-b: #4a90d9;
+    }
+    .rv-page > .slide-layer      { position: fixed; inset: 0; z-index: 0; height: 100%; }
+    .rv-page > .landing-overlay  { position: fixed; inset: 0; z-index: 10; height: 100%; pointer-events: none; }
+    .rv-page > .landing-vignette { position: fixed; inset: 0; z-index: 11; height: 100%; pointer-events: none; }
+
+    /* ── Hero ─────────────────────────────────────────────── */
+    .rv-hero {
+      position: relative; z-index: 20; width: 100%;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 5rem 2rem 1.6rem; text-align: center;
+    }
+    .rv-hero-eyebrow {
+      font-family: var(--font-body); font-weight: 300;
+      font-size: var(--size-eyebrow, 8pt); letter-spacing: 0.45em;
+      text-transform: uppercase; color: var(--accent-dim); margin-bottom: 0.9rem;
+      opacity: 0; animation: heroReveal 1.2s 0.2s ease forwards;
+    }
+    .rv-hero-title {
+      font-family: var(--font-display); font-weight: 300;
+      font-size: var(--size-title, 72pt); line-height: 0.92;
+      letter-spacing: -0.02em; color: var(--accent); margin-bottom: 0.8rem;
+      opacity: 0; animation: heroReveal 1.2s 0.4s ease forwards;
+    }
+    .rv-hero-subtitle {
+      font-family: var(--font-body); font-weight: 200;
+      font-size: var(--size-subtitle, 10pt); letter-spacing: 0.35em;
+      text-transform: uppercase; color: var(--accent-dim);
+      opacity: 0; animation: heroReveal 1.2s 0.55s ease forwards;
+    }
+
+    .rv-body { position: relative; z-index: 20; flex: 1; padding: 0 0 5rem; }
+    .rv-wrap { max-width: 980px; margin: 0 auto; padding: 0 2rem; }
+
+    .rv-heading {
+      font-family: var(--font-body); font-weight: var(--weight-section-heading, 300);
+      font-size: var(--size-section-heading, 7pt); letter-spacing: 0.4em;
+      text-transform: uppercase; color: var(--hint-color, var(--accent-dim));
+      margin: 2.6rem 0 1.1rem; padding-bottom: 0.6rem;
+      border-bottom: 1px solid var(--drawer-border); text-align: center;
+    }
+
+    /* ── Fight card (the two fighters) ────────────────────── */
+    .rv-fightcard {
+      position: relative; display: grid;
+      grid-template-columns: 1fr auto 1fr; align-items: stretch;
+      border: 1px solid var(--drawer-border);
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      overflow: hidden;
+    }
+    .rv-fightcard::before, .rv-fightcard::after {
+      content: ''; position: absolute; top: 0; bottom: 0; width: 50%;
+      pointer-events: none; opacity: 0.22; transition: background 0.5s;
+    }
+    .rv-fightcard::before { left: 0;  background: linear-gradient(90deg, var(--rv-a), transparent); }
+    .rv-fightcard::after  { right: 0; background: linear-gradient(270deg, var(--rv-b), transparent); }
+
+    .rv-fighter {
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 1.4rem 0.8rem 1.1rem; cursor: pointer;
+      background: none; border: none; color: inherit; font: inherit;
+      transition: background 0.2s;
+    }
+    .rv-fighter:hover { background: rgba(255,255,255,0.03); }
+    .rv-fighter-logo {
+      width: 120px; height: 120px; object-fit: contain;
+      filter: drop-shadow(0 4px 18px rgba(0,0,0,0.7));
+      transition: transform 0.35s ease;
+    }
+    .rv-fighter:hover .rv-fighter-logo { transform: scale(1.05); }
+    .rv-fighter-init {
+      width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: 2.6rem; color: var(--accent-dim);
+      border: 1px solid var(--drawer-border);
+    }
+    .rv-fighter-team {
+      font-family: var(--font-display); font-weight: 600; font-size: 1.25rem;
+      color: var(--accent); margin-top: 0.7rem; line-height: 1.05;
+    }
+    .rv-fighter-owner {
+      font-family: var(--font-body); font-size: 0.55rem; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--accent-dim); margin-top: 0.3rem;
+    }
+    .rv-fighter-swap {
+      font-family: var(--font-body); font-size: 0.48rem; letter-spacing: 0.25em;
+      text-transform: uppercase; margin-top: 0.7rem; padding: 0.2rem 0.55rem;
+      border: 1px solid var(--drawer-border); color: var(--accent-dim); opacity: 0.75;
+    }
+    .rv-fighter-wins {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 3.4rem; line-height: 1; margin-top: 0.7rem;
+    }
+    .rv-a .rv-fighter-wins { color: var(--rv-a); }
+    .rv-b .rv-fighter-wins { color: var(--rv-b); }
+    .rv-fighter-wins small {
+      display: block; font-family: var(--font-body); font-weight: 400;
+      font-size: 0.48rem; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--accent-dim); margin-top: 0.25rem;
+    }
+
+    .rv-vs {
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 0.6rem; padding: 0 0.3rem;
+    }
+    .rv-vs-mark {
+      font-family: var(--font-display); font-weight: 700; font-size: 1.6rem;
+      letter-spacing: 0.05em; color: var(--accent);
+      text-shadow: 0 0 18px rgba(0,0,0,0.9);
+    }
+    .rv-icon-btn {
+      width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.45); border: 1px solid var(--drawer-border);
+      color: var(--accent-dim); cursor: pointer; font-size: 0.85rem;
+      transition: color 0.2s, border-color 0.2s, transform 0.3s;
+    }
+    .rv-icon-btn:hover { color: var(--accent); border-color: rgba(232,232,232,0.3); }
+    .rv-icon-btn.spin { transform: rotate(180deg); }
+
+    /* Win-share bar under the fight card */
+    .rv-sharebar {
+      display: flex; height: 9px; margin-top: 0; overflow: hidden;
+      background: var(--drawer-border);
+    }
+    .rv-sharebar span { display: block; height: 100%; transition: width 0.8s cubic-bezier(.2,.8,.2,1); }
+    /* Primary on top, secondary strip underneath — no gap */
+    .rv-sharebar .a { background: linear-gradient(to bottom, var(--rv-a) 0 6px, var(--rv-a2, var(--rv-a)) 6px 100%); }
+    .rv-sharebar .t { background: rgba(232,232,232,0.25); }
+    .rv-sharebar .b { background: linear-gradient(to bottom, var(--rv-b) 0 6px, var(--rv-b2, var(--rv-b)) 6px 100%); }
+
+    /* Verdict */
+    .rv-verdict {
+      text-align: center; padding: 1.3rem 1rem 0.2rem;
+      font-family: var(--font-display); font-weight: 300; font-style: italic;
+      font-size: 1.15rem; line-height: 1.35; color: var(--accent);
+    }
+    .rv-verdict-sub {
+      text-align: center; font-family: var(--font-body); font-size: 0.55rem;
+      letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent-dim);
+      margin-top: 0.55rem;
+    }
+
+    /* ── Tale of the tape (tug-of-war rows) ───────────────── */
+    .rv-tape { display: flex; flex-direction: column; gap: 0.15rem; }
+    .rv-tape-row {
+      display: grid; grid-template-columns: 1fr 9.5rem 1fr; align-items: center;
+      gap: 0.6rem; padding: 0.55rem 0.2rem;
+      border-bottom: 1px solid rgba(232,232,232,0.05);
+    }
+    .rv-tape-val {
+      font-family: var(--font-display); font-weight: 600; font-size: 1.05rem;
+      color: var(--accent-dim); display: flex; align-items: center; gap: 0.5rem;
+    }
+    .rv-tape-val.a { justify-content: flex-end; }
+    .rv-tape-val.win.a { color: var(--rv-a); }
+    .rv-tape-val.win.b { color: var(--rv-b); }
+    .rv-tape-bar { flex: 1; max-width: 120px; height: 3px; background: var(--drawer-border); position: relative; }
+    .rv-tape-bar i { position: absolute; top: 0; bottom: 0; transition: width 0.8s cubic-bezier(.2,.8,.2,1); }
+    .rv-tape-val.a .rv-tape-bar i { right: 0; background: var(--rv-a); }
+    .rv-tape-val.b .rv-tape-bar i { left: 0;  background: var(--rv-b); }
+    .rv-tape-label {
+      text-align: center; font-family: var(--font-body); font-size: 0.5rem;
+      letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent-dim);
+      line-height: 1.4;
+    }
+
+    /* ── Big games (playoff meetings) ─────────────────────── */
+    .rv-biggames { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.8rem; }
+    .rv-game {
+      border: 1px solid var(--drawer-border); background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      padding: 0.85rem 1rem; position: relative; overflow: hidden;
+    }
+    .rv-game.title { border-color: rgba(232,200,100,0.45); }
+    .rv-game-tag {
+      font-family: var(--font-body); font-size: 0.48rem; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--hint-color, var(--accent-dim)); margin-bottom: 0.55rem;
+    }
+    .rv-game.title .rv-game-tag { color: #e8c864; }
+    .rv-game-line {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-family: var(--font-body); font-size: 0.75rem; color: var(--accent-dim);
+      padding: 0.12rem 0;
+    }
+    .rv-game-line.won { color: var(--accent); font-weight: 700; }
+    .rv-game-line .sc { font-family: var(--font-display); font-size: 1.05rem; }
+    .rv-game-line.won.a .sc { color: var(--rv-a); }
+    .rv-game-line.won.b .sc { color: var(--rv-b); }
+    .rv-game-note {
+      font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--accent-dim); opacity: 0.7; margin-top: 0.45rem;
+    }
+    .rv-game::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+      background: var(--rv-win, transparent);
+    }
+
+    /* ── Margin chart ─────────────────────────────────────── */
+    .rv-chart-wrap {
+      border: 1px solid var(--drawer-border); background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      padding: 0.8rem 0.6rem 0.6rem;
+    }
+    .rv-chart-legend {
+      display: flex; justify-content: space-between;
+      font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.25em;
+      text-transform: uppercase; color: var(--accent-dim); padding: 0 0.3rem 0.4rem;
+    }
+    .rv-chart-legend b { font-weight: 700; }
+    .rv-chart-legend .a b { color: var(--rv-a); }
+    .rv-chart-legend .b b { color: var(--rv-b); }
+    .rv-chart-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .rv-chart svg { display: block; height: 190px; }
+    .rv-chart .bar { cursor: pointer; transition: opacity 0.2s; }
+    .rv-chart .bar:hover, .rv-chart .bar.sel { opacity: 1 !important; }
+    .rv-chart-detail {
+      min-height: 2.6rem; margin-top: 0.4rem; padding: 0.5rem 0.4rem 0;
+      border-top: 1px solid var(--drawer-border);
+      font-family: var(--font-body); font-size: 0.66rem; color: var(--accent);
+      text-align: center; line-height: 1.5;
+    }
+    .rv-chart-detail span { color: var(--accent-dim); font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase; }
+
+    /* ── Season ledger ────────────────────────────────────── */
+    .rv-ledger { display: flex; flex-direction: column; border: 1px solid var(--drawer-border); background: rgba(0,0,0,0.3); }
+    /* Each season: [left team's wins ←] [year / record / series] [→ right team's wins] */
+    .rv-ledger-row {
+      display: grid; grid-template-columns: 1fr 6.2rem 1fr; align-items: center; gap: 0.5rem;
+      padding: 0.7rem 0.8rem; border-bottom: 1px solid rgba(232,232,232,0.05);
+    }
+    .rv-ledger-row:last-child { border-bottom: none; }
+    .rv-ledger-mid {
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+      padding: 0 0.3rem; border-left: 1px solid rgba(232,232,232,0.06); border-right: 1px solid rgba(232,232,232,0.06);
+    }
+    .rv-ledger-year { font-family: var(--font-body); font-size: 0.6rem; color: var(--accent-dim); letter-spacing: 0.25em; }
+    .rv-ledger-rec { font-family: var(--font-display); font-weight: 600; font-size: 1.3rem; line-height: 1.1; color: var(--accent); }
+    .rv-ledger-rec.a { color: var(--rv-a); }
+    .rv-ledger-rec.b { color: var(--rv-b); }
+    .rv-ledger-series {
+      font-family: var(--font-body); font-size: 0.44rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--accent-dim); opacity: 0.8; margin-top: 0.15rem; white-space: nowrap;
+    }
+    .rv-ledger-series b { font-weight: 700; color: var(--accent); }
+    .rv-ledger-series b.a { color: var(--rv-a); }
+    .rv-ledger-series b.b { color: var(--rv-b); }
+    .rv-ledger-ties { display: flex; gap: 0.25rem; margin-top: 0.3rem; }
+    .rv-ledger-ties .rv-dot { width: 14px; height: 14px; font-size: 0; }
+    /* Left arm grows leftward from center (earliest game nearest the year), right arm rightward */
+    .rv-arm { display: flex; gap: 0.3rem; align-items: center; min-height: 22px; }
+    .rv-arm.a { flex-direction: row-reverse; justify-content: flex-start; }
+    .rv-arm.b { flex-direction: row; justify-content: flex-start; }
+    .rv-ledger-key {
+      display: flex; justify-content: space-between; gap: 1rem;
+      padding: 0.5rem 0.8rem; border-bottom: 1px solid var(--drawer-border);
+      font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.22em; text-transform: uppercase;
+    }
+    .rv-ledger-key .a { color: var(--rv-a); }
+    .rv-ledger-key .b { color: var(--rv-b); }
+    .rv-dot {
+      width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-body); font-size: 0.44rem; font-weight: 700; color: #0a0a0a;
+      border-radius: 50%;
+    }
+    /* Team primary fill with a thin outline in the team's secondary color */
+    .rv-dot.a { background: var(--rv-a); color: var(--rv-a-ink, #0a0a0a); border: 2px solid var(--rv-a2, var(--rv-a)); }
+    .rv-dot.b { background: var(--rv-b); color: var(--rv-b-ink, #0a0a0a); border: 2px solid var(--rv-b2, var(--rv-b)); }
+    .rv-dot.t { background: rgba(232,232,232,0.4); }
+    .rv-dot.po { box-shadow: 0 0 0 2px #0a0a0a, 0 0 0 3px #e8c864; }
+
+    /* ── Hottest rivalries ────────────────────────────────── */
+    .rv-hot { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.7rem; }
+    .rv-hot-card {
+      display: grid; grid-template-columns: 1.6rem 40px 1fr 40px; align-items: center; gap: 0.6rem;
+      padding: 0.65rem 0.8rem; border: 1px solid var(--drawer-border);
+      background: rgba(0,0,0,0.35); cursor: pointer; text-align: left;
+      color: inherit; font: inherit; width: 100%;
+      transition: border-color 0.2s, background 0.2s, transform 0.2s;
+    }
+    .rv-hot-card:hover { border-color: rgba(232,232,232,0.25); background: rgba(0,0,0,0.5); transform: translateY(-2px); }
+    .rv-hot-card.is-current { border-color: var(--accent-dim); }
+    .rv-hot-rank { font-family: var(--font-display); font-size: 1.1rem; color: var(--accent-dim); text-align: center; }
+    .rv-hot-logo { width: 40px; height: 40px; object-fit: contain; }
+    .rv-hot-mid { text-align: center; min-width: 0; }
+    .rv-hot-names {
+      font-family: var(--font-body); font-size: 0.6rem; color: var(--accent); letter-spacing: 0.05em;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .rv-hot-rec { font-family: var(--font-display); font-size: 1rem; color: var(--accent); margin-top: 0.1rem; }
+    .rv-hot-meta {
+      font-family: var(--font-body); font-size: 0.44rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--accent-dim); margin-top: 0.15rem;
+    }
+    .rv-flame { display: inline-flex; gap: 1px; margin-left: 0.3rem; vertical-align: middle; }
+    .rv-flame i { width: 4px; height: 8px; background: rgba(232,232,232,0.15); display: block; }
+    .rv-flame i.on { background: #e0944a; }
+
+    /* ── Picker sheet ─────────────────────────────────────── */
+    .rv-sheet-overlay {
+      position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+      display: flex; align-items: flex-end; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .rv-sheet-overlay.open { opacity: 1; pointer-events: all; }
+    .rv-sheet {
+      width: 100%; max-width: 560px; background: var(--drawer-bg, #0d0d0d);
+      border: 1px solid var(--drawer-border); border-bottom: none;
+      padding: 1.2rem 1.2rem 1.6rem; transform: translateY(30px);
+      transition: transform 0.35s cubic-bezier(.2,.8,.2,1);
+      max-height: 80vh; overflow-y: auto;
+    }
+    .rv-sheet-overlay.open .rv-sheet { transform: translateY(0); }
+    .rv-sheet-title {
+      font-family: var(--font-body); font-size: 0.55rem; letter-spacing: 0.4em;
+      text-transform: uppercase; color: var(--accent-dim); text-align: center; margin-bottom: 1rem;
+    }
+    .rv-sheet-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+    .rv-pick {
+      display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
+      padding: 0.6rem 0.2rem; border: 1px solid var(--drawer-border); background: rgba(255,255,255,0.02);
+      cursor: pointer; color: inherit; font: inherit; transition: border-color 0.2s, background 0.2s;
+    }
+    .rv-pick:hover { border-color: rgba(232,232,232,0.3); background: rgba(255,255,255,0.05); }
+    .rv-pick.is-sel { border-color: var(--accent); }
+    .rv-pick:disabled { opacity: 0.25; cursor: not-allowed; }
+    .rv-pick img, .rv-pick .rv-pick-init { width: 48px; height: 48px; object-fit: contain; }
+    .rv-pick-init { display: flex; align-items: center; justify-content: center; font-family: var(--font-display); color: var(--accent-dim); }
+    .rv-pick span {
+      font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent-dim); text-align: center; line-height: 1.2;
+    }
+
+    .rv-empty {
+      text-align: center; font-family: var(--font-body); font-size: 0.65rem;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent-dim); opacity: 0.6;
+      padding: 2rem 1rem;
+    }
+    .rv-footer {
+      position: relative; z-index: 20; text-align: center;
+      font-family: var(--font-body); font-size: 0.55rem; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--accent-dim); opacity: 0.5;
+      padding: 1.5rem 2rem 3rem;
+    }
+
+    /* Content refresh animation when matchup changes */
+    .rv-pop { animation: rvPop 0.5s ease; }
+    @keyframes rvPop { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: none; } }
+
+    /* ── Mobile (Pixel 7 Pro: 412px) ──────────────────────── */
+    @media (max-width: 600px) {
+      .rv-hero { padding: 4.5rem 1.2rem 1.2rem; }
+      .rv-wrap { padding: 0 1rem; }
+      .rv-fighter { padding: 1.1rem 0.3rem 0.9rem; }
+      .rv-fighter-logo, .rv-fighter-init { width: 86px; height: 86px; }
+      .rv-fighter-team { font-size: 1rem; }
+      .rv-fighter-wins { font-size: 2.6rem; }
+      .rv-vs-mark { font-size: 1.2rem; }
+      .rv-tape-row { grid-template-columns: 1fr 6.4rem 1fr; gap: 0.4rem; }
+      .rv-tape-val { font-size: 0.92rem; gap: 0.35rem; }
+      .rv-tape-bar { max-width: 46px; }
+      .rv-tape-label { font-size: 0.44rem; letter-spacing: 0.15em; }
+      .rv-verdict { font-size: 1rem; }
+      .rv-sheet-grid { grid-template-columns: repeat(4, 1fr); }
+      .rv-chart-legend { font-size: 0.44rem; letter-spacing: 0.1em; gap: 0.4rem; white-space: nowrap; }
+      .rv-chart-legend > span { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+      .rv-ledger-key { font-size: 0.44rem; letter-spacing: 0.12em; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── TOP NAV ─────────────────────────────────────────── -->
+  <nav class="topnav" role="navigation" aria-label="Site navigation">
+    <a href="index.html" class="topnav-logo">OFC</a>
+    <button class="menu-trigger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="site-drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- ── DRAWER ──────────────────────────────────────────── -->
+  <div class="drawer-overlay" aria-hidden="true"></div>
+  <aside id="site-drawer" class="drawer" role="dialog" aria-modal="true" aria-label="Navigation">
+    <p class="drawer-label">Navigate</p>
+    <ul class="drawer-nav"></ul>
+    <div class="drawer-footer"></div>
+  </aside>
+
+  <!-- ── RIVALRIES PAGE ──────────────────────────────────── -->
+  <div class="rv-page" id="rvPage">
+    <div class="slide-layer" id="slideA" aria-hidden="true"></div>
+    <div class="slide-layer" id="slideB" aria-hidden="true"></div>
+    <div class="landing-overlay" id="rvOverlay" aria-hidden="true"></div>
+    <div class="landing-vignette" aria-hidden="true"></div>
+
+    <header class="rv-hero">
+      <p class="rv-hero-eyebrow">Official Fantasy Commission</p>
+      <h1 class="rv-hero-title">Rivalries</h1>
+      <p class="rv-hero-subtitle">Settle It Once &amp; For All</p>
+    </header>
+
+    <div class="rv-body">
+      <div class="rv-wrap section-reveal" style="animation-delay:0.5s" id="rvWrap"></div>
+    </div>
+
+    <div class="rv-footer" id="rvFooter"></div>
+  </div>
+
+  <!-- Picker sheet -->
+  <div class="rv-sheet-overlay" id="rvSheet" aria-hidden="true">
+    <div class="rv-sheet" role="dialog" aria-modal="true" aria-label="Pick a contender">
+      <p class="rv-sheet-title" id="rvSheetTitle">Pick a Contender</p>
+      <div class="rv-sheet-grid" id="rvSheetGrid"></div>
+    </div>
+  </div>
+
+  <script src="sound.js"></script>
+  <script src="menu.js"></script>
+
+  <script>
+  (function () {
+    'use strict';
+
+    var REAL_PLAYOFF = { 'Semifinal': true, 'Championship': true };
+    var FALLBACK_A = '#d94f4f', FALLBACK_B = '#4a90d9';
+    var COLORS = null;   // set per render: { a: teamColors, b: teamColors }
+
+    /* ── Helpers ──────────────────────────────────────────── */
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function num(v) { var n = parseFloat(v); return isNaN(n) ? 0 : n; }
+    function f1(n) { return (Math.round(n * 100) / 100).toFixed(2); }
+    function initials(name) {
+      return (name || '?').split(' ').map(function (w) { return w[0]; }).join('').slice(0,2).toUpperCase();
+    }
+    function getParam(k) { return new URLSearchParams(window.location.search).get(k); }
+
+    /* Color utils — exact team colors, same as team.html (no lightening, no swapping) */
+    function hexToRgb(h) {
+      var m = /^#?([0-9a-f]{6})$/i.exec(String(h || '').trim());
+      if (!m) return null;
+      var n = parseInt(m[1], 16);
+      return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+    }
+    function lum(rgb) { return (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]); }
+    /* p = primary, s = secondary (falls back to primary), sDark = needs an outline on black,
+       ink = readable text color on top of the primary */
+    function teamColors(f, fallback) {
+      var p = hexToRgb(f.primary) ? f.primary : fallback;
+      var s = hexToRgb(f.secondary) ? f.secondary : p;
+      return { p: p, s: s, sDark: lum(hexToRgb(s)) < 60, ink: lum(hexToRgb(p)) < 140 ? '#f2f2f2' : '#0a0a0a' };
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       DATA
+    ══════════════════════════════════════════════════════════ */
+    var DATA = window.OFL_DATA || {};
+    var OFC = (DATA.leagueData || []).find(function (l) { return l.sport === 'football'; }) || null;
+    var ROSTER = DATA.masterRoster || [];
+
+    /* Every OFC game, flattened: { year, week, type, h, a, hs, as, ht, at } */
+    var ALL_GAMES = [];
+    (function collect() {
+      if (!OFC) return;
+      (OFC.seasons || []).forEach(function (s) {
+        var yr = parseInt(s.year, 10) || 0;
+        (s.weeks || []).forEach(function (w) {
+          if (w.isComplete === false) return;
+          (w.games || []).forEach(function (g) {
+            var h = g.home || {}, a = g.away || {};
+            var hs = num(h.score), as_ = num(a.score);
+            if (!h.memberId || !a.memberId || (!hs && !as_)) return;
+            ALL_GAMES.push({ year: yr, week: w.weekNumber || 0, order: w.weekNumber || 0, type: 'Regular Season',
+              h: h.memberId, a: a.memberId, hs: hs, as: as_, ht: h.teamName || '', at: a.teamName || '' });
+          });
+        });
+        var p = s.playoffs || {};
+        [['semis', 'Semifinal', 100], ['finals', 'Championship', 101]].forEach(function (r) {
+          (p[r[0]] || []).forEach(function (g) {
+            var type = g.gameType || r[1];
+            if (!REAL_PLAYOFF[type]) return;
+            var hs = num(g.homeScore), as_ = num(g.awayScore);
+            if (!g.homeMemberId || !g.awayMemberId || (!hs && !as_)) return;
+            ALL_GAMES.push({ year: yr, week: null, order: r[2], type: type,
+              h: g.homeMemberId, a: g.awayMemberId, hs: hs, as: as_, ht: g.homeTeamName || '', at: g.awayTeamName || '' });
+          });
+        });
+      });
+      ALL_GAMES.sort(function (x, y) { return x.year - y.year || x.order - y.order; });
+    })();
+
+    /* Fighter identity — current OFC team (last entry, matches team.html) */
+    function fighter(mid) {
+      var m = ROSTER.find(function (r) { return r.id === mid; });
+      if (!m) return null;
+      var entry = (m.leagues || []).find(function (l) { return l.leagueKey === 'OFC'; });
+      var teams = entry ? (entry.teams || []) : [];
+      var t = teams.length ? teams[teams.length - 1] : null;
+      return {
+        id: mid, owner: m.name || '', nickname: m.nickname || '',
+        team: t ? t.name : (m.name || ''), logo: (t && t.logo) || m.mugshot || '',
+        primary: t && t.primaryColor, secondary: t && t.secondaryColor
+      };
+    }
+
+    /* Members who have actually played OFC games */
+    var CONTENDERS = (function () {
+      var seen = {}, out = [];
+      ALL_GAMES.forEach(function (g) { seen[g.h] = true; seen[g.a] = true; });
+      ROSTER.forEach(function (m) { if (seen[m.id]) { var f = fighter(m.id); if (f) out.push(f); } });
+      return out;
+    })();
+
+    function titles(mid) {
+      if (!OFC) return 0;
+      return (OFC.seasons || []).filter(function (s) { return s.isFinal && s.championMemberId === mid; }).length;
+    }
+
+    /* ── Head-to-head analysis for a pair ─────────────────── */
+    function analyze(aId, bId) {
+      var games = ALL_GAMES.filter(function (g) {
+        return (g.h === aId && g.a === bId) || (g.h === bId && g.a === aId);
+      }).map(function (g) {
+        var aHome = g.h === aId;
+        var as_ = aHome ? g.hs : g.as, bs = aHome ? g.as : g.hs;
+        return { year: g.year, week: g.week, type: g.type,
+          aScore: as_, bScore: bs, aTeam: aHome ? g.ht : g.at, bTeam: aHome ? g.at : g.ht,
+          winner: as_ > bs ? 'a' : (bs > as_ ? 'b' : 't'), margin: Math.abs(as_ - bs) };
+      });
+
+      var r = { games: games, n: games.length, aW: 0, bW: 0, t: 0, aPts: 0, bPts: 0,
+        aHigh: null, bHigh: null, aBig: null, bBig: null, closest: null, shootout: null,
+        poA: 0, poB: 0, titleA: 0, titleB: 0, streak: { who: null, len: 0 },
+        longA: 0, longB: 0, seasons: {} };
+      var run = { who: null, len: 0 };
+
+      games.forEach(function (g) {
+        if (g.winner === 'a') r.aW++; else if (g.winner === 'b') r.bW++; else r.t++;
+        r.aPts += g.aScore; r.bPts += g.bScore;
+        if (!r.aHigh || g.aScore > r.aHigh.aScore) r.aHigh = g;
+        if (!r.bHigh || g.bScore > r.bHigh.bScore) r.bHigh = g;
+        if (g.winner === 'a' && (!r.aBig || g.margin > r.aBig.margin)) r.aBig = g;
+        if (g.winner === 'b' && (!r.bBig || g.margin > r.bBig.margin)) r.bBig = g;
+        if (!r.closest || g.margin < r.closest.margin) r.closest = g;
+        if (!r.shootout || (g.aScore + g.bScore) > (r.shootout.aScore + r.shootout.bScore)) r.shootout = g;
+        if (g.type !== 'Regular Season') {
+          if (g.winner === 'a') r.poA++; if (g.winner === 'b') r.poB++;
+          if (g.type === 'Championship') { if (g.winner === 'a') r.titleA++; if (g.winner === 'b') r.titleB++; }
+        }
+        if (g.winner === run.who) run.len++; else run = { who: g.winner, len: 1 };
+        if (run.who === 'a') r.longA = Math.max(r.longA, run.len);
+        if (run.who === 'b') r.longB = Math.max(r.longB, run.len);
+        var sy = r.seasons[g.year] || (r.seasons[g.year] = { a: 0, b: 0, t: 0, games: [] });
+        sy[g.winner]++; sy.games.push(g);
+      });
+      r.streak = run;
+      return r;
+    }
+
+    /* ── Rivalry heat — ranks every pair ──────────────────── */
+    function heat(r) {
+      if (!r.n) return 0;
+      var balance = 1 - Math.abs(r.aW - r.bW) / r.n;          // 1 = dead even
+      var close = r.games.filter(function (g) { return g.margin < 10; }).length;
+      var po = r.games.filter(function (g) { return g.type !== 'Regular Season'; }).length;
+      var recent = r.games.filter(function (g) { return g.year >= (new Date().getFullYear() - 1); }).length;
+      return balance * 45 + Math.min(r.n, 30) * 0.8 + close * 1.5 + po * 9 + recent * 1.2;
+    }
+    var ALL_PAIRS = (function () {
+      var out = [];
+      for (var i = 0; i < CONTENDERS.length; i++) {
+        for (var j = i + 1; j < CONTENDERS.length; j++) {
+          var r = analyze(CONTENDERS[i].id, CONTENDERS[j].id);
+          if (r.n) out.push({ a: CONTENDERS[i], b: CONTENDERS[j], r: r, heat: heat(r) });
+        }
+      }
+      out.sort(function (x, y) { return y.heat - x.heat; });
+      var max = out.length ? out[0].heat : 1;
+      out.forEach(function (p) { p.flames = Math.max(1, Math.round((p.heat / max) * 5)); });
+      return out;
+    })();
+
+    /* ══════════════════════════════════════════════════════════
+       STATE + URL
+    ══════════════════════════════════════════════════════════ */
+    var state = { a: null, b: null, sel: -1 };
+
+    function pushUrl() {
+      try {
+        var u = new URL(window.location.href);
+        u.searchParams.set('a', state.a); u.searchParams.set('b', state.b);
+        history.replaceState(null, '', u.toString());
+      } catch (e) {}
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       VERDICT — the commissioner's ruling
+    ══════════════════════════════════════════════════════════ */
+    function verdict(A, B, r) {
+      if (!r.n) return { main: 'These two have never met. Somebody schedule this.', sub: 'No meetings on record' };
+      var lead = r.aW > r.bW ? A : (r.bW > r.aW ? B : null);
+      var trail = lead === A ? B : A;
+      var lw = Math.max(r.aW, r.bW), tw = Math.min(r.aW, r.bW);
+      var main;
+      if (!lead) main = 'Dead even after ' + r.n + ' meetings. Nobody gets bragging rights at Thanksgiving.';
+      else if (lw - tw >= Math.max(4, r.n * 0.3)) main = esc(lead.team) + ' owns this one. ' + esc(trail.owner) + ' should probably stop answering the phone.';
+      else if (lw - tw <= 2) main = esc(lead.team) + ' clings to a razor-thin edge. One bad Sunday flips the whole thing.';
+      else main = esc(lead.team) + ' has the upper hand, but ' + esc(trail.team) + ' is still swinging.';
+
+      var bits = [];
+      if (r.titleA || r.titleB) {
+        var tw_ = r.titleA ? A : B;
+        bits.push(esc(tw_.team) + ' won ' + ((r.titleA + r.titleB) > 1 ? 'the title-game meetings ' + Math.max(r.titleA, r.titleB) + '–' + Math.min(r.titleA, r.titleB) : 'the only title-game meeting'));
+      } else if (r.poA || r.poB) {
+        bits.push('Playoffs: ' + esc(A.team) + ' ' + r.poA + '–' + r.poB);
+      }
+      if (r.streak.who && r.streak.who !== 't' && r.streak.len >= 2) {
+        bits.push((r.streak.who === 'a' ? esc(A.team) : esc(B.team)) + ' has won ' + r.streak.len + ' straight');
+      }
+      return { main: main, sub: bits.join(' · ') || (r.n + ' meetings since ' + r.games[0].year) };
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       RENDER
+    ══════════════════════════════════════════════════════════ */
+    function logoHtml(f, cls) {
+      return f.logo
+        ? '<img class="' + cls + '" src="' + esc(f.logo) + '" alt="" />'
+        : '<div class="' + cls.replace('logo', 'init') + '">' + esc(initials(f.team)) + '</div>';
+    }
+
+    function tapeRow(label, aVal, bVal, aNum, bNum, lowerWins) {
+      var aWin = lowerWins ? aNum < bNum : aNum > bNum;
+      var bWin = lowerWins ? bNum < aNum : bNum > aNum;
+      var max = Math.max(aNum, bNum) || 1;
+      var aPct = lowerWins ? (aNum ? (Math.min(aNum, bNum) / aNum) * 100 : 0) : (aNum / max) * 100;
+      var bPct = lowerWins ? (bNum ? (Math.min(aNum, bNum) / bNum) * 100 : 0) : (bNum / max) * 100;
+      return '<div class="rv-tape-row">' +
+        '<div class="rv-tape-val a' + (aWin ? ' win' : '') + '"><span class="rv-tape-bar"><i style="width:' + aPct.toFixed(0) + '%"></i></span>' + aVal + '</div>' +
+        '<div class="rv-tape-label">' + label + '</div>' +
+        '<div class="rv-tape-val b' + (bWin ? ' win' : '') + '">' + bVal + '<span class="rv-tape-bar"><i style="width:' + bPct.toFixed(0) + '%"></i></span></div>' +
+      '</div>';
+    }
+
+    function gameCard(g, A, B, tag, note) {
+      var winColor = g.winner === 'a' ? 'var(--rv-a)' : (g.winner === 'b' ? 'var(--rv-b)' : 'transparent');
+      var when = g.year + (g.week ? ' · Week ' + g.week : ' · ' + g.type);
+      return '<div class="rv-game' + (g.type === 'Championship' ? ' title' : '') + '" style="--rv-win:' + winColor + '">' +
+        '<div class="rv-game-tag">' + esc(tag) + '</div>' +
+        '<div class="rv-game-line a' + (g.winner === 'a' ? ' won' : '') + '"><span>' + esc(g.aTeam || A.team) + '</span><span class="sc">' + f1(g.aScore) + '</span></div>' +
+        '<div class="rv-game-line b' + (g.winner === 'b' ? ' won' : '') + '"><span>' + esc(g.bTeam || B.team) + '</span><span class="sc">' + f1(g.bScore) + '</span></div>' +
+        '<div class="rv-game-note">' + esc(when) + (note ? ' · ' + esc(note) : '') + '</div>' +
+      '</div>';
+    }
+
+    function chartSvg(r) {
+      var n = r.games.length, bw = 16, gap = 6, padX = 8, h = 190, mid = 95, top = 14;
+      var w = Math.max(padX * 2 + n * (bw + gap), 300);
+      var maxM = Math.max.apply(null, r.games.map(function (g) { return g.margin; }).concat([10]));
+      var scale = (mid - top) / maxM;
+      var out = '<svg viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" role="img" aria-label="Margin of every meeting">';
+      out += '<line x1="0" x2="' + w + '" y1="' + mid + '" y2="' + mid + '" stroke="rgba(232,232,232,0.18)" stroke-width="1"/>';
+      var lastYear = null;
+      r.games.forEach(function (g, i) {
+        var x = padX + i * (bw + gap);
+        if (g.year !== lastYear) {
+          if (lastYear !== null) out += '<line x1="' + (x - gap / 2) + '" x2="' + (x - gap / 2) + '" y1="' + top + '" y2="' + (h - 10) + '" stroke="rgba(232,232,232,0.07)"/>';
+          out += '<text x="' + x + '" y="' + (h - 2) + '" fill="rgba(232,232,232,0.4)" font-size="8" font-family="sans-serif">’' + String(g.year).slice(2) + '</text>';
+          lastYear = g.year;
+        }
+        var bh = Math.max(2, g.margin * scale);
+        var y = g.winner === 'b' ? mid : mid - bh;
+        var yy = y.toFixed(1), hh = bh.toFixed(1);
+        out += '<g class="bar" data-i="' + i + '" opacity="0.8">';
+        if (g.winner === 't') {
+          out += '<rect x="' + x + '" y="' + yy + '" width="' + bw + '" height="' + hh + '" fill="rgba(232,232,232,0.4)"/>';
+        } else {
+          var c = COLORS[g.winner];
+          // Secondary = full-width bar; primary = half-width stripe through the center, no gap
+          out += '<rect x="' + x + '" y="' + yy + '" width="' + bw + '" height="' + hh + '" fill="' + esc(c.s) + '"' +
+                 (c.sDark ? ' stroke="rgba(232,232,232,0.35)" stroke-width="1"' : '') + '/>';
+          out += '<rect x="' + (x + bw / 4) + '" y="' + yy + '" width="' + (bw / 2) + '" height="' + hh + '" fill="' + esc(c.p) + '"/>';
+        }
+        out += '</g>';
+        if (g.type !== 'Regular Season') {
+          var sy = g.winner === 'b' ? y + bh + 9 : y - 4;
+          out += '<text x="' + (x + bw / 2) + '" y="' + sy.toFixed(1) + '" fill="#e8c864" font-size="9" text-anchor="middle">★</text>';
+        }
+      });
+      return out + '</svg>';
+    }
+
+    function detailText(g, A, B) {
+      if (!g) return '<span>Tap any bar for the box score</span>';
+      var w = g.winner === 'a' ? (g.aTeam || A.team) : (g.winner === 'b' ? (g.bTeam || B.team) : 'Nobody');
+      return '<span>' + esc(g.year + (g.week ? ' · Week ' + g.week : '') + ' · ' + g.type) + '</span><br>' +
+        esc(g.aTeam || A.team) + ' ' + f1(g.aScore) + ' – ' + f1(g.bScore) + ' ' + esc(g.bTeam || B.team) +
+        '<br><span>' + esc(w) + (g.winner === 't' ? ' wins — a tie' : ' by ' + f1(g.margin)) + '</span>';
+    }
+
+    function render() {
+      var A = fighter(state.a), B = fighter(state.b);
+      var wrap = document.getElementById('rvWrap');
+      if (!A || !B) { wrap.innerHTML = '<p class="rv-empty">No OFC matchup data found.</p>'; return; }
+
+      var ca = teamColors(A, FALLBACK_A), cb = teamColors(B, FALLBACK_B);
+      COLORS = { a: ca, b: cb };
+      var page = document.getElementById('rvPage');
+      page.style.setProperty('--rv-a', ca.p);
+      page.style.setProperty('--rv-b', cb.p);
+      page.style.setProperty('--rv-a-ink', ca.ink);
+      page.style.setProperty('--rv-b-ink', cb.ink);
+      page.style.setProperty('--rv-a2', ca.s);
+      page.style.setProperty('--rv-b2', cb.s);
+
+      var r = analyze(A.id, B.id);
+      var v = verdict(A, B, r);
+      var n = r.n || 1;
+      document.title = 'OFL — ' + A.team + ' vs ' + B.team;
+
+      var html = '';
+
+      /* Fight card */
+      html +=
+        '<div class="rv-fightcard rv-pop">' +
+          '<button class="rv-fighter rv-a" data-side="a" aria-label="Change left contender">' +
+            logoHtml(A, 'rv-fighter-logo') +
+            '<div class="rv-fighter-team">' + esc(A.team) + '</div>' +
+            '<div class="rv-fighter-owner">' + esc(A.owner) + '</div>' +
+            '<div class="rv-fighter-wins">' + r.aW + '<small>Wins</small></div>' +
+            '<div class="rv-fighter-swap">Change &#x25BE;</div>' +
+          '</button>' +
+          '<div class="rv-vs">' +
+            '<div class="rv-vs-mark">VS</div>' +
+            '<button class="rv-icon-btn" id="rvSwap" title="Swap sides" aria-label="Swap sides">&#x21C4;</button>' +
+            '<button class="rv-icon-btn" id="rvRandom" title="Random rivalry" aria-label="Random rivalry">&#x2684;</button>' +
+          '</div>' +
+          '<button class="rv-fighter rv-b" data-side="b" aria-label="Change right contender">' +
+            logoHtml(B, 'rv-fighter-logo') +
+            '<div class="rv-fighter-team">' + esc(B.team) + '</div>' +
+            '<div class="rv-fighter-owner">' + esc(B.owner) + '</div>' +
+            '<div class="rv-fighter-wins">' + r.bW + '<small>Wins</small></div>' +
+            '<div class="rv-fighter-swap">Change &#x25BE;</div>' +
+          '</button>' +
+        '</div>' +
+        '<div class="rv-sharebar"><span class="a" style="width:' + (r.aW / n * 100) + '%"></span><span class="t" style="width:' + (r.t / n * 100) + '%"></span><span class="b" style="width:' + (r.bW / n * 100) + '%"></span></div>' +
+        '<p class="rv-verdict rv-pop">&ldquo;' + v.main + '&rdquo;</p>' +
+        '<p class="rv-verdict-sub">' + v.sub + '</p>';
+
+      if (r.n) {
+        /* Tale of the tape */
+        var aAvg = r.aPts / r.n, bAvg = r.bPts / r.n;
+        var aStreak = r.streak.who === 'a' ? r.streak.len : 0, bStreak = r.streak.who === 'b' ? r.streak.len : 0;
+        html += '<p class="rv-heading">Tale of the Tape</p><div class="rv-tape rv-pop">' +
+          tapeRow('Head-to-Head Wins', r.aW, r.bW, r.aW, r.bW) +
+          tapeRow('Avg Points<br>in Matchup', aAvg.toFixed(1), bAvg.toFixed(1), aAvg, bAvg) +
+          tapeRow('Total Points<br>in Matchup', r.aPts.toFixed(0), r.bPts.toFixed(0), r.aPts, r.bPts) +
+          tapeRow('Highest Score<br>vs Rival', f1(r.aHigh.aScore), f1(r.bHigh.bScore), r.aHigh.aScore, r.bHigh.bScore) +
+          tapeRow('Biggest Win', r.aBig ? '+' + r.aBig.margin.toFixed(1) : '—', r.bBig ? '+' + r.bBig.margin.toFixed(1) : '—', r.aBig ? r.aBig.margin : 0, r.bBig ? r.bBig.margin : 0) +
+          tapeRow('Playoff<br>Meetings Won', r.poA, r.poB, r.poA, r.poB) +
+          tapeRow('Longest<br>Win Streak', r.longA, r.longB, r.longA, r.longB) +
+          tapeRow('Current Streak', aStreak ? 'W' + aStreak : '—', bStreak ? 'W' + bStreak : '—', aStreak, bStreak) +
+          tapeRow('OFC Titles<br>(All-Time)', titles(A.id), titles(B.id), titles(A.id), titles(B.id)) +
+        '</div>';
+
+        /* The big ones */
+        var big = [];
+        r.games.filter(function (g) { return g.type !== 'Regular Season'; }).slice().reverse().forEach(function (g) {
+          big.push(gameCard(g, A, B, g.type === 'Championship' ? '★ Championship Game' : 'Playoff Semifinal', ''));
+        });
+        var shown = r.games.filter(function (g) { return g.type !== 'Regular Season'; });
+        function sig(g, tag, note) {
+          if (!g || shown.indexOf(g) !== -1) return;   // never show the same game twice
+          shown.push(g); big.push(gameCard(g, A, B, tag, note));
+        }
+        if (r.aBig) sig(r.aBig, 'Biggest ' + A.team + ' Beatdown', 'won by ' + f1(r.aBig.margin));
+        if (r.bBig) sig(r.bBig, 'Biggest ' + B.team + ' Beatdown', 'won by ' + f1(r.bBig.margin));
+        if (r.closest) sig(r.closest, 'Photo Finish', 'decided by ' + f1(r.closest.margin));
+        if (r.shootout) sig(r.shootout, 'The Shootout', f1(r.shootout.aScore + r.shootout.bScore) + ' combined');
+        html += '<p class="rv-heading">The Games That Mattered</p><div class="rv-biggames rv-pop">' + big.join('') + '</div>';
+
+        /* Margin chart */
+        html += '<p class="rv-heading">Every Meeting</p>' +
+          '<div class="rv-chart-wrap rv-pop">' +
+            '<div class="rv-chart-legend"><span class="a">&#x25B2; <b>' + esc(A.team) + '</b> won</span><span>&#x2605; Playoffs</span><span class="b"><b>' + esc(B.team) + '</b> won &#x25BC;</span></div>' +
+            '<div class="rv-chart-scroll"><div class="rv-chart" id="rvChart">' + chartSvg(r) + '</div></div>' +
+            '<div class="rv-chart-detail" id="rvDetail">' + detailText(null, A, B) + '</div>' +
+          '</div>';
+
+        /* Season ledger */
+        // All-time series record through each season (walk oldest → newest)
+        var yearsAsc = Object.keys(r.seasons).sort(function (x, y) { return x - y; });
+        var runA = 0, runB = 0, runT = 0, seriesTo = {};
+        yearsAsc.forEach(function (y) {
+          var s = r.seasons[y]; runA += s.a; runB += s.b; runT += s.t;
+          seriesTo[y] = { a: runA, b: runB, t: runT };
+        });
+        var years = yearsAsc.slice().reverse();   // newest season on top
+
+        function dot(g) {
+          var lbl = g.type === 'Championship' ? 'F' : (g.type === 'Semifinal' ? 'S' : (g.week || ''));
+          var t = g.year + (g.week ? ' Wk ' + g.week : ' ' + g.type) + ': ' + f1(g.aScore) + '–' + f1(g.bScore);
+          return '<span class="rv-dot ' + g.winner + (g.type !== 'Regular Season' ? ' po' : '') + '" title="' + esc(t) + '">' + esc(lbl) + '</span>';
+        }
+        // Regular season by week first, playoffs last → playoff dots land on the outer end
+        function seasonOrder(x, y) {
+          var px = x.type === 'Regular Season' ? 0 : (x.type === 'Semifinal' ? 1 : 2);
+          var py = y.type === 'Regular Season' ? 0 : (y.type === 'Semifinal' ? 1 : 2);
+          return px - py || (x.week || 0) - (y.week || 0);
+        }
+
+        html += '<p class="rv-heading">Season by Season</p><div class="rv-ledger rv-pop">' +
+          '<div class="rv-ledger-key"><span class="a">&#x25C0; ' + esc(A.team) + ' wins</span><span class="b">' + esc(B.team) + ' wins &#x25B6;</span></div>' +
+          years.map(function (y) {
+            var s = r.seasons[y];
+            var games = s.games.slice().sort(seasonOrder);
+            var armA = games.filter(function (g) { return g.winner === 'a'; }).map(dot).join('');
+            var armB = games.filter(function (g) { return g.winner === 'b'; }).map(dot).join('');
+            var ties = games.filter(function (g) { return g.winner === 't'; }).map(dot).join('');
+            var recCls = s.a > s.b ? 'a' : (s.b > s.a ? 'b' : '');
+            var rec = s.a + '–' + s.b + (s.t ? '–' + s.t : '');
+            var sr = seriesTo[y];
+            var srCls = sr.a > sr.b ? 'a' : (sr.b > sr.a ? 'b' : '');
+            var srTxt = sr.a + '–' + sr.b + (sr.t ? '–' + sr.t : '');
+            return '<div class="rv-ledger-row">' +
+              '<div class="rv-arm a">' + armA + '</div>' +
+              '<div class="rv-ledger-mid">' +
+                '<span class="rv-ledger-year">' + esc(y) + '</span>' +
+                '<span class="rv-ledger-rec ' + recCls + '">' + rec + '</span>' +
+                '<span class="rv-ledger-series">Series <b class="' + srCls + '">' + srTxt + '</b></span>' +
+                (ties ? '<span class="rv-ledger-ties">' + ties + '</span>' : '') +
+              '</div>' +
+              '<div class="rv-arm b">' + armB + '</div>' +
+            '</div>';
+          }).join('') +
+        '</div>';
+      }
+
+      /* Hottest rivalries */
+      html += '<p class="rv-heading">Hottest Rivalries in the League</p><div class="rv-hot rv-pop">' +
+        ALL_PAIRS.slice(0, 8).map(function (p, i) {
+          var cur = (p.a.id === state.a && p.b.id === state.b) || (p.a.id === state.b && p.b.id === state.a);
+          var flames = ''; for (var k = 0; k < 5; k++) flames += '<i class="' + (k < p.flames ? 'on' : '') + '"></i>';
+          var po = p.r.games.filter(function (g) { return g.type !== 'Regular Season'; }).length;
+          return '<button class="rv-hot-card' + (cur ? ' is-current' : '') + '" data-a="' + esc(p.a.id) + '" data-b="' + esc(p.b.id) + '">' +
+            '<span class="rv-hot-rank">' + (i + 1) + '</span>' +
+            (p.a.logo ? '<img class="rv-hot-logo" src="' + esc(p.a.logo) + '" alt="" />' : '<span></span>') +
+            '<span class="rv-hot-mid">' +
+              '<div class="rv-hot-names">' + esc(p.a.team) + ' · ' + esc(p.b.team) + '</div>' +
+              '<div class="rv-hot-rec">' + p.r.aW + '–' + p.r.bW + (p.r.t ? '–' + p.r.t : '') + '</div>' +
+              '<div class="rv-hot-meta">' + p.r.n + ' games' + (po ? ' · ' + po + ' playoff' : '') + '<span class="rv-flame">' + flames + '</span></div>' +
+            '</span>' +
+            (p.b.logo ? '<img class="rv-hot-logo" src="' + esc(p.b.logo) + '" alt="" />' : '<span></span>') +
+          '</button>';
+        }).join('') +
+      '</div>';
+
+      wrap.innerHTML = html;
+      bind(r, A, B);
+    }
+
+    /* ── Events ───────────────────────────────────────────── */
+    function bind(r, A, B) {
+      var wrap = document.getElementById('rvWrap');
+      wrap.querySelectorAll('.rv-fighter').forEach(function (btn) {
+        btn.addEventListener('click', function () { openSheet(btn.getAttribute('data-side')); });
+      });
+      var swap = document.getElementById('rvSwap');
+      if (swap) swap.addEventListener('click', function () {
+        var t = state.a; state.a = state.b; state.b = t; pushUrl(); render();
+      });
+      var rnd = document.getElementById('rvRandom');
+      if (rnd) rnd.addEventListener('click', function () {
+        if (ALL_PAIRS.length < 2) return;
+        var p;
+        do { p = ALL_PAIRS[Math.floor(Math.random() * ALL_PAIRS.length)]; }
+        while (p.a.id === state.a && p.b.id === state.b);
+        state.a = p.a.id; state.b = p.b.id; pushUrl(); render();
+        window.scrollTo({ top: document.getElementById('rvWrap').offsetTop - 70, behavior: 'smooth' });
+      });
+      wrap.querySelectorAll('.rv-hot-card').forEach(function (c) {
+        c.addEventListener('click', function () {
+          state.a = c.getAttribute('data-a'); state.b = c.getAttribute('data-b');
+          pushUrl(); render();
+          window.scrollTo({ top: document.getElementById('rvWrap').offsetTop - 70, behavior: 'smooth' });
+        });
+      });
+      var chart = document.getElementById('rvChart');
+      if (chart) chart.addEventListener('click', function (e) {
+        var bar = e.target.closest ? e.target.closest('.bar') : null;
+        if (!bar) return;
+        chart.querySelectorAll('.bar.sel').forEach(function (b) { b.classList.remove('sel'); });
+        bar.classList.add('sel');
+        document.getElementById('rvDetail').innerHTML = detailText(r.games[parseInt(bar.getAttribute('data-i'), 10)], A, B);
+      });
+      var scroller = wrap.querySelector('.rv-chart-scroll');
+      if (scroller) scroller.scrollLeft = scroller.scrollWidth; // most recent visible first
+    }
+
+    /* ── Picker sheet ─────────────────────────────────────── */
+    var sheetSide = null;
+    function openSheet(side) {
+      sheetSide = side;
+      var other = side === 'a' ? state.b : state.a;
+      var cur = side === 'a' ? state.a : state.b;
+      document.getElementById('rvSheetTitle').textContent = side === 'a' ? 'Pick the Challenger' : 'Pick the Opponent';
+      document.getElementById('rvSheetGrid').innerHTML = CONTENDERS.map(function (f) {
+        return '<button class="rv-pick' + (f.id === cur ? ' is-sel' : '') + '" data-id="' + esc(f.id) + '"' + (f.id === other ? ' disabled' : '') + '>' +
+          (f.logo ? '<img src="' + esc(f.logo) + '" alt="" />' : '<div class="rv-pick-init">' + esc(initials(f.team)) + '</div>') +
+          '<span>' + esc(f.team) + '</span></button>';
+      }).join('');
+      var ov = document.getElementById('rvSheet');
+      ov.classList.add('open'); ov.setAttribute('aria-hidden', 'false');
+    }
+    function closeSheet() {
+      var ov = document.getElementById('rvSheet');
+      ov.classList.remove('open'); ov.setAttribute('aria-hidden', 'true');
+    }
+    document.getElementById('rvSheet').addEventListener('click', function (e) {
+      if (e.target === this) { closeSheet(); return; }
+      var pick = e.target.closest ? e.target.closest('.rv-pick') : null;
+      if (!pick || pick.disabled) return;
+      state[sheetSide] = pick.getAttribute('data-id');
+      closeSheet(); pushUrl(); render();
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeSheet(); });
+
+    /* ── Init ─────────────────────────────────────────────── */
+    function init() {
+      var config = window.SITE_CONFIG || {};
+      var ov = document.getElementById('rvOverlay');
+      if (ov && config.slideshow && config.slideshow.overlay) ov.style.background = config.slideshow.overlay;
+      var foot = document.getElementById('rvFooter');
+      if (foot) {
+        if (config.footer && config.footer.show) foot.textContent = config.footer.text;
+        else foot.style.display = 'none';
+      }
+
+      var ids = CONTENDERS.map(function (c) { return c.id; });
+      var qa = getParam('a'), qb = getParam('b');
+      if (qa && qb && qa !== qb && ids.indexOf(qa) !== -1 && ids.indexOf(qb) !== -1) {
+        state.a = qa; state.b = qb;
+      } else if (qa && ids.indexOf(qa) !== -1) {
+        // Only one side given: load their hottest rivalry
+        var p = ALL_PAIRS.find(function (x) { return x.a.id === qa || x.b.id === qa; });
+        state.a = qa; state.b = p ? (p.a.id === qa ? p.b.id : p.a.id) : ids.find(function (i) { return i !== qa; });
+      } else if (ALL_PAIRS.length) {
+        state.a = ALL_PAIRS[0].a.id; state.b = ALL_PAIRS[0].b.id;
+      }
+      render();
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+  })();
+  </script>
+</body>
+</html>

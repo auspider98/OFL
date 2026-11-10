@@ -310,6 +310,15 @@
       color: var(--accent-dim); font-weight: 700;
     }
     .team-h2h-season-result.w { color: var(--team-primary, var(--hint-color, var(--accent))); }
+    .team-h2h-rivalry-link {
+      display: block; margin-top: 0.55rem; padding-top: 0.5rem;
+      border-top: 1px solid var(--drawer-border);
+      font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.28em;
+      text-transform: uppercase; text-align: center; text-decoration: none;
+      color: var(--team-primary, var(--hint-color, var(--accent-dim)));
+      opacity: 0.8; transition: opacity 0.2s;
+    }
+    .team-h2h-rivalry-link:hover { opacity: 1; }
 
     /* ══════════════════════════════════════════════════════════
        MVP LOG
@@ -1179,7 +1188,9 @@
               '<div class="team-h2h-bar-fill" style="width:' + winPct.toFixed(1) + '%"></div>' +
             '</div>' +
           '</div>' +
-          '<div class="team-h2h-breakdown">' + (seasonRows || '<span style="font-size:0.55rem;color:var(--accent-dim);opacity:0.5;">No season data.</span>') + '</div>' +
+          '<div class="team-h2h-breakdown">' + (seasonRows || '<span style="font-size:0.55rem;color:var(--accent-dim);opacity:0.5;">No season data.</span>') +
+            '<a class="team-h2h-rivalry-link" href="rivals.html?a=' + encodeURIComponent(member.id) + '&b=' + encodeURIComponent(opp.oppId) + '">Full Rivalry &#x2197;</a>' +
+          '</div>' +
         '</div>';
       }).join('');
 
