@@ -164,6 +164,23 @@
       .race-win-chip { min-width: 3.2rem; padding: 0.3rem 0.35rem; }
     }
 
+    /* Spoiler duty */
+    .race-spoil-head { font-family: var(--font-body); font-size: 0.66rem; color: var(--accent); line-height: 1.5; margin-bottom: 0.35rem; }
+    .race-spoil-head b { font-weight: 700; filter: brightness(1.35); }
+    .race-spoil {
+      display: grid; grid-template-columns: 2.6rem 1fr auto; align-items: center; gap: 0.6rem;
+      padding: 0.45rem 0; border-bottom: 1px solid rgba(232,232,232,0.05);
+      font-family: var(--font-body);
+    }
+    .race-spoil:last-child { border-bottom: none; }
+    .race-spoil .wk { font-size: 0.5rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent-dim); }
+    .race-spoil .opp { display: flex; flex-direction: column; font-size: 0.66rem; color: var(--accent); min-width: 0; }
+    .race-spoil .odds { font-size: 0.5rem; letter-spacing: 0.05em; color: var(--accent-dim); margin-top: 0.1rem; }
+    .race-spoil .helps { font-size: 0.48rem; letter-spacing: 0.05em; color: var(--accent-dim); opacity: 0.8; margin-top: 0.1rem; }
+    .race-spoil .helps b { color: #4caf7d; }
+    .race-spoil .dmg { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; color: var(--accent-dim); text-align: right; }
+    .race-spoil .dmg.big { color: #e0944a; }
+
     /* Seed distribution bar */
     .race-seeds { display: flex; height: 16px; margin-top: 0.6rem; background: rgba(232,232,232,0.05); overflow: hidden; }
     .race-seeds span {
@@ -202,7 +219,7 @@
     }
     .race-gotw-link:hover { color: var(--accent); }
 
-    /* ── Pick 'em ─────────────────────────────────────────── */
+    /* ── Matchup Board ─────────────────────────────────────────── */
     .race-intro { font-family: var(--font-body); font-size: 0.6rem; letter-spacing: 0.1em; color: var(--accent-dim); text-align: center; line-height: 1.6; margin-bottom: 0.9rem; }
     .race-tabs { display: flex; gap: 0.35rem; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 0.5rem; margin-bottom: 0.4rem; justify-content: center; flex-wrap: wrap; }
     .race-tab {
@@ -213,33 +230,138 @@
     .race-tab.is-active { color: var(--accent); border-color: var(--accent); background: rgba(232,232,232,0.06); }
     .race-tab .dot { position: absolute; top: 3px; right: 3px; width: 5px; height: 5px; border-radius: 50%; background: #e8c864; }
     .race-games { display: flex; flex-direction: column; gap: 0.5rem; max-width: 680px; margin: 0 auto; }
-    .race-game { display: grid; grid-template-columns: 1fr 2.6rem 1fr; align-items: stretch; gap: 0.4rem; }
-    /* Teams hug the center like the season-page matchups: name · logo | vs | logo · name */
+    .race-game { display: grid; grid-template-columns: 1fr 2.8rem 1fr; align-items: stretch; gap: 0.4rem; }
+    /* Each box: a fixed main row (name · logo) on top, fans underneath, so names and logos
+       line up across every row no matter how many fans a side has */
     .race-pick {
-      display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0.7rem;
-      border: 1px solid var(--drawer-border); background: rgba(0,0,0,0.4); cursor: pointer;
-      color: inherit; font: inherit; min-width: 0;
-      flex-direction: row-reverse; justify-content: flex-start; text-align: right;
+      --logo: 30px;
+      display: flex; flex-direction: column; justify-content: flex-start; gap: 0.35rem;
+      padding: 0.55rem 0.7rem; border: 1px solid var(--drawer-border); background: rgba(0,0,0,0.4); cursor: pointer;
+      color: inherit; font: inherit; min-width: 0; text-align: right;
       transition: border-color 0.2s, background 0.2s, opacity 0.2s;
     }
-    .race-pick.b { flex-direction: row; justify-content: flex-start; text-align: left; }
-    .race-pick img, .race-pick .race-logo-init { width: 30px; height: 30px; object-fit: contain; flex-shrink: 0; }
+    .race-pick.b { text-align: left; }
+    .race-pick-main { display: flex; align-items: center; gap: 0.6rem; height: var(--logo); flex-direction: row-reverse; justify-content: flex-start; min-width: 0; }
+    .race-pick.b .race-pick-main { flex-direction: row; }
+    .race-pick .race-pick-logo, .race-pick .race-logo-init { width: var(--logo); height: var(--logo); object-fit: contain; flex-shrink: 0; }
     .race-pick .race-logo-init { font-size: 0.7rem; }
     .race-pick-txt { min-width: 0; }
-    .race-pick-name { font-family: var(--font-display); font-weight: 600; font-size: 0.85rem; color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .race-pick-name { font-family: var(--font-display); font-weight: 600; font-size: 0.85rem; color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.15; }
     .race-pick-pct { font-family: var(--font-body); font-size: 0.45rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent-dim); }
     .race-pick.won { border-color: var(--tc); background: color-mix(in srgb, var(--tc) 22%, rgba(0,0,0,0.5)); }
     .race-pick.lost { opacity: 0.35; }
+
+    /* Middle column: "vs" sits level with the team logos (top-aligned, same row height) */
     .race-game-mid {
-      display: flex; align-items: center; justify-content: center;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+      padding: calc(0.55rem + 1px) 0 0; background: none; cursor: default;
       font-family: var(--font-body); font-size: 0.45rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent-dim);
-      border: 1px dashed rgba(232,232,232,0.1); cursor: pointer; background: none;
+      border: 1px dashed rgba(232,232,232,0.1);
     }
-    .race-game-mid.set { color: #e8c864; border-color: rgba(232,200,100,0.35); }
+    .race-game-mid .vs { height: 30px; display: flex; align-items: center; }
+    /* The middle is the spotlight toggle */
+    .race-game-mid { cursor: pointer; border: 1px solid rgba(232,232,232,0.14); transition: border-color 0.2s, background 0.2s, color 0.2s; }
+    .race-game-mid:hover { border-color: rgba(232,232,232,0.4); color: var(--accent); background: rgba(255,255,255,0.03); }
+    .race-game-mid .caret { font-size: 0.55rem; letter-spacing: 0; opacity: 0.7; }
+    .race-game-mid.is-spot { border-color: rgba(232,200,100,0.7); color: #e8c864; background: rgba(232,200,100,0.06); }
+    .race-pick { position: relative; }
+    .race-pick-x {
+      position: absolute; top: 3px; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; line-height: 1; color: var(--accent); background: rgba(0,0,0,0.55);
+      border: 1px solid rgba(232,232,232,0.3); border-radius: 50%; cursor: pointer; z-index: 2;
+    }
+    .race-pick.a .race-pick-x { left: 3px; }
+    .race-pick.b .race-pick-x { right: 3px; }
+    .race-pick-x:hover { border-color: var(--accent); }
+
+    /* Inline spotlight */
+    .race-spot {
+      position: relative; overflow: hidden; margin: -0.15rem 0 0.2rem; padding: 1rem 1rem 1.1rem;
+      border: 1px solid rgba(232,200,100,0.45); background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); text-align: center; animation: heroReveal 0.35s ease;
+    }
+    .race-spot::before, .race-spot::after { content: ''; position: absolute; top: 0; bottom: 0; width: 50%; opacity: 0.18; pointer-events: none; }
+    .race-spot::before { left: 0; background: linear-gradient(90deg, var(--ga), transparent); }
+    .race-spot::after  { right: 0; background: linear-gradient(270deg, var(--gb), transparent); }
+    .race-spot > * { position: relative; z-index: 1; }
+    .race-spot-tag { font-family: var(--font-body); font-size: 0.48rem; letter-spacing: 0.32em; text-transform: uppercase; color: #e8c864; margin-bottom: 0.8rem; }
+    .race-spot-grid { display: grid; grid-template-columns: 1fr auto 1fr; align-items: start; gap: 0.6rem; }
+    .race-spot-side .race-team-link { display: inline-block; }
+    .race-spot .race-spot-logo, .race-spot-side .race-logo-init { width: 64px; height: 64px; object-fit: contain; margin: 0 auto; }
+    .race-spot-name { font-family: var(--font-display); font-weight: 600; font-size: 1rem; color: var(--accent); margin-top: 0.35rem; }
+    .race-spot-odds { font-family: var(--font-body); font-size: 0.48rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent-dim); margin-top: 0.3rem; line-height: 1.8; }
+    .race-spot-odds b { font-family: var(--font-display); font-size: 0.95rem; letter-spacing: 0; color: var(--accent); }
+    .race-spot-vs { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; color: var(--accent); padding-top: 1.2rem; }
+    .race-spot-line { font-family: var(--font-display); font-style: italic; font-weight: 300; font-size: 0.95rem; color: var(--accent); margin-top: 0.8rem; line-height: 1.35; }
+    .race-spot-label { margin: 1rem 0 0.5rem; font-family: var(--font-body); font-size: 0.46rem; letter-spacing: 0.32em; text-transform: uppercase; color: var(--hint-color, var(--accent-dim)); }
+    .race-spot-fans { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0 1.1rem; align-items: stretch; }
+    .race-spot-col {
+      display: flex; flex-direction: column; align-items: center; min-width: 0;
+      padding: 0.6rem 0.5rem 0.5rem; background: rgba(0,0,0,0.35); border: 1px solid var(--drawer-border);
+      border-top: 2px solid var(--side);
+    }
+    .race-spot-col.h { --side: var(--ga); }
+    .race-spot-col.a { --side: var(--gb); }
+    .race-spot-col-head {
+      font-family: var(--font-body); font-size: 0.44rem; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 0.45rem; text-align: center;
+    }
+    .race-spot-col-list { display: flex; flex-direction: column; align-items: flex-start; text-align: left; max-width: 100%; }
+    .race-spot-divide { display: flex; align-items: center; justify-content: center; position: relative; }
+    .race-spot-divide::before { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: linear-gradient(to bottom, transparent, rgba(232,232,232,0.3), transparent); }
+    .race-spot-divide span {
+      position: relative; padding: 0.2rem 0; background: #0a0a0a;
+      font-family: var(--font-body); font-size: 0.42rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent-dim);
+    }
+    .race-spot-fan { display: flex; align-items: center; gap: 0.45rem; padding: 0.25rem 0; }
+    .race-spot-fan img { width: 22px; height: 22px; object-fit: contain; flex-shrink: 0; }
+    .race-spot-fan span { display: flex; flex-direction: column; min-width: 0; }
+    .race-spot-fan b { font-family: var(--font-body); font-size: 0.6rem; font-weight: 700; color: var(--accent); }
+    .race-spot-fan i { font-style: normal; font-family: var(--font-body); font-size: 0.46rem; letter-spacing: 0.06em; color: var(--accent-dim); }
+    .race-spot-none { font-family: var(--font-body); font-size: 0.55rem; color: var(--accent-dim); opacity: 0.7; }
+    .race-spot-hist { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; }
+    .race-spot-meets { display: flex; flex-direction: column; gap: 0.15rem; }
+    .race-spot-meet { display: grid; grid-template-columns: 2.6rem 4rem 0.8rem 4rem; align-items: baseline; font-family: var(--font-body); font-size: 0.55rem; color: var(--accent-dim); }
+    .race-spot-meet b { font-family: var(--font-display); font-size: 0.9rem; font-weight: 400; color: var(--accent-dim); }
+    .race-spot-meet b:first-of-type { text-align: right; }
+    .race-spot-meet b.w { color: var(--accent); font-weight: 700; }
+    .race-spot-meet i { font-style: normal; text-align: center; }
+    .race-spot-at { font-family: var(--font-body); font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-dim); }
+    .race-spot-at b { color: var(--accent); }
+
+    /* Fans row: biggest stake nearest the center */
+    .race-fans { display: flex; align-items: center; gap: 0.25rem; flex-wrap: wrap; flex-direction: row-reverse; justify-content: flex-start; }
+    .race-pick.b .race-fans { flex-direction: row; }
+    .race-fan {
+      display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: help;
+      transition: transform 0.15s; filter: drop-shadow(0 0 3px rgba(0,0,0,0.9));
+    }
+    .race-fan:hover { transform: scale(1.2); opacity: 1 !important; }
+    .race-pick .race-fan img { width: 100%; height: 100%; object-fit: contain; }
+    .race-fan.grudge { border: 1px dashed rgba(232,232,232,0.55); border-radius: 50%; padding: 2px; }
+    .race-fan .init {
+      width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border-radius: 50%;
+      border: 1px solid var(--drawer-border); font-family: var(--font-body); font-size: 0.32rem; color: var(--accent);
+    }
+    .race-fans-key {
+      display: flex; justify-content: center; gap: 1.2rem; margin-top: 0.7rem; margin-bottom: 2.4rem;
+      font-family: var(--font-body); font-size: 0.46rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-dim);
+    }
+    .race-fans-key span { display: inline-flex; align-items: center; gap: 0.35rem; }
+    .race-fans-key i { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: rgba(232,232,232,0.5); }
+    .race-fans-key i.g { background: none; border: 1px dashed rgba(232,232,232,0.7); }
+    .race-tip {
+      position: fixed; z-index: 300; pointer-events: none; max-width: 240px;
+      padding: 0.35rem 0.6rem; background: #111; border: 1px solid rgba(232,232,232,0.25);
+      font-family: var(--font-body); font-size: 0.6rem; letter-spacing: 0.04em; color: var(--accent);
+      opacity: 0; transform: translateY(4px); transition: opacity 0.15s, transform 0.15s;
+    }
+    .race-tip.on { opacity: 1; transform: none; }
 
     .race-settings {
       display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.6rem;
-      margin-top: 1rem; font-family: var(--font-body); font-size: 0.52rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent-dim);
+      margin-top: 1rem; padding-top: 1.2rem; border-top: 1px solid var(--drawer-border);
+      font-family: var(--font-body); font-size: 0.52rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent-dim);
     }
     .race-settings select {
       font-family: var(--font-body); font-size: 0.6rem; color: var(--accent); background: #111;
@@ -259,8 +381,13 @@
       .race-team-name { font-size: 0.95rem; }
       .race-odds-num { font-size: 1.6rem; }
       .race-gotw-side img, .race-gotw-side .race-logo-init { width: 58px; height: 58px; }
-      .race-pick { padding: 0.5rem 0.45rem; gap: 0.4rem; }
-      .race-pick img, .race-pick .race-logo-init { width: 26px; height: 26px; }
+      .race-pick { padding: 0.5rem 0.45rem; --logo: 26px; }
+      .race-pick-main { gap: 0.4rem; }
+      .race-game-mid { padding-top: calc(0.5rem + 1px); }
+      .race-game-mid .vs { height: 26px; }
+      .race-spot-fans { gap: 0 0.5rem; }
+      .race-spot-col { padding: 0.5rem 0.35rem 0.4rem; }
+      .race-fans-key { gap: 0.8rem; font-size: 0.42rem; letter-spacing: 0.1em; white-space: nowrap; }
       .race-pick-name { font-size: 0.78rem; }
     }
   </style>
@@ -307,7 +434,6 @@
     'use strict';
 
     var SIMS = 10000;          // simulated seasons per run
-    var LEVERAGE_SIMS = 4000;  // per-outcome sims for Game of the Week
     var PLAYOFF_TEAMS = 4;     // OFC: 4 teams, no byes
     var SHRINK = 4;            // games of league-average "prior" blended into each team's scoring
 
@@ -459,7 +585,9 @@
       // Extra bookkeeping for the team "Path" panels
       var G = schedule.length, homeWon = new Uint8Array(G), made = new Uint8Array(k);
       var gHW = new Float64Array(G), gamePO = [], poTotal = new Float64Array(k);
-      for (var gj = 0; gj < G; gj++) gamePO.push(new Float64Array(k));
+      var gameT1 = [], gameT2 = [], t1Total = new Float64Array(k), t2Total = new Float64Array(k);
+      var top1 = new Uint8Array(k), top2 = new Uint8Array(k);
+      for (var gj = 0; gj < G; gj++) { gamePO.push(new Float64Array(k)); gameT1.push(new Float64Array(k)); gameT2.push(new Float64Array(k)); }
       var remCount = ids.map(function () { return 0; });
       schedule.forEach(function (g) { remCount[idx[g.h]]++; remCount[idx[g.a]]++; });
       var winB = ids.map(function (_, i) { return new Float64Array(remCount[i] + 1); });
@@ -483,6 +611,8 @@
           seedCount[t][p < PLAYOFF_TEAMS ? p : 4]++;
           winSum[t] += w[t];
           made[t] = p < PLAYOFF_TEAMS ? 1 : 0;
+          top1[t] = p === 0 ? 1 : 0; top2[t] = p < 2 ? 1 : 0;
+          t1Total[t] += top1[t]; t2Total[t] += top2[t];
         }
         for (var q = 0; q < k; q++) {
           var rw = Math.round(w[q] - bw[q]);
@@ -491,8 +621,8 @@
         for (var gk = 0; gk < G; gk++) {
           if (!homeWon[gk]) continue;
           gHW[gk]++;
-          var row = gamePO[gk];
-          for (var q2 = 0; q2 < k; q2++) row[q2] += made[q2];
+          var row = gamePO[gk], r1 = gameT1[gk], r2 = gameT2[gk];
+          for (var q2 = 0; q2 < k; q2++) { row[q2] += made[q2]; r1[q2] += top1[q2]; r2[q2] += top2[q2]; }
         }
       }
       var res = {};
@@ -508,6 +638,7 @@
         };
       });
       res._n = n; res._idx = idx; res._gHW = gHW; res._gamePO = gamePO; res._poTotal = poTotal;
+      res._gameT1 = gameT1; res._gameT2 = gameT2; res._t1Total = t1Total; res._t2Total = t2Total;
       res._homeWinPct = {}; schedule.forEach(function (g) { res._homeWinPct[g.id] = gameWins[g.id] / n; });
       return res;
     }
@@ -515,10 +646,10 @@
     /* ══════════════════════════════════════════════════════════
        STATE + RENDER
     ══════════════════════════════════════════════════════════ */
-    var state = { picks: {}, tabWeek: null, open: null };
+    var state = { picks: {}, tabWeek: null, open: null, spot: undefined };   // spot: undefined = auto (biggest swing), 'none' = closed, or a game id
     var LAST = null;   // last simulation result, reused when a panel opens/closes
     var CLINCH = {};
-    var MODEL = null, BASE = null, SCHED = [], BASELINE = null, GOTW = null;
+    var MODEL = null, BASE = null, SCHED = [], BASELINE = null;
 
     function recompute(full) {
       SCHED = remainingSchedule();
@@ -527,27 +658,11 @@
       CLINCH = clinchStatus(BASE);
       if (full || !BASELINE) {
         BASELINE = simulate(SIMS, SCHED, {}, MODEL, BASE, 20260);
-        GOTW = gameOfTheWeek();
       }
       var hasPicks = Object.keys(state.picks).length > 0;
       var current = hasPicks ? simulate(SIMS, SCHED, state.picks, MODEL, BASE, 20260) : BASELINE;
       LAST = { res: current, hasPicks: hasPicks };
       render(current, hasPicks);
-    }
-
-    /* Highest-leverage game in the next week: biggest total swing in playoff odds */
-    function gameOfTheWeek() {
-      var next = LAST_DONE + 1;
-      var games = SCHED.filter(function (g) { return g.week === next; });
-      var best = null;
-      games.forEach(function (g, gi) {
-        var ifH = simulate(LEVERAGE_SIMS, SCHED, (function () { var p = {}; p[g.id] = 'h'; return p; })(), MODEL, BASE, 777 + gi);
-        var ifA = simulate(LEVERAGE_SIMS, SCHED, (function () { var p = {}; p[g.id] = 'a'; return p; })(), MODEL, BASE, 777 + gi);
-        var swing = 0;
-        TEAM_IDS.forEach(function (id) { swing += Math.abs(ifH[id].playoff - ifA[id].playoff); });
-        if (!best || swing > best.swing) best = { g: g, swing: swing, ifH: ifH, ifA: ifA };
-      });
-      return best;
     }
 
     /* ══════════════════════════════════════════════════════════
@@ -654,11 +769,16 @@
       else if (cs === 'x') head = 'Clinched a playoff spot. Now it&rsquo;s all about seeding (' + pctLabel(r.top) + '% for #1).';
       else if (cs === 'e') head = 'Mathematically eliminated. Spoiler season starts now.';
       else if (!R) head = 'No games left. It&rsquo;s out of their hands now.';
+      else if (r.playoff < 0.01) head = 'Hanging by a thread at ' + pctLabel(r.playoff) + '%. ' +
+        (top && top.po >= 0.1 ? 'A perfect ' + R + '&ndash;0 finish would get them to ' + pctLabel(top.po) + '%. Until then, it&rsquo;s spoiler season.' : 'It&rsquo;s spoiler season.');
       else if (safe.length) head = (safe[0] === 0 ? 'Safe even if they lose out' : '<b>' + wks(safe[0]) + '</b> in the last ' + R + ' gets ' + esc(t.team) + ' to 90%+') + (coin.length && coin[0] < safe[0] ? '; ' + wks(coin[0]) + ' makes it a coin flip or better.' : '.');
       else if (top && top.po >= 0.5) head = 'Winning out gets them to ' + pctLabel(top.po) + '%. Anything less and they need help.';
       else if (top) head = 'Even winning out only gets them to ' + pctLabel(top.po) + '%. They need help.';
       else head = 'Still alive, barely.';
       out += '<p class="race-path-head">' + head + '</p>';
+
+      /* Spoiler duty — eliminated teams, or under 1%: whose season can they still wreck? */
+      if (cs === 'e' || r.playoff < 0.01) out += spoilerSection(id, res);
 
       /* 1. Win total table */
       if (R && buckets.length && cs !== 'e') {
@@ -740,6 +860,257 @@
       return '<div class="race-path">' + out + '</div>';
     }
 
+    /* For each remaining game of an (all-but) eliminated team: how far a win drags the
+       opponent's playoff odds down, and which contenders get a boost from it */
+    function spoilerSection(id, res) {
+      var games = SCHED.map(function (g, j) { return { g: g, j: j }; })
+        .filter(function (x) { return x.g.h === id || x.g.a === id; });
+      if (!games.length) return '';
+      var rows = games.map(function (x) {
+        var isH = x.g.h === id, opp = isH ? x.g.a : x.g.h;
+        var c = condOdds(res, x.j, opp);
+        if (!c) {
+          var pk = state.picks[x.g.id];
+          return { g: x.g, opp: opp, picked: ((pk === 'h') === isH) ? 'win' : 'loss', dmg: -1 };
+        }
+        // opponent's odds when THIS team wins vs loses
+        var oppIfWeWin  = isH ? c.h : c.a;
+        var oppIfWeLose = isH ? c.a : c.h;
+        var helps = TEAM_IDS.filter(function (o) { return o !== id && o !== opp; }).map(function (o) {
+          var co = condOdds(res, x.j, o); if (!co) return null;
+          var d = isH ? co.h - co.a : co.a - co.h;
+          return { id: o, d: Math.round(d * 100) };
+        }).filter(function (h) { return h && h.d >= 2; }).sort(function (a, b) { return b.d - a.d; }).slice(0, 2);
+        return { g: x.g, opp: opp, win: oppIfWeWin, lose: oppIfWeLose, dmg: Math.round((oppIfWeLose - oppIfWeWin) * 100), helps: helps };
+      }).sort(function (a, b) { return b.dmg - a.dmg; });
+
+      var target = rows[0] && rows[0].dmg >= 3 ? rows[0] : null;
+      var html = '<div class="race-path-label">Spoiler Duty</div>';
+      html += target
+        ? '<p class="race-spoil-head">Biggest target: <b style="color:' + TEAMS[target.opp].color + '">' + esc(TEAMS[target.opp].team) + '</b> in Week ' + target.g.week +
+            '. A win drops them from ' + pctLabel(target.lose) + '% to ' + pctLabel(target.win) + '%.</p>'
+        : '<p class="race-spoil-head">Nobody left on the schedule has much riding on these games. Play for pride.</p>';
+      html += rows.map(function (x) {
+        var T = TEAMS[x.opp];
+        if (x.dmg === -1) {
+          return '<div class="race-spoil"><span class="wk">Wk ' + x.g.week + '</span>' +
+            '<span class="opp">vs ' + esc(T.team) + '</span><span class="dmg">Picked: ' + x.picked + '</span></div>';
+        }
+        return '<div class="race-spoil">' +
+          '<span class="wk">Wk ' + x.g.week + '</span>' +
+          '<span class="opp">vs ' + esc(T.team) +
+            '<span class="odds">their odds ' + pctLabel(x.lose) + '% &rarr; ' + pctLabel(x.win) + '% with your win</span>' +
+            (x.helps.length ? '<span class="helps">Also helps ' + x.helps.map(function (h) { return esc(TEAMS[h.id].team) + ' <b>+' + h.d + '</b>'; }).join(', ') + '</span>' : '') +
+          '</span>' +
+          '<span class="dmg' + (x.dmg >= 10 ? ' big' : '') + '">' + (x.dmg > 0 ? '&minus;' + x.dmg : '0') + '</span>' +
+        '</div>';
+      }).join('');
+      return html;
+    }
+
+    /* How much team o gains (home win minus away win) in game j, in percentage points:
+       playoff odds, #1-seed odds and top-2 odds. Null when the game is picked. */
+    function stakeFor(res, j, o) {
+      var n = res._n, hw = res._gHW[j], t = res._idx[o];
+      if (hw === 0 || hw === n) return null;
+      function diff(arr, tot) { return (arr[j][t] / hw - (tot[t] - arr[j][t]) / (n - hw)) * 100; }
+      return { po: diff(res._gamePO, res._poTotal), t1: diff(res._gameT1, res._t1Total), t2: diff(res._gameT2, res._t2Total) };
+    }
+
+    /* This season's head-to-head record (real results only) */
+    var H2H = null;
+    function seasonH2H() {
+      if (H2H) return H2H;
+      H2H = {};
+      PLAYED.forEach(function (g) {
+        var hw = g.hs > g.as, aw = g.as > g.hs;
+        [[g.h, g.a, hw, aw], [g.a, g.h, aw, hw]].forEach(function (r) {
+          var k = r[0] + '|' + r[1]; H2H[k] = H2H[k] || { w: 0, l: 0 };
+          if (r[2]) H2H[k].w++; if (r[3]) H2H[k].l++;
+        });
+      });
+      return H2H;
+    }
+
+    /* Who's pulling for whom in game j.
+       1. Stake fans — combined stake = playoff odds + half the #1-seed swing + a quarter of
+          the top-2 swing. 2+ points makes you a fan. Locked-in teams still care about seeding.
+       2. Grudge fans — no real stake, but lost to one side this season (and did better against
+          the other): they root against the team that beat them. */
+    function fansFor(res, j) {
+      var g = SCHED[j], out = { h: [], a: [] }, h2h = seasonH2H();
+      for (var i = 0; i < TEAM_IDS.length; i++) {
+        var o = TEAM_IDS[i];
+        if (o === g.h || o === g.a) continue;
+        var st = stakeFor(res, j, o);
+        if (!st) return null;
+        var u = st.po + 0.5 * st.t1 + 0.25 * st.t2;
+        if (Math.abs(u) >= 2) {
+          var side = u > 0 ? 'h' : 'a', sg = u > 0 ? 1 : -1;
+          out[side].push({ id: o, pts: Math.round(Math.abs(u)), kind: 'stake',
+            po: Math.round(st.po * sg), t1: Math.round(st.t1 * sg) });
+          continue;
+        }
+        var vh = h2h[o + '|' + g.h] || { w: 0, l: 0 }, va = h2h[o + '|' + g.a] || { w: 0, l: 0 };
+        var netH = vh.w - vh.l, netA = va.w - va.l;
+        // Grudge: losing record vs one side, and no losing record vs the other
+        if (Math.min(netH, netA) < 0 && Math.max(netH, netA) >= 0) {
+          var enemy = netH < netA ? g.h : g.a, rec = netH < netA ? vh : va;
+          out[netH < netA ? 'a' : 'h'].push({ id: o, pts: 0, kind: 'grudge', enemy: enemy, rec: rec });
+        }
+      }
+      function order(x, y) { return (y.kind === 'stake') - (x.kind === 'stake') || y.pts - x.pts; }
+      out.h.sort(order); out.a.sort(order);
+      return out;
+    }
+
+    /* Mini logo: stake fans scale with how much is riding on it; grudge fans get a dashed ring */
+    function fanHtml(fan, side) {
+      var F = TEAMS[fan.id], size, op, tip;
+      var verb = side.team + ' win' + (/s$/i.test(side.team) ? '' : 's');
+      if (fan.kind === 'grudge') {
+        size = 20; op = 0.9;
+        tip = F.team + ': grudge pick. ' + TEAMS[fan.enemy].team + ' beat them ' + fan.rec.l + '\u2013' + fan.rec.w + ' this season';
+      } else {
+        var k = Math.min(1, (fan.pts - 2) / 20);
+        size = Math.round(20 + k * 8); op = (0.85 + k * 0.15).toFixed(2);
+        var bits = [];
+        if (fan.po >= 1) bits.push('+' + fan.po + ' playoff odds');
+        if (fan.t1 >= 2) bits.push('+' + fan.t1 + ' #1-seed odds');
+        tip = F.team + ': ' + (bits.join(', ') || 'better seeding') + ' if ' + verb;
+      }
+      var inner = F.logo ? '<img src="' + esc(F.logo) + '" alt="" />' : '<span class="init">' + esc(initials(F.team)) + '</span>';
+      return '<span class="race-fan' + (fan.kind === 'grudge' ? ' grudge' : '') + '" role="button" tabindex="0" data-tip="' + esc(tip) + '" title="' + esc(tip) + '" style="width:' + size + 'px;height:' + size + 'px;opacity:' + op + '">' + inner + '</span>';
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       MATCHUP SPOTLIGHT — opens inline under a Matchup Board game
+    ══════════════════════════════════════════════════════════ */
+
+    /* Total playoff-odds swing across the league for game j (0 if picked) */
+    function gameSwing(res, j) {
+      var tot = 0;
+      for (var i = 0; i < TEAM_IDS.length; i++) {
+        var c = condOdds(res, j, TEAM_IDS[i]); if (!c) return 0;
+        tot += Math.abs(c.h - c.a);
+      }
+      return tot;
+    }
+    function autoSpot(res, week) {
+      var best = null, bestSwing = 0;
+      SCHED.forEach(function (g, j) {
+        if (g.week !== week) return;
+        var sw = gameSwing(res, j);
+        if (sw > bestSwing) { bestSwing = sw; best = g.id; }
+      });
+      return best;
+    }
+
+    /* All-time OFC record between two members (regular season + real playoff games) */
+    function allTime(aId, bId) {
+      var r = { a: 0, b: 0, t: 0 };
+      if (!OFC) return r;
+      function tally(aS, bS) { if (aS > bS) r.a++; else if (bS > aS) r.b++; else r.t++; }
+      (OFC.seasons || []).forEach(function (s) {
+        (s.weeks || []).forEach(function (w) {
+          if (!w.isComplete) return;
+          (w.games || []).forEach(function (g) {
+            var h = g.home || {}, a = g.away || {};
+            if (h.memberId === aId && a.memberId === bId) tally(num(h.score), num(a.score));
+            else if (h.memberId === bId && a.memberId === aId) tally(num(a.score), num(h.score));
+          });
+        });
+        var p = s.playoffs || {};
+        [['semis', 'Semifinal'], ['finals', 'Championship']].forEach(function (rd) {
+          (p[rd[0]] || []).forEach(function (g) {
+            if ((g.gameType || rd[1]) !== rd[1]) return;
+            var hs = num(g.homeScore), as_ = num(g.awayScore);
+            if (!hs && !as_) return;
+            if (g.homeMemberId === aId && g.awayMemberId === bId) tally(hs, as_);
+            else if (g.homeMemberId === bId && g.awayMemberId === aId) tally(as_, hs);
+          });
+        });
+      });
+      return r;
+    }
+
+    /* What a pick did to the race: compare against the same picks minus this one */
+    var PICK_IMPACT = {};
+    function pickImpact(gameId) {
+      var key = gameId + '|' + JSON.stringify(state.picks);
+      if (PICK_IMPACT[key]) return PICK_IMPACT[key];
+      var without = {}; Object.keys(state.picks).forEach(function (k) { if (k !== gameId) without[k] = state.picks[k]; });
+      PICK_IMPACT[key] = simulate(SIMS / 2, SCHED, without, MODEL, BASE, 20260);
+      return PICK_IMPACT[key];
+    }
+
+    function fanLine(fan) {
+      var F = TEAMS[fan.id];
+      var why = fan.kind === 'grudge'
+        ? 'grudge &middot; ' + esc(TEAMS[fan.enemy].team) + ' beat them ' + fan.rec.l + '&ndash;' + fan.rec.w
+        : [fan.po >= 1 ? '+' + fan.po + ' playoff odds' : '', fan.t1 >= 2 ? '+' + fan.t1 + ' #1 seed' : ''].filter(Boolean).join(', ') || 'better seeding';
+      return '<div class="race-spot-fan">' + (F.logo ? '<img src="' + esc(F.logo) + '" alt="" />' : '') +
+        '<span><b>' + esc(F.team) + '</b><i>' + why + '</i></span></div>';
+    }
+
+    function spotlightHtml(res, x, isAuto) {
+      var j = SCHED.indexOf(x), H = TEAMS[x.h], A = TEAMS[x.a], p = state.picks[x.id];
+      var html = '<div class="race-spot" style="--ga:' + H.color + ';--gb:' + A.color + '">';
+      html += '<div class="race-spot-tag">' + (isAuto ? '&#x2605; Game of the Week &middot; Biggest swing in Wk ' + x.week : 'Spotlight &middot; Week ' + x.week) + '</div>';
+
+      var c = { h: condOdds(res, j, x.h), a: condOdds(res, j, x.a) };
+      function sideHtml(id, which) {
+        var t = TEAMS[id], body;
+        if (!p) {
+          var cc = c[which], win = which === 'h' ? cc.h : cc.a, lose = which === 'h' ? cc.a : cc.h;
+          body = '<div class="race-spot-odds">Playoffs<br>Win <b class="' + oddsClass(win) + '">' + pctLabel(win) + '%</b> &middot; Lose <b class="' + oddsClass(lose) + '">' + pctLabel(lose) + '%</b></div>';
+        } else {
+          var before = pickImpact(x.id)[id].playoff, after = res[id].playoff, d = pct(after) - pct(before);
+          body = '<div class="race-spot-odds">Playoffs<br><b>' + pctLabel(before) + '%</b> &rarr; <b class="' + oddsClass(after) + '">' + pctLabel(after) + '%</b>' +
+            (d ? ' <span class="race-delta ' + (d > 0 ? 'up' : 'dn') + '">' + (d > 0 ? '&#x25B2;' : '&#x25BC;') + Math.abs(d) + '</span>' : '') + '</div>';
+        }
+        return '<div class="race-spot-side">' + teamLink(id, logo(t, 'race-spot-logo')) + '<div class="race-spot-name">' + esc(t.team) + '</div>' + body + '</div>';
+      }
+      html += '<div class="race-spot-grid">' + sideHtml(x.h, 'h') + '<div class="race-spot-vs">VS</div>' + sideHtml(x.a, 'a') + '</div>';
+
+      if (!p) {
+        var sh = Math.abs(c.h.h - c.h.a), sa = Math.abs(c.a.h - c.a.a);
+        var big = sh >= sa ? H : A, swing = Math.max(sh, sa);
+        html += '<p class="race-spot-line">&ldquo;' + (swing >= 0.1
+          ? esc(big.team) + (/s$/i.test(big.team) ? '&rsquo;' : '&rsquo;s') + ' season swings ' + pct(swing) + ' points on this one. No pressure.'
+          : 'Not much riding on this one. Bragging rights only.') + '&rdquo;</p>';
+        var f = fansFor(res, j);
+        if (f && (f.h.length || f.a.length)) {
+          // One column under each team, split by a divider, so the sides are obvious
+          html += '<div class="race-spot-label">Who&rsquo;s Pulling for Whom</div><div class="race-spot-fans">' +
+            '<div class="race-spot-col h"><div class="race-spot-col-head">Pulling for ' + esc(H.team) + '</div>' +
+              '<div class="race-spot-col-list">' + (f.h.length ? f.h.map(fanLine).join('') : '<p class="race-spot-none">Nobody</p>') + '</div></div>' +
+            '<div class="race-spot-divide"><span>vs</span></div>' +
+            '<div class="race-spot-col a"><div class="race-spot-col-head">Pulling for ' + esc(A.team) + '</div>' +
+              '<div class="race-spot-col-list">' + (f.a.length ? f.a.map(fanLine).join('') : '<p class="race-spot-none">Nobody</p>') + '</div></div>' +
+          '</div>';
+        }
+      } else {
+        var w = p === 'h' ? H : A;
+        html += '<p class="race-spot-line">Your pick: ' + esc(w.team) + ' win' + (/s$/i.test(w.team) ? '' : 's') + '. Tap the &times; on their box to clear it.</p>';
+      }
+
+      // This season + all-time
+      var meet = PLAYED.filter(function (g) { return (g.h === x.h && g.a === x.a) || (g.h === x.a && g.a === x.h); });
+      var at = allTime(x.h, x.a);
+      var hist = meet.map(function (g) {
+        var hs = g.h === x.h ? g.hs : g.as, as_ = g.h === x.h ? g.as : g.hs;
+        return '<div class="race-spot-meet"><span>Wk ' + g.week + '</span><b class="' + (hs > as_ ? 'w' : '') + '">' + hs.toFixed(2) + '</b><i>&ndash;</i><b class="' + (as_ > hs ? 'w' : '') + '">' + as_.toFixed(2) + '</b></div>';
+      }).join('');
+      var lead = at.a > at.b ? esc(H.team) + ' lead ' + at.a + '&ndash;' + at.b : (at.b > at.a ? esc(A.team) + ' lead ' + at.b + '&ndash;' + at.a : 'Tied ' + at.a + '&ndash;' + at.b);
+      html += '<div class="race-spot-label">History</div><div class="race-spot-hist">' +
+        (hist ? '<div class="race-spot-meets">' + hist + '</div>' : '<p class="race-spot-none">First meeting this season</p>') +
+        ((at.a + at.b + at.t) ? '<div class="race-spot-at">All-time: <b>' + lead + (at.t ? ' (' + at.t + ' tie' + (at.t > 1 ? 's' : '') + ')' : '') + '</b></div>' : '') +
+        '<a class="race-gotw-link" href="rivals.html?a=' + encodeURIComponent(x.h) + '&b=' + encodeURIComponent(x.a) + '">Rivalry History &#x2197;</a>' +
+      '</div>';
+      return html + '</div>';
+    }
+
     function teamLink(id, inner) {
       return '<a class="race-team-link" href="team.html?id=' + encodeURIComponent(id) + '" title="' + esc(TEAMS[id].team) + ' team page">' + inner + '</a>';
     }
@@ -762,7 +1133,7 @@
       var ranked = TEAM_IDS.slice().sort(function (a, b) {
         return (res[b].playoff - res[a].playoff) || (res[b].top - res[a].top) || (BASE[b].w - BASE[a].w) || (BASE[b].pf - BASE[a].pf);
       });
-      html += '<p class="race-heading">The Race</p>' +
+      html += '<p class="race-heading">Playoff Scenario Generator</p>' +
         '<div class="race-whatif-banner' + (hasPicks ? ' on' : '') + '"><span>&#x2726; What-If Mode · ' + Object.keys(state.picks).length + ' result' + (Object.keys(state.picks).length === 1 ? '' : 's') + ' picked</span><button class="race-btn" id="prReset">Reset</button></div>' +
         '<div class="race-panel race-board">' +
         ranked.map(function (id, i) {
@@ -799,52 +1170,42 @@
         '</div>' +
         '<div class="race-seed-key"><span>Bar = chance of each seed</span><span>Brightest = #1 seed &middot; empty = miss</span></div>';
 
-      /* ── Game of the week ── */
-      if (GOTW) {
-        var g = GOTW.g, H = TEAMS[g.h], A = TEAMS[g.a];
-        var hWin = GOTW.ifH[g.h].playoff, hLose = GOTW.ifA[g.h].playoff;
-        var aWin = GOTW.ifA[g.a].playoff, aLose = GOTW.ifH[g.a].playoff;
-        var bigger = Math.abs(hWin - hLose) >= Math.abs(aWin - aLose) ? H : A;
-        var bigSwing = Math.max(Math.abs(hWin - hLose), Math.abs(aWin - aLose));
-        html += '<p class="race-heading">Week ' + g.week + ' Game of the Week</p>' +
-          '<div class="race-panel race-gotw" style="--ga:' + H.color + ';--gb:' + A.color + '">' +
-            '<div class="race-gotw-tag">&#x2605; Biggest Playoff Swing on the Slate</div>' +
-            '<div class="race-gotw-grid">' +
-              '<div class="race-gotw-side">' + teamLink(g.h, logo(H, '')) + '<div class="race-gotw-name">' + esc(H.team) + '</div>' +
-                '<div class="race-gotw-swing">Win: <b>' + pctLabel(hWin) + '%</b><br>Lose: <b>' + pctLabel(hLose) + '%</b></div></div>' +
-              '<div class="race-gotw-vs">VS</div>' +
-              '<div class="race-gotw-side">' + teamLink(g.a, logo(A, '')) + '<div class="race-gotw-name">' + esc(A.team) + '</div>' +
-                '<div class="race-gotw-swing">Win: <b>' + pctLabel(aWin) + '%</b><br>Lose: <b>' + pctLabel(aLose) + '%</b></div></div>' +
-            '</div>' +
-            '<p class="race-gotw-line">&ldquo;' + esc(bigger.team) + '’s season swings ' + pct(bigSwing) + ' points on this one. No pressure.&rdquo;</p>' +
-            '<a class="race-gotw-link" href="rivals.html?a=' + encodeURIComponent(g.h) + '&b=' + encodeURIComponent(g.a) + '">Rivalry History &#x2197;</a>' +
-          '</div>';
-      }
-
-      /* ── Pick 'em ── */
+      /* ── Matchup Board ── */
       var weeks = []; SCHED.forEach(function (x) { if (weeks.indexOf(x.week) === -1) weeks.push(x.week); });
       if (state.tabWeek === null || weeks.indexOf(state.tabWeek) === -1) state.tabWeek = weeks[0];
-      html += '<p class="race-heading">You Pick &rsquo;Em</p>' +
-        '<p class="race-intro">Tap a team to make them win. The odds above update instantly. Tap again to clear.</p>';
+      html += '<p class="race-heading">Matchup Board</p>' +
+        '<p class="race-intro">Selecting a team to win instantly updates the odds in the Playoff Scenario Generator above.<br>Small logos under a team show which teams are pulling for them to win the matchup. Tap <b>vs</b> to see the spotlight for that matchup.</p>';
       if (weeks.length) {
         html += '<div class="race-tabs">' + weeks.map(function (wk) {
           var has = SCHED.some(function (x) { return x.week === wk && state.picks[x.id]; });
           return '<button class="race-tab' + (wk === state.tabWeek ? ' is-active' : '') + '" data-week="' + wk + '">Wk ' + wk + (has ? '<span class="dot"></span>' : '') + '</button>';
         }).join('') + '</div>';
         var hw = res._homeWinPct;
+        var spotAuto = state.spot === undefined;
+        var spotId = spotAuto ? autoSpot(res, state.tabWeek) : state.spot;
         html += '<div class="race-games">' + SCHED.filter(function (x) { return x.week === state.tabWeek; }).map(function (x) {
           var H = TEAMS[x.h], A = TEAMS[x.a], p = state.picks[x.id];
           var hp = hw[x.id], ap = 1 - hp;
+          var f = fansFor(res, SCHED.indexOf(x));   // null once the game is picked
+          var isSpot = x.id === spotId;
           function side(t, which, prob) {
             var cls = 'race-pick ' + (which === 'a' ? 'b' : 'a') + (p === which ? ' won' : (p ? ' lost' : ''));
-            return '<button class="' + cls + '" style="--tc:' + t.color + '" data-game="' + x.id + '" data-side="' + which + '">' +
-              logo(t, '') + '<span class="race-pick-txt"><div class="race-pick-name">' + esc(t.team) + '</div>' +
-              '<div class="race-pick-pct">' + (p ? (p === which ? 'Picked to win' : 'Picked to lose') : pct(prob) + '% to win') + '</div></span></button>';
+            var fans = f ? f[which] : [];
+            return '<div class="' + cls + '" role="button" tabindex="0" style="--tc:' + t.color + '" data-game="' + x.id + '" data-side="' + which + '">' +
+              (p === which ? '<span class="race-pick-x" data-clear="' + x.id + '" role="button" tabindex="0" title="Clear pick" aria-label="Clear pick">&times;</span>' : '') +
+              '<div class="race-pick-main">' + logo(t, 'race-pick-logo') +
+                '<span class="race-pick-txt"><div class="race-pick-name">' + esc(t.team) + '</div>' +
+                '<div class="race-pick-pct">' + (p ? (p === which ? 'Picked to win' : 'Picked to lose') : pct(prob) + '% to win') + '</div></span>' +
+              '</div>' +
+              (fans.length ? '<div class="race-fans">' + fans.map(function (fan) { return fanHtml(fan, t); }).join('') + '</div>' : '') +
+              '</div>';
           }
-          return '<div class="race-game">' + side(H, 'h', hp) +
-            '<button class="race-game-mid' + (p ? ' set' : '') + '" data-clear="' + x.id + '">' + (p ? 'Clear' : 'vs') + '</button>' +
-            side(A, 'a', ap) + '</div>';
-        }).join('') + '</div>';
+          var mid = '<button class="race-game-mid' + (isSpot ? ' is-spot' : '') + (p ? ' set' : '') + '" data-spot="' + x.id + '" aria-expanded="' + isSpot + '" title="' + (isSpot ? 'Close spotlight' : 'Spotlight this matchup') + '">' +
+            '<span class="vs">vs</span><span class="caret">' + (isSpot ? '&#x25B4;' : '&#x25BE;') + '</span></button>';
+          return '<div class="race-game">' + side(H, 'h', hp) + mid + side(A, 'a', ap) + '</div>' +
+            (isSpot ? spotlightHtml(res, x, spotAuto) : '');
+        }).join('') + '</div>' +
+        '<div class="race-fans-key"><span><i></i>Stake &middot; bigger = more</span><span><i class="g"></i>Grudge pick</span></div>';
       } else {
         html += '<p class="race-empty">Regular season complete — no games left to pick.</p>';
       }
@@ -862,20 +1223,51 @@
       bind();
     }
 
+    /* Small floating tooltip for fan logos */
+    var tipEl = null, tipTimer = null;
+    function showTip(el) {
+      if (!tipEl) { tipEl = document.createElement('div'); tipEl.className = 'race-tip'; document.body.appendChild(tipEl); }
+      tipEl.textContent = el.getAttribute('data-tip');
+      tipEl.classList.add('on');
+      var r = el.getBoundingClientRect(), w = tipEl.offsetWidth;
+      var left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2));
+      tipEl.style.left = left + 'px';
+      tipEl.style.top = Math.max(8, r.top - tipEl.offsetHeight - 8) + 'px';
+      clearTimeout(tipTimer); tipTimer = setTimeout(hideTip, 2600);
+    }
+    function hideTip() { if (tipEl) tipEl.classList.remove('on'); }
+    document.addEventListener('scroll', hideTip, { passive: true });
+    document.addEventListener('click', function (e) { if (!(e.target.closest && e.target.closest('.race-fan'))) hideTip(); });
+
     function bind() {
       var wrap = document.getElementById('prWrap');
       wrap.querySelectorAll('.race-pick').forEach(function (b) {
-        b.addEventListener('click', function () {
+        function pick(e) {
+          var fan = e.target.closest ? e.target.closest('.race-fan') : null;
+          if (fan) { e.stopPropagation(); showTip(fan); return; }
+          if (e.target.closest && e.target.closest('[data-clear]')) return;   // the × handles itself
           var id = b.getAttribute('data-game'), side = b.getAttribute('data-side');
           if (state.picks[id] === side) delete state.picks[id]; else state.picks[id] = side;
-          recompute(false);
-        });
+          hideTip(); recompute(false);
+        }
+        b.addEventListener('click', pick);
+        b.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(e); } });
       });
       wrap.querySelectorAll('[data-clear]').forEach(function (b) {
-        b.addEventListener('click', function () { delete state.picks[b.getAttribute('data-clear')]; recompute(false); });
+        b.addEventListener('click', function (e) { e.stopPropagation(); delete state.picks[b.getAttribute('data-clear')]; recompute(false); });
+      });
+      wrap.querySelectorAll('[data-spot]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var id = b.getAttribute('data-spot');
+          var open = b.classList.contains('is-spot');
+          state.spot = open ? 'none' : id;
+          render(LAST.res, LAST.hasPicks);
+          var el = document.querySelector('.race-spot');
+          if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        });
       });
       wrap.querySelectorAll('.race-tab').forEach(function (b) {
-        b.addEventListener('click', function () { state.tabWeek = parseInt(b.getAttribute('data-week'), 10); recompute(false); });
+        b.addEventListener('click', function () { state.tabWeek = parseInt(b.getAttribute('data-week'), 10); state.spot = undefined; recompute(false); });
       });
       wrap.querySelectorAll('.race-row').forEach(function (row) {
         function toggle(e) {
