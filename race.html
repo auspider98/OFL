@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="OFC Playoff Race — live playoff odds from 10,000 simulated seasons." />
+  <title>OFL — Playoff Race</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="admin-config.js"></script>
+  <script src="ofl-data.js"></script>
+  <script src="admin.js"></script>
+
+  <style>
+    /* ══════════════════════════════════════════════════════════
+       PLAYOFF RACE — all classes prefixed race-
+    ══════════════════════════════════════════════════════════ */
+    .race-page { position: relative; width: 100%; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+    .race-page > .slide-layer      { position: fixed; inset: 0; z-index: 0; height: 100%; }
+    .race-page > .landing-overlay  { position: fixed; inset: 0; z-index: 10; height: 100%; pointer-events: none; }
+    .race-page > .landing-vignette { position: fixed; inset: 0; z-index: 11; height: 100%; pointer-events: none; }
+
+    .race-hero { position: relative; z-index: 20; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 5rem 2rem 1.4rem; }
+    .race-hero-eyebrow {
+      font-family: var(--font-body); font-weight: 300; font-size: var(--size-eyebrow, 8pt);
+      letter-spacing: 0.45em; text-transform: uppercase; color: var(--accent-dim); margin-bottom: 0.9rem;
+      opacity: 0; animation: heroReveal 1.2s 0.2s ease forwards;
+    }
+    .race-hero-title {
+      font-family: var(--font-display); font-weight: 300; font-size: var(--size-title, 72pt);
+      line-height: 0.92; letter-spacing: -0.02em; color: var(--accent); margin-bottom: 0.8rem;
+      opacity: 0; animation: heroReveal 1.2s 0.4s ease forwards;
+    }
+    .race-hero-subtitle {
+      font-family: var(--font-body); font-weight: 200; font-size: var(--size-subtitle, 10pt);
+      letter-spacing: 0.35em; text-transform: uppercase; color: var(--accent-dim);
+      opacity: 0; animation: heroReveal 1.2s 0.55s ease forwards;
+    }
+
+    .race-body { position: relative; z-index: 20; flex: 1; padding: 0 0 5rem; }
+    .race-wrap { max-width: 900px; margin: 0 auto; padding: 0 2rem; }
+    .race-heading {
+      font-family: var(--font-body); font-weight: var(--weight-section-heading, 300);
+      font-size: var(--size-section-heading, 7pt); letter-spacing: 0.4em; text-transform: uppercase;
+      color: var(--hint-color, var(--accent-dim)); margin: 2.4rem 0 1rem; padding-bottom: 0.6rem;
+      border-bottom: 1px solid var(--drawer-border); text-align: center;
+    }
+    .race-panel {
+      border: 1px solid var(--drawer-border); background: rgba(0,0,0,0.38);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    }
+
+    /* ── What-if banner ───────────────────────────────────── */
+    .race-whatif-banner {
+      display: none; align-items: center; justify-content: space-between; gap: 0.8rem;
+      padding: 0.6rem 0.9rem; margin-bottom: 0.6rem;
+      border: 1px solid rgba(232,200,100,0.45); background: rgba(232,200,100,0.07);
+      font-family: var(--font-body); font-size: 0.55rem; letter-spacing: 0.22em; text-transform: uppercase; color: #e8c864;
+    }
+    .race-whatif-banner.on { display: flex; }
+    .race-btn {
+      font-family: var(--font-body); font-size: 0.52rem; letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--accent); background: rgba(0,0,0,0.45); border: 1px solid var(--drawer-border);
+      padding: 0.35rem 0.75rem; cursor: pointer; transition: border-color 0.2s, background 0.2s;
+    }
+    .race-btn:hover { border-color: rgba(232,232,232,0.35); background: rgba(255,255,255,0.05); }
+
+    /* ── The board ────────────────────────────────────────── */
+    .race-board { display: flex; flex-direction: column; }
+    .race-row {
+      position: relative; padding: 0.75rem 0.9rem 0.7rem;
+      border-bottom: 1px solid rgba(232,232,232,0.05);
+      transition: background 0.25s;
+    }
+    .race-row::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--tc, transparent);
+    }
+    .race-row:last-child { border-bottom: none; }
+    .race-row.cutline { border-bottom: 1px dashed rgba(232,200,100,0.55); }
+    .race-cut-label {
+      position: absolute; right: 0.6rem; bottom: -0.5rem; z-index: 2;
+      font-family: var(--font-body); font-size: 0.42rem; letter-spacing: 0.3em; text-transform: uppercase;
+      color: #e8c864; background: #0a0a0a; padding: 0 0.4rem;
+    }
+    .race-row-top { display: grid; grid-template-columns: 1.4rem 44px 1fr auto; align-items: center; gap: 0.7rem; }
+    .race-rank { font-family: var(--font-display); font-size: 1.1rem; color: var(--accent-dim); text-align: center; }
+    .race-logo { width: 44px; height: 44px; object-fit: contain; }
+    .race-logo-init { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); color: var(--accent-dim); border: 1px solid var(--drawer-border); }
+    .race-team { min-width: 0; }
+    .race-team-name {
+      font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; color: var(--accent);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.1;
+    }
+    .race-team-meta {
+      font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent-dim); margin-top: 0.2rem;
+    }
+    .race-team-meta b { color: var(--accent); font-weight: 700; }
+    .race-odds { text-align: right; }
+    .race-odds-num { font-family: var(--font-display); font-weight: 700; font-size: 1.9rem; line-height: 1; color: var(--accent); }
+    .race-odds-num small { font-size: 0.9rem; font-weight: 400; opacity: 0.7; }
+    .race-odds-lbl { font-family: var(--font-body); font-size: 0.42rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent-dim); margin-top: 0.15rem; }
+    .race-delta { display: inline-block; font-family: var(--font-body); font-size: 0.55rem; font-weight: 700; margin-right: 0.35rem; vertical-align: middle; }
+    .race-delta.up { color: #4caf7d; } .race-delta.dn { color: #d94f4f; }
+    .race-tag {
+      display: inline-block; font-family: var(--font-body); font-size: 0.42rem; letter-spacing: 0.25em;
+      text-transform: uppercase; padding: 0.12rem 0.4rem; border: 1px solid; margin-left: 0.4rem; vertical-align: middle;
+    }
+    .race-tag.lock { color: #4caf7d; border-color: rgba(76,175,125,0.6); }
+    .race-tag.out  { color: #d94f4f; border-color: rgba(217,79,79,0.6); }
+    .race-tag.bubble { color: #e8c864; border-color: rgba(232,200,100,0.6); }
+
+    /* Seed distribution bar */
+    .race-seeds { display: flex; height: 16px; margin-top: 0.6rem; background: rgba(232,232,232,0.05); overflow: hidden; }
+    .race-seeds span {
+      display: flex; align-items: center; justify-content: center; height: 100%;
+      font-family: var(--font-body); font-size: 0.42rem; font-weight: 700; letter-spacing: 0.05em;
+      color: rgba(255,255,255,0.92); text-shadow: 0 0 3px rgba(0,0,0,0.9);
+      overflow: hidden; white-space: nowrap; transition: width 0.6s cubic-bezier(.2,.8,.2,1);
+    }
+    .race-seeds .s1 { background: var(--tc); }
+    .race-seeds .s2 { background: color-mix(in srgb, var(--tc) 72%, #0a0a0a); }
+    .race-seeds .s3 { background: color-mix(in srgb, var(--tc) 50%, #0a0a0a); }
+    .race-seeds .s4 { background: color-mix(in srgb, var(--tc) 32%, #0a0a0a); }
+    .race-seeds .out { background: transparent; color: var(--accent-dim); text-shadow: none; }
+    .race-seed-key {
+      display: flex; justify-content: space-between; margin-top: 0.25rem;
+      font-family: var(--font-body); font-size: 0.42rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-dim);
+    }
+
+    /* ── Game of the week ─────────────────────────────────── */
+    .race-gotw { padding: 1.1rem 1rem 1rem; text-align: center; position: relative; overflow: hidden; }
+    .race-gotw::before, .race-gotw::after { content: ''; position: absolute; top: 0; bottom: 0; width: 50%; opacity: 0.2; pointer-events: none; }
+    .race-gotw::before { left: 0; background: linear-gradient(90deg, var(--ga, transparent), transparent); }
+    .race-gotw::after  { right: 0; background: linear-gradient(270deg, var(--gb, transparent), transparent); }
+    .race-gotw-tag { font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.35em; text-transform: uppercase; color: #e8c864; margin-bottom: 0.8rem; position: relative; }
+    .race-gotw-grid { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 0.6rem; position: relative; }
+    .race-gotw-side img, .race-gotw-side .race-logo-init { width: 72px; height: 72px; object-fit: contain; margin: 0 auto; }
+    .race-gotw-name { font-family: var(--font-display); font-weight: 600; font-size: 1rem; color: var(--accent); margin-top: 0.4rem; }
+    .race-gotw-swing { font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent-dim); margin-top: 0.35rem; line-height: 1.7; }
+    .race-gotw-swing b { font-family: var(--font-display); font-size: 0.95rem; letter-spacing: 0; color: var(--accent); }
+    .race-gotw-vs { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; color: var(--accent); }
+    .race-gotw-line { font-family: var(--font-display); font-style: italic; font-weight: 300; font-size: 1rem; color: var(--accent); margin-top: 0.9rem; position: relative; line-height: 1.35; }
+    .race-gotw-link {
+      display: inline-block; margin-top: 0.7rem; position: relative;
+      font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.28em; text-transform: uppercase;
+      color: var(--accent-dim); text-decoration: none; border-bottom: 1px solid var(--drawer-border); padding-bottom: 0.1rem;
+    }
+    .race-gotw-link:hover { color: var(--accent); }
+
+    /* ── Pick 'em ─────────────────────────────────────────── */
+    .race-intro { font-family: var(--font-body); font-size: 0.6rem; letter-spacing: 0.1em; color: var(--accent-dim); text-align: center; line-height: 1.6; margin-bottom: 0.9rem; }
+    .race-tabs { display: flex; gap: 0.35rem; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 0.5rem; margin-bottom: 0.4rem; justify-content: center; flex-wrap: wrap; }
+    .race-tab {
+      font-family: var(--font-body); font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent-dim); background: transparent; border: 1px solid var(--drawer-border);
+      padding: 0.35rem 0.7rem; cursor: pointer; position: relative; white-space: nowrap;
+    }
+    .race-tab.is-active { color: var(--accent); border-color: var(--accent); background: rgba(232,232,232,0.06); }
+    .race-tab .dot { position: absolute; top: 3px; right: 3px; width: 5px; height: 5px; border-radius: 50%; background: #e8c864; }
+    .race-games { display: flex; flex-direction: column; gap: 0.5rem; max-width: 680px; margin: 0 auto; }
+    .race-game { display: grid; grid-template-columns: 1fr 2.6rem 1fr; align-items: stretch; gap: 0.4rem; }
+    /* Teams hug the center like the season-page matchups: name · logo | vs | logo · name */
+    .race-pick {
+      display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0.7rem;
+      border: 1px solid var(--drawer-border); background: rgba(0,0,0,0.4); cursor: pointer;
+      color: inherit; font: inherit; min-width: 0;
+      flex-direction: row-reverse; justify-content: flex-start; text-align: right;
+      transition: border-color 0.2s, background 0.2s, opacity 0.2s;
+    }
+    .race-pick.b { flex-direction: row; justify-content: flex-start; text-align: left; }
+    .race-pick img, .race-pick .race-logo-init { width: 30px; height: 30px; object-fit: contain; flex-shrink: 0; }
+    .race-pick .race-logo-init { font-size: 0.7rem; }
+    .race-pick-txt { min-width: 0; }
+    .race-pick-name { font-family: var(--font-display); font-weight: 600; font-size: 0.85rem; color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .race-pick-pct { font-family: var(--font-body); font-size: 0.45rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent-dim); }
+    .race-pick.won { border-color: var(--tc); background: color-mix(in srgb, var(--tc) 22%, rgba(0,0,0,0.5)); }
+    .race-pick.lost { opacity: 0.35; }
+    .race-game-mid {
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-body); font-size: 0.45rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent-dim);
+      border: 1px dashed rgba(232,232,232,0.1); cursor: pointer; background: none;
+    }
+    .race-game-mid.set { color: #e8c864; border-color: rgba(232,200,100,0.35); }
+
+    .race-settings {
+      display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.6rem;
+      margin-top: 1rem; font-family: var(--font-body); font-size: 0.52rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent-dim);
+    }
+    .race-settings select {
+      font-family: var(--font-body); font-size: 0.6rem; color: var(--accent); background: #111;
+      border: 1px solid var(--drawer-border); padding: 0.25rem 0.4rem;
+    }
+    .race-method { font-family: var(--font-body); font-size: 0.52rem; letter-spacing: 0.06em; color: var(--accent-dim); opacity: 0.75; line-height: 1.7; text-align: center; margin-top: 0.9rem; }
+
+    .race-empty { text-align: center; font-family: var(--font-body); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent-dim); padding: 2.5rem 1rem; }
+    .race-footer { position: relative; z-index: 20; text-align: center; font-family: var(--font-body); font-size: 0.55rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent-dim); opacity: 0.5; padding: 1.5rem 2rem 3rem; }
+
+    @media (max-width: 600px) {
+      .race-hero { padding: 4.5rem 1.2rem 1rem; }
+      .race-wrap { padding: 0 1rem; }
+      .race-row { padding: 0.7rem 0.7rem 0.65rem; }
+      .race-row-top { grid-template-columns: 1.1rem 38px 1fr auto; gap: 0.55rem; }
+      .race-logo, .race-logo-init { width: 38px; height: 38px; }
+      .race-team-name { font-size: 0.95rem; }
+      .race-odds-num { font-size: 1.6rem; }
+      .race-gotw-side img, .race-gotw-side .race-logo-init { width: 58px; height: 58px; }
+      .race-pick { padding: 0.5rem 0.45rem; gap: 0.4rem; }
+      .race-pick img, .race-pick .race-logo-init { width: 26px; height: 26px; }
+      .race-pick-name { font-size: 0.78rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="topnav" role="navigation" aria-label="Site navigation">
+    <a href="index.html" class="topnav-logo">OFC</a>
+    <button class="menu-trigger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="site-drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <div class="drawer-overlay" aria-hidden="true"></div>
+  <aside id="site-drawer" class="drawer" role="dialog" aria-modal="true" aria-label="Navigation">
+    <p class="drawer-label">Navigate</p>
+    <ul class="drawer-nav"></ul>
+    <div class="drawer-footer"></div>
+  </aside>
+
+  <div class="race-page">
+    <div class="slide-layer" id="slideA" aria-hidden="true"></div>
+    <div class="slide-layer" id="slideB" aria-hidden="true"></div>
+    <div class="landing-overlay" id="prOverlay" aria-hidden="true"></div>
+    <div class="landing-vignette" aria-hidden="true"></div>
+
+    <header class="race-hero">
+      <p class="race-hero-eyebrow" id="prEyebrow">OFC Playoff Race</p>
+      <h1 class="race-hero-title">Playoff Race</h1>
+      <p class="race-hero-subtitle" id="prSubtitle">10,000 Simulated Seasons</p>
+    </header>
+
+    <div class="race-body">
+      <div class="race-wrap section-reveal" style="animation-delay:0.5s" id="prWrap"></div>
+    </div>
+    <div class="race-footer" id="prFooter"></div>
+  </div>
+
+  <script src="sound.js"></script>
+  <script src="menu.js"></script>
+
+  <script>
+  (function () {
+    'use strict';
+
+    var SIMS = 10000;          // simulated seasons per run
+    var LEVERAGE_SIMS = 4000;  // per-outcome sims for Game of the Week
+    var PLAYOFF_TEAMS = 4;     // OFC: 4 teams, no byes
+    var SHRINK = 4;            // games of league-average "prior" blended into each team's scoring
+
+    /* ── Helpers ──────────────────────────────────────────── */
+    function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function num(v) { var n = parseFloat(v); return isNaN(n) ? 0 : n; }
+    function initials(n) { return (n || '?').split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase(); }
+    function pct(x) { return Math.round(x * 100); }
+    function pctLabel(x) {
+      if (x >= 0.9995) return '100'; if (x > 0 && x < 0.005) return '<1'; if (x < 1 && x > 0.995) return '>99';
+      return String(pct(x));
+    }
+    function hex(h) { return /^#[0-9a-f]{6}$/i.test(String(h || '').trim()) ? h : null; }
+
+    /* Seeded RNG so numbers don't jitter between identical runs */
+    function rng(seed) {
+      var a = seed >>> 0;
+      return function () {
+        a = (a + 0x6D2B79F5) >>> 0; var t = a;
+        t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+    function gauss(r) {
+      var u = 0, v = 0; while (u === 0) u = r(); v = r();
+      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       DATA — current OFC season
+    ══════════════════════════════════════════════════════════ */
+    var DATA = window.OFL_DATA || {};
+    var ROSTER = DATA.masterRoster || [];
+    var OFC = (DATA.leagueData || []).find(function (l) { return l.sport === 'football'; }) || null;
+    var SEASON = OFC ? ((OFC.seasons || []).find(function (s) { return !s.isFinal && (s.weeks || []).length; }) || null) : null;
+
+    function identity(mid, fallbackTeam) {
+      var m = ROSTER.find(function (r) { return r.id === mid; }) || {};
+      var e = (m.leagues || []).find(function (l) { return l.leagueKey === 'OFC'; });
+      var t = e && e.teams && e.teams.length ? e.teams[e.teams.length - 1] : null;
+      return { id: mid, owner: m.name || '', team: fallbackTeam || (t && t.name) || m.name || '?',
+        logo: (t && t.logo) || m.mugshot || '', color: hex(t && t.primaryColor) || '#888888' };
+    }
+
+    var TEAMS = {}, TEAM_IDS = [], PLAYED = [], WEEKS = [], CYCLE = 7, LAST_DONE = 0, SCHEDULE_SOURCE = '';
+    (function build() {
+      if (!SEASON) return;
+      WEEKS = (SEASON.weeks || []).slice().sort(function (a, b) { return (a.weekNumber || 0) - (b.weekNumber || 0); });
+      WEEKS.forEach(function (w) {
+        (w.games || []).forEach(function (g) {
+          [g.home, g.away].forEach(function (s) {
+            if (s && s.memberId && !TEAMS[s.memberId]) { TEAMS[s.memberId] = identity(s.memberId, s.teamName); TEAM_IDS.push(s.memberId); }
+            else if (s && s.memberId && s.teamName) TEAMS[s.memberId].team = s.teamName;
+          });
+        });
+        if (w.isComplete) {
+          LAST_DONE = Math.max(LAST_DONE, w.weekNumber || 0);
+          (w.games || []).forEach(function (g) {
+            if (!g.home || !g.away || !g.home.memberId || !g.away.memberId) return;
+            PLAYED.push({ week: w.weekNumber, h: g.home.memberId, a: g.away.memberId, hs: num(g.home.score), as: num(g.away.score) });
+          });
+        }
+      });
+      CYCLE = Math.max(1, TEAM_IDS.length - 1);
+    })();
+
+    /* Regular season length — set per season in ofl-data.html (blank = 15) */
+    var REG_WEEKS = (SEASON && parseInt(SEASON.regularSeasonWeeks, 10)) || 15;
+
+    /* Mathematical clinch / elimination from real results (same rules as league.html):
+       wins only, every tie counted as lost, so a tag never shows early */
+    function clinchStatus(base) {
+      var left = Math.max(0, REG_WEEKS - LAST_DONE), out = {};
+      if (TEAM_IDS.length <= PLAYOFF_TEAMS) return out;
+      var w = {}; TEAM_IDS.forEach(function (id) { w[id] = base[id].w + base[id].t * 0.5; });
+      TEAM_IDS.forEach(function (id) {
+        var canCatch = TEAM_IDS.filter(function (o) { return o !== id && w[o] + left >= w[id]; }).length;
+        var ahead    = TEAM_IDS.filter(function (o) { return o !== id && w[o] > w[id] + left; }).length;
+        if (canCatch === 0) out[id] = 'y';
+        else if (canCatch < PLAYOFF_TEAMS) out[id] = 'x';
+        else if (ahead >= PLAYOFF_TEAMS) out[id] = 'e';
+      });
+      return out;
+    }
+
+    /* Remaining schedule: use real matchups if loaded, else Yahoo's repeating cycle */
+    function remainingSchedule() {
+      var out = [], usedPattern = false;
+      for (var wk = LAST_DONE + 1; wk <= REG_WEEKS; wk++) {
+        var loaded = WEEKS.find(function (w) { return w.weekNumber === wk && (w.games || []).length; });
+        var src = loaded;
+        if (!src) {
+          var mirror = ((wk - 1) % CYCLE) + 1;
+          src = WEEKS.find(function (w) { return w.weekNumber === mirror; });
+          usedPattern = true;
+        }
+        if (!src) continue;
+        (src.games || []).forEach(function (g, i) {
+          if (!g.home || !g.away || !g.home.memberId || !g.away.memberId) return;
+          out.push({ id: wk + '-' + i, week: wk, h: g.home.memberId, a: g.away.memberId });
+        });
+      }
+      SCHEDULE_SOURCE = usedPattern ? 'pattern' : 'loaded';
+      return out;
+    }
+
+    /* Scoring model per team — season mean & spread, shrunk toward league average */
+    function scoringModel() {
+      var all = [], per = {};
+      TEAM_IDS.forEach(function (id) { per[id] = []; });
+      PLAYED.forEach(function (g) { per[g.h].push(g.hs); per[g.a].push(g.as); all.push(g.hs, g.as); });
+      var lm = all.reduce(function (s, v) { return s + v; }, 0) / (all.length || 1);
+      var lv = all.reduce(function (s, v) { return s + (v - lm) * (v - lm); }, 0) / (all.length || 1);
+      var model = {};
+      TEAM_IDS.forEach(function (id) {
+        var xs = per[id], n = xs.length;
+        var m = n ? xs.reduce(function (s, v) { return s + v; }, 0) / n : lm;
+        var v = n ? xs.reduce(function (s, x) { return s + (x - m) * (x - m); }, 0) / n : lv;
+        model[id] = { mu: (n * m + SHRINK * lm) / (n + SHRINK), sd: Math.sqrt((n * v + SHRINK * lv) / (n + SHRINK)) };
+      });
+      return model;
+    }
+
+    /* Current standings (from game data, tiebreaker = points for) */
+    function baseStandings() {
+      var st = {};
+      TEAM_IDS.forEach(function (id) { st[id] = { w: 0, l: 0, t: 0, pf: 0 }; });
+      PLAYED.forEach(function (g) {
+        st[g.h].pf += g.hs; st[g.a].pf += g.as;
+        if (g.hs > g.as) { st[g.h].w++; st[g.a].l++; }
+        else if (g.as > g.hs) { st[g.a].w++; st[g.h].l++; }
+        else { st[g.h].t++; st[g.a].t++; }
+      });
+      return st;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       SIMULATION
+    ══════════════════════════════════════════════════════════ */
+    function simulate(n, schedule, picks, model, base, seed) {
+      var r = rng(seed), ids = TEAM_IDS, k = ids.length;
+      var idx = {}; ids.forEach(function (id, i) { idx[id] = i; });
+      var bw = ids.map(function (id) { return base[id].w + base[id].t * 0.5; });
+      var bpf = ids.map(function (id) { return base[id].pf; });
+      var seedCount = ids.map(function () { return [0, 0, 0, 0, 0]; }); // seeds 1-4 + miss
+      var winSum = ids.map(function () { return 0; });
+      var gameWins = {}; schedule.forEach(function (g) { gameWins[g.id] = 0; });
+      var w = new Float64Array(k), pf = new Float64Array(k), order = ids.map(function (_, i) { return i; });
+
+      for (var s = 0; s < n; s++) {
+        for (var i = 0; i < k; i++) { w[i] = bw[i]; pf[i] = bpf[i]; }
+        for (var j = 0; j < schedule.length; j++) {
+          var g = schedule[j], hi = idx[g.h], ai = idx[g.a];
+          var hs = model[g.h].mu + model[g.h].sd * gauss(r);
+          var as_ = model[g.a].mu + model[g.a].sd * gauss(r);
+          var forced = picks[g.id];
+          if (forced === 'h' && hs <= as_) { var tmp = hs; hs = as_; as_ = tmp; }
+          if (forced === 'a' && as_ <= hs) { var tmp2 = hs; hs = as_; as_ = tmp2; }
+          pf[hi] += hs; pf[ai] += as_;
+          if (hs > as_) { w[hi]++; gameWins[g.id]++; } else w[ai]++;
+        }
+        order.sort(function (x, y) { return (w[y] - w[x]) || (pf[y] - pf[x]); });
+        for (var p = 0; p < k; p++) {
+          var t = order[p];
+          seedCount[t][p < PLAYOFF_TEAMS ? p : 4]++;
+          winSum[t] += w[t];
+        }
+      }
+      var res = {};
+      ids.forEach(function (id, i) {
+        var sc = seedCount[i];
+        res[id] = {
+          seeds: sc.map(function (c) { return c / n; }),
+          playoff: (sc[0] + sc[1] + sc[2] + sc[3]) / n,
+          top: sc[0] / n,
+          projW: winSum[i] / n
+        };
+      });
+      res._homeWinPct = {}; schedule.forEach(function (g) { res._homeWinPct[g.id] = gameWins[g.id] / n; });
+      return res;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       STATE + RENDER
+    ══════════════════════════════════════════════════════════ */
+    var state = { picks: {}, tabWeek: null };
+    var CLINCH = {};
+    var MODEL = null, BASE = null, SCHED = [], BASELINE = null, GOTW = null;
+
+    function recompute(full) {
+      SCHED = remainingSchedule();
+      MODEL = scoringModel();
+      BASE = baseStandings();
+      CLINCH = clinchStatus(BASE);
+      if (full || !BASELINE) {
+        BASELINE = simulate(SIMS, SCHED, {}, MODEL, BASE, 20260);
+        GOTW = gameOfTheWeek();
+      }
+      var hasPicks = Object.keys(state.picks).length > 0;
+      var current = hasPicks ? simulate(SIMS, SCHED, state.picks, MODEL, BASE, 20260) : BASELINE;
+      render(current, hasPicks);
+    }
+
+    /* Highest-leverage game in the next week: biggest total swing in playoff odds */
+    function gameOfTheWeek() {
+      var next = LAST_DONE + 1;
+      var games = SCHED.filter(function (g) { return g.week === next; });
+      var best = null;
+      games.forEach(function (g, gi) {
+        var ifH = simulate(LEVERAGE_SIMS, SCHED, (function () { var p = {}; p[g.id] = 'h'; return p; })(), MODEL, BASE, 777 + gi);
+        var ifA = simulate(LEVERAGE_SIMS, SCHED, (function () { var p = {}; p[g.id] = 'a'; return p; })(), MODEL, BASE, 777 + gi);
+        var swing = 0;
+        TEAM_IDS.forEach(function (id) { swing += Math.abs(ifH[id].playoff - ifA[id].playoff); });
+        if (!best || swing > best.swing) best = { g: g, swing: swing, ifH: ifH, ifA: ifA };
+      });
+      return best;
+    }
+
+    function logo(t, cls) {
+      return t.logo ? '<img class="' + cls + '" src="' + esc(t.logo) + '" alt="" />'
+                    : '<div class="race-logo-init">' + esc(initials(t.team)) + '</div>';
+    }
+    function rec(s) { return s.w + '–' + s.l + (s.t ? '–' + s.t : ''); }
+
+    function render(res, hasPicks) {
+      var wrap = document.getElementById('prWrap');
+      var html = '';
+
+      document.getElementById('prEyebrow').textContent = SEASON.year + ' OFC Season · After Week ' + LAST_DONE;
+      document.getElementById('prSubtitle').textContent = (SIMS / 1000) + ',000 Simulated Seasons';
+
+      /* ── Board ── */
+      var ranked = TEAM_IDS.slice().sort(function (a, b) {
+        return (res[b].playoff - res[a].playoff) || (res[b].top - res[a].top) || (BASE[b].w - BASE[a].w) || (BASE[b].pf - BASE[a].pf);
+      });
+      html += '<p class="race-heading">The Race</p>' +
+        '<div class="race-whatif-banner' + (hasPicks ? ' on' : '') + '"><span>&#x2726; What-If Mode · ' + Object.keys(state.picks).length + ' result' + (Object.keys(state.picks).length === 1 ? '' : 's') + ' picked</span><button class="race-btn" id="prReset">Reset</button></div>' +
+        '<div class="race-panel race-board">' +
+        ranked.map(function (id, i) {
+          var t = TEAMS[id], r = res[id], b = BASE[id], base = BASELINE[id];
+          var tag = '', cs = CLINCH[id];
+          if (cs === 'y') tag = '<span class="race-tag lock" title="Mathematically clinched the #1 seed">Clinched #1</span>';
+          else if (cs === 'x') tag = '<span class="race-tag lock" title="Mathematically clinched a playoff berth">Clinched</span>';
+          else if (cs === 'e') tag = '<span class="race-tag out" title="Mathematically eliminated">Eliminated</span>';
+          else if (r.playoff >= 0.999) tag = '<span class="race-tag lock">Lock</span>';
+          else if (r.playoff <= 0.001) tag = '<span class="race-tag out">Toast</span>';
+          else if (r.playoff >= 0.3 && r.playoff <= 0.7) tag = '<span class="race-tag bubble">Bubble</span>';
+          var d = hasPicks ? pct(r.playoff) - pct(base.playoff) : 0;
+          var delta = d ? '<span class="race-delta ' + (d > 0 ? 'up' : 'dn') + '">' + (d > 0 ? '▲' : '▼') + Math.abs(d) + '</span>' : '';
+          var seeds = r.seeds.map(function (p, si) {
+            var cls = si < 4 ? 's' + (si + 1) : 'out';
+            var label = p >= 0.09 ? (si < 4 ? '#' + (si + 1) + ' ' : '') + pct(p) + '%' : '';
+            return '<span class="' + cls + '" style="width:' + (p * 100).toFixed(2) + '%" title="' + (si < 4 ? 'Seed ' + (si + 1) : 'Miss') + ': ' + pct(p) + '%">' + label + '</span>';
+          }).join('');
+          return '<div class="race-row' + (i === PLAYOFF_TEAMS - 1 ? ' cutline' : '') + '" style="--tc:' + t.color + '">' +
+            '<div class="race-row-top">' +
+              '<span class="race-rank">' + (i + 1) + '</span>' +
+              logo(t, 'race-logo') +
+              '<div class="race-team"><div class="race-team-name">' + esc(t.team) + tag + '</div>' +
+                '<div class="race-team-meta"><b>' + rec(b) + '</b> · ' + b.pf.toFixed(1) + ' PF · Proj ' + r.projW.toFixed(1) + ' W</div></div>' +
+              '<div class="race-odds"><div class="race-odds-num">' + delta + pctLabel(r.playoff) + '<small>%</small></div><div class="race-odds-lbl">Playoffs</div></div>' +
+            '</div>' +
+            '<div class="race-seeds">' + seeds + '</div>' +
+            (i === PLAYOFF_TEAMS - 1 ? '<span class="race-cut-label">Playoff Line</span>' : '') +
+          '</div>';
+        }).join('') +
+        '</div>' +
+        '<div class="race-seed-key"><span>Bar = chance of each seed</span><span>Brightest = #1 seed &middot; empty = miss</span></div>';
+
+      /* ── Game of the week ── */
+      if (GOTW) {
+        var g = GOTW.g, H = TEAMS[g.h], A = TEAMS[g.a];
+        var hWin = GOTW.ifH[g.h].playoff, hLose = GOTW.ifA[g.h].playoff;
+        var aWin = GOTW.ifA[g.a].playoff, aLose = GOTW.ifH[g.a].playoff;
+        var bigger = Math.abs(hWin - hLose) >= Math.abs(aWin - aLose) ? H : A;
+        var bigSwing = Math.max(Math.abs(hWin - hLose), Math.abs(aWin - aLose));
+        html += '<p class="race-heading">Week ' + g.week + ' Game of the Week</p>' +
+          '<div class="race-panel race-gotw" style="--ga:' + H.color + ';--gb:' + A.color + '">' +
+            '<div class="race-gotw-tag">&#x2605; Biggest Playoff Swing on the Slate</div>' +
+            '<div class="race-gotw-grid">' +
+              '<div class="race-gotw-side">' + logo(H, '') + '<div class="race-gotw-name">' + esc(H.team) + '</div>' +
+                '<div class="race-gotw-swing">Win: <b>' + pctLabel(hWin) + '%</b><br>Lose: <b>' + pctLabel(hLose) + '%</b></div></div>' +
+              '<div class="race-gotw-vs">VS</div>' +
+              '<div class="race-gotw-side">' + logo(A, '') + '<div class="race-gotw-name">' + esc(A.team) + '</div>' +
+                '<div class="race-gotw-swing">Win: <b>' + pctLabel(aWin) + '%</b><br>Lose: <b>' + pctLabel(aLose) + '%</b></div></div>' +
+            '</div>' +
+            '<p class="race-gotw-line">&ldquo;' + esc(bigger.team) + '’s season swings ' + pct(bigSwing) + ' points on this one. No pressure.&rdquo;</p>' +
+            '<a class="race-gotw-link" href="rivals.html?a=' + encodeURIComponent(g.h) + '&b=' + encodeURIComponent(g.a) + '">Rivalry History &#x2197;</a>' +
+          '</div>';
+      }
+
+      /* ── Pick 'em ── */
+      var weeks = []; SCHED.forEach(function (x) { if (weeks.indexOf(x.week) === -1) weeks.push(x.week); });
+      if (state.tabWeek === null || weeks.indexOf(state.tabWeek) === -1) state.tabWeek = weeks[0];
+      html += '<p class="race-heading">You Pick &rsquo;Em</p>' +
+        '<p class="race-intro">Tap a team to make them win. The odds above update instantly. Tap again to clear.</p>';
+      if (weeks.length) {
+        html += '<div class="race-tabs">' + weeks.map(function (wk) {
+          var has = SCHED.some(function (x) { return x.week === wk && state.picks[x.id]; });
+          return '<button class="race-tab' + (wk === state.tabWeek ? ' is-active' : '') + '" data-week="' + wk + '">Wk ' + wk + (has ? '<span class="dot"></span>' : '') + '</button>';
+        }).join('') + '</div>';
+        var hw = res._homeWinPct;
+        html += '<div class="race-games">' + SCHED.filter(function (x) { return x.week === state.tabWeek; }).map(function (x) {
+          var H = TEAMS[x.h], A = TEAMS[x.a], p = state.picks[x.id];
+          var hp = hw[x.id], ap = 1 - hp;
+          function side(t, which, prob) {
+            var cls = 'race-pick ' + (which === 'a' ? 'b' : 'a') + (p === which ? ' won' : (p ? ' lost' : ''));
+            return '<button class="' + cls + '" style="--tc:' + t.color + '" data-game="' + x.id + '" data-side="' + which + '">' +
+              logo(t, '') + '<span class="race-pick-txt"><div class="race-pick-name">' + esc(t.team) + '</div>' +
+              '<div class="race-pick-pct">' + (p ? (p === which ? 'Picked to win' : 'Picked to lose') : pct(prob) + '% to win') + '</div></span></button>';
+          }
+          return '<div class="race-game">' + side(H, 'h', hp) +
+            '<button class="race-game-mid' + (p ? ' set' : '') + '" data-clear="' + x.id + '">' + (p ? 'Clear' : 'vs') + '</button>' +
+            side(A, 'a', ap) + '</div>';
+        }).join('') + '</div>';
+      } else {
+        html += '<p class="race-empty">Regular season complete — no games left to pick.</p>';
+      }
+
+      /* ── Settings + method ── */
+      html += '<div class="race-settings">Regular season: ' + REG_WEEKS + ' weeks &middot; playoffs start Week ' + (REG_WEEKS + 1) + '</div>' +
+        '<p class="race-method">Each team&rsquo;s weekly score is drawn from its ' + SEASON.year + ' scoring average and spread, ' +
+        'pulled slightly toward the league average so a hot or cold start doesn&rsquo;t over-count. ' +
+        (SCHEDULE_SOURCE === 'pattern'
+          ? 'Remaining matchups follow Yahoo&rsquo;s repeating schedule (every ' + CYCLE + ' weeks the cycle starts over). '
+          : 'Remaining matchups come from the loaded schedule. ') +
+        'Top ' + PLAYOFF_TEAMS + ' make the playoffs; ties broken by points for. &ldquo;Clinched&rdquo; and &ldquo;Eliminated&rdquo; are locked in by real results, not simulations.</p>';
+
+      wrap.innerHTML = html;
+      bind();
+    }
+
+    function bind() {
+      var wrap = document.getElementById('prWrap');
+      wrap.querySelectorAll('.race-pick').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var id = b.getAttribute('data-game'), side = b.getAttribute('data-side');
+          if (state.picks[id] === side) delete state.picks[id]; else state.picks[id] = side;
+          recompute(false);
+        });
+      });
+      wrap.querySelectorAll('[data-clear]').forEach(function (b) {
+        b.addEventListener('click', function () { delete state.picks[b.getAttribute('data-clear')]; recompute(false); });
+      });
+      wrap.querySelectorAll('.race-tab').forEach(function (b) {
+        b.addEventListener('click', function () { state.tabWeek = parseInt(b.getAttribute('data-week'), 10); recompute(false); });
+      });
+      var reset = document.getElementById('prReset');
+      if (reset) reset.addEventListener('click', function () { state.picks = {}; recompute(false); });
+    }
+
+    function init() {
+      var config = window.SITE_CONFIG || {};
+      var ov = document.getElementById('prOverlay');
+      if (ov && config.slideshow && config.slideshow.overlay) ov.style.background = config.slideshow.overlay;
+      var foot = document.getElementById('prFooter');
+      if (foot) { if (config.footer && config.footer.show) foot.textContent = config.footer.text; else foot.style.display = 'none'; }
+      if (!SEASON || TEAM_IDS.length < 2 || !PLAYED.length) {
+        document.getElementById('prWrap').innerHTML = '<p class="race-empty">No OFC season in progress. The race starts in Week 1.</p>';
+        return;
+      }
+      recompute(true);
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+  })();
+  </script>
+</body>
+</html>

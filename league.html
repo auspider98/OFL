@@ -12,6 +12,43 @@
   <script src="ofl-brc-analysis.js"></script>
   <script src="admin.js"></script>
   <style>
+    /* ── Clinch tags + Playoff Race link (standings) ─────────── */
+    .standings-clinch {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 15px; height: 15px; margin-right: 0.45rem; vertical-align: middle;
+      font-family: var(--font-body); font-size: 0.55rem; font-weight: 700; line-height: 1;
+      border: 1px solid; border-radius: 2px; text-transform: lowercase;
+    }
+    .standings-clinch-y { color: #e8c864; border-color: rgba(232,200,100,0.7); background: rgba(232,200,100,0.12); }
+    .standings-clinch-x { color: #4caf7d; border-color: rgba(76,175,125,0.7); background: rgba(76,175,125,0.12); }
+    .standings-clinch-e { color: #d94f4f; border-color: rgba(217,79,79,0.55); background: rgba(217,79,79,0.08); }
+    /* In the table the tag sits on the logo's top-left corner, so it takes no width */
+    .standings-team-cell { position: relative; }
+    .standings-team-cell .standings-clinch {
+      position: absolute; left: -7px; top: -7px; z-index: 2; margin: 0;
+      width: 13px; height: 13px; font-size: 0.48rem; border-radius: 50%;
+      background-color: #0a0a0a; box-shadow: 0 0 0 2px #0a0a0a;
+    }
+    .standings-clinch-legend {
+      display: flex; flex-wrap: wrap; gap: 0.5rem 1.2rem; margin-top: 0.7rem;
+      font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--accent-dim);
+    }
+    .standings-clinch-legend > span { display: inline-flex; align-items: center; }
+    .standings-race-link {
+      display: flex; flex-direction: column; align-items: center; gap: 0.25rem;
+      margin-top: 1.1rem; padding: 0.8rem 1rem; text-decoration: none;
+      border: 1px solid rgba(232,200,100,0.35); background: rgba(232,200,100,0.05);
+      transition: border-color 0.25s, background 0.25s;
+    }
+    .standings-race-link:hover { border-color: rgba(232,200,100,0.8); background: rgba(232,200,100,0.1); }
+    .standings-race-link-eyebrow {
+      font-family: var(--font-body); font-size: 0.48rem; letter-spacing: 0.35em;
+      text-transform: uppercase; color: #e8c864;
+    }
+    .standings-race-link-title {
+      font-family: var(--font-display); font-size: 1.05rem; color: var(--accent); letter-spacing: 0.02em;
+    }
     a.roster-card { text-decoration: none; cursor: pointer; }
     a.roster-card:hover .roster-card-name { color: var(--hint-color, var(--accent)); }
     .yahoo-link-wrap {
@@ -1023,7 +1060,7 @@
         return '';
       }
 
-      function teamCellHtml(row) {
+      function teamCellHtml(row, tagHtml) {
         var teamName = resolveCell(row, 'team');
         var logo    = resolveRosterLogo({ memberId: row.memberId || '', teamName: row.teamName || row.team || '' }, league);
         var initial = teamName ? teamName.charAt(0).toUpperCase() : '?';
@@ -1031,7 +1068,7 @@
           ? '<img class="standings-team-logo" src="' + esc(logo) + '" alt="' + esc(teamName) + '" />'
           : '<span class="standings-team-initial">' + esc(initial) + '</span>';
         var teamUrl = (league.sport === 'football' && row.memberId) ? 'team.html?id=' + encodeURIComponent(row.memberId) : null;
-        var inner = '<span class="standings-team-cell">' + imgHtml + '<span class="standings-team-name-text">' + esc(teamName) + '</span></span>';
+        var inner = '<span class="standings-team-cell">' + (tagHtml || '') + imgHtml + '<span class="standings-team-name-text">' + esc(teamName) + '</span></span>';
         return teamUrl ? '<a class="standings-team-link" href="' + esc(teamUrl) + '">' + inner + '</a>' : inner;
       }
 
@@ -1093,11 +1130,23 @@
         (hasPR ? '<th class="standings-luck-cell">PR</th>' : '') +
       '</tr>';
 
+      // ── Clinch / elimination tags (live football seasons only) ──
+      var clinch = (isFootball && !season.isFinal) ? computeClinchStatus(season) : {};
+      var CLINCH_TAGS = {
+        y: { label: 'y', title: 'Clinched the #1 seed' },
+        x: { label: 'x', title: 'Clinched a playoff berth' },
+        e: { label: 'e', title: 'Eliminated from playoff contention' }
+      };
+      function clinchTag(mid) {
+        var t = CLINCH_TAGS[clinch[mid]];
+        return t ? '<span class="standings-clinch standings-clinch-' + clinch[mid] + '" title="' + t.title + '">' + t.label + '</span>' : '';
+      }
+
       var tbody = rows.map(function (row, i) {
         return '<tr>' +
           (rankCol ? '<td class="standings-rank-cell">' + esc(row.rank || (i + 1)) + '</td>' : '') +
           cols.map(function (c) {
-            if (c.key === 'team') return '<td>' + teamCellHtml(row) + '</td>';
+            if (c.key === 'team') return '<td>' + teamCellHtml(row, clinchTag(row.memberId)) + '</td>';
             return '<td>' + esc(resolveCell(row, c.key)) + '</td>';
           }).join('') +
           (hasLuck ? luckCellHtml(row.memberId) : '') +
@@ -1105,7 +1154,74 @@
         '</tr>';
       }).join('');
 
-      return '<table class="league-standings-table"><thead>' + thead + '</thead><tbody>' + tbody + '</tbody></table>';
+      var used = {}; Object.keys(clinch).forEach(function (k) { used[clinch[k]] = true; });
+      var legend = (used.x || used.y || used.e)
+        ? '<div class="standings-clinch-legend">' +
+            ['y', 'x', 'e'].filter(function (k) { return used[k]; }).map(function (k) {
+              return '<span><span class="standings-clinch standings-clinch-' + k + '">' + k + '</span>' + CLINCH_TAGS[k].title + '</span>';
+            }).join('') +
+          '</div>'
+        : '';
+
+      return '<table class="league-standings-table"><thead>' + thead + '</thead><tbody>' + tbody + '</tbody></table>' + legend;
+    }
+
+    // ── Regular-season length for a football season (set per season in ofl-data.html) ──
+    function regularSeasonWeeks(season) {
+      return parseInt(season.regularSeasonWeeks, 10) || 15;
+    }
+
+    // ── Mathematical clinch / elimination ─────────────────────
+    // Uses wins only and treats every tie as lost, so a tag never
+    // appears early: 'y' = locked #1 seed, 'x' = locked playoff berth,
+    // 'e' = can no longer reach the top 4. Returns { memberId: 'y'|'x'|'e' }.
+    function computeClinchStatus(season) {
+      var PLAYOFF_TEAMS = 4;
+      var done = (season.weeks || []).filter(function (w) { return w.isComplete; });
+      if (!done.length) return {};
+      var wins = {};
+      done.forEach(function (w) {
+        (w.games || []).forEach(function (g) {
+          var h = g.home || {}, a = g.away || {};
+          if (!h.memberId || !a.memberId) return;
+          if (wins[h.memberId] === undefined) wins[h.memberId] = 0;
+          if (wins[a.memberId] === undefined) wins[a.memberId] = 0;
+          var hs = parseFloat(h.score) || 0, as_ = parseFloat(a.score) || 0;
+          if (hs > as_) wins[h.memberId]++; else if (as_ > hs) wins[a.memberId]++;
+          else { wins[h.memberId] += 0.5; wins[a.memberId] += 0.5; }
+        });
+      });
+      var ids = Object.keys(wins);
+      if (ids.length <= PLAYOFF_TEAMS) return {};
+      var left = Math.max(0, regularSeasonWeeks(season) - done.length);
+      var out = {};
+      ids.forEach(function (id) {
+        var floor = wins[id], ceil = wins[id] + left;
+        var canCatch  = ids.filter(function (o) { return o !== id && wins[o] + left >= floor; }).length;
+        var aheadForSure = ids.filter(function (o) { return o !== id && wins[o] > ceil; }).length;
+        if (canCatch === 0) out[id] = 'y';
+        else if (canCatch < PLAYOFF_TEAMS) out[id] = 'x';
+        else if (aheadForSure >= PLAYOFF_TEAMS) out[id] = 'e';
+      });
+      return out;
+    }
+
+    // ── Playoff Race link ──────────────────────────────────────
+    // season.raceLink: 'auto' (default) = from the halfway point until the
+    // last regular-season week is complete; 'show' = always; 'hide' = never.
+    // Never shown once the season is marked final.
+    function playoffRaceLinkHtml(season, league) {
+      if (league.sport !== 'football' || season.isFinal) return '';
+      var mode = season.raceLink || 'auto';
+      if (mode === 'hide') return '';
+      var reg  = regularSeasonWeeks(season);
+      var done = (season.weeks || []).filter(function (w) { return w.isComplete; }).length;
+      if (mode === 'auto' && (done < Math.ceil(reg / 2) || done >= reg)) return '';
+      var eyebrow = done >= reg ? 'Regular Season Final' : 'Week ' + done + ' of ' + reg;
+      return '<a class="standings-race-link" href="race.html">' +
+        '<span class="standings-race-link-eyebrow">' + eyebrow + '</span>' +
+        '<span class="standings-race-link-title">Playoff Race &mdash; Odds &amp; What-Ifs &#x2197;</span>' +
+      '</a>';
     }
 
     // ── Compute per-week power rank for every team across a season ──
@@ -3189,7 +3305,7 @@
             sectionEl.innerHTML =
               '<div class="league-section-heading">' + (isFinal ? 'Final Standings' : 'Standings') +
                 (current.year ? ' \u2014 ' + esc(current.year) : '') +
-              '</div>' + standingsWrap;
+              '</div>' + standingsWrap + playoffRaceLinkHtml(current, league);
 
             // Add trajectory chart for final football seasons
             if (isFinal && league.sport === 'football') {
