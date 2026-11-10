@@ -110,6 +110,60 @@
     .race-tag.out  { color: #d94f4f; border-color: rgba(217,79,79,0.6); }
     .race-tag.bubble { color: #e8c864; border-color: rgba(232,200,100,0.6); }
 
+    .race-row { cursor: pointer; }
+    .race-row:hover { background: rgba(255,255,255,0.02); }
+    .race-row.is-open { background: rgba(255,255,255,0.03); }
+    .race-team-link { display: block; line-height: 0; transition: transform 0.2s; }
+    .race-team-link:hover { transform: scale(1.08); }
+    .race-path-toggle {
+      margin-top: 0.4rem; text-align: right;
+      font-family: var(--font-body); font-size: 0.44rem; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent-dim); opacity: 0.7;
+    }
+    .race-row:hover .race-path-toggle, .race-row.is-open .race-path-toggle { opacity: 1; color: var(--accent); }
+
+    /* ── Path to the playoffs panel ── */
+    .race-path { cursor: default; margin-top: 0.6rem; padding-top: 0.7rem; border-top: 1px solid var(--drawer-border); animation: heroReveal 0.4s ease; }
+    .race-path-head { font-family: var(--font-display); font-weight: 300; font-size: 1rem; line-height: 1.35; color: var(--accent); }
+    .race-path-head b { font-weight: 700; color: var(--tc); }
+    .race-path-label {
+      margin: 0.9rem 0 0.45rem; font-family: var(--font-body); font-size: 0.46rem; letter-spacing: 0.32em;
+      text-transform: uppercase; color: var(--hint-color, var(--accent-dim));
+    }
+    .race-path-note { font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.06em; color: var(--accent-dim); opacity: 0.8; margin-top: 0.4rem; line-height: 1.5; }
+    .race-wins { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .race-win-chip {
+      display: flex; flex-direction: column; align-items: center; min-width: 3.6rem; padding: 0.35rem 0.45rem;
+      border: 1px solid var(--drawer-border); background: rgba(0,0,0,0.35);
+    }
+    .race-win-chip .rec { font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.12em; color: var(--accent-dim); }
+    .race-win-chip .pct { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; line-height: 1.15; }
+    .race-win-chip .fin { font-family: var(--font-body); font-size: 0.4rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent-dim); opacity: 0.7; }
+    .race-win-chip.g { border-color: rgba(76,175,125,0.5); }  .race-win-chip.g .pct, b.g { color: #4caf7d; }
+    .race-win-chip.y { border-color: rgba(232,200,100,0.45); } .race-win-chip.y .pct, b.y { color: #e8c864; }
+    .race-win-chip.o { border-color: rgba(224,148,74,0.4); }  .race-win-chip.o .pct, b.o { color: #e0944a; }
+    .race-win-chip.r { border-color: rgba(217,79,79,0.35); }  .race-win-chip.r .pct, b.r { color: #d94f4f; }
+    .race-root {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 0.8rem;
+      padding: 0.35rem 0; border-bottom: 1px solid rgba(232,232,232,0.05);
+      font-family: var(--font-body); font-size: 0.62rem; color: var(--accent-dim);
+    }
+    .race-root:last-of-type { border-bottom: none; }
+    .race-root .who { color: var(--accent); min-width: 0; }
+    .race-root.own .who { font-weight: 700; color: var(--tc); filter: brightness(1.35); }
+    .race-root .val { text-align: right; white-space: nowrap; font-size: 0.55rem; }
+    .race-root .val b { font-family: var(--font-display); font-size: 0.85rem; font-weight: 700; }
+    .race-scn { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.45rem; padding: 0.3rem 0; font-family: var(--font-body); font-size: 0.62rem; color: var(--accent); line-height: 1.5; }
+    .race-scn .k { font-size: 0.46rem; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 700; margin-right: 0.2rem; }
+    .race-scn.in .k { color: #4caf7d; } .race-scn.out .k { color: #d94f4f; }
+    .race-scn .or { font-size: 0.44rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent-dim); }
+    .race-scn em { font-style: normal; color: var(--accent-dim); }
+    @media (max-width: 600px) {
+      .race-root { flex-direction: column; gap: 0.1rem; }
+      .race-root .val { text-align: left; }
+      .race-win-chip { min-width: 3.2rem; padding: 0.3rem 0.35rem; }
+    }
+
     /* Seed distribution bar */
     .race-seeds { display: flex; height: 16px; margin-top: 0.6rem; background: rgba(232,232,232,0.05); overflow: hidden; }
     .race-seeds span {
@@ -402,6 +456,14 @@
       var winSum = ids.map(function () { return 0; });
       var gameWins = {}; schedule.forEach(function (g) { gameWins[g.id] = 0; });
       var w = new Float64Array(k), pf = new Float64Array(k), order = ids.map(function (_, i) { return i; });
+      // Extra bookkeeping for the team "Path" panels
+      var G = schedule.length, homeWon = new Uint8Array(G), made = new Uint8Array(k);
+      var gHW = new Float64Array(G), gamePO = [], poTotal = new Float64Array(k);
+      for (var gj = 0; gj < G; gj++) gamePO.push(new Float64Array(k));
+      var remCount = ids.map(function () { return 0; });
+      schedule.forEach(function (g) { remCount[idx[g.h]]++; remCount[idx[g.a]]++; });
+      var winB = ids.map(function (_, i) { return new Float64Array(remCount[i] + 1); });
+      var winBPO = ids.map(function (_, i) { return new Float64Array(remCount[i] + 1); });
 
       for (var s = 0; s < n; s++) {
         for (var i = 0; i < k; i++) { w[i] = bw[i]; pf[i] = bpf[i]; }
@@ -413,13 +475,24 @@
           if (forced === 'h' && hs <= as_) { var tmp = hs; hs = as_; as_ = tmp; }
           if (forced === 'a' && as_ <= hs) { var tmp2 = hs; hs = as_; as_ = tmp2; }
           pf[hi] += hs; pf[ai] += as_;
-          if (hs > as_) { w[hi]++; gameWins[g.id]++; } else w[ai]++;
+          if (hs > as_) { w[hi]++; gameWins[g.id]++; homeWon[j] = 1; } else { w[ai]++; homeWon[j] = 0; }
         }
         order.sort(function (x, y) { return (w[y] - w[x]) || (pf[y] - pf[x]); });
         for (var p = 0; p < k; p++) {
           var t = order[p];
           seedCount[t][p < PLAYOFF_TEAMS ? p : 4]++;
           winSum[t] += w[t];
+          made[t] = p < PLAYOFF_TEAMS ? 1 : 0;
+        }
+        for (var q = 0; q < k; q++) {
+          var rw = Math.round(w[q] - bw[q]);
+          winB[q][rw]++; if (made[q]) { winBPO[q][rw]++; poTotal[q]++; }
+        }
+        for (var gk = 0; gk < G; gk++) {
+          if (!homeWon[gk]) continue;
+          gHW[gk]++;
+          var row = gamePO[gk];
+          for (var q2 = 0; q2 < k; q2++) row[q2] += made[q2];
         }
       }
       var res = {};
@@ -429,9 +502,12 @@
           seeds: sc.map(function (c) { return c / n; }),
           playoff: (sc[0] + sc[1] + sc[2] + sc[3]) / n,
           top: sc[0] / n,
-          projW: winSum[i] / n
+          projW: winSum[i] / n,
+          rem: remCount[i],
+          byWins: Array.prototype.map.call(winB[i], function (c, kk) { return { k: kk, n: c, po: c ? winBPO[i][kk] / c : 0 }; })
         };
       });
+      res._n = n; res._idx = idx; res._gHW = gHW; res._gamePO = gamePO; res._poTotal = poTotal;
       res._homeWinPct = {}; schedule.forEach(function (g) { res._homeWinPct[g.id] = gameWins[g.id] / n; });
       return res;
     }
@@ -439,7 +515,8 @@
     /* ══════════════════════════════════════════════════════════
        STATE + RENDER
     ══════════════════════════════════════════════════════════ */
-    var state = { picks: {}, tabWeek: null };
+    var state = { picks: {}, tabWeek: null, open: null };
+    var LAST = null;   // last simulation result, reused when a panel opens/closes
     var CLINCH = {};
     var MODEL = null, BASE = null, SCHED = [], BASELINE = null, GOTW = null;
 
@@ -454,6 +531,7 @@
       }
       var hasPicks = Object.keys(state.picks).length > 0;
       var current = hasPicks ? simulate(SIMS, SCHED, state.picks, MODEL, BASE, 20260) : BASELINE;
+      LAST = { res: current, hasPicks: hasPicks };
       render(current, hasPicks);
     }
 
@@ -472,6 +550,200 @@
       return best;
     }
 
+    /* ══════════════════════════════════════════════════════════
+       PATH TO THE PLAYOFFS — per-team breakdown
+    ══════════════════════════════════════════════════════════ */
+
+    /* Playoff odds for team id if game j's home / away team wins (null if the game is picked) */
+    function condOdds(res, j, id) {
+      var n = res._n, hw = res._gHW[j], t = res._idx[id];
+      if (hw === 0 || hw === n) return null;
+      var withH = res._gamePO[j][t] / hw;
+      var withA = (res._poTotal[t] - res._gamePO[j][t]) / (n - hw);
+      return { h: withH, a: withA };
+    }
+
+    function oddsClass(p) { return p >= 0.9 ? 'g' : (p >= 0.5 ? 'y' : (p >= 0.1 ? 'o' : 'r')); }
+    function wks(n) { return n === 1 ? '1 win' : n + ' wins'; }
+
+    /* Exact scenarios — only when 2 or fewer regular-season weeks remain.
+       Every remaining game result is enumerated; a result set "guarantees in" when the
+       team finishes top 4 on wins alone (ties on wins could go either way → points for). */
+    function buildScenarios(schedule, picks) {
+      var left = REG_WEEKS - LAST_DONE;
+      if (left < 1 || left > 2) return null;
+      var games = schedule.map(function (g, j) { return { g: g, j: j, fixed: picks[g.id] || null }; });
+      var free = games.filter(function (x) { return !x.fixed; });
+      if (free.length > 12) return null;
+      var ids = TEAM_IDS, combos = 1 << free.length, outcomes = [];
+      for (var m = 0; m < combos; m++) {
+        var res = {}, w = {};
+        ids.forEach(function (id) { w[id] = BASE[id].w + BASE[id].t * 0.5; });
+        games.forEach(function (x) {
+          var side = x.fixed || ((m >> free.indexOf(x)) & 1 ? 'h' : 'a');
+          res[x.j] = side; w[side === 'h' ? x.g.h : x.g.a]++;
+        });
+        var status = {};
+        ids.forEach(function (id) {
+          var atLeast = ids.filter(function (o) { return o !== id && w[o] >= w[id]; }).length;
+          var above   = ids.filter(function (o) { return o !== id && w[o] >  w[id]; }).length;
+          status[id] = atLeast < PLAYOFF_TEAMS ? 'in' : (above >= PLAYOFF_TEAMS ? 'out' : 'tb');
+        });
+        outcomes.push({ res: res, status: status });
+      }
+      var lits = [];
+      free.forEach(function (x) { lits.push({ j: x.j, side: 'h', g: x.g }, { j: x.j, side: 'a', g: x.g }); });
+      function matches(o, conj) { return conj.every(function (l) { return o.res[l.j] === l.side; }); }
+      function guarantees(id, conj, want) {
+        var any = false;
+        for (var i = 0; i < outcomes.length; i++) {
+          if (!matches(outcomes[i], conj)) continue;
+          any = true; if (outcomes[i].status[id] !== want) return false;
+        }
+        return any;
+      }
+      function find(id, want) {
+        var possible = outcomes.some(function (o) { return o.status[id] === want; });
+        if (!possible) return { possible: false, sets: [] };
+        if (guarantees(id, [], want)) return { possible: true, sets: [[]] };
+        var singles = lits.filter(function (l) { return guarantees(id, [l], want); });
+        var pairs = [];
+        for (var a = 0; a < lits.length; a++) for (var b = a + 1; b < lits.length; b++) {
+          var la = lits[a], lb = lits[b];
+          if (la.j === lb.j) continue;
+          if (singles.indexOf(la) !== -1 || singles.indexOf(lb) !== -1) continue;
+          if (guarantees(id, [la, lb], want)) pairs.push([la, lb]);
+        }
+        // Prefer combos that include the team's own result
+        pairs.sort(function (x, y) {
+          var ox = x.some(function (l) { return l.g.h === id || l.g.a === id; }) ? 0 : 1;
+          var oy = y.some(function (l) { return l.g.h === id || l.g.a === id; }) ? 0 : 1;
+          return ox - oy;
+        });
+        return { possible: true, sets: singles.map(function (l) { return [l]; }).concat(pairs).slice(0, 4) };
+      }
+      var out = {};
+      ids.forEach(function (id) { out[id] = { clinch: find(id, 'in'), elim: find(id, 'out') }; });
+      out._twoWeeks = left === 2;
+      return out;
+    }
+
+    function litText(l, id, twoWeeks) {
+      var winner = l.side === 'h' ? l.g.h : l.g.a, loser = l.side === 'h' ? l.g.a : l.g.h;
+      var wk = twoWeeks ? ' (Wk ' + l.g.week + ')' : '';
+      if (winner === id) return 'a win over ' + esc(TEAMS[loser].team) + wk;
+      if (loser === id)  return 'a loss to ' + esc(TEAMS[winner].team) + wk;
+      return esc(TEAMS[winner].team) + ' beating ' + esc(TEAMS[loser].team) + wk;
+    }
+    function setText(set, id, twoWeeks) {
+      if (!set.length) return 'already done';
+      return set.map(function (l) { return litText(l, id, twoWeeks); }).join(' <em>and</em> ');
+    }
+
+    function pathPanel(id, res, scen) {
+      var t = TEAMS[id], r = res[id], b = BASE[id], cs = CLINCH[id], R = r.rem, next = LAST_DONE + 1;
+      var out = '';
+
+      /* Headline */
+      var buckets = r.byWins.filter(function (x) { return x.n >= Math.max(25, res._n * 0.002); });
+      var safe = buckets.filter(function (x) { return x.po >= 0.9; }).map(function (x) { return x.k; });
+      var coin = buckets.filter(function (x) { return x.po >= 0.5; }).map(function (x) { return x.k; });
+      var top = buckets.length ? buckets[buckets.length - 1] : null;
+      var head;
+      if (cs === 'y') head = 'Locked up the #1 seed. Rest the starters.';
+      else if (cs === 'x') head = 'Clinched a playoff spot. Now it&rsquo;s all about seeding (' + pctLabel(r.top) + '% for #1).';
+      else if (cs === 'e') head = 'Mathematically eliminated. Spoiler season starts now.';
+      else if (!R) head = 'No games left. It&rsquo;s out of their hands now.';
+      else if (safe.length) head = (safe[0] === 0 ? 'Safe even if they lose out' : '<b>' + wks(safe[0]) + '</b> in the last ' + R + ' gets ' + esc(t.team) + ' to 90%+') + (coin.length && coin[0] < safe[0] ? '; ' + wks(coin[0]) + ' makes it a coin flip or better.' : '.');
+      else if (top && top.po >= 0.5) head = 'Winning out gets them to ' + pctLabel(top.po) + '%. Anything less and they need help.';
+      else if (top) head = 'Even winning out only gets them to ' + pctLabel(top.po) + '%. They need help.';
+      else head = 'Still alive, barely.';
+      out += '<p class="race-path-head">' + head + '</p>';
+
+      /* 1. Win total table */
+      if (R && buckets.length && cs !== 'e') {
+        out += '<div class="race-path-label">Finish the Last ' + R + '</div><div class="race-wins">' +
+          buckets.slice().reverse().map(function (x) {
+            var fw = b.w + x.k, fl = b.l + (R - x.k);
+            return '<div class="race-win-chip ' + oddsClass(x.po) + '">' +
+              '<span class="rec">' + x.k + '&ndash;' + (R - x.k) + '</span>' +
+              '<span class="pct">' + pctLabel(x.po) + '%</span>' +
+              '<span class="fin">' + fw + '&ndash;' + fl + (b.t ? '&ndash;' + b.t : '') + '</span>' +
+            '</div>';
+          }).join('') + '</div>';
+      }
+
+      /* 4. Scenarios (last two weeks) */
+      if (scen && scen[id] && cs !== 'x' && cs !== 'y' && cs !== 'e') {
+        var sc = scen[id], tw = scen._twoWeeks, lines = '';
+        if (sc.clinch.possible) {
+          lines += '<div class="race-scn in"><span class="k">Clinches with</span>' +
+            (sc.clinch.sets.length ? sc.clinch.sets.map(function (st) { return '<span class="v">' + setText(st, id, tw) + '</span>'; }).join('<span class="or">or</span>')
+                                    : '<span class="v">3 or more results going their way</span>') + '</div>';
+        } else lines += '<div class="race-scn out"><span class="k">Clinch</span><span class="v">Can&rsquo;t clinch on wins alone, needs a points-for tiebreaker</span></div>';
+        if (sc.elim.possible) {
+          lines += '<div class="race-scn out"><span class="k">Eliminated with</span>' +
+            (sc.elim.sets.length ? sc.elim.sets.map(function (st) { return '<span class="v">' + setText(st, id, tw) + '</span>'; }).join('<span class="or">or</span>')
+                                 : '<span class="v">3 or more results going against them</span>') + '</div>';
+        }
+        out += '<div class="race-path-label">Scenarios</div>' + lines +
+          '<p class="race-path-note">Anything not listed comes down to points for if teams tie on wins.</p>';
+      }
+
+      /* 2. This week's rooting guide */
+      var nextGames = SCHED.map(function (g, j) { return { g: g, j: j }; }).filter(function (x) { return x.g.week === next; });
+      if (nextGames.length && cs !== 'e') {
+        var own = nextGames.find(function (x) { return x.g.h === id || x.g.a === id; });
+        var guide = '';
+        if (own) {
+          var opp = own.g.h === id ? own.g.a : own.g.h;
+          var c = condOdds(res, own.j, id);
+          if (c) {
+            var wp = own.g.h === id ? c.h : c.a, lp = own.g.h === id ? c.a : c.h;
+            guide += '<div class="race-root own"><span class="who">Beat ' + esc(TEAMS[opp].team) + '</span>' +
+              '<span class="val"><b class="' + oddsClass(wp) + '">' + pctLabel(wp) + '%</b> with a win &middot; <b class="' + oddsClass(lp) + '">' + pctLabel(lp) + '%</b> with a loss</span></div>';
+          } else {
+            var pk = state.picks[own.g.id];
+            guide += '<div class="race-root own"><span class="who">vs ' + esc(TEAMS[opp].team) + '</span><span class="val">Picked to ' + (((pk === 'h') === (own.g.h === id)) ? 'win' : 'lose') + '</span></div>';
+          }
+        }
+        var others = nextGames.filter(function (x) { return x !== own; }).map(function (x) {
+          var c2 = condOdds(res, x.j, id); if (!c2) return null;
+          var d = c2.h - c2.a;
+          return { g: x.g, side: d >= 0 ? 'h' : 'a', mag: Math.round(Math.abs(d) * 100) };
+        }).filter(function (x) { return x && x.mag >= 1; }).sort(function (a, b2) { return b2.mag - a.mag; }).slice(0, 3);
+        others.forEach(function (x) {
+          var wn = x.side === 'h' ? x.g.h : x.g.a, ls = x.side === 'h' ? x.g.a : x.g.h;
+          guide += '<div class="race-root"><span class="who">Root for ' + esc(TEAMS[wn].team) + '</span><span class="val">over ' + esc(TEAMS[ls].team) + ' <b class="g">+' + x.mag + '</b></span></div>';
+        });
+        if (!others.length && own) guide += '<p class="race-path-note">No other game this week moves their odds much. Just win.</p>';
+        if (guide) out += '<div class="race-path-label">Week ' + next + ' Rooting Guide</div>' + guide;
+      }
+
+      /* 3. Biggest games left (after this week) */
+      if (cs !== 'e') {
+        var later = SCHED.map(function (g, j) { return { g: g, j: j }; }).filter(function (x) { return x.g.week > next; }).map(function (x) {
+          var c3 = condOdds(res, x.j, id); if (!c3) return null;
+          var d3 = c3.h - c3.a;
+          return { g: x.g, side: d3 >= 0 ? 'h' : 'a', mag: Math.round(Math.abs(d3) * 100), mine: x.g.h === id || x.g.a === id };
+        }).filter(function (x) { return x && x.mag >= 2; }).sort(function (a, b3) { return b3.mag - a.mag; }).slice(0, 3);
+        if (later.length) {
+          out += '<div class="race-path-label">Biggest Games Left</div>' + later.map(function (x) {
+            var wn = x.side === 'h' ? x.g.h : x.g.a, ls = x.side === 'h' ? x.g.a : x.g.h;
+            var txt = x.mine
+              ? (wn === id ? 'Beat ' + esc(TEAMS[ls].team) : 'vs ' + esc(TEAMS[wn].team))
+              : esc(TEAMS[wn].team) + ' over ' + esc(TEAMS[ls].team);
+            return '<div class="race-root' + (x.mine ? ' own' : '') + '"><span class="who">Wk ' + x.g.week + ' &middot; ' + txt + '</span><span class="val">&plusmn;<b>' + x.mag + '</b> pts</span></div>';
+          }).join('');
+        }
+      }
+      return '<div class="race-path">' + out + '</div>';
+    }
+
+    function teamLink(id, inner) {
+      return '<a class="race-team-link" href="team.html?id=' + encodeURIComponent(id) + '" title="' + esc(TEAMS[id].team) + ' team page">' + inner + '</a>';
+    }
+
     function logo(t, cls) {
       return t.logo ? '<img class="' + cls + '" src="' + esc(t.logo) + '" alt="" />'
                     : '<div class="race-logo-init">' + esc(initials(t.team)) + '</div>';
@@ -486,6 +758,7 @@
       document.getElementById('prSubtitle').textContent = (SIMS / 1000) + ',000 Simulated Seasons';
 
       /* ── Board ── */
+      var SCEN = buildScenarios(SCHED, state.picks);
       var ranked = TEAM_IDS.slice().sort(function (a, b) {
         return (res[b].playoff - res[a].playoff) || (res[b].top - res[a].top) || (BASE[b].w - BASE[a].w) || (BASE[b].pf - BASE[a].pf);
       });
@@ -508,15 +781,18 @@
             var label = p >= 0.09 ? (si < 4 ? '#' + (si + 1) + ' ' : '') + pct(p) + '%' : '';
             return '<span class="' + cls + '" style="width:' + (p * 100).toFixed(2) + '%" title="' + (si < 4 ? 'Seed ' + (si + 1) : 'Miss') + ': ' + pct(p) + '%">' + label + '</span>';
           }).join('');
-          return '<div class="race-row' + (i === PLAYOFF_TEAMS - 1 ? ' cutline' : '') + '" style="--tc:' + t.color + '">' +
+          var open = state.open === id;
+          return '<div class="race-row' + (i === PLAYOFF_TEAMS - 1 ? ' cutline' : '') + (open ? ' is-open' : '') + '" style="--tc:' + t.color + '" data-team="' + esc(id) + '" role="button" tabindex="0" aria-expanded="' + open + '">' +
             '<div class="race-row-top">' +
               '<span class="race-rank">' + (i + 1) + '</span>' +
-              logo(t, 'race-logo') +
+              teamLink(id, logo(t, 'race-logo')) +
               '<div class="race-team"><div class="race-team-name">' + esc(t.team) + tag + '</div>' +
                 '<div class="race-team-meta"><b>' + rec(b) + '</b> · ' + b.pf.toFixed(1) + ' PF · Proj ' + r.projW.toFixed(1) + ' W</div></div>' +
               '<div class="race-odds"><div class="race-odds-num">' + delta + pctLabel(r.playoff) + '<small>%</small></div><div class="race-odds-lbl">Playoffs</div></div>' +
             '</div>' +
             '<div class="race-seeds">' + seeds + '</div>' +
+            '<div class="race-path-toggle">' + (open ? 'Hide path &#x25B4;' : 'Path to the playoffs &#x25BE;') + '</div>' +
+            (open ? pathPanel(id, res, SCEN) : '') +
             (i === PLAYOFF_TEAMS - 1 ? '<span class="race-cut-label">Playoff Line</span>' : '') +
           '</div>';
         }).join('') +
@@ -534,10 +810,10 @@
           '<div class="race-panel race-gotw" style="--ga:' + H.color + ';--gb:' + A.color + '">' +
             '<div class="race-gotw-tag">&#x2605; Biggest Playoff Swing on the Slate</div>' +
             '<div class="race-gotw-grid">' +
-              '<div class="race-gotw-side">' + logo(H, '') + '<div class="race-gotw-name">' + esc(H.team) + '</div>' +
+              '<div class="race-gotw-side">' + teamLink(g.h, logo(H, '')) + '<div class="race-gotw-name">' + esc(H.team) + '</div>' +
                 '<div class="race-gotw-swing">Win: <b>' + pctLabel(hWin) + '%</b><br>Lose: <b>' + pctLabel(hLose) + '%</b></div></div>' +
               '<div class="race-gotw-vs">VS</div>' +
-              '<div class="race-gotw-side">' + logo(A, '') + '<div class="race-gotw-name">' + esc(A.team) + '</div>' +
+              '<div class="race-gotw-side">' + teamLink(g.a, logo(A, '')) + '<div class="race-gotw-name">' + esc(A.team) + '</div>' +
                 '<div class="race-gotw-swing">Win: <b>' + pctLabel(aWin) + '%</b><br>Lose: <b>' + pctLabel(aLose) + '%</b></div></div>' +
             '</div>' +
             '<p class="race-gotw-line">&ldquo;' + esc(bigger.team) + '’s season swings ' + pct(bigSwing) + ' points on this one. No pressure.&rdquo;</p>' +
@@ -600,6 +876,18 @@
       });
       wrap.querySelectorAll('.race-tab').forEach(function (b) {
         b.addEventListener('click', function () { state.tabWeek = parseInt(b.getAttribute('data-week'), 10); recompute(false); });
+      });
+      wrap.querySelectorAll('.race-row').forEach(function (row) {
+        function toggle(e) {
+          if (e.target.closest && e.target.closest('a')) return;   // logo → team page
+          var id = row.getAttribute('data-team');
+          state.open = state.open === id ? null : id;
+          render(LAST.res, LAST.hasPicks);
+          var el = document.querySelector('.race-row[data-team="' + id + '"]');
+          if (el && state.open) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+        row.addEventListener('click', toggle);
+        row.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(e); } });
       });
       var reset = document.getElementById('prReset');
       if (reset) reset.addEventListener('click', function () { state.picks = {}; recompute(false); });
