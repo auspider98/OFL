@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="The OFC Gazette and The Hardwood Herald — every OFC week and every BRC round, written up like the local paper." />
+  <title>OFL — The Gazette</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="admin-config.js"></script>
+  <script src="ofl-data.js"></script>
+  <script src="ofl-brc-analysis.js"></script>
+  <script src="admin.js"></script>
+  <script src="ofl-engine.js"></script>
+  <script src="ofl-phrasebook.js"></script>
+  <script src="ofl-newsroom.js"></script>
+
+  <style>
+    /* ══════════════════════════════════════════════════════════
+       THE OFC GAZETTE + THE HARDWOOD HERALD — all classes prefixed gz-
+    ══════════════════════════════════════════════════════════ */
+    .gz-page { position: relative; width: 100%; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+    .gz-page > .slide-layer      { position: fixed; inset: 0; z-index: 0; height: 100%; }
+    .gz-page > .landing-overlay  { position: fixed; inset: 0; z-index: 10; height: 100%; pointer-events: none; }
+    .gz-page > .landing-vignette { position: fixed; inset: 0; z-index: 11; height: 100%; pointer-events: none; }
+
+    .gz-body { position: relative; z-index: 20; flex: 1; padding: 4.8rem 0 4rem; }
+    .gz-wrap { max-width: 1040px; margin: 0 auto; padding: 0 1.6rem; }
+
+    /* ── Edition picker ───────────────────────────────────── */
+    .gz-nav {
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;
+      opacity: 0; animation: heroReveal 1s 0.2s ease forwards;
+    }
+    .gz-nav button, .gz-nav select {
+      font-family: var(--font-body); font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent); background: rgba(0,0,0,0.55); border: 1px solid var(--drawer-border);
+      padding: 0.4rem 0.7rem; cursor: pointer;
+    }
+    .gz-nav select { background-color: #111; }
+    .gz-nav button:hover:not(:disabled) { border-color: rgba(232,232,232,0.35); }
+    .gz-nav button:disabled { opacity: 0.3; cursor: default; }
+    .gz-nav-latest { color: #e8c864 !important; border-color: rgba(232,200,100,0.4) !important; }
+
+    /* ── The paper ────────────────────────────────────────── */
+    .gz-paper {
+      background: rgba(8,8,8,0.82); border: 1px solid var(--drawer-border);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      padding: 1.6rem 1.8rem 2rem;
+      opacity: 0; animation: heroReveal 1s 0.35s ease forwards;
+    }
+    .gz-mast { text-align: center; padding-bottom: 0.7rem; border-bottom: 3px double rgba(232,232,232,0.45); }
+    .gz-mast-top {
+      display: flex; justify-content: space-between; gap: 1rem;
+      font-family: var(--font-body); font-size: 0.48rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent-dim);
+    }
+    .gz-mast-title {
+      font-family: var(--font-display); font-weight: 700; font-size: clamp(2.6rem, 9vw, 5.4rem);
+      letter-spacing: 0.04em; line-height: 1; color: var(--accent); margin: 0.35rem 0 0.25rem; text-transform: uppercase;
+    }
+    .gz-mast-tag { font-family: var(--font-display); font-style: italic; font-weight: 300; font-size: 0.95rem; color: var(--accent-dim); }
+    .gz-dateline {
+      display: flex; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap;
+      padding: 0.45rem 0; border-bottom: 1px solid rgba(232,232,232,0.3); margin-bottom: 1.3rem;
+      font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent);
+    }
+
+    /* ── Lead story ───────────────────────────────────────── */
+    .gz-lead { display: grid; grid-template-columns: 1fr 230px; gap: 1.6rem; padding-bottom: 1.4rem; border-bottom: 1px solid rgba(232,232,232,0.2); }
+    .gz-kicker { font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.32em; text-transform: uppercase; color: #e8c864; margin-bottom: 0.4rem; }
+    .gz-head {
+      font-family: var(--font-display); font-weight: 700; text-transform: uppercase;
+      font-size: clamp(1.8rem, 5vw, 3.2rem); line-height: 0.98; letter-spacing: 0.01em; color: var(--accent);
+    }
+    .gz-sub { font-family: var(--font-display); font-weight: 300; font-style: italic; font-size: 1.1rem; color: var(--accent-dim); margin: 0.55rem 0 0.8rem; line-height: 1.3; }
+    .gz-text { font-family: var(--font-body); font-size: 0.78rem; line-height: 1.75; color: rgba(232,232,232,0.85); }
+    .gz-text p + p { margin-top: 0.6rem; }
+    .gz-text b { color: var(--accent); }
+    .gz-lead .gz-text::first-letter {
+      float: left; font-family: var(--font-display); font-weight: 700; font-size: 3.1rem; line-height: 0.85;
+      padding: 0.25rem 0.45rem 0 0; color: var(--accent);
+    }
+    .gz-photo {
+      position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      border: 1px solid var(--drawer-border); background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--tc, #888) 35%, transparent), rgba(0,0,0,0.6) 70%);
+      padding: 1rem 0.8rem 0.7rem; min-height: 220px;
+    }
+    .gz-photo img { width: 140px; height: 140px; object-fit: contain; filter: drop-shadow(0 6px 20px rgba(0,0,0,0.8)); }
+    .gz-photo-init { width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 3rem; color: var(--accent-dim); }
+    .gz-caption { margin-top: 0.6rem; font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.08em; color: var(--accent-dim); text-align: center; line-height: 1.5; font-style: italic; }
+
+    /* ── Columns ──────────────────────────────────────────── */
+    .gz-cols { display: grid; grid-template-columns: 1fr 1px 300px; gap: 1.6rem; margin-top: 1.4rem; }
+    .gz-rule { background: rgba(232,232,232,0.15); }
+    .gz-sec { margin-bottom: 1.6rem; }
+    .gz-sec-head {
+      font-family: var(--font-body); font-size: 0.5rem; font-weight: 700; letter-spacing: 0.35em; text-transform: uppercase;
+      color: var(--accent); padding: 0.35rem 0; border-top: 2px solid rgba(232,232,232,0.6); border-bottom: 1px solid rgba(232,232,232,0.2);
+      margin-bottom: 0.8rem;
+    }
+
+    /* Briefs */
+    .gz-brief { padding: 0 0 0.8rem; margin-bottom: 0.8rem; border-bottom: 1px dotted rgba(232,232,232,0.18); }
+    .gz-brief:last-child { border-bottom: none; margin-bottom: 0; }
+    .gz-brief-head { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; font-size: 1.15rem; line-height: 1.05; color: var(--accent); margin-bottom: 0.3rem; }
+    .gz-brief .gz-text { font-size: 0.7rem; line-height: 1.65; }
+
+    /* Box scores */
+    .gz-boxes { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .gz-box { border: 1px solid var(--drawer-border); background: rgba(0,0,0,0.35); padding: 0.45rem 0.6rem; }
+    .gz-box-line { display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 0.5rem; padding: 0.2rem 0; }
+    .gz-box-line img, .gz-box-line .gz-mini-init { width: 24px; height: 24px; object-fit: contain; }
+    .gz-mini-init { display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 0.6rem; color: var(--accent-dim); border: 1px solid var(--drawer-border); }
+    .gz-box-team { font-family: var(--font-body); font-size: 0.68rem; color: var(--accent-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .gz-box-team small { display: block; font-size: 0.46rem; letter-spacing: 0.1em; opacity: 0.7; }
+    .gz-box-score { font-family: var(--font-display); font-size: 1.05rem; color: var(--accent-dim); }
+    .gz-box-line.won .gz-box-team { color: var(--accent); font-weight: 700; }
+    .gz-box-line.won .gz-box-score { color: var(--accent); font-weight: 700; }
+    .gz-box-foot { font-family: var(--font-body); font-size: 0.44rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent-dim); opacity: 0.8; border-top: 1px dotted rgba(232,232,232,0.15); margin-top: 0.25rem; padding-top: 0.3rem; }
+
+    /* Standings */
+    .gz-table { width: 100%; border-collapse: collapse; font-family: var(--font-body); font-size: 0.66rem; }
+    .gz-table th { font-size: 0.44rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent-dim); font-weight: 400; text-align: right; padding: 0.3rem 0.4rem; border-bottom: 1px solid rgba(232,232,232,0.25); }
+    .gz-table th:nth-child(2), .gz-table td:nth-child(2) { text-align: left; }
+    .gz-table td { padding: 0.38rem 0.4rem; text-align: right; color: var(--accent); border-bottom: 1px dotted rgba(232,232,232,0.1); white-space: nowrap; }
+    .gz-table td.gz-team { max-width: 0; width: 45%; overflow: hidden; text-overflow: ellipsis; font-weight: 700; }
+    .gz-table tr.gz-cut td { border-bottom: 1px dashed rgba(232,200,100,0.55); }
+    .gz-mv { font-size: 0.5rem; font-weight: 700; }
+    .gz-mv.up { color: #4caf7d; } .gz-mv.dn { color: #d94f4f; } .gz-mv.eq { color: var(--accent-dim); opacity: 0.5; }
+    .gz-odds-d { font-size: 0.5rem; font-weight: 700; margin-left: 0.2rem; }
+    .gz-odds-d.up { color: #4caf7d; } .gz-odds-d.dn { color: #d94f4f; }
+    .gz-table-note { font-family: var(--font-body); font-size: 0.48rem; letter-spacing: 0.06em; color: var(--accent-dim); opacity: 0.75; margin-top: 0.45rem; line-height: 1.5; }
+
+    /* Sidebar */
+    .gz-num { display: flex; justify-content: space-between; align-items: baseline; gap: 0.6rem; padding: 0.35rem 0; border-bottom: 1px dotted rgba(232,232,232,0.12); }
+    .gz-num:last-child { border-bottom: none; }
+    .gz-num span { font-family: var(--font-body); font-size: 0.6rem; color: var(--accent-dim); line-height: 1.35; }
+    .gz-num span small { display: block; font-size: 0.5rem; opacity: 0.8; }
+    .gz-num b { font-family: var(--font-display); font-size: 1.15rem; color: var(--accent); white-space: nowrap; }
+    .gz-rival { border: 1px solid var(--drawer-border); background: rgba(0,0,0,0.35); padding: 0.8rem; text-align: center; }
+    .gz-rival-logos { display: flex; align-items: center; justify-content: center; gap: 0.8rem; margin-bottom: 0.5rem; }
+    .gz-rival-logos img, .gz-rival-logos .gz-mini-init { width: 44px; height: 44px; object-fit: contain; }
+    .gz-rival-logos i { font-style: normal; font-family: var(--font-display); font-weight: 700; color: var(--accent-dim); }
+    .gz-rival .gz-text { font-size: 0.68rem; line-height: 1.6; }
+    .gz-link {
+      display: inline-block; margin-top: 0.5rem; font-family: var(--font-body); font-size: 0.48rem; letter-spacing: 0.25em;
+      text-transform: uppercase; color: var(--accent-dim); text-decoration: none; border-bottom: 1px solid var(--drawer-border);
+    }
+    .gz-link:hover { color: var(--accent); }
+    .gz-ads { display: grid; gap: 0.5rem; }
+    .gz-ad { border: 1px solid rgba(232,232,232,0.3); padding: 0.55rem 0.65rem; background: rgba(232,232,232,0.03); }
+    .gz-ad-k { font-family: var(--font-display); font-weight: 700; font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+    .gz-ad .gz-text { font-size: 0.62rem; line-height: 1.55; }
+
+    .gz-empty { text-align: center; font-family: var(--font-body); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent-dim); padding: 3rem 1rem; }
+    .gz-footer { position: relative; z-index: 20; text-align: center; font-family: var(--font-body); font-size: 0.55rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent-dim); opacity: 0.5; padding: 0 2rem 3rem; }
+
+    /* House Rules → Never Capitalize (stays lowercase even in all-caps headlines) */
+    .ofl-lc { text-transform: lowercase !important; }
+
+    /* ── League switch ────────────────────────────────────── */
+    .gz-switch { display: flex; justify-content: center; margin-bottom: 0.7rem; opacity: 0; animation: heroReveal 1s 0.1s ease forwards; }
+    .gz-switch button {
+      font-family: var(--font-display); font-weight: 700; font-size: 0.85rem; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--accent-dim); background: rgba(0,0,0,0.55); border: 1px solid var(--drawer-border); padding: 0.5rem 1.1rem; cursor: pointer; line-height: 1.15;
+    }
+    .gz-switch button + button { border-left: none; }
+    .gz-switch button small { display: block; font-family: var(--font-body); font-weight: 400; font-size: 0.42rem; letter-spacing: 0.25em; opacity: 0.75; margin-top: 0.15rem; }
+    .gz-switch button.on { color: #fff; background: rgba(232,232,232,0.12); border-color: rgba(232,232,232,0.4); }
+    .gz-switch button.brc.on { background: #1b2b8f; border-color: #3d52c9; }
+    .gz-switch button:disabled { opacity: 0.3; cursor: default; }
+    .gz-is-brc .gz-nav button, .gz-is-brc .gz-nav select { border-color: rgba(61,82,201,0.55); }
+
+    /* ── The Hardwood Herald (BRC) ────────────────────────── */
+    .gz-paper.gz-brc { background: linear-gradient(180deg, rgba(16,24,70,0.88), rgba(6,8,24,0.9)); border-color: rgba(61,82,201,0.45); }
+    .gz-brc .gz-mast { border-bottom-color: #3d52c9; }
+    .gz-brc .gz-mast-title { color: #fff; text-shadow: 0 0 28px rgba(61,82,201,0.85); }
+    .gz-brc .gz-dateline { border-bottom-color: rgba(61,82,201,0.6); }
+    .gz-brc .gz-kicker { color: #98b8ec; }
+    .gz-brc .gz-sec-head { border-top-color: #3d52c9; }
+    .gz-brc .gz-box { border-color: rgba(61,82,201,0.35); background: rgba(10,16,50,0.45); }
+    .gz-brc .gz-lead { border-bottom-color: rgba(61,82,201,0.35); }
+    .gz-brc .gz-table tr.gz-out td { opacity: 0.4; }
+    .gz-brc .gz-ad { border-color: rgba(61,82,201,0.45); background: rgba(27,43,143,0.12); }
+    .gz-seed { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; color: #fff; background: #1b2b8f; border: 1px solid #3d52c9; }
+    .gz-table td.gz-team small { display: block; font-weight: 400; font-size: 0.5rem; letter-spacing: 0.06em; color: var(--accent-dim); overflow: hidden; text-overflow: ellipsis; }
+    .gz-x { font-size: 0.5rem; letter-spacing: 0.15em; text-transform: uppercase; color: #d94f4f; }
+    .gz-num.out { opacity: 0.45; }
+    .gz-num.out span { text-decoration: line-through; }
+    .gz-num.out b { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    .gz-banner { justify-content: flex-start; align-items: center; }
+    .gz-banner img, .gz-banner .gz-mini-init { width: 28px; height: 28px; object-fit: cover; border-radius: 50%; flex-shrink: 0; }
+    .gz-banner span { flex: 1; }
+    .gz-more summary { cursor: pointer; font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent-dim); margin: 0.8rem 0 0.6rem; }
+    .gz-more summary:hover { color: var(--accent); }
+    .gz-story-h { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); font-size: 0.8rem; margin-top: 0.9rem; }
+    .gz-story .gz-story-h:first-child { margin-top: 0; }
+
+    /* ── Cross-promo box ──────────────────────────────────── */
+    .gz-promo { border: 1px solid var(--drawer-border); background: rgba(0,0,0,0.35); padding: 0.8rem; }
+    .gz-promo.brc { background: linear-gradient(180deg, rgba(27,43,143,0.5), rgba(0,0,0,0.35)); border-color: rgba(61,82,201,0.55); }
+    .gz-promo-mast { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 1.15rem; text-align: center; color: var(--accent); padding-bottom: 0.35rem; margin-bottom: 0.55rem; border-bottom: 3px double rgba(232,232,232,0.4); }
+    .gz-promo.brc .gz-promo-mast { border-bottom-color: #3d52c9; }
+    .gz-promo.brc .gz-kicker { color: #98b8ec; }
+    .gz-promo-meta { font-family: var(--font-body); font-size: 0.48rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent-dim); margin-top: 0.35rem; }
+    button.gz-link { background: none; border: none; border-bottom: 1px solid var(--drawer-border); padding: 0; cursor: pointer; }
+
+    @media (max-width: 860px) {
+      .gz-cols { grid-template-columns: 1fr; gap: 0; }
+      .gz-rule { display: none; }
+    }
+    @media (max-width: 600px) {
+      .gz-body { padding-top: 4.4rem; }
+      .gz-wrap { padding: 0 0.7rem; }
+      .gz-paper { padding: 1rem 0.9rem 1.4rem; }
+      .gz-mast-top span:nth-child(2) { display: none; }
+      .gz-lead { grid-template-columns: 1fr; gap: 1rem; }
+      .gz-photo { min-height: 0; flex-direction: row; gap: 0.8rem; justify-content: flex-start; padding: 0.6rem; order: -1; }
+      .gz-photo img, .gz-photo-init { width: 72px; height: 72px; }
+      .gz-caption { margin-top: 0; text-align: left; }
+      .gz-boxes { grid-template-columns: 1fr; }
+      .gz-table .gz-hide-sm { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="topnav" role="navigation" aria-label="Site navigation">
+    <a href="index.html" class="topnav-logo">OFC</a>
+    <button class="menu-trigger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="site-drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <div class="drawer-overlay" aria-hidden="true"></div>
+  <aside id="site-drawer" class="drawer" role="dialog" aria-modal="true" aria-label="Navigation">
+    <p class="drawer-label">Navigate</p>
+    <ul class="drawer-nav"></ul>
+    <div class="drawer-footer"></div>
+  </aside>
+
+  <div class="gz-page">
+    <div class="slide-layer" id="slideA" aria-hidden="true"></div>
+    <div class="slide-layer" id="slideB" aria-hidden="true"></div>
+    <div class="landing-overlay" id="gzOverlay" aria-hidden="true"></div>
+    <div class="landing-vignette" aria-hidden="true"></div>
+
+    <div class="gz-body">
+      <div class="gz-wrap">
+        <div class="gz-switch" id="gzSwitch"></div>
+        <div class="gz-nav" id="gzNav"></div>
+        <div id="gzPaper"></div>
+      </div>
+    </div>
+    <div class="gz-footer" id="gzFooter"></div>
+  </div>
+
+  <script src="sound.js"></script>
+  <script src="menu.js"></script>
+
+  <script>
+  (function () {
+    'use strict';
+
+    /* ── Shared math (ofl-engine.js) + writing (ofl-newsroom.js) ── */
+    var E = window.OFL_ENGINE, N = window.OFL_NEWSROOM;
+    if (!E || !N) { document.addEventListener('DOMContentLoaded', function () { var p = document.getElementById('gzPaper'); if (p) p.innerHTML = '<p class="gz-empty">The presses are down. ofl-engine.js / ofl-newsroom.js not found.</p>'; }); return; }
+    var esc = E.util.esc, f2 = E.util.f2, ord = E.util.ord, initials = E.util.initials, pctTxt = E.util.pctTxt, member = E.util.member;
+    var completeWeeks = E.ofc.completeWeeks, regWeeks = E.ofc.regWeeks, rec = E.ofc.rec;
+    var SEASONS = E.ofc.seasons, PLAYOFF_TEAMS = E.ofc.PLAYOFF_TEAMS, SIMS = E.ofc.SIMS;
+    var BSEASONS = E.brc.seasons, RNAME = E.brc.RNAME, RPTS = E.brc.RPTS, normTeam = E.brc.normTeam;
+    var FIRST_YEAR = N.FIRST_YEAR, BLUE = N.BLUE, BRC_FIRST = N.BRC_FIRST, AWARDS = N.AWARDS;
+    var verb = N.verb, seriesThrough = N.seriesThrough;
+    var writeEdition = N.ofc.write, classifieds = N.ofc.classifieds;
+    var writeBRC = N.brc.write, brcClassifieds = N.brc.classifieds;
+    var EDITIONS = N.ofc.editions, BEDITIONS = N.brc.editions;
+
+    /* ══════════════════════════════════════════════════════════
+       RENDER
+    ══════════════════════════════════════════════════════════ */
+    function mini(t, cls) {
+      return t.logo ? '<img class="' + (cls || '') + '" src="' + esc(t.logo) + '" alt="" />' : '<span class="gz-mini-init">' + esc(initials(t.team)) + '</span>';
+    }
+
+    function render(season, k) {
+      var ed = writeEdition(season, k), T = ed.T, yr = parseInt(season.year, 10);
+      var lead = ed.stories[0], briefs = ed.stories.slice(1);
+      var html = '<article class="gz-paper">';
+
+      /* Masthead */
+      html += '<header class="gz-mast">' +
+        '<div class="gz-mast-top"><span>Vol. ' + (yr - FIRST_YEAR + 1) + ' &middot; No. ' + k + '</span><span>Est. ' + FIRST_YEAR + '</span><span>Price: Free (You Get What You Pay For)</span></div>' +
+        '<h1 class="gz-mast-title">The OFC Gazette</h1>' +
+        '<p class="gz-mast-tag">All the News That&rsquo;s Fit to Trash-Talk</p>' +
+      '</header>' +
+      '<div class="gz-dateline"><span>' + season.year + ' Season &middot; Week ' + k + ' Edition</span><span>' + (ed.games.length) + ' Games &middot; ' + ed.post.rows.length + ' Teams</span>' +
+        '<span>' + (season.isFinal ? 'Archive' : (k === completeWeeks(season).length ? 'Latest Edition' : 'Back Issue')) + '</span></div>';
+
+      /* Lead */
+      if (lead) {
+        var P = T[lead.photo] || {};
+        html += '<section class="gz-lead">' +
+          '<div><div class="gz-kicker">' + esc(lead.kicker) + '</div><h2 class="gz-head">' + esc(lead.head) + '</h2>' +
+            (lead.sub ? '<p class="gz-sub">' + lead.sub + '</p>' : '') + '<div class="gz-text">' + lead.body + '</div></div>' +
+          '<figure class="gz-photo" style="--tc:' + (P.color || '#888') + '">' +
+            (P.logo ? '<img src="' + esc(P.logo) + '" alt="" />' : '<div class="gz-photo-init">' + esc(initials(P.team)) + '</div>') +
+            (lead.caption ? '<figcaption class="gz-caption">' + lead.caption + '</figcaption>' : '') +
+          '</figure>' +
+        '</section>';
+      }
+
+      /* Main column */
+      var main = '';
+      if (briefs.length) {
+        main += '<section class="gz-sec"><div class="gz-sec-head">Also in the News</div>' + briefs.map(function (b) {
+          return '<div class="gz-brief"><div class="gz-kicker">' + esc(b.kicker) + '</div><div class="gz-brief-head">' + esc(b.head) + '</div>' +
+            (b.sub ? '<p class="gz-sub" style="font-size:0.9rem;margin:0.2rem 0 0.4rem;">' + b.sub + '</p>' : '') +
+            '<div class="gz-text">' + b.body + '</div></div>';
+        }).join('') + '</section>';
+      }
+      main += '<section class="gz-sec"><div class="gz-sec-head">Box Scores</div><div class="gz-boxes">' + ed.games.map(function (g) {
+        var H = T[g.h], A = T[g.a], hw = g.hs > g.as, aw = g.as > g.hs;
+        function line(t, s, won) {
+          return '<div class="gz-box-line' + (won ? ' won' : '') + '">' + mini(t) + '<span class="gz-box-team">' + esc(t.team) + '<small>' + esc(t.owner) + ' &middot; ' + rec(ed.post.map[t.id]) + '</small></span><span class="gz-box-score">' + f2(s) + '</span></div>';
+        }
+        var m = Math.abs(g.hs - g.as), tag = m < 3 ? 'Photo finish' : (m >= 40 ? 'Blowout' : 'Margin');
+        return '<div class="gz-box">' + line(H, g.hs, hw) + line(A, g.as, aw) + '<div class="gz-box-foot">' + tag + ' &middot; ' + f2(m) + ' &middot; Combined ' + f2(g.hs + g.as) + '</div></div>';
+      }).join('') + '</div></section>';
+
+      main += '<section class="gz-sec"><div class="gz-sec-head">Standings After Week ' + k + '</div>' +
+        '<table class="gz-table"><thead><tr><th>#</th><th>Team</th><th>W-L</th><th class="gz-hide-sm">PF</th><th>Move</th><th>Playoff %</th></tr></thead><tbody>' +
+        ed.post.rows.map(function (r, i) {
+          var before = ed.pre.map[r.id] ? ed.pre.map[r.id].rank : r.rank, mv = before - r.rank;
+          var mvHtml = k === 1 ? '<span class="gz-mv eq">&ndash;</span>' : (mv > 0 ? '<span class="gz-mv up">&#x25B2;' + mv + '</span>' : (mv < 0 ? '<span class="gz-mv dn">&#x25BC;' + (-mv) + '</span>' : '<span class="gz-mv eq">&ndash;</span>'));
+          var o = ed.oddsPost[r.id], d = Math.round(((ed.oddsPost[r.id] || 0) - (ed.oddsPre[r.id] || 0)) * 100);
+          return '<tr class="' + (i === PLAYOFF_TEAMS - 1 ? 'gz-cut' : '') + '"><td>' + r.rank + '</td><td class="gz-team">' + esc(T[r.id].team) + '</td><td>' + rec(r) + '</td>' +
+            '<td class="gz-hide-sm">' + f2(r.pf) + '</td><td>' + mvHtml + '</td>' +
+            '<td>' + pctTxt(o) + '%' + (Math.abs(d) >= 1 ? '<span class="gz-odds-d ' + (d > 0 ? 'up' : 'dn') + '">' + (d > 0 ? '+' : '&minus;') + Math.abs(d) + '</span>' : '') + '</td></tr>';
+        }).join('') + '</tbody></table>' +
+        '<p class="gz-table-note">Playoff % = share of ' + SIMS.toLocaleString() + ' simulated finishes to that ' + season.year + ' regular season (' + regWeeks(season) + ' weeks) in which the team finished top ' + PLAYOFF_TEAMS + '. Dashed line = playoff cut.</p></section>';
+
+      /* Sidebar */
+      var side = '';
+      var ws = ed.weekScores, avg = ws.reduce(function (s, x) { return s + x.s; }, 0) / (ws.length || 1);
+      var close = ed.games.slice().sort(function (a, b) { return Math.abs(a.hs - a.as) - Math.abs(b.hs - b.as); })[0];
+      var hard = ws.filter(function (x) { return x.s < x.os; })[0];
+      side += '<section class="gz-sec"><div class="gz-sec-head">By the Numbers</div>' +
+        '<div class="gz-num"><span>High score<small>' + esc(T[ws[0].id].team) + '</small></span><b>' + f2(ws[0].s) + '</b></div>' +
+        '<div class="gz-num"><span>Low score<small>' + esc(T[ws[ws.length - 1].id].team) + '</small></span><b>' + f2(ws[ws.length - 1].s) + '</b></div>' +
+        '<div class="gz-num"><span>League average</span><b>' + f2(avg) + '</b></div>' +
+        (close ? '<div class="gz-num"><span>Closest game<small>' + esc(T[close.h].team) + ' vs ' + esc(T[close.a].team) + '</small></span><b>' + f2(Math.abs(close.hs - close.as)) + '</b></div>' : '') +
+        (hard ? '<div class="gz-num"><span>Hard-luck loss<small>' + esc(T[hard.id].team) + ' scored ' + ord(ws.indexOf(hard) + 1) + '-most and lost</small></span><b>' + f2(hard.s) + '</b></div>' : '') +
+      '</section>';
+
+      // Rivalry corner — the lead story's matchup
+      var rg = null;
+      if (lead) rg = ed.games.find(function (g) { return g.h === lead.photo || g.a === lead.photo; });
+      if (!rg) rg = ed.games[0];
+      if (rg) {
+        var sr = seriesThrough(rg.h, rg.a, yr, k), H = T[rg.h], A = T[rg.a];
+        var leadTxt = sr.a > sr.b ? '<b>' + esc(H.team) + '</b> ' + verb(H.team, 'leads', 'lead') + ' the all-time series <b>' + sr.a + '&ndash;' + sr.b + '</b>'
+          : (sr.b > sr.a ? '<b>' + esc(A.team) + '</b> ' + verb(A.team, 'leads', 'lead') + ' the all-time series <b>' + sr.b + '&ndash;' + sr.a + '</b>'
+          : 'the all-time series is dead even at <b>' + sr.a + '&ndash;' + sr.b + '</b>');
+        side += '<section class="gz-sec"><div class="gz-sec-head">Rivalry Corner</div><div class="gz-rival">' +
+          '<div class="gz-rival-logos">' + mini(H) + '<i>vs</i>' + mini(A) + '</div>' +
+          '<div class="gz-text">After this week, ' + leadTxt + (sr.t ? ' (' + sr.t + ' tie' + (sr.t > 1 ? 's' : '') + ')' : '') + '.</div>' +
+          '<a class="gz-link" href="rivals.html?a=' + encodeURIComponent(rg.h) + '&b=' + encodeURIComponent(rg.a) + '">Full Rivalry &#x2197;</a>' +
+        '</div></section>';
+      }
+
+      side += '<section class="gz-sec"><div class="gz-sec-head">Classifieds</div><div class="gz-ads">' + classifieds(ed).map(function (a) {
+        return '<div class="gz-ad"><div class="gz-ad-k">' + esc(a.k) + '</div><div class="gz-text">' + a.t + '</div></div>';
+      }).join('') + '</div></section>';
+
+      if (!season.isFinal) side += '<section class="gz-sec"><div class="gz-sec-head">Playoff Race</div><div class="gz-text">Who needs what, who&rsquo;s rooting for whom, and every scenario left.</div>' +
+        '<a class="gz-link" href="race.html">Playoff Scenario Generator &#x2197;</a></section>';
+      side += promoHtml('brc');
+
+      html += '<div class="gz-cols"><div>' + main + '</div><div class="gz-rule"></div><aside>' + side + '</aside></div>';
+      html += '</article>';
+      document.getElementById('gzPaper').innerHTML = html;
+      document.title = 'OFC Gazette — ' + season.year + ' Week ' + k;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       THE HARDWOOD HERALD — render (stories come from ofl-newsroom.js)
+    ══════════════════════════════════════════════════════════ */
+    /* ── BRC sidebar pieces ────────────────────────────────── */
+    function awardsHtml(season) {
+      var st = season.stats || {}, items = [];
+      function who(o) { return o && o.ownerName ? o.ownerName : ''; }
+      function whoAll(a) { return (a || []).map(who).filter(Boolean).join(' & '); }
+      function push(key, name, detail) { if (name) items.push('<div class="gz-num"><span>' + esc(AWARDS[key] || key) + '<small>' + detail + '</small></span><b>' + esc(name) + '</b></div>'); }
+      var wb = st.winningBracket || {};
+      push('champion', season.championName || who(wb), wb.totalPoints ? wb.totalPoints + ' points' : 'Champion');
+      push('runnerUp', season.runnerUpName, 'Runner-up');
+      if (st.mostCorrectPicks) push('mostCorrectPicks', who(st.mostCorrectPicks), st.mostCorrectPicks.count ? st.mostCorrectPicks.count + ' correct picks' : 'Most correct picks');
+      if ((st.bestSingleRound || []).length) push('bestSingleRound', whoAll(st.bestSingleRound), (st.bestSingleRound[0].points ? st.bestSingleRound[0].points + ' points in one round' : 'Best single round'));
+      if ((st.finalFourCorrect || []).length) push('finalFourCorrect', whoAll(st.finalFourCorrect), (st.finalFourCorrect[0].f4Teams ? st.finalFourCorrect[0].f4Teams + ' of 4 Final Four teams' : 'Best Final Four'));
+      if ((st.perfectBracketThrough || []).length) push('perfectBracketThrough', whoAll(st.perfectBracketThrough), st.perfectBracketThrough[0].round ? 'Perfect through the ' + esc(st.perfectBracketThrough[0].round) : 'Longest perfect run');
+      if ((st.championshipCorrect || []).length) push('championshipCorrect', whoAll(st.championshipCorrect), 'Best championship read');
+      if (st.closestScore) push('closestScore', who(st.closestScore), st.closestScore.predictedWinner ? 'Predicted ' + st.closestScore.predictedWinner + '&ndash;' + st.closestScore.predictedLoser + (season.finalScoreWinner ? ' (actual ' + season.finalScoreWinner + '&ndash;' + season.finalScoreLoser + ')' : '') : 'Closest title-game score');
+      if (st.cinderellaPick) push('cinderellaPick', who(st.cinderellaPick), st.cinderellaPick.lowestS16Seed ? 'Rode a ' + st.cinderellaPick.lowestS16Seed + '-seed to the Sweet 16' : 'Best Cinderella pick');
+      if (st.earliestBust) push('earliestBust', who(st.earliestBust), st.earliestBust.round ? 'Champion pick out in the ' + esc(st.earliestBust.round) : 'First busted champion pick');
+      if (st.lastPlace) push('lastPlace', who(st.lastPlace), st.lastPlace.totalPoints ? st.lastPlace.totalPoints + ' points' : 'Last place');
+      return items.length ? '<section class="gz-sec"><div class="gz-sec-head">Awards Ceremony</div>' + items.join('') + '</section>' : '';
+    }
+    function bannerHtml(yr) {
+      var c = {};
+      BSEASONS.forEach(function (s) { if (parseInt(s.year, 10) <= yr && s.championMemberId) (c[s.championMemberId] = c[s.championMemberId] || []).push(parseInt(s.year, 10)); });
+      var list = Object.keys(c).map(function (id) { return { id: id, ys: c[id].sort() }; })
+        .sort(function (a, b) { return b.ys.length - a.ys.length || b.ys[b.ys.length - 1] - a.ys[a.ys.length - 1]; });
+      if (!list.length) return '';
+      return '<section class="gz-sec"><div class="gz-sec-head">The Banner Wall</div>' + list.map(function (x) {
+        var m = member(x.id);
+        return '<div class="gz-num gz-banner">' + (m.mugshot ? '<img src="' + esc(m.mugshot) + '" alt="" />' : '<span class="gz-mini-init">' + esc(initials(m.name)) + '</span>') +
+          '<span>' + esc(m.name || '?') + '<small>' + x.ys.join(', ') + '</small></span><b>' + x.ys.length + '</b></div>';
+      }).join('') + '<p class="gz-table-note">BRC titles through ' + yr + '.</p></section>';
+    }
+    function storyHtml(txt) {
+      return String(txt || '').split(/\n+/).map(function (s) { return s.trim(); }).filter(Boolean).map(function (s) {
+        return (s.length < 32 && !/[.!?]$/.test(s)) ? '<p class="gz-story-h">' + esc(s) + '</p>' : '<p>' + esc(s) + '</p>';
+      }).join('');
+    }
+
+    /* ── Render the Herald ─────────────────────────────────── */
+    function renderBRC(e, isLatest) {
+      var season = e.s, yr = parseInt(season.year, 10), round = e.k !== 'final', r = e.k;
+      var ed = writeBRC(e), lead = ed.stories[0], briefs = ed.stories.slice(1), RN = round ? RNAME[r] : '';
+      var vol = BSEASONS.slice().reverse().indexOf(season) + 1;
+      var html = '<article class="gz-paper gz-brc">';
+      html += '<header class="gz-mast">' +
+        '<div class="gz-mast-top"><span>Vol. ' + vol + ' &middot; ' + (round ? 'No. ' + (r + 1) : 'Final Edition') + '</span><span>Est. ' + BRC_FIRST + '</span><span>Price: One Busted Bracket</span></div>' +
+        '<h1 class="gz-mast-title">The Hardwood Herald</h1>' +
+        '<p class="gz-mast-tag">Busted Brackets &amp; Broken Hearts Since ' + BRC_FIRST + '</p>' +
+      '</header>' +
+      '<div class="gz-dateline"><span>' + season.year + ' Tournament &middot; ' + (round ? RN + ' Edition' : 'Final Edition') + '</span>' +
+        '<span>' + ed.rows.length + ' Brackets' + (ed.games.length ? ' &middot; ' + ed.games.length + ' Game' + (ed.games.length > 1 ? 's' : '') : '') + '</span>' +
+        '<span>' + (season.isFinal ? 'Archive' : (isLatest ? 'Latest Edition' : 'Back Issue')) + '</span></div>';
+
+      if (lead) {
+        var P = lead.photo || {};
+        html += '<section class="gz-lead">' +
+          '<div><div class="gz-kicker">' + esc(lead.kicker) + '</div><h2 class="gz-head">' + esc(lead.head) + '</h2>' +
+            (lead.sub ? '<p class="gz-sub">' + lead.sub + '</p>' : '') + '<div class="gz-text">' + lead.body + '</div></div>' +
+          '<figure class="gz-photo" style="--tc:' + (P.color || BLUE) + '">' +
+            (P.logo ? '<img src="' + esc(P.logo) + '" alt="" />' : '<div class="gz-photo-init">' + esc(initials(P.team)) + '</div>') +
+            (lead.caption ? '<figcaption class="gz-caption">' + lead.caption + '</figcaption>' : '') +
+          '</figure></section>';
+      }
+
+      /* Main column */
+      var main = '';
+      if (briefs.length) main += '<section class="gz-sec"><div class="gz-sec-head">Also in the News</div>' + briefs.map(function (b) {
+        return '<div class="gz-brief"><div class="gz-kicker">' + esc(b.kicker) + '</div><div class="gz-brief-head">' + esc(b.head) + '</div>' +
+          (b.sub ? '<p class="gz-sub" style="font-size:0.9rem;margin:0.2rem 0 0.4rem;">' + b.sub + '</p>' : '') + '<div class="gz-text">' + b.body + '</div></div>';
+      }).join('') + '</section>';
+
+      if (round && ed.games.length) {
+        var box = function (g) {
+          var scored = g.ws > 0 || g.ls > 0, had = g.pickers.length, lHad = Math.max(0, g.nPick - had), m = g.ws - g.ls;
+          var ln = function (team, sd, sc, won, n) {
+            return '<div class="gz-box-line' + (won ? ' won' : '') + '"><span class="gz-seed">' + sd + '</span><span class="gz-box-team">' + esc(team) +
+              '<small>Picked by ' + n + ' of ' + g.nPick + '</small></span><span class="gz-box-score">' + (scored ? sc : (won ? 'W' : 'L')) + '</span></div>';
+          };
+          var tag = g.wsd - g.lsd >= 4 ? 'Upset' : (g.wsd > g.lsd ? 'Mild upset' : 'Chalk');
+          return '<div class="gz-box">' + ln(g.w, g.wsd, g.ws, true, had) + ln(g.l, g.lsd, g.ls, false, lHad) +
+            '<div class="gz-box-foot">' + tag + (scored ? ' &middot; Margin ' + m : '') + '</div></div>';
+        };
+        var many = ed.games.length > 8;
+        var notable = many ? ed.games.filter(function (g) { return g.wsd > g.lsd || ((g.ws || g.ls) && g.ws - g.ls <= 3) || g.pickers.length * 2 <= g.nPick; }) : ed.games;
+        main += '<section class="gz-sec"><div class="gz-sec-head">' + (many ? 'Notable Results' : 'Scoreboard') + '</div>' +
+          (notable.length ? '<div class="gz-boxes">' + notable.map(box).join('') + '</div>' : '<p class="gz-text">Chalk, chalk and more chalk. Every favorite held serve.</p>') +
+          (many ? '<details class="gz-more"><summary>All ' + ed.games.length + ' ' + RN + ' results</summary><div class="gz-boxes">' + ed.games.map(box).join('') + '</div></details>' : '') +
+          '</section>';
+      }
+
+      if (round) {
+        main += '<section class="gz-sec"><div class="gz-sec-head">Standings After the ' + RN + '</div>' +
+          '<table class="gz-table"><thead><tr><th>#</th><th>Bracket</th><th>Rd</th><th>Total</th><th>Move</th>' + (ed.an ? '<th class="gz-hide-sm">Max</th>' : '') + '</tr></thead><tbody>' +
+          ed.post.map(function (x) {
+            var mv = x.prevRank - x.rank;
+            var mvHtml = r === 0 ? '<span class="gz-mv eq">&ndash;</span>' : (mv > 0 ? '<span class="gz-mv up">&#x25B2;' + mv + '</span>' : (mv < 0 ? '<span class="gz-mv dn">&#x25BC;' + (-mv) + '</span>' : '<span class="gz-mv eq">&ndash;</span>'));
+            return '<tr class="' + (ed.an && !x.alive ? 'gz-out' : '') + '"><td>' + x.rank + '</td><td class="gz-team">' + esc(x.t.team) + '<small>' + esc(x.t.owner) + '</small></td>' +
+              '<td>' + x.pts + '</td><td><b>' + x.cum + '</b></td><td>' + mvHtml + '</td>' +
+              (ed.an ? '<td class="gz-hide-sm">' + (x.alive ? x.max : '<span class="gz-x">Out</span>') + '</td>' : '') + '</tr>';
+          }).join('') + '</tbody></table>' +
+          '<p class="gz-table-note">Rd = points scored in the ' + RN + ' (' + RPTS[r] + ' per correct pick).' +
+            (ed.an ? ' Max = most points still possible. Faded rows can no longer catch first place.' : '') + '</p></section>';
+      } else {
+        var showC = ed.rows.some(function (x) { return x.correct > 0; });
+        main += '<section class="gz-sec"><div class="gz-sec-head">Final Standings</div>' +
+          '<table class="gz-table"><thead><tr><th>#</th><th>Bracket</th><th>Points</th>' + (showC ? '<th>Correct</th>' : '') + '</tr></thead><tbody>' +
+          ed.post.map(function (x) {
+            return '<tr><td>' + x.rank + '</td><td class="gz-team">' + esc(x.t.team) + '<small>' + esc(x.t.owner) + '</small></td><td><b>' + x.cum + '</b></td>' + (showC ? '<td>' + (x.correct || '&ndash;') + '</td>' : '') + '</tr>';
+          }).join('') + '</tbody></table></section>';
+      }
+      if ((!round || r === 5) && season.story) main += '<section class="gz-sec"><div class="gz-sec-head">The Story of ' + season.year + '</div><div class="gz-text gz-story">' + storyHtml(season.story) + '</div></section>';
+
+      /* Sidebar */
+      var side = '';
+      if (round) {
+        var ps = ed.rows.map(function (x) { return x.pts; }), hiR = ed.rows.slice().sort(function (a, b) { return b.pts - a.pts; });
+        var avgR = ps.reduce(function (a, b) { return a + b; }, 0) / (ps.length || 1);
+        var upsets = ed.games.filter(function (g) { return g.wsd > g.lsd; });
+        var big = upsets.slice().sort(function (a, b) { return (b.wsd - b.lsd) - (a.wsd - a.lsd); })[0];
+        side += '<section class="gz-sec"><div class="gz-sec-head">By the Numbers</div>' +
+          '<div class="gz-num"><span>Best round<small>' + esc(hiR[0].t.team) + '</small></span><b>' + hiR[0].pts + '</b></div>' +
+          '<div class="gz-num"><span>Worst round<small>' + esc(hiR[hiR.length - 1].t.team) + '</small></span><b>' + hiR[hiR.length - 1].pts + '</b></div>' +
+          '<div class="gz-num"><span>Field average</span><b>' + (Math.round(avgR * 10) / 10) + '</b></div>' +
+          (ed.games.length ? '<div class="gz-num"><span>Favorites won<small>' + (ed.games.length - upsets.length) + ' of ' + ed.games.length + ' games</small></span><b>' + Math.round((ed.games.length - upsets.length) / ed.games.length * 100) + '%</b></div>' : '') +
+          (big ? '<div class="gz-num"><span>Biggest upset<small>' + esc(big.w) + ' over ' + esc(big.l) + '</small></span><b>' + big.wsd + ' &gt; ' + big.lsd + '</b></div>' : '') +
+        '</section>';
+        if (ed.an && r < 5) {
+          var al = ed.rows.filter(function (x) { return x.alive; }).sort(function (a, b) { return b.max - a.max; });
+          side += '<section class="gz-sec"><div class="gz-sec-head">Still Dancing</div><div class="gz-text" style="font-size:0.66rem;margin-bottom:0.4rem;">' +
+            al.length + ' of ' + ed.rows.length + ' brackets can still win.</div>' +
+            al.map(function (x) { return '<div class="gz-num"><span>' + esc(x.t.team) + '<small>' + esc(x.t.owner) + ' &middot; ' + x.cum + ' now</small></span><b>' + x.max + '</b></div>'; }).join('') +
+            '<p class="gz-table-note">Right column = maximum possible points.</p></section>';
+        }
+        if (ed.an) {
+          var grp = {};
+          ed.rows.forEach(function (x) { if (!x.champ) return; var k = normTeam(x.champ); (grp[k] = grp[k] || { team: x.champ, who: [], out: ed.out[k] }).who.push(x.t.owner); });
+          var gl = Object.keys(grp).map(function (k) { return grp[k]; }).sort(function (a, b) { return (a.out ? 1 : 0) - (b.out ? 1 : 0) || b.who.length - a.who.length; });
+          if (gl.length) side += '<section class="gz-sec"><div class="gz-sec-head">Champion Watch</div>' + gl.map(function (g) {
+            var won = r === 5 && !g.out;
+            return '<div class="gz-num' + (g.out ? ' out' : '') + '"><span>' + esc(g.team) + '<small>' + g.who.map(esc).join(', ') + '</small></span><b>' + (won ? 'Champs' : (g.out ? 'Out &middot; ' + esc(g.out.replace('Round of ', 'R')) : 'Alive')) + '</b></div>';
+          }).join('') + '<p class="gz-table-note">Each bracket&rsquo;s pick to win it all.</p></section>';
+        }
+      } else {
+        var all = ed.rows.map(function (x) { return x.cum; }), avgF = all.reduce(function (a, b) { return a + b; }, 0) / (all.length || 1);
+        side += '<section class="gz-sec"><div class="gz-sec-head">By the Numbers</div>' +
+          '<div class="gz-num"><span>Winning score<small>' + esc(ed.ch.t.team) + '</small></span><b>' + ed.ch.cum + '</b></div>' +
+          (ed.ru ? '<div class="gz-num"><span>Margin of victory</span><b>' + (ed.ch.cum - ed.ru.cum) + '</b></div>' : '') +
+          '<div class="gz-num"><span>Field average</span><b>' + (Math.round(avgF * 10) / 10) + '</b></div>' +
+          '<div class="gz-num"><span>Brackets entered</span><b>' + ed.rows.length + '</b></div>' +
+        '</section>';
+      }
+      if (!round || r === 5) side += awardsHtml(season) + bannerHtml(yr);
+      side += '<section class="gz-sec"><div class="gz-sec-head">Classifieds</div><div class="gz-ads">' + brcClassifieds(ed).map(function (a) {
+        return '<div class="gz-ad"><div class="gz-ad-k">' + esc(a.k) + '</div><div class="gz-text">' + a.t + '</div></div>';
+      }).join('') + '</div></section>';
+      side += promoHtml('ofc');
+
+      html += '<div class="gz-cols"><div>' + main + '</div><div class="gz-rule"></div><aside>' + side + '</aside></div></article>';
+      document.getElementById('gzPaper').innerHTML = html;
+      document.title = 'Hardwood Herald — ' + season.year + ' ' + (round ? RN : 'Final Edition');
+    }
+
+    /* ── Cross-promo: the other paper's latest headline ────── */
+    function promoHtml(target) {
+      try {
+        var eds = target === 'brc' ? BEDITIONS : EDITIONS;
+        if (!eds.length) return '';
+        var e = eds[eds.length - 1], st, label, mast;
+        if (target === 'brc') { st = writeBRC(e).stories[0]; label = e.s.year + ' &middot; ' + (e.k === 'final' ? 'Final Edition' : RNAME[e.k] + ' Edition'); mast = 'The Hardwood Herald'; }
+        else { st = writeEdition(e.s, e.k).stories[0]; label = e.s.year + ' &middot; Week ' + e.k + ' Edition'; mast = 'The OFC Gazette'; }
+        return '<section class="gz-sec"><div class="gz-sec-head">Meanwhile, in the ' + (target === 'brc' ? 'BRC' : 'OFC') + '&hellip;</div>' +
+          '<div class="gz-promo' + (target === 'brc' ? ' brc' : '') + '"><div class="gz-promo-mast">' + mast + '</div>' +
+          (st ? '<div class="gz-kicker">' + esc(st.kicker) + '</div><div class="gz-brief-head">' + esc(st.head) + '</div>' : '') +
+          '<div class="gz-promo-meta">' + label + '</div>' +
+          '<button type="button" class="gz-link" data-switch="' + target + '">Read the ' + (target === 'brc' ? 'Herald' : 'Gazette') + ' &#x2197;</button></div></section>';
+      } catch (x) { return ''; }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       NAVIGATION — league switch, edition pickers, URL
+    ══════════════════════════════════════════════════════════ */
+    var LG = { ofc: { eds: EDITIONS, cur: EDITIONS.length - 1 }, brc: { eds: BEDITIONS, cur: BEDITIONS.length - 1 } };
+    var LEAGUE = 'ofc';
+
+    function nav() {
+      document.getElementById('gzSwitch').innerHTML =
+        '<button type="button" data-lg="ofc" class="' + (LEAGUE === 'ofc' ? 'on' : '') + '"' + (EDITIONS.length ? '' : ' disabled') + '>OFC Football<small>The OFC Gazette</small></button>' +
+        '<button type="button" data-lg="brc" class="brc' + (LEAGUE === 'brc' ? ' on' : '') + '"' + (BEDITIONS.length ? '' : ' disabled') + '>BRC Basketball<small>The Hardwood Herald</small></button>';
+      Array.prototype.forEach.call(document.querySelectorAll('#gzSwitch button'), function (b) { b.onclick = function () { setLeague(b.getAttribute('data-lg')); }; });
+      var st = LG[LEAGUE], eds = st.eds, cur = st.cur, e = eds[cur], el = document.getElementById('gzNav');
+      if (!e) { el.innerHTML = ''; return; }
+      var years = [];
+      eds.forEach(function (x) { if (years.indexOf(String(x.s.year)) < 0) years.unshift(String(x.s.year)); });
+      var opts = years.map(function (y) { return '<option value="' + esc(y) + '"' + (y === String(e.s.year) ? ' selected' : '') + '>' + esc(y) + (LEAGUE === 'ofc' ? ' Season' : ' Tournament') + '</option>'; }).join('');
+      var units = '';
+      eds.forEach(function (x, i) { if (x.s === e.s) units += '<option value="' + i + '"' + (i === cur ? ' selected' : '') + '>' + (LEAGUE === 'ofc' ? 'Week ' + x.k : esc(x.label)) + '</option>'; });
+      el.innerHTML =
+        '<button id="gzPrev"' + (cur === 0 ? ' disabled' : '') + ' aria-label="Previous edition">&#x25C2; Prev</button>' +
+        '<select id="gzSeason" aria-label="Season">' + opts + '</select>' +
+        '<select id="gzUnit" aria-label="Edition">' + units + '</select>' +
+        '<button id="gzNext"' + (cur === eds.length - 1 ? ' disabled' : '') + ' aria-label="Next edition">Next &#x25B8;</button>' +
+        (cur !== eds.length - 1 ? '<button id="gzLatest" class="gz-nav-latest">Latest</button>' : '');
+      document.getElementById('gzPrev').onclick = function () { go(cur - 1); };
+      document.getElementById('gzNext').onclick = function () { go(cur + 1); };
+      var lt = document.getElementById('gzLatest'); if (lt) lt.onclick = function () { go(eds.length - 1); };
+      document.getElementById('gzSeason').onchange = function () {
+        var y = this.value, idx = -1;
+        for (var i = eds.length - 1; i >= 0; i--) if (String(eds[i].s.year) === y) { idx = i; break; }
+        go(idx);
+      };
+      document.getElementById('gzUnit').onchange = function () { go(parseInt(this.value, 10)); };
+    }
+
+    function paint() {
+      var page = document.querySelector('.gz-page');
+      if (page) page.classList.toggle('gz-is-brc', LEAGUE === 'brc');
+      nav();
+      var st = LG[LEAGUE], e = st.eds[st.cur];
+      if (!e) { document.getElementById('gzPaper').innerHTML = '<p class="gz-empty">The presses are quiet. Nothing to report yet.</p>'; return; }
+      if (LEAGUE === 'ofc') render(e.s, e.k); else renderBRC(e, st.cur === st.eds.length - 1);
+      N.lowercase(document.getElementById('gzPaper'));
+      document.title = N.lowercaseText(document.title);
+      Array.prototype.forEach.call(document.querySelectorAll('#gzPaper [data-switch]'), function (b) {
+        b.onclick = function () { setLeague(b.getAttribute('data-switch')); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+      });
+    }
+
+    function setUrl() {
+      var e = LG[LEAGUE].eds[LG[LEAGUE].cur]; if (!e) return;
+      try {
+        var u = new URL(window.location.href);
+        u.searchParams.set('league', LEAGUE); u.searchParams.set('season', e.s.year);
+        if (LEAGUE === 'ofc') { u.searchParams.set('week', e.k); u.searchParams.delete('round'); }
+        else { u.searchParams.set('round', e.key); u.searchParams.delete('week'); }
+        history.replaceState(null, '', u.toString());
+      } catch (x) {}
+    }
+
+    function go(i) {
+      var st = LG[LEAGUE];
+      if (i < 0 || i >= st.eds.length) return;
+      st.cur = i; setUrl(); paint();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function setLeague(lg) {
+      if (!LG[lg] || !LG[lg].eds.length || lg === LEAGUE) return;
+      LEAGUE = lg; setUrl(); paint();
+    }
+
+    /* Default paper: whichever league is in season; otherwise by the calendar (Mar–Aug = tournament news) */
+    function defaultLeague() {
+      var o = SEASONS[0], b = BSEASONS[0];
+      if (o && !o.isFinal && EDITIONS.length) return 'ofc';
+      if (b && !b.isFinal && BEDITIONS.length) return 'brc';
+      var m = new Date().getMonth();
+      return (m >= 2 && m <= 7) ? 'brc' : 'ofc';
+    }
+
+    function init() {
+      var config = window.SITE_CONFIG || {};
+      var ov = document.getElementById('gzOverlay');
+      if (ov && config.slideshow && config.slideshow.overlay) ov.style.background = config.slideshow.overlay;
+      var foot = document.getElementById('gzFooter');
+      if (foot) { if (config.footer && config.footer.show) foot.textContent = config.footer.text; else foot.style.display = 'none'; }
+      var q = new URLSearchParams(window.location.search), ql = (q.get('league') || '').toLowerCase();
+      LEAGUE = (ql === 'ofc' || ql === 'brc') ? ql : defaultLeague();
+      if (!LG[LEAGUE].eds.length) LEAGUE = LEAGUE === 'ofc' ? 'brc' : 'ofc';
+      var st = LG[LEAGUE], qy = q.get('season');
+      if (qy && st.eds.length) {
+        var qw = parseInt(q.get('week'), 10), qr = (q.get('round') || '').toLowerCase(), idx = -1;
+        for (var i = st.eds.length - 1; i >= 0; i--) {
+          var x = st.eds[i];
+          if (String(x.s.year) !== qy) continue;
+          if (idx < 0) idx = i;   // latest edition of that year
+          if ((LEAGUE === 'ofc' && x.k === qw) || (LEAGUE === 'brc' && x.key === qr)) { idx = i; break; }
+        }
+        if (idx >= 0) st.cur = idx;
+      }
+      paint();
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+  })();
+  </script>
+</body>
+</html>

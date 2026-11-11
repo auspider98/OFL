@@ -11,6 +11,9 @@
   <script src="ofl-data.js"></script>
   <script src="ofl-brc-analysis.js"></script>
   <script src="admin.js"></script>
+  <script src="ofl-engine.js"></script>
+  <script src="ofl-phrasebook.js"></script>
+  <script src="ofl-newsroom.js"></script>
   <style>
     /* ── Clinch tags + Playoff Race link (standings) ─────────── */
     .standings-clinch {
@@ -48,6 +51,54 @@
     }
     .standings-race-link-title {
       font-family: var(--font-display); font-size: 1.05rem; color: var(--accent); letter-spacing: 0.02em;
+    }
+    /* House Rules → Never Capitalize (stays lowercase even in all-caps headlines) */
+    .ofl-lc { text-transform: lowercase !important; }
+    /* ── Gazette / Herald card (latest edition headline, above the standings) ── */
+    .lgz-card {
+      display: grid; grid-template-columns: 1fr 92px; column-gap: 1rem; align-items: center;
+      text-decoration: none; color: inherit;
+      padding: 0.9rem 1rem 0.8rem; border: 1px solid var(--drawer-border, #2b2b2b); background: rgba(8,8,8,0.82);
+      transition: border-color 0.25s, background 0.25s;
+    }
+    .lgz-card:hover { border-color: rgba(232,232,232,0.4); }
+    .lgz-card.brc { background: linear-gradient(180deg, rgba(16,24,70,0.9), rgba(6,8,24,0.9)); border-color: rgba(61,82,201,0.55); }
+    .lgz-card.brc:hover { border-color: #5b70e0; }
+    .lgz-mast {
+      grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: baseline; gap: 0.8rem;
+      padding-bottom: 0.4rem; margin-bottom: 0.65rem; border-bottom: 3px double rgba(232,232,232,0.45);
+    }
+    .lgz-card.brc .lgz-mast { border-bottom-color: #3d52c9; }
+    .lgz-mast b { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); white-space: nowrap; }
+    .lgz-mast span { font-family: var(--font-body); font-size: 0.46rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent-dim); text-align: right; }
+    .lgz-text { grid-column: 1; grid-row: 2; min-width: 0; display: flex; flex-direction: column; }
+    .lgz-photo {
+      grid-column: 2; grid-row: 2; width: 92px; height: 92px; display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--drawer-border, #2b2b2b);
+      background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--tc, #888) 40%, transparent), rgba(0,0,0,0.65) 70%);
+    }
+    .lgz-card.brc .lgz-photo { border-color: #3d52c9; }
+    .lgz-photo img { width: 78%; height: 78%; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.8)); }
+    .lgz-photo i { font-style: normal; font-family: var(--font-display); font-size: 1.8rem; color: var(--accent-dim); }
+    .lgz-k { font-family: var(--font-body); font-size: 0.48rem; letter-spacing: 0.32em; text-transform: uppercase; color: #e8c864; margin-bottom: 0.3rem; }
+    .lgz-card.brc .lgz-k { color: #98b8ec; }
+    .lgz-h { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; font-size: 1.55rem; line-height: 1; color: var(--accent); }
+    .lgz-s { font-family: var(--font-display); font-weight: 300; font-style: italic; font-size: 0.9rem; line-height: 1.3; color: var(--accent-dim); margin-top: 0.4rem; }
+    .lgz-s b { font-weight: 400; }
+    .lgz-cta {
+      align-self: flex-start; margin-top: 0.6rem; font-family: var(--font-body); font-size: 0.46rem; letter-spacing: 0.25em;
+      text-transform: uppercase; color: var(--accent-dim); border-bottom: 1px solid var(--drawer-border, #444);
+    }
+    .lgz-card:hover .lgz-cta { color: var(--accent); }
+    @media (max-width: 600px) {
+      .lgz-card { grid-template-columns: 64px 1fr; column-gap: 0.8rem; padding: 0.75rem 0.8rem 0.7rem; }
+      .lgz-mast b { font-size: 1.05rem; }
+      .lgz-mast .lgz-when { display: none; }
+      .lgz-photo { grid-column: 1; width: 64px; height: 64px; }
+      .lgz-photo i { font-size: 1.3rem; }
+      .lgz-text { grid-column: 2; }
+      .lgz-h { font-size: 1.15rem; line-height: 1.02; }
+      .lgz-s { display: none; }
     }
     a.roster-card { text-decoration: none; cursor: pointer; }
     a.roster-card:hover .roster-card-name { color: var(--hint-color, var(--accent)); }
@@ -1224,6 +1275,46 @@
       '</a>';
     }
 
+    // ── Gazette / Herald card ─────────────────────────────────
+    // The latest edition's lead headline, linking to that edition.
+    // On/off + position: League Page Layout ("Gazette Card"). When it shows:
+    //   OFC — only while the latest week on file is marked complete (final scores);
+    //         hides once the next week's matchups are added. Hidden once the season is final.
+    //   BRC — while the tournament is in progress, showing the newest completed round;
+    //         hidden before the first round finishes and once the tournament is final.
+    //   Never in preseason or on archived seasons.
+    function gazetteCardWanted(league, current) {
+      if (!window.OFL_NEWSROOM || !current || current.isFinal) return false;
+      if (league.sport === 'football') {
+        var wks = (current.weeks || []).slice().sort(function (a, b) { return (a.weekNumber || 0) - (b.weekNumber || 0); });
+        var last = wks[wks.length - 1];
+        return !!(last && last.isComplete);
+      }
+      return league.sport === 'madness';
+    }
+    // Builds the card (runs the newsroom, incl. the playoff-odds simulation for football)
+    function gazetteCardHtml(league, current) {
+      if (!gazetteCardWanted(league, current)) return '';
+      var lg = league.sport === 'football' ? 'ofc' : 'brc';
+      var L = window.OFL_NEWSROOM.latest(lg);
+      if (!L || !L.head || String(L.season.year) !== String(current.year)) return '';   // never last season's paper
+      var P = L.photo || {};
+      var init = String(P.team || '?').split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
+      var cta = lg === 'brc' ? 'Read the Herald' : 'Read this week&rsquo;s paper';
+      return '<a class="lgz-card' + (lg === 'brc' ? ' brc' : '') + '" href="' + esc(L.href) + '">' +
+        '<span class="lgz-mast"><b>' + esc(L.mast) + '</b><span>' + esc(L.label) +
+          '<span class="lgz-when"> &middot; Latest</span></span></span>' +
+        '<span class="lgz-photo" style="--tc:' + esc(P.color || '#888888') + '">' +
+          (P.logo ? '<img src="' + esc(P.logo) + '" alt="" />' : '<i>' + esc(init) + '</i>') + '</span>' +
+        '<span class="lgz-text">' +
+          (L.kicker ? '<span class="lgz-k">' + esc(L.kicker) + '</span>' : '') +
+          '<span class="lgz-h">' + esc(L.head) + '</span>' +
+          (L.sub ? '<span class="lgz-s">' + L.sub + '</span>' : '') +
+          '<span class="lgz-cta">' + cta + ' &#x2197;</span>' +
+        '</span>' +
+      '</a>';
+    }
+
     // ── Compute per-week power rank for every team across a season ──
     // Mirrors the weighted power-score formula used by the trajectory
     // chart and the live Power Rankings table (60% season avg + 40%
@@ -2272,7 +2363,7 @@
         awards:      pl.showAwards      !== false,
         seasonHistory: pl.showPastSeasons !== false
       };
-      var defaultOrder = ['champion','story','weekly','yahoo','power','standings','bracket','roster','awards','seasonHistory'];
+      var defaultOrder = ['seasonMessage','champion','story','weekly','yahoo','power','gazette','standings','bracket','roster','awards','seasonHistory'];
       pl.sections = defaultOrder.map(function (key) {
         return { key: key, enabled: legacyMap.hasOwnProperty(key) ? legacyMap[key] : true };
       });
@@ -2282,12 +2373,18 @@
     function getResolvedSections(league) {
       migratePageLayout(league);
       var pl = league.pageLayout;
-      var defaultOrder = ['champion','story','weekly','yahoo','power','standings','bracket','roster','awards','seasonHistory'];
+      var defaultOrder = ['seasonMessage','champion','story','weekly','yahoo','power','gazette','standings','bracket','roster','awards','seasonHistory'];
       var savedKeys = (pl.sections || []).map(function (s) { return s.key; });
       var merged = (pl.sections || []).slice();
       defaultOrder.forEach(function (key) {
         if (savedKeys.indexOf(key) === -1) {
           var newEntry = { key: key, enabled: key !== 'roster' };
+          // Gazette Card: until the layout is saved with it, sit just above the standings
+          // (same spot the League Page Layout list in ofl-data.html shows it)
+          if (key === 'gazette') {
+            var stIdx = merged.findIndex(function (s) { return s.key === 'standings'; });
+            if (stIdx !== -1) { merged.splice(stIdx, 0, newEntry); return; }
+          }
           // For other new keys: insert at correct position relative to defaultOrder neighbors
           var defaultIdx = defaultOrder.indexOf(key);
           var insertAfter = -1;
@@ -2498,13 +2595,15 @@
       var isFirst  = !isArchive; // first content section gets league-section-first
 
       // Sections permitted during preseason (current season not yet started)
-      var PRESEASON_ALLOWED = { yahoo: true, roster: true, pastSeasons: true, weekly: false };
+      var PRESEASON_ALLOWED = { seasonMessage: true, yahoo: true, roster: true, pastSeasons: true, weekly: false };
 
       // ── Season message block — shown in both preseason on and off states ──
+      // On/off + position: League Page Layout ("Season Message").
       // Season Message images (season.preseasonImages = [{ src, caption }]), shown after the text
       var msgImgs = (current && Array.isArray(current.preseasonImages) ? current.preseasonImages : [])
         .filter(function (im) { return im && im.src; });
-      if (!isArchive && !isFinal && current && (current.preseasonMessage || msgImgs.length)) {
+      function appendSeasonMessage() {
+        if (!(!isArchive && !isFinal && current && (current.preseasonMessage || msgImgs.length))) return;
         var msgEl = document.createElement('div');
         msgEl.className = 'league-section section-reveal' + (isFirst ? ' league-section-first' : '');
         msgEl.style.animationDelay = revealDelay + 's';
@@ -2573,6 +2672,9 @@
         // In preseason mode, only show whitelisted sections for the current season
         if (isPreseason && !PRESEASON_ALLOWED[key]) return;
 
+        // ── Season Message / Images (builds and appends its own section)
+        if (key === 'seasonMessage') { appendSeasonMessage(); return; }
+
         var sectionEl = null;
 
         // ── Champion ──────────────────────────────────────
@@ -2604,6 +2706,15 @@
             current.story.split(/\n[\t ]*\n/).map(function(p) {
               return '<p class="season-story-text">' + esc(p.trim()) + '</p>';
             }).join('');
+        }
+
+        // ── Gazette / Herald card ─────────────────────────
+        //    The slot is placed now; the headline is written just after the page
+        //    draws, so the odds simulation never holds up the rest of the page.
+        else if (key === 'gazette') {
+          if (isArchive || !gazetteCardWanted(league, current)) return;
+          sectionEl = document.createElement('div');
+          sectionEl._gazette = true;
         }
 
         // ── Final Standings ───────────────────────────────
@@ -4640,6 +4751,18 @@
         revealDelay += 0.15;
         isFirst = false;
         body.appendChild(sectionEl);
+
+        if (sectionEl._gazette) {
+          (function (gzEl) {
+            setTimeout(function () {
+              var gzHtml = '';
+              try { gzHtml = gazetteCardHtml(league, current); } catch (gzErr) { console.warn('Gazette card:', gzErr); }
+              if (gzHtml) { gzEl.innerHTML = gzHtml; if (window.OFL_NEWSROOM.lowercase) window.OFL_NEWSROOM.lowercase(gzEl); }
+              else if (gzEl.parentNode) gzEl.parentNode.removeChild(gzEl);
+            }, 30);
+          })(sectionEl);
+          delete sectionEl._gazette;
+        }
 
         // BRC inline script must run after sectionEl is in the DOM
         if (sectionEl._brcScript) {

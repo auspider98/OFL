@@ -512,6 +512,183 @@
       .playa-card-inner { height: 380px; }
       .playa-mugshot-wrap { max-height: 180px; }
     }
+
+    /* ══════════════════════════════════════════════════════════
+       TRADING CARDS — tiers, foil, holo, full-size viewer (pv-)
+    ══════════════════════════════════════════════════════════ */
+    /* Tier = total championships: Base 0 · Rare 1–2 · Holo 3–4 · Legendary 5+ */
+    .playa-card { --foil: var(--drawer-border); --mx: 50; --my: 50; }
+    .playa-card.t-rare   { --foil: #c9d1da; }
+    .playa-card.t-holo   { --foil: #9fd8ff; }
+    .playa-card.t-legend { --foil: #e8c864; }
+    .playa-card .playa-front { border: 2px solid var(--foil); }
+    .playa-card.t-holo .playa-front { border-image: linear-gradient(135deg, #ff7ad9, #9fd8ff, #b6ff9f, #ffe27a, #ff7ad9) 1; }
+    .playa-card.t-legend .playa-front { box-shadow: 0 0 18px rgba(232,200,100,0.25); }
+    .playa-tier {
+      position: absolute; top: 0.6rem; right: 0.6rem; z-index: 3;
+      font-family: var(--font-body); font-size: 0.42rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+      padding: 0.16rem 0.42rem; background: rgba(0,0,0,0.6); border: 1px solid var(--foil); color: var(--foil);
+      backdrop-filter: blur(4px);
+    }
+    .playa-card.t-base .playa-tier { color: var(--accent-dim); }
+    @media (max-width: 600px) { .playa-flip-hint { display: none; } }
+
+    /* ── Gallery = mini version of the viewer card front ── */
+    .playa-card.pv-mini {
+      --w: 100%; width: 100%; height: auto; aspect-ratio: 5 / 7; perspective: none; position: relative;
+      transition: transform 0.25s ease;
+    }
+    .playa-card.pv-mini:hover { transform: translateY(-4px); }
+    .pv-mini .pv-face { position: absolute; inset: 0; border-width: 2px; border-radius: 8px; box-shadow: 0 6px 18px rgba(0,0,0,0.5); }
+    .pv-card.pv-mini.t-legend .pv-face { box-shadow: 0 0 16px rgba(232,200,100,0.3), 0 6px 18px rgba(0,0,0,0.5); }
+    .pv-mini:not(:hover) .pv-holo { opacity: 0 !important; }
+    .pv-mini .pv-top { padding: 0.4rem 0.55rem; font-size: 0.42rem; letter-spacing: 0.16em; }
+    .pv-mini .pv-status { top: 0.45rem; left: 0.45rem; font-size: 0.4rem; padding: 0.12rem 0.35rem; }
+    .pv-mini .pv-photo-badges { left: 0.45rem; bottom: 0.45rem; gap: 0.2rem; }
+    .pv-mini .pv-photo-badges span { font-size: 0.4rem; padding: 0.1rem 0.3rem; }
+    .pv-mini .pv-teamlogo { width: 56px; height: 56px; right: 0.35rem; bottom: 0.35rem; }
+    .pv-mini .pv-plate { padding: 0.45rem 0.5rem 0.4rem; }
+    .pv-mini .pv-name { font-size: 1.3rem; }
+    .pv-mini .pv-nick { font-size: 0.44rem; letter-spacing: 0.22em; margin-top: 0.2rem; }
+    .pv-mini .pv-strip div { padding: 0.35rem 0.1rem; }
+    .pv-mini .pv-strip b { font-size: 1rem; }
+    .pv-mini .pv-strip span { font-size: 0.36rem; letter-spacing: 0.14em; }
+    @media (max-width: 600px) {
+      .pv-mini .pv-top { font-size: 0.36rem; letter-spacing: 0.1em; padding: 0.32rem 0.4rem; }
+      .pv-mini .pv-name { font-size: 1rem; }
+      .pv-mini .pv-nick { font-size: 0.38rem; letter-spacing: 0.14em; }
+      .pv-mini .pv-teamlogo { width: 42px; height: 42px; }
+      .pv-mini .pv-strip b { font-size: 0.85rem; }
+      .pv-mini .pv-strip span { font-size: 0.3rem; letter-spacing: 0.08em; }
+      .pv-mini .pv-status { display: none; }
+    }   /* overlaps the stats strip on phones; the whole card is tappable */
+    /* Holo shimmer layer (grid: follows the pointer on hover) */
+    .playa-holo, .pv-holo {
+      position: absolute; inset: 0; z-index: 4; pointer-events: none; opacity: 0; mix-blend-mode: color-dodge;
+      background:
+        radial-gradient(circle at calc(var(--mx) * 1%) calc(var(--my) * 1%), rgba(255,255,255,0.35), transparent 45%),
+        linear-gradient(115deg, transparent 20%, rgba(255,90,200,0.35) 35%, rgba(90,220,255,0.35) 48%, rgba(170,255,120,0.3) 60%, rgba(255,220,90,0.35) 72%, transparent 85%);
+      background-size: 100% 100%, 250% 250%;
+      background-position: 0 0, calc(var(--mx) * 1%) calc(var(--my) * 1%);
+      transition: opacity 0.3s;
+    }
+    .playa-card.t-rare .playa-holo   { background-image: radial-gradient(circle at calc(var(--mx) * 1%) calc(var(--my) * 1%), rgba(255,255,255,0.4), transparent 50%); }
+    .playa-card:hover .playa-holo    { opacity: 0.55; }
+    .playa-card.t-base:hover .playa-holo { opacity: 0.18; }
+    .playa-card.t-legend:hover .playa-holo { opacity: 0.8; }
+    .playa-card.t-rare.retired .playa-holo, .playa-card.is-inactive .playa-holo { display: none; }
+
+    /* ── Full-size viewer ─────────────────────────────────── */
+    .pv-overlay {
+      position: fixed; inset: 0; z-index: 400; display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .pv-overlay.open { opacity: 1; pointer-events: all; }
+    .pv-stage { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+    .pv-row { display: flex; align-items: center; gap: 0.8rem; }
+    .pv-nav {
+      width: 40px; height: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.5); border: 1px solid var(--drawer-border); color: var(--accent); font-size: 1.2rem; cursor: pointer;
+    }
+    .pv-nav:hover { border-color: rgba(232,232,232,0.4); }
+    .pv-nav:disabled { opacity: 0.25; cursor: default; }
+    .pv-card {
+      --w: min(340px, 78vw, calc(74vh * 5 / 7));
+      --foil: var(--drawer-border); --mx: 50; --my: 50; --rx: 0deg; --ry: 0deg;
+      width: var(--w); aspect-ratio: 5 / 7; perspective: 1400px; cursor: pointer; touch-action: pan-y;
+    }
+    .pv-card.t-rare { --foil: #c9d1da; } .pv-card.t-holo { --foil: #9fd8ff; } .pv-card.t-legend { --foil: #e8c864; }
+    .pv-tilt { width: 100%; height: 100%; transform: rotateX(var(--rx)) rotateY(var(--ry)); transform-style: preserve-3d; transition: transform 0.12s ease-out; }
+    .pv-flip { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.7s cubic-bezier(.2,.8,.2,1); }
+    .pv-card.flipped .pv-flip { transform: rotateY(180deg); }
+    .pv-face {
+      position: absolute; inset: 0; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+      background: #0e0e0e; border: 3px solid var(--foil); border-radius: 10px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    }
+    .pv-card.t-holo .pv-face { border-color: transparent; background: linear-gradient(#0e0e0e, #0e0e0e) padding-box, linear-gradient(135deg, #ff7ad9, #9fd8ff, #b6ff9f, #ffe27a, #ff7ad9) border-box; }
+    .pv-card.t-legend .pv-face { box-shadow: 0 0 40px rgba(232,200,100,0.35), 0 20px 60px rgba(0,0,0,0.7); }
+    .pv-back { transform: rotateY(180deg); }
+    .pv-card .pv-holo { border-radius: 8px; }
+    .pv-card.t-base .pv-holo   { opacity: 0.12; }
+    .pv-card.t-rare .pv-holo   { opacity: 0.35; background-image: radial-gradient(circle at calc(var(--mx) * 1%) calc(var(--my) * 1%), rgba(255,255,255,0.45), transparent 50%); }
+    .pv-card.t-holo .pv-holo   { opacity: 0.6; }
+    .pv-card.t-legend .pv-holo { opacity: 0.85; }
+    .pv-back .pv-holo { opacity: 0.08 !important; }
+
+    /* Front */
+    .pv-front { display: flex; flex-direction: column; }
+    .pv-top {
+      display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.7rem;
+      font-family: var(--font-body); font-size: 0.48rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--foil); background: rgba(0,0,0,0.5); border-bottom: 1px solid rgba(232,232,232,0.1);
+    }
+    .pv-card.t-base .pv-top { color: var(--accent-dim); }
+    .pv-photo { position: relative; flex: 1; min-height: 0; overflow: hidden; background: radial-gradient(circle at 50% 35%, rgba(255,255,255,0.08), rgba(0,0,0,0.6)); }
+    .pv-photo > img.pv-mug { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+    .pv-photo .pv-mono { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 5rem; color: var(--accent-dim); opacity: 0.5; }
+    .pv-photo-badges { position: absolute; left: 0.6rem; bottom: 0.6rem; display: flex; gap: 0.3rem; }
+    .pv-photo-badges span {
+      font-family: var(--font-body); font-size: 0.46rem; font-weight: 700; letter-spacing: 0.15em; padding: 0.15rem 0.4rem;
+      background: rgba(0,0,0,0.7); border: 1px solid rgba(232,232,232,0.3); color: var(--accent);
+    }
+    .pv-teamlogo { position: absolute; right: 0.5rem; bottom: 0.5rem; width: 72px; height: 72px; object-fit: contain; filter: drop-shadow(0 3px 8px rgba(0,0,0,0.9)); }
+    .pv-status { position: absolute; top: 0.6rem; left: 0.6rem; font-family: var(--font-body); font-size: 0.46rem; letter-spacing: 0.2em; text-transform: uppercase; padding: 0.15rem 0.45rem; background: rgba(0,0,0,0.6); border: 1px solid rgba(232,232,232,0.3); color: var(--accent-dim); }
+    .pv-plate { padding: 0.6rem 0.8rem 0.5rem; background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.75)); border-top: 2px solid var(--foil); text-align: center; }
+    .pv-name { font-family: var(--font-display); font-weight: 700; font-size: 1.7rem; line-height: 1; color: var(--accent); text-transform: uppercase; letter-spacing: 0.02em; }
+    .pv-nick { font-family: var(--font-body); font-size: 0.52rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--hint-color, var(--accent-dim)); margin-top: 0.3rem; }
+    .pv-strip { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid rgba(232,232,232,0.1); }
+    .pv-strip div { padding: 0.45rem 0.2rem; text-align: center; border-right: 1px solid rgba(232,232,232,0.08); }
+    .pv-strip div:last-child { border-right: none; }
+    .pv-strip b { display: block; font-family: var(--font-display); font-size: 1.25rem; line-height: 1; color: var(--accent); }
+    .pv-strip span { font-family: var(--font-body); font-size: 0.4rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent-dim); }
+
+    /* Back — the stat sheet */
+    .pv-back-inner { position: absolute; inset: 0; overflow-y: auto; padding: 0.8rem 0.8rem 1rem; cursor: default; }
+    .pv-bhead { display: flex; justify-content: space-between; align-items: flex-end; gap: 0.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--foil); }
+    .pv-bname { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; color: var(--accent); text-transform: uppercase; line-height: 1; }
+    .pv-bsub { font-family: var(--font-body); font-size: 0.45rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-dim); margin-top: 0.25rem; }
+    .pv-bno { font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.15em; color: var(--foil); white-space: nowrap; }
+    .pv-tabs { display: flex; gap: 0.3rem; margin: 0.6rem 0 0.5rem; }
+    .pv-tab {
+      flex: 1; font-family: var(--font-body); font-size: 0.48rem; letter-spacing: 0.22em; text-transform: uppercase;
+      padding: 0.3rem; background: transparent; border: 1px solid var(--drawer-border); color: var(--accent-dim); cursor: pointer;
+    }
+    .pv-tab.on { color: var(--accent); border-color: var(--accent); background: rgba(232,232,232,0.06); }
+    .pv-table { width: 100%; border-collapse: collapse; font-family: var(--font-body); font-size: 0.56rem; }
+    .pv-table th { font-size: 0.4rem; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 400; color: var(--accent-dim); text-align: right; padding: 0.2rem 0.25rem; border-bottom: 1px solid rgba(232,232,232,0.25); }
+    .pv-table th:nth-child(2), .pv-table td:nth-child(2) { text-align: left; }
+    .pv-table td { padding: 0.24rem 0.25rem; text-align: right; color: var(--accent); border-bottom: 1px dotted rgba(232,232,232,0.08); white-space: nowrap; }
+    .pv-table td:nth-child(2) { max-width: 0; width: 42%; overflow: hidden; text-overflow: ellipsis; color: rgba(232,232,232,0.75); }
+    .pv-table tr.champ td { color: #e8c864; font-weight: 700; }
+    .pv-table tr.champ td:nth-child(2) { color: #e8c864; }
+    .pv-table tr.total td { border-top: 1px solid rgba(232,232,232,0.35); border-bottom: none; font-weight: 700; padding-top: 0.35rem; }
+    .pv-res { font-size: 0.42rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    .pv-sec { margin-top: 0.75rem; font-family: var(--font-body); font-size: 0.42rem; letter-spacing: 0.28em; text-transform: uppercase; color: var(--hint-color, var(--accent-dim)); padding-bottom: 0.25rem; border-bottom: 1px solid rgba(232,232,232,0.12); margin-bottom: 0.35rem; }
+    .pv-fact { display: flex; justify-content: space-between; gap: 0.5rem; padding: 0.18rem 0; font-family: var(--font-body); font-size: 0.55rem; color: var(--accent-dim); }
+    .pv-fact b { color: var(--accent); text-align: right; }
+    .pv-awards { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+    .pv-award { font-family: var(--font-body); font-size: 0.48rem; padding: 0.15rem 0.4rem; border: 1px solid rgba(232,232,232,0.18); color: var(--accent); }
+    .pv-award i { font-style: normal; color: var(--accent-dim); }
+    .pv-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 0.8rem; padding-top: 0.5rem; border-top: 1px solid rgba(232,232,232,0.12); }
+    .pv-foot a { font-family: var(--font-body); font-size: 0.46rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--drawer-border); }
+    .pv-foot span { font-family: var(--font-body); font-size: 0.42rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent-dim); opacity: 0.6; }
+    .pv-empty { font-family: var(--font-body); font-size: 0.55rem; color: var(--accent-dim); padding: 0.8rem 0; text-align: center; }
+
+    .pv-controls { display: flex; align-items: center; gap: 0.7rem; }
+    .pv-btn {
+      font-family: var(--font-body); font-size: 0.55rem; letter-spacing: 0.22em; text-transform: uppercase;
+      padding: 0.45rem 0.9rem; background: rgba(0,0,0,0.55); border: 1px solid var(--drawer-border); color: var(--accent); cursor: pointer;
+    }
+    .pv-btn:hover { border-color: rgba(232,232,232,0.4); }
+    .pv-count { font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.2em; color: var(--accent-dim); min-width: 3.5rem; text-align: center; }
+    @media (max-width: 600px) {
+      .pv-row { gap: 0.3rem; }
+      .pv-nav { width: 30px; height: 56px; font-size: 1rem; }
+      .pv-card { --w: min(340px, calc(100vw - 80px), calc(72vh * 5 / 7)); }
+      .pv-name { font-size: 1.4rem; }
+    }
   </style>
 </head>
 <body>
@@ -678,6 +855,8 @@
       var awardCount    = allAwards.length;
       var recentAwards  = allAwards.slice(0, 2);
       var isActive      = member.active !== false;
+      var tier          = tierFor(champCount);
+      var cardNo        = cardNumber(member.id);
 
       // Does this member have an OFC team page?
       var hasOFC = (member.leagues || []).some(function (lg) { return lg.leagueKey === 'OFC'; });
@@ -731,7 +910,9 @@
             (member.nickname ? '<div class="playa-nickname">&ldquo;' + esc(member.nickname) + '&rdquo;</div>' : '') +
           '</div>' +
           statsHtml +
-          '<div class="playa-flip-hint">Details &rarr;</div>' +
+          '<div class="playa-flip-hint">View Card &#x2197;</div>' +
+          '<div class="playa-tier">' + tier.label + ' &middot; #' + cardNo + '</div>' +
+          '<div class="playa-holo"></div>' +
 
         '</div>';
 
@@ -783,21 +964,284 @@
 
       // ── Assemble ──────────────────────────────────────
       var card = document.createElement('div');
-      card.className = 'playa-card section-reveal' + (isActive ? '' : ' is-inactive');
+      card.className = 'playa-card pv-card pv-mini section-reveal t-' + tier.key + (isActive ? '' : ' is-inactive');
       card.style.animationDelay = delay + 's';
-      card.innerHTML = '<div class="playa-card-inner">' + frontHtml + backHtml + '</div>';
-
-      card.addEventListener('click', function (e) {
-        if (e.target.classList.contains('playa-back-close')) {
-          card.classList.remove('is-flipped');
-        } else if (e.target.classList.contains('playa-back-team-link')) {
-          // allow native <a> navigation
-        } else {
-          card.classList.toggle('is-flipped');
-        }
+      // Grid shows the same front as the viewer, just smaller; the stat-sheet back opens in the viewer
+      card.innerHTML = cardFront(member, leagueData, tier);
+      card.setAttribute('role', 'button');
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('aria-label', 'View ' + (member.name || '') + ' card');
+      card.addEventListener('pointermove', function (e) {
+        var r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100).toFixed(1));
+        card.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100).toFixed(1));
       });
+      card.addEventListener('click', function () { openViewer(member.id); });
+      card.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openViewer(member.id); } });
 
       return card;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       TRADING CARD HELPERS
+    ══════════════════════════════════════════════════════════ */
+    function tierFor(titles) {
+      if (titles >= 5) return { key: 'legend', label: '&#x2605; Legendary' };
+      if (titles >= 3) return { key: 'holo',   label: 'Holo' };
+      if (titles >= 1) return { key: 'rare',   label: 'Rare' };
+      return { key: 'base', label: 'Base' };
+    }
+    function cardNumber(id) {
+      var i = ((window.OFL_DATA && window.OFL_DATA.masterRoster) || []).findIndex(function (m) { return m.id === id; });
+      return ('00' + (i + 1)).slice(-3);
+    }
+    function n2(v) { var x = parseFloat(v); return isNaN(x) ? 0 : x; }
+
+    /* OFC season lines + career numbers for one member */
+    function ofcStats(mid, leagueData) {
+      var lg = (leagueData || []).find(function (l) { return l.sport === 'football'; });
+      var out = { rows: [], w: 0, l: 0, t: 0, pf: 0, games: 0, titles: 0, po: 0, finals: 0, hi: null, best: null };
+      if (!lg) return out;
+      (lg.seasons || []).slice().sort(function (a, b) { return (parseInt(b.year, 10) || 0) - (parseInt(a.year, 10) || 0); }).forEach(function (s) {
+        var row = (s.standings || []).find(function (r) { return r.memberId === mid; });
+        // weekly highs
+        (s.weeks || []).forEach(function (w) {
+          if (!w.isComplete) return;
+          (w.games || []).forEach(function (g) {
+            [g.home, g.away].forEach(function (t) {
+              if (t && t.memberId === mid && (!out.hi || n2(t.score) > out.hi.score)) out.hi = { score: n2(t.score), year: s.year, week: w.weekNumber };
+            });
+          });
+        });
+        if (!row) return;
+        var p = (row.record || '').split('-').map(Number);
+        var w = p[0] || 0, l = p[1] || 0, t = p[2] || 0;
+        out.w += w; out.l += l; out.t += t; out.pf += n2(row.pointsFor); out.games += w + l + t;
+        var res = '', live = !s.isFinal;
+        if (!live) {
+          var po = s.playoffs || {};
+          var inGame = function (arr) { return (arr || []).some(function (g) { return g.homeMemberId === mid || g.awayMemberId === mid; }); };
+          if (s.championMemberId === mid) { res = 'Champ'; out.titles++; out.po++; out.finals++; }
+          else if (s.runnerUpMemberId === mid || inGame(po.finals)) { res = 'Final'; out.po++; out.finals++; }
+          else if (inGame(po.semis)) { res = 'Semi'; out.po++; }
+          else res = '\u2014';
+        } else res = 'Live';
+        if (!live && (!out.best || w > out.best.w || (w === out.best.w && n2(row.pointsFor) > out.best.pf))) out.best = { w: w, l: l, pf: n2(row.pointsFor), year: s.year };
+        out.rows.push({ year: s.year, team: row.teamName || row.team || '', rec: row.record || '', pf: n2(row.pointsFor), rank: row.rank, res: res, champ: res === 'Champ' });
+      });
+      return out;
+    }
+
+    /* BRC season lines + career numbers */
+    function brcStats(mid, leagueData) {
+      var lg = (leagueData || []).find(function (l) { return l.sport === 'madness'; });
+      var out = { rows: [], titles: 0, best: null, finSum: 0, ptsBest: null };
+      if (!lg) return out;
+      (lg.seasons || []).slice().sort(function (a, b) { return (parseInt(b.year, 10) || 0) - (parseInt(a.year, 10) || 0); }).forEach(function (s) {
+        var st = s.standings || [], row = st.find(function (r) { return r.memberId === mid; });
+        if (!row) return;
+        var rank = parseInt(row.rank, 10) || (st.indexOf(row) + 1), pts = n2(row.totalPoints), champ = s.championMemberId === mid;
+        if (champ) out.titles++;
+        out.finSum += rank;
+        if (!out.best || rank < out.best.rank) out.best = { rank: rank, year: s.year };
+        if (!out.ptsBest || pts > out.ptsBest.pts) out.ptsBest = { pts: pts, year: s.year };
+        out.rows.push({ year: s.year, team: row.bracketName || row.teamName || '', pts: pts, rank: rank, of: st.length, champ: champ });
+      });
+      return out;
+    }
+
+    function ordinal(n) { var s = ['th','st','nd','rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
+
+    /* ══════════════════════════════════════════════════════════
+       CARD VIEWER
+    ══════════════════════════════════════════════════════════ */
+    var VIEW_LIST = [], viewIdx = -1, backTab = null;
+
+    function cardFront(m, leagueData, tier) {
+      var champs = getChampionships(m.id, leagueData).length, seasons = countSeasons(m.id, leagueData);
+      var awards = getAwardsWon(m.id, leagueData).length, active = m.active !== false;
+      var ofcLg = (m.leagues || []).find(function (l) { return l.leagueKey === 'OFC'; });
+      var team = ofcLg && ofcLg.teams && ofcLg.teams.length ? ofcLg.teams[ofcLg.teams.length - 1] : null;
+      return '<div class="pv-face pv-front">' +
+        '<div class="pv-top"><span>' + tier.label + '</span><span>OFL &middot; #' + cardNumber(m.id) + '</span></div>' +
+        '<div class="pv-photo">' +
+          (m.mugshot ? '<img class="pv-mug" src="' + esc(m.mugshot) + '" alt="" />' : '<div class="pv-mono">' + esc(initials(m.name)) + '</div>') +
+          '<span class="pv-status">' + (active ? 'Active' : 'Alumni') + '</span>' +
+          '<div class="pv-photo-badges">' + (m.leagues || []).map(function (l) { return '<span>' + esc(l.leagueKey || l.leagueName) + '</span>'; }).join('') + '</div>' +
+          (team && team.logo ? '<img class="pv-teamlogo" src="' + esc(team.logo) + '" alt="" />' : '') +
+        '</div>' +
+        '<div class="pv-plate"><div class="pv-name">' + esc(m.name || 'Unknown') + '</div>' +
+          (m.nickname ? '<div class="pv-nick">&ldquo;' + esc(m.nickname) + '&rdquo;</div>' : '') + '</div>' +
+        '<div class="pv-strip">' +
+          '<div><b>' + seasons + '</b><span>Seasons</span></div>' +
+          '<div><b>' + champs + '</b><span>Titles</span></div>' +
+          '<div><b>' + awards + '</b><span>Awards</span></div>' +
+          '<div><b>' + (m.leagues || []).length + '</b><span>Leagues</span></div>' +
+        '</div>' +
+        '<div class="pv-holo"></div>' +
+      '</div>';
+    }
+
+    function cardBack(m, leagueData) {
+      var o = ofcStats(m.id, leagueData), b = brcStats(m.id, leagueData);
+      var tabs = [];
+      if (o.rows.length) tabs.push('OFC');
+      if (b.rows.length) tabs.push('BRC');
+      if (!backTab || tabs.indexOf(backTab) === -1) backTab = tabs[0] || null;
+      var awards = getAwardsWon(m.id, leagueData);
+      var html = '<div class="pv-face pv-back"><div class="pv-back-inner">' +
+        '<div class="pv-bhead"><div><div class="pv-bname">' + esc(m.name || '') + '</div>' +
+          '<div class="pv-bsub">' + (m.nickname ? '&ldquo;' + esc(m.nickname) + '&rdquo; &middot; ' : '') + (m.active !== false ? 'Active' : 'Alumni') + '</div></div>' +
+          '<div class="pv-bno">#' + cardNumber(m.id) + '</div></div>';
+
+      if (tabs.length > 1) html += '<div class="pv-tabs">' + tabs.map(function (t) { return '<button class="pv-tab' + (t === backTab ? ' on' : '') + '" data-tab="' + t + '">' + t + '</button>'; }).join('') + '</div>';
+      else if (tabs.length) html += '<div class="pv-sec">' + tabs[0] + ' Career</div>';
+
+      if (backTab === 'OFC') {
+        var pct = o.games ? ((o.w + o.t / 2) / o.games * 100).toFixed(1) : '0.0';
+        html += '<table class="pv-table"><thead><tr><th>Yr</th><th>Team</th><th>W-L</th><th>PF</th><th>Fin</th><th></th></tr></thead><tbody>' +
+          o.rows.map(function (r) {
+            return '<tr class="' + (r.champ ? 'champ' : '') + '"><td>' + esc(String(r.year).slice(2)) + '</td><td>' + esc(r.team) + '</td><td>' + esc(r.rec) + '</td><td>' + r.pf.toFixed(0) + '</td><td>' + (r.rank ? ordinal(r.rank) : '') + '</td><td class="pv-res">' + (r.champ ? '&#x2605;' : esc(r.res)) + '</td></tr>';
+          }).join('') +
+          '<tr class="total"><td>Car</td><td>' + o.rows.length + ' seasons</td><td>' + o.w + '-' + o.l + (o.t ? '-' + o.t : '') + '</td><td>' + o.pf.toFixed(0) + '</td><td colspan="2">' + pct + '%</td></tr>' +
+        '</tbody></table>' +
+        '<div class="pv-sec">Career Highlights</div>' +
+        '<div class="pv-fact"><span>Titles &middot; Finals &middot; Playoffs</span><b>' + o.titles + ' &middot; ' + o.finals + ' &middot; ' + o.po + '</b></div>' +
+        (o.hi ? '<div class="pv-fact"><span>Career-high week</span><b>' + o.hi.score.toFixed(2) + ' (' + o.hi.year + ' Wk ' + o.hi.week + ')</b></div>' : '') +
+        (o.best ? '<div class="pv-fact"><span>Best season</span><b>' + o.best.w + '-' + o.best.l + ' (' + o.best.year + ')</b></div>' : '') +
+        '<div class="pv-fact"><span>Avg points / season</span><b>' + (o.rows.length ? (o.pf / o.rows.length).toFixed(1) : '0') + '</b></div>';
+      } else if (backTab === 'BRC') {
+        html += '<table class="pv-table"><thead><tr><th>Yr</th><th>Bracket</th><th>Pts</th><th>Fin</th><th></th></tr></thead><tbody>' +
+          b.rows.map(function (r) {
+            return '<tr class="' + (r.champ ? 'champ' : '') + '"><td>' + esc(String(r.year).slice(2)) + '</td><td>' + esc(r.team) + '</td><td>' + (r.pts ? r.pts.toFixed(0) : '\u2014') + '</td><td>' + ordinal(r.rank) + '/' + r.of + '</td><td class="pv-res">' + (r.champ ? '&#x2605;' : '') + '</td></tr>';
+          }).join('') +
+          '<tr class="total"><td>Car</td><td>' + b.rows.length + ' brackets</td><td colspan="3">Avg finish ' + (b.rows.length ? (b.finSum / b.rows.length).toFixed(1) : '\u2014') + '</td></tr>' +
+        '</tbody></table>' +
+        '<div class="pv-sec">Career Highlights</div>' +
+        '<div class="pv-fact"><span>Titles</span><b>' + b.titles + '</b></div>' +
+        (b.best ? '<div class="pv-fact"><span>Best finish</span><b>' + ordinal(b.best.rank) + ' (' + b.best.year + ')</b></div>' : '') +
+        (b.ptsBest && b.ptsBest.pts ? '<div class="pv-fact"><span>Best bracket score</span><b>' + b.ptsBest.pts.toFixed(0) + ' (' + b.ptsBest.year + ')</b></div>' : '');
+      } else {
+        html += '<p class="pv-empty">No seasons on record yet. Rookie card.</p>';
+      }
+
+      if (awards.length) {
+        html += '<div class="pv-sec">Trophy Case (' + awards.length + ')</div><div class="pv-awards">' +
+          awards.slice(0, 12).map(function (a) { return '<span class="pv-award">' + esc(a.awardName) + ' <i>' + esc(String(a.year).slice(2)) + '</i></span>'; }).join('') +
+          (awards.length > 12 ? '<span class="pv-award"><i>+' + (awards.length - 12) + ' more</i></span>' : '') + '</div>';
+      }
+      var hasOFC = (m.leagues || []).some(function (l) { return l.leagueKey === 'OFC'; });
+      html += '<div class="pv-foot">' + (hasOFC ? '<a href="team.html?id=' + encodeURIComponent(m.id) + '">Team Page &#x2197;</a>' : '<span></span>') + '<span>Tap to flip</span></div>';
+      return html + '<div class="pv-holo"></div></div></div>';
+    }
+
+    function buildViewer() {
+      if (document.getElementById('pvOverlay')) return;
+      var ov = document.createElement('div');
+      ov.className = 'pv-overlay'; ov.id = 'pvOverlay';
+      ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Playa card');
+      ov.innerHTML =
+        '<div class="pv-stage">' +
+          '<div class="pv-row">' +
+            '<button class="pv-nav" id="pvPrev" aria-label="Previous card">&#x2039;</button>' +
+            '<div class="pv-card" id="pvCard"><div class="pv-tilt"><div class="pv-flip" id="pvFlip"></div></div></div>' +
+            '<button class="pv-nav" id="pvNext" aria-label="Next card">&#x203A;</button>' +
+          '</div>' +
+          '<div class="pv-controls"><button class="pv-btn" id="pvFlipBtn">Flip &#x21BB;</button><span class="pv-count" id="pvCount"></span><button class="pv-btn" id="pvClose">Close &#x2715;</button></div>' +
+        '</div>';
+      document.body.appendChild(ov);
+
+      var card = document.getElementById('pvCard');
+      ov.addEventListener('click', function (e) { if (e.target === ov || e.target.classList.contains('pv-stage')) closeViewer(); });
+      document.getElementById('pvClose').onclick = closeViewer;
+      document.getElementById('pvPrev').onclick = function () { stepViewer(-1); };
+      document.getElementById('pvNext').onclick = function () { stepViewer(1); };
+      document.getElementById('pvFlipBtn').onclick = function () { card.classList.toggle('flipped'); };
+      card.addEventListener('click', function (e) {
+        if (e.target.closest('a')) return;
+        var tab = e.target.closest('.pv-tab');
+        if (tab) { backTab = tab.getAttribute('data-tab'); renderViewer(true); return; }
+        if (e.target.closest('.pv-back-inner') && card.classList.contains('flipped') && moved) return;
+        if (!swiped) card.classList.toggle('flipped');
+      });
+
+      // Tilt + holo: pointer on desktop, device tilt on phones
+      function setTilt(px, py) {
+        card.style.setProperty('--mx', px.toFixed(1)); card.style.setProperty('--my', py.toFixed(1));
+        card.style.setProperty('--ry', ((px - 50) * 0.24).toFixed(2) + 'deg');
+        card.style.setProperty('--rx', ((50 - py) * 0.2).toFixed(2) + 'deg');
+      }
+      card.addEventListener('pointermove', function (e) {
+        if (e.pointerType === 'touch') return;
+        var r = card.getBoundingClientRect();
+        setTilt((e.clientX - r.left) / r.width * 100, (e.clientY - r.top) / r.height * 100);
+      });
+      card.addEventListener('pointerleave', function () { setTilt(50, 50); });
+      window.addEventListener('deviceorientation', function (e) {
+        if (!ov.classList.contains('open') || e.gamma == null) return;
+        var gx = Math.max(-30, Math.min(30, e.gamma)), by = Math.max(10, Math.min(70, e.beta || 40));
+        setTilt(50 + gx / 30 * 50, (by - 10) / 60 * 100);
+      });
+
+      // Swipe left/right to change cards
+      var sx = 0, sy = 0, swiped = false, moved = false;
+      card.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; swiped = false; moved = false; }, { passive: true });
+      card.addEventListener('touchmove', function (e) {
+        var dx = e.touches[0].clientX - sx, dy = e.touches[0].clientY - sy;
+        if (Math.abs(dy) > 8) moved = true;
+        var r = card.getBoundingClientRect();
+        setTilt(50 + Math.max(-50, Math.min(50, dx / r.width * 100)), 50 + Math.max(-50, Math.min(50, dy / r.height * 100)));
+      }, { passive: true });
+      card.addEventListener('touchend', function (e) {
+        var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+        setTilt(50, 50);
+        if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) { swiped = true; stepViewer(dx < 0 ? 1 : -1); setTimeout(function () { swiped = false; }, 300); }
+      });
+      document.addEventListener('keydown', function (e) {
+        if (!ov.classList.contains('open')) return;
+        if (e.key === 'Escape') closeViewer();
+        else if (e.key === 'ArrowLeft') stepViewer(-1);
+        else if (e.key === 'ArrowRight') stepViewer(1);
+        else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); card.classList.toggle('flipped'); }
+      });
+    }
+
+    function renderViewer(keepFlip) {
+      var data = window.OFL_DATA || {}, leagueData = data.leagueData || [];
+      var m = (data.masterRoster || []).find(function (x) { return x.id === VIEW_LIST[viewIdx]; });
+      if (!m) return;
+      var tier = tierFor(getChampionships(m.id, leagueData).length);
+      var card = document.getElementById('pvCard');
+      card.className = 'pv-card t-' + tier.key + (keepFlip && card.classList.contains('flipped') ? ' flipped' : '');
+      var scroll = keepFlip ? (card.querySelector('.pv-back-inner') || {}).scrollTop : 0;
+      document.getElementById('pvFlip').innerHTML = cardFront(m, leagueData, tier) + cardBack(m, leagueData);
+      if (keepFlip && scroll) card.querySelector('.pv-back-inner').scrollTop = scroll;
+      document.getElementById('pvCount').textContent = (viewIdx + 1) + ' / ' + VIEW_LIST.length;
+      document.getElementById('pvPrev').disabled = viewIdx <= 0;
+      document.getElementById('pvNext').disabled = viewIdx >= VIEW_LIST.length - 1;
+    }
+    function openViewer(id) {
+      buildViewer();
+      viewIdx = Math.max(0, VIEW_LIST.indexOf(id));
+      if (VIEW_LIST.indexOf(id) === -1) { VIEW_LIST = [id]; viewIdx = 0; }
+      backTab = null;
+      renderViewer(false);
+      var ov = document.getElementById('pvOverlay');
+      ov.classList.add('open');
+      document.body.classList.add('no-scroll');
+      if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        try { DeviceOrientationEvent.requestPermission().catch(function () {}); } catch (e) {}
+      }
+    }
+    function stepViewer(d) {
+      var n = viewIdx + d;
+      if (n < 0 || n >= VIEW_LIST.length) return;
+      viewIdx = n; backTab = null; renderViewer(false);
+    }
+    function closeViewer() {
+      var ov = document.getElementById('pvOverlay');
+      if (ov) ov.classList.remove('open');
+      document.body.classList.remove('no-scroll');
     }
 
     // ── Sort ──
@@ -954,6 +1398,7 @@
         }
 
         var sorted = sortMembers(members, leagues, sortVal);
+        VIEW_LIST = sorted.map(function (m) { return m.id; });
         countEl.textContent = '— ' + sorted.length + ' Member' + (sorted.length !== 1 ? 's' : '');
 
         if (sorted.length) {

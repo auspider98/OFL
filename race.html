@@ -10,6 +10,7 @@
   <script src="admin-config.js"></script>
   <script src="ofl-data.js"></script>
   <script src="admin.js"></script>
+  <script src="ofl-engine.js"></script>
 
   <style>
     /* ══════════════════════════════════════════════════════════
@@ -433,9 +434,9 @@
   (function () {
     'use strict';
 
-    var SIMS = 10000;          // simulated seasons per run
-    var PLAYOFF_TEAMS = 4;     // OFC: 4 teams, no byes
-    var SHRINK = 4;            // games of league-average "prior" blended into each team's scoring
+    var E = window.OFL_ENGINE;  // shared calculations (ofl-engine.js) — same odds as the Gazette
+    var SIMS = E.ofc.SIMS;     // simulated seasons per run
+    var PLAYOFF_TEAMS = E.ofc.PLAYOFF_TEAMS;     // OFC: 4 teams, no byes
 
     /* ── Helpers ──────────────────────────────────────────── */
     function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -448,19 +449,8 @@
     }
     function hex(h) { return /^#[0-9a-f]{6}$/i.test(String(h || '').trim()) ? h : null; }
 
-    /* Seeded RNG so numbers don't jitter between identical runs */
-    function rng(seed) {
-      var a = seed >>> 0;
-      return function () {
-        a = (a + 0x6D2B79F5) >>> 0; var t = a;
-        t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-      };
-    }
-    function gauss(r) {
-      var u = 0, v = 0; while (u === 0) u = r(); v = r();
-      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
-    }
+    /* Seeded RNG — shared with the engine */
+    var rng = E.util.rng, gauss = E.util.gauss;
 
     /* ══════════════════════════════════════════════════════════
        DATA — current OFC season
@@ -501,7 +491,7 @@
     })();
 
     /* Regular season length — set per season in ofl-data.html (blank = 15) */
-    var REG_WEEKS = (SEASON && parseInt(SEASON.regularSeasonWeeks, 10)) || 15;
+    var REG_WEEKS = SEASON ? E.ofc.regWeeks(SEASON) : 15;
 
     /* Mathematical clinch / elimination from real results (same rules as league.html):
        wins only, every tie counted as lost, so a tag never shows early */
@@ -519,43 +509,15 @@
       return out;
     }
 
-    /* Remaining schedule: use real matchups if loaded, else Yahoo's repeating cycle */
+    /* Remaining schedule: real matchups if loaded, else Yahoo's repeating cycle (ofl-engine.js) */
     function remainingSchedule() {
-      var out = [], usedPattern = false;
-      for (var wk = LAST_DONE + 1; wk <= REG_WEEKS; wk++) {
-        var loaded = WEEKS.find(function (w) { return w.weekNumber === wk && (w.games || []).length; });
-        var src = loaded;
-        if (!src) {
-          var mirror = ((wk - 1) % CYCLE) + 1;
-          src = WEEKS.find(function (w) { return w.weekNumber === mirror; });
-          usedPattern = true;
-        }
-        if (!src) continue;
-        (src.games || []).forEach(function (g, i) {
-          if (!g.home || !g.away || !g.home.memberId || !g.away.memberId) return;
-          out.push({ id: wk + '-' + i, week: wk, h: g.home.memberId, a: g.away.memberId });
-        });
-      }
-      SCHEDULE_SOURCE = usedPattern ? 'pattern' : 'loaded';
-      return out;
+      var r = E.ofc.remainingSchedule(SEASON, LAST_DONE);
+      SCHEDULE_SOURCE = r.source;
+      return r.games;
     }
 
-    /* Scoring model per team — season mean & spread, shrunk toward league average */
-    function scoringModel() {
-      var all = [], per = {};
-      TEAM_IDS.forEach(function (id) { per[id] = []; });
-      PLAYED.forEach(function (g) { per[g.h].push(g.hs); per[g.a].push(g.as); all.push(g.hs, g.as); });
-      var lm = all.reduce(function (s, v) { return s + v; }, 0) / (all.length || 1);
-      var lv = all.reduce(function (s, v) { return s + (v - lm) * (v - lm); }, 0) / (all.length || 1);
-      var model = {};
-      TEAM_IDS.forEach(function (id) {
-        var xs = per[id], n = xs.length;
-        var m = n ? xs.reduce(function (s, v) { return s + v; }, 0) / n : lm;
-        var v = n ? xs.reduce(function (s, x) { return s + (x - m) * (x - m); }, 0) / n : lv;
-        model[id] = { mu: (n * m + SHRINK * lm) / (n + SHRINK), sd: Math.sqrt((n * v + SHRINK * lv) / (n + SHRINK)) };
-      });
-      return model;
-    }
+    /* Scoring model per team — season mean & spread, shrunk toward league average (ofl-engine.js) */
+    function scoringModel() { return E.ofc.scoringModel(SEASON, LAST_DONE, TEAM_IDS); }
 
     /* Current standings (from game data, tiebreaker = points for) */
     function baseStandings() {
@@ -574,73 +536,7 @@
        SIMULATION
     ══════════════════════════════════════════════════════════ */
     function simulate(n, schedule, picks, model, base, seed) {
-      var r = rng(seed), ids = TEAM_IDS, k = ids.length;
-      var idx = {}; ids.forEach(function (id, i) { idx[id] = i; });
-      var bw = ids.map(function (id) { return base[id].w + base[id].t * 0.5; });
-      var bpf = ids.map(function (id) { return base[id].pf; });
-      var seedCount = ids.map(function () { return [0, 0, 0, 0, 0]; }); // seeds 1-4 + miss
-      var winSum = ids.map(function () { return 0; });
-      var gameWins = {}; schedule.forEach(function (g) { gameWins[g.id] = 0; });
-      var w = new Float64Array(k), pf = new Float64Array(k), order = ids.map(function (_, i) { return i; });
-      // Extra bookkeeping for the team "Path" panels
-      var G = schedule.length, homeWon = new Uint8Array(G), made = new Uint8Array(k);
-      var gHW = new Float64Array(G), gamePO = [], poTotal = new Float64Array(k);
-      var gameT1 = [], gameT2 = [], t1Total = new Float64Array(k), t2Total = new Float64Array(k);
-      var top1 = new Uint8Array(k), top2 = new Uint8Array(k);
-      for (var gj = 0; gj < G; gj++) { gamePO.push(new Float64Array(k)); gameT1.push(new Float64Array(k)); gameT2.push(new Float64Array(k)); }
-      var remCount = ids.map(function () { return 0; });
-      schedule.forEach(function (g) { remCount[idx[g.h]]++; remCount[idx[g.a]]++; });
-      var winB = ids.map(function (_, i) { return new Float64Array(remCount[i] + 1); });
-      var winBPO = ids.map(function (_, i) { return new Float64Array(remCount[i] + 1); });
-
-      for (var s = 0; s < n; s++) {
-        for (var i = 0; i < k; i++) { w[i] = bw[i]; pf[i] = bpf[i]; }
-        for (var j = 0; j < schedule.length; j++) {
-          var g = schedule[j], hi = idx[g.h], ai = idx[g.a];
-          var hs = model[g.h].mu + model[g.h].sd * gauss(r);
-          var as_ = model[g.a].mu + model[g.a].sd * gauss(r);
-          var forced = picks[g.id];
-          if (forced === 'h' && hs <= as_) { var tmp = hs; hs = as_; as_ = tmp; }
-          if (forced === 'a' && as_ <= hs) { var tmp2 = hs; hs = as_; as_ = tmp2; }
-          pf[hi] += hs; pf[ai] += as_;
-          if (hs > as_) { w[hi]++; gameWins[g.id]++; homeWon[j] = 1; } else { w[ai]++; homeWon[j] = 0; }
-        }
-        order.sort(function (x, y) { return (w[y] - w[x]) || (pf[y] - pf[x]); });
-        for (var p = 0; p < k; p++) {
-          var t = order[p];
-          seedCount[t][p < PLAYOFF_TEAMS ? p : 4]++;
-          winSum[t] += w[t];
-          made[t] = p < PLAYOFF_TEAMS ? 1 : 0;
-          top1[t] = p === 0 ? 1 : 0; top2[t] = p < 2 ? 1 : 0;
-          t1Total[t] += top1[t]; t2Total[t] += top2[t];
-        }
-        for (var q = 0; q < k; q++) {
-          var rw = Math.round(w[q] - bw[q]);
-          winB[q][rw]++; if (made[q]) { winBPO[q][rw]++; poTotal[q]++; }
-        }
-        for (var gk = 0; gk < G; gk++) {
-          if (!homeWon[gk]) continue;
-          gHW[gk]++;
-          var row = gamePO[gk], r1 = gameT1[gk], r2 = gameT2[gk];
-          for (var q2 = 0; q2 < k; q2++) { row[q2] += made[q2]; r1[q2] += top1[q2]; r2[q2] += top2[q2]; }
-        }
-      }
-      var res = {};
-      ids.forEach(function (id, i) {
-        var sc = seedCount[i];
-        res[id] = {
-          seeds: sc.map(function (c) { return c / n; }),
-          playoff: (sc[0] + sc[1] + sc[2] + sc[3]) / n,
-          top: sc[0] / n,
-          projW: winSum[i] / n,
-          rem: remCount[i],
-          byWins: Array.prototype.map.call(winB[i], function (c, kk) { return { k: kk, n: c, po: c ? winBPO[i][kk] / c : 0 }; })
-        };
-      });
-      res._n = n; res._idx = idx; res._gHW = gHW; res._gamePO = gamePO; res._poTotal = poTotal;
-      res._gameT1 = gameT1; res._gameT2 = gameT2; res._t1Total = t1Total; res._t2Total = t2Total;
-      res._homeWinPct = {}; schedule.forEach(function (g) { res._homeWinPct[g.id] = gameWins[g.id] / n; });
-      return res;
+      return E.ofc.simulate(n, schedule, picks, model, base, seed, TEAM_IDS, PLAYOFF_TEAMS);
     }
 
     /* ══════════════════════════════════════════════════════════
@@ -657,10 +553,10 @@
       BASE = baseStandings();
       CLINCH = clinchStatus(BASE);
       if (full || !BASELINE) {
-        BASELINE = simulate(SIMS, SCHED, {}, MODEL, BASE, 20260);
+        BASELINE = simulate(SIMS, SCHED, {}, MODEL, BASE, E.ofc.SEED);
       }
       var hasPicks = Object.keys(state.picks).length > 0;
-      var current = hasPicks ? simulate(SIMS, SCHED, state.picks, MODEL, BASE, 20260) : BASELINE;
+      var current = hasPicks ? simulate(SIMS, SCHED, state.picks, MODEL, BASE, E.ofc.SEED) : BASELINE;
       LAST = { res: current, hasPicks: hasPicks };
       render(current, hasPicks);
     }
@@ -1040,7 +936,7 @@
       var key = gameId + '|' + JSON.stringify(state.picks);
       if (PICK_IMPACT[key]) return PICK_IMPACT[key];
       var without = {}; Object.keys(state.picks).forEach(function (k) { if (k !== gameId) without[k] = state.picks[k]; });
-      PICK_IMPACT[key] = simulate(SIMS / 2, SCHED, without, MODEL, BASE, 20260);
+      PICK_IMPACT[key] = simulate(SIMS / 2, SCHED, without, MODEL, BASE, E.ofc.SEED);
       return PICK_IMPACT[key];
     }
 

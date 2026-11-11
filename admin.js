@@ -834,8 +834,10 @@ var MemberFactory = {
 //  default  — true = on by default for new leagues
 // ══════════════════════════════════════════════════════════════
 var PAGE_SECTION_DEFS = [
+  { key: 'seasonMessage', label: 'Season Message', defaultOn: true  },   // season message + images (set per season)
   { key: 'champion',    label: 'Current Champion',  defaultOn: true  },
   { key: 'story',       label: 'Season Story',       defaultOn: true  },
+  { key: 'gazette',     label: 'Gazette Card',       defaultOn: true  },   // latest Gazette / Herald headline (shows when a week / round is complete)
   { key: 'standings',   label: 'Final Standings',    defaultOn: true  },
   { key: 'bracket',     label: 'Playoff Bracket',    defaultOn: true  },
   { key: 'roster',      label: 'Season Roster',      defaultOn: false },
@@ -890,16 +892,21 @@ var PageLayoutEngine = {
 
   /**
    * Merge saved sections with canonical defs — adds any new sections
-   * not yet in the saved array (appended at end, using defaultOn).
+   * not yet in the saved array (using defaultOn), placed just before the
+   * next section that follows it in PAGE_SECTION_DEFS (else appended at end).
    */
   mergeWithDefaults: function (saved) {
     if (!saved || !saved.length) return PageLayoutEngine.getDefaults();
-    var savedKeys = saved.map(function (s) { return s.key; });
-    var merged    = saved.slice();
-    PAGE_SECTION_DEFS.forEach(function (d) {
-      if (savedKeys.indexOf(d.key) === -1) {
-        merged.push({ key: d.key, enabled: d.defaultOn });
+    var merged = saved.slice();
+    PAGE_SECTION_DEFS.forEach(function (d, i) {
+      if (merged.some(function (s) { return s.key === d.key; })) return;
+      var at = -1;
+      for (var j = i + 1; j < PAGE_SECTION_DEFS.length && at < 0; j++) {
+        var nextKey = PAGE_SECTION_DEFS[j].key;
+        at = merged.findIndex(function (s) { return s.key === nextKey; });
       }
+      var entry = { key: d.key, enabled: d.defaultOn };
+      if (at < 0) merged.push(entry); else merged.splice(at, 0, entry);
     });
     return merged;
   },

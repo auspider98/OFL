@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OFL — Phrasebook</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="admin-config.js"></script>
+  <script src="ofl-pin.js"></script>
+  <script src="ofl-data.js"></script>
+  <script src="ofl-phrasebook.js"></script>
+  <style>
+    /* ══════════════════════════════════════════════════════════
+       PHRASEBOOK ADMIN — all classes prefixed pba-
+    ══════════════════════════════════════════════════════════ */
+    .pba-wrap { max-width: 1180px; margin: 0 auto; padding: 1.5rem 1.5rem 5rem; }
+    .pba-eyebrow { font-family: var(--font-body); font-size: 0.55rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--accent-dim); }
+    .pba-title { font-family: var(--font-display); font-weight: 700; font-size: 2.4rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent); margin: 0.3rem 0 0.4rem; }
+    .pba-intro { font-family: var(--font-body); font-size: 0.72rem; line-height: 1.7; color: var(--accent-dim); max-width: 760px; margin-bottom: 1.4rem; }
+    .pba-intro code { font-size: 0.68rem; color: var(--accent); }
+
+    .pba-bar { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; padding: 0.8rem 0; border-top: 1px solid var(--drawer-border); border-bottom: 1px solid var(--drawer-border); margin-bottom: 1.2rem; position: sticky; top: 0; z-index: 20; background: rgba(8,8,8,0.96); }
+    .pba-bar .pba-status { flex: 1; min-width: 180px; font-family: var(--font-body); font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent-dim); }
+    .pba-status.dirty { color: #e8c864; }
+
+    .pba-tabs { display: flex; gap: 0; margin-bottom: 1.2rem; flex-wrap: wrap; }
+    .pba-tab { font-family: var(--font-display); font-weight: 700; font-size: 0.85rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-dim); background: rgba(0,0,0,0.5); border: 1px solid var(--drawer-border); padding: 0.55rem 1.1rem; cursor: pointer; }
+    .pba-tab + .pba-tab { border-left: none; }
+    .pba-tab.on { color: #fff; background: rgba(232,232,232,0.12); border-color: rgba(232,232,232,0.4); }
+
+    .pba-cols { display: grid; grid-template-columns: 270px 1fr; gap: 1.4rem; align-items: start; }
+    .pba-side { border: 1px solid var(--drawer-border); background: rgba(0,0,0,0.45); position: sticky; top: 4.2rem; max-height: calc(100vh - 5rem); overflow: auto; }
+    .pba-side select, .pba-side input { width: 100%; box-sizing: border-box; }
+    .pba-side-head { padding: 0.8rem; border-bottom: 1px solid var(--drawer-border); display: grid; gap: 0.5rem; }
+    .pba-type { display: flex; justify-content: space-between; gap: 0.5rem; width: 100%; text-align: left; background: none; border: none; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--accent-dim); font-family: var(--font-body); font-size: 0.68rem; padding: 0.55rem 0.8rem; cursor: pointer; }
+    .pba-type:hover { color: var(--accent); background: rgba(255,255,255,0.03); }
+    .pba-type.on { color: #fff; background: rgba(232,232,232,0.09); box-shadow: inset 3px 0 0 var(--accent); }
+    .pba-type small { font-size: 0.55rem; opacity: 0.7; white-space: nowrap; }
+
+    .pba-panel { border: 1px solid var(--drawer-border); background: rgba(0,0,0,0.45); padding: 1.1rem 1.2rem 1.4rem; min-width: 0; }
+    .pba-panel h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--accent); margin: 0; }
+    .pba-when { font-family: var(--font-body); font-size: 0.66rem; color: var(--accent-dim); margin: 0.3rem 0 0.8rem; line-height: 1.6; }
+    .pba-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.3rem; align-items: center; }
+    .pba-chips-label { font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent-dim); margin-right: 0.3rem; }
+    .pba-chip { font-family: monospace; font-size: 0.7rem; color: #e8c864; background: rgba(232,200,100,0.08); border: 1px solid rgba(232,200,100,0.3); padding: 0.15rem 0.45rem; cursor: pointer; }
+    .pba-chip:hover { background: rgba(232,200,100,0.18); }
+    .pba-help { font-family: var(--font-body); font-size: 0.6rem; color: var(--accent-dim); line-height: 1.6; margin: 0.2rem 0 0.9rem; }
+    .pba-help code { color: #e8c864; }
+
+    .pba-slot { margin-top: 1.3rem; }
+    .pba-slot-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.8rem; border-bottom: 1px solid var(--drawer-border); padding-bottom: 0.35rem; margin-bottom: 0.5rem; }
+    .pba-slot-head b { font-family: var(--font-display); font-size: 1rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+    .pba-slot-head span { font-family: var(--font-body); font-size: 0.55rem; letter-spacing: 0.15em; color: var(--accent-dim); }
+    .pba-line { display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; align-items: start; padding: 0.45rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .pba-line textarea { width: 100%; box-sizing: border-box; resize: vertical; min-height: 2.3rem; font-family: var(--font-body); font-size: 0.78rem; line-height: 1.45; }
+    .pba-line-btns { display: flex; gap: 0.25rem; }
+    .pba-line-btns .btn { padding: 0.35rem 0.55rem; }
+    .pba-preview { grid-column: 1 / -1; font-family: var(--font-body); font-size: 0.68rem; color: var(--accent-dim); line-height: 1.5; padding-left: 0.2rem; }
+    .pba-preview::before { content: 'Preview \2192  '; font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.6; }
+    .pba-preview.head { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; font-size: 0.85rem; color: var(--accent); }
+    .pba-warn { grid-column: 1 / -1; font-family: var(--font-body); font-size: 0.6rem; color: #e07a5f; }
+    .pba-add { margin-top: 0.6rem; }
+    .pba-empty { font-family: var(--font-body); font-size: 0.66rem; color: var(--accent-dim); padding: 0.5rem 0; font-style: italic; }
+
+    .pba-results { display: grid; gap: 0.3rem; }
+    .pba-result { text-align: left; background: rgba(255,255,255,0.02); border: 1px solid var(--drawer-border); color: var(--accent-dim); font-family: var(--font-body); font-size: 0.7rem; padding: 0.5rem 0.7rem; cursor: pointer; line-height: 1.5; }
+    .pba-result:hover { border-color: rgba(232,232,232,0.35); color: var(--accent); }
+    .pba-result small { display: block; font-size: 0.52rem; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.7; }
+    .pba-result mark { background: rgba(232,200,100,0.3); color: inherit; }
+
+    .pba-member-head { display: flex; gap: 0.9rem; align-items: center; margin-bottom: 0.8rem; }
+    .pba-member-head img, .pba-member-head .pba-init { width: 54px; height: 54px; border-radius: 50%; object-fit: cover; border: 1px solid var(--drawer-border); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); color: var(--accent-dim); }
+    .pba-field { margin: 0.9rem 0; }
+    .pba-field label { display: block; font-family: var(--font-body); font-size: 0.55rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent-dim); margin-bottom: 0.35rem; }
+    .pba-field input.admin-input { max-width: 360px; }
+    .pba-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #e8c864; margin-left: 0.4rem; vertical-align: middle; }
+
+    .pba-toast { position: fixed; bottom: 1.6rem; left: 50%; transform: translateX(-50%); background: rgba(20,20,20,0.96); border: 1px solid var(--drawer-border); color: var(--accent); font-family: var(--font-body); font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; padding: 0.8rem 1.4rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 50; }
+    .pba-toast.show { opacity: 1; }
+
+    @media (max-width: 860px) {
+      .pba-cols { grid-template-columns: 1fr; }
+      .pba-side { position: static; max-height: 320px; }
+      .pba-title { font-size: 1.8rem; }
+      .pba-wrap { padding: 1rem 1rem 4rem; }
+    }
+  </style>
+</head>
+<body class="admin-page-body">
+
+<!-- ══════════════════════════════════════════════════════════
+     PIN GATE (same PIN + session as ofl-data.html)
+══════════════════════════════════════════════════════════ -->
+<div class="pin-gate" id="pinGate">
+  <p class="pin-gate-eyebrow">OFC · Restricted Access</p>
+  <h1 class="pin-gate-title">Phrasebook</h1>
+  <div class="pin-gate-form">
+    <div class="pin-dots" id="pinDots">
+      <div class="pin-dot" id="dot0"></div>
+      <div class="pin-dot" id="dot1"></div>
+      <div class="pin-dot" id="dot2"></div>
+      <div class="pin-dot" id="dot3"></div>
+    </div>
+    <div class="pin-keypad">
+      <button class="pin-key" data-val="1">1</button>
+      <button class="pin-key" data-val="2">2</button>
+      <button class="pin-key" data-val="3">3</button>
+      <button class="pin-key" data-val="4">4</button>
+      <button class="pin-key" data-val="5">5</button>
+      <button class="pin-key" data-val="6">6</button>
+      <button class="pin-key" data-val="7">7</button>
+      <button class="pin-key" data-val="8">8</button>
+      <button class="pin-key" data-val="9">9</button>
+      <button class="pin-key clear" data-val="clear">Clear</button>
+      <button class="pin-key" data-val="0">0</button>
+      <button class="pin-key" data-val="back">&#x232B;</button>
+    </div>
+    <p class="pin-error-msg" id="pinError">Incorrect PIN — try again</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     ADMIN PAGE
+══════════════════════════════════════════════════════════ -->
+<div class="admin-page" id="adminPage" style="display:none;">
+  <nav class="topnav" role="navigation">
+    <a href="ofl-data.html" class="topnav-logo">OFC</a>
+  </nav>
+
+  <div class="pba-wrap">
+    <p class="pba-eyebrow">Gazette &amp; Herald</p>
+    <h1 class="pba-title">Phrasebook</h1>
+    <p class="pba-intro">
+      Every headline, subhead, caption, closer and classified the papers can choose from.
+      Edit here, then <b>Download</b> and replace <code>ofl-phrasebook.js</code> in the site folder.
+      Your edits are kept in this browser as a draft until you download or discard them.
+    </p>
+
+    <div class="pba-bar">
+      <span class="pba-status" id="pbaStatus">No changes</span>
+      <button class="btn btn-sm btn-primary" id="pbaDownload">Download ofl-phrasebook.js</button>
+      <button class="btn btn-sm" id="pbaCopy">Copy</button>
+      <button class="btn btn-sm btn-danger" id="pbaDiscard">Discard changes</button>
+    </div>
+
+    <div class="pba-tabs" id="pbaTabs">
+      <button class="pba-tab on" data-tab="lines">Lines</button>
+      <button class="pba-tab" data-tab="gags">Playa Gags</button>
+      <button class="pba-tab" data-tab="house">House Rules</button>
+    </div>
+
+    <div id="pbaBody"></div>
+  </div>
+  <div class="pba-toast" id="pbaToast"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ═══════════════════════════════════════════════════════════
+     PIN GATE
+  ═══════════════════════════════════════════════════════════ */
+  var pinEntry = '', PIN = window.OFL_PIN || window.ADMIN_PIN || '1234', SESSION_KEY = 'ofc_data_unlocked';
+  var pinGate = document.getElementById('pinGate'), adminPage = document.getElementById('adminPage'), pinError = document.getElementById('pinError');
+  function updateDots() {
+    for (var i = 0; i < 4; i++) { var d = document.getElementById('dot' + i); d.classList.toggle('filled', i < pinEntry.length); d.classList.remove('error'); }
+  }
+  function shakeError() {
+    for (var i = 0; i < 4; i++) document.getElementById('dot' + i).classList.add('error');
+    pinError.classList.add('visible');
+    setTimeout(function () { pinEntry = ''; updateDots(); pinError.classList.remove('visible'); }, 1200);
+  }
+  function checkPin() { if (pinEntry === PIN) { sessionStorage.setItem(SESSION_KEY, '1'); unlock(); } else shakeError(); }
+  function unlock() { pinGate.style.display = 'none'; adminPage.style.display = 'block'; document.body.classList.add('admin-page'); initAdmin(); }
+  document.querySelectorAll('.pin-key').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var v = btn.getAttribute('data-val');
+      if (v === 'clear') pinEntry = '';
+      else if (v === 'back') pinEntry = pinEntry.slice(0, -1);
+      else if (pinEntry.length < 4) { pinEntry += v; if (pinEntry.length === 4) { updateDots(); setTimeout(checkPin, 150); return; } }
+      updateDots();
+    });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (pinGate.style.display === 'none') return;
+    if (/^[0-9]$/.test(e.key) && pinEntry.length < 4) { pinEntry += e.key; if (pinEntry.length === 4) { updateDots(); setTimeout(checkPin, 150); return; } }
+    else if (e.key === 'Backspace') pinEntry = pinEntry.slice(0, -1);
+    else if (e.key === 'Escape') pinEntry = '';
+    updateDots();
+  });
+  if (sessionStorage.getItem(SESSION_KEY) === '1') unlock();
+
+  /* ═══════════════════════════════════════════════════════════
+     ADMIN
+  ═══════════════════════════════════════════════════════════ */
+  function initAdmin() {
+    var DRAFT_KEY = 'ofl_phrasebook_draft';
+    var DEPLOYED = JSON.stringify(window.OFL_PHRASEBOOK || {});
+    var PB;
+    try { var d = localStorage.getItem(DRAFT_KEY); PB = d ? JSON.parse(d) : null; } catch (x) { PB = null; }
+    if (!PB) PB = JSON.parse(DEPLOYED);
+    ['ofc', 'ofcAds', 'brc', 'brcAds', 'members', 'house'].forEach(function (k) { if (!PB[k] || typeof PB[k] !== 'object') PB[k] = {}; });
+    ['rivals', 'lowercase'].forEach(function (k) { if (!Array.isArray(PB.house[k])) PB.house[k] = []; });
+    if (PB.house.familyTeam == null) PB.house.familyTeam = '';
+
+    var DATA = window.OFL_DATA || {};
+    var ROSTER = (DATA.masterRoster || []).slice().sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); });
+
+    var GROUPS = [
+      { key: 'ofc', label: 'OFC Gazette — Stories', slots: ['kicker', 'headline', 'sub', 'caption', 'closer'] },
+      { key: 'ofcAds', label: 'OFC Gazette — Classifieds', slots: ['lines'] },
+      { key: 'brc', label: 'Hardwood Herald — Stories', slots: ['kicker', 'headline', 'sub', 'caption', 'closer'] },
+      { key: 'brcAds', label: 'Hardwood Herald — Classifieds', slots: ['lines'] }
+    ];
+    var SLOT_INFO = {
+      kicker: ['Kicker', 'Small label above the headline'],
+      headline: ['Headlines', 'Printed in all caps'],
+      sub: ['Subheads', 'Italic line under the headline'],
+      caption: ['Photo captions', 'Under the lead story photo'],
+      closer: ['Closers', 'A last sentence tacked onto the story'],
+      lines: ['Ad wording', 'One is chosen per edition']
+    };
+    var GAG_TOKENS = ['owner', 'team', 'nick'];
+
+    /* Sample values for previews */
+    var SAMPLE = {
+      W: 'Spiders', L: 'Molly Defenders', Wo: 'spider', Lo: 'Amy', ws: '131.20', ls: '69.08', margin: '62.12', marginR: '62', week: '8', year: '2026',
+      Wrec: '6–2', Lrec: '1–7', old: '170.04', streak: '5', others: '7', team: 'ATLiens', owner: 'Big Rob', rec: '6–2', pf: '1,002.16',
+      from: '34', to: '71', swing: '37', field: 'ATLiens, Spiders, Boknowsbest and Ozzies', pts: '24', cum: '108', gap: '6', second: 'Dirty Dolly',
+      spots: '4', round: 'Sweet 16', games: '8', count: '3', owners: 'Evan, Amy and Bubba', alive: '4', left: '2', award: 'Golden Terminator Trophy',
+      rank: '3rd', behind: '107', w: 'Tennessee', l: 'Virginia', wsd: '6', lsd: '3', diff: '3', pickers: '2', fan: 'Christian', school: 'Tennessee',
+      opp: 'Virginia', rival: 'alabama', upsets: '2', avg: '104.20', high: '143.08', low: '83.40', nick: 'Rocky Top Christian'
+    };
+    var TOKEN_RE = /\{([A-Za-z]+)(?:(['’]s)|:([^|}]*)\|([^}]*))?\}/g;
+    function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+    function poss(t) { return t + (/s$/i.test(t) ? '’' : '’s'); }
+    function isPlural(v) { return /s$/i.test(String(v || '').replace(/[^A-Za-z]+$/, '')); }
+    function fill(tpl, vars) {
+      return String(tpl).replace(TOKEN_RE, function (m, name, ps, a, b) {
+        if (!(name in vars)) return m;
+        var s = String(vars[name]);
+        if (a !== undefined) return isPlural(s) ? b : a;
+        return ps ? poss(s) : s;
+      });
+    }
+    function badTokens(tpl, allowed) {
+      var bad = [], m; TOKEN_RE.lastIndex = 0;
+      while ((m = TOKEN_RE.exec(String(tpl)))) if (allowed.indexOf(m[1]) < 0 && bad.indexOf(m[1]) < 0) bad.push(m[1]);
+      var braces = (String(tpl).match(/[{}]/g) || []).length, used = 0;
+      String(tpl).replace(TOKEN_RE, function (x) { used += 2; return x; });
+      return { bad: bad, stray: braces !== used };
+    }
+
+    /* ── State + saving ─────────────────────────────────── */
+    var state = { tab: 'lines', group: 'ofc', type: null, search: '', member: ROSTER[0] ? ROSTER[0].id : '' };
+    var lastInput = null;
+    var statusEl = document.getElementById('pbaStatus');
+    function isDirty() { return JSON.stringify(PB) !== DEPLOYED; }
+    function save() {
+      try { if (isDirty()) localStorage.setItem(DRAFT_KEY, JSON.stringify(PB)); else localStorage.removeItem(DRAFT_KEY); } catch (x) {}
+      var dirty = isDirty();
+      statusEl.textContent = dirty ? 'Unsaved changes — download to publish' : 'No changes';
+      statusEl.classList.toggle('dirty', dirty);
+    }
+    function toast(msg) { var t = document.getElementById('pbaToast'); t.textContent = msg; t.classList.add('show'); setTimeout(function () { t.classList.remove('show'); }, 1800); }
+    window.addEventListener('beforeunload', function (e) { if (isDirty()) { e.preventDefault(); e.returnValue = ''; } });
+
+    function fileText() {
+      return '/**\n * ============================================================\n' +
+        ' *  OFL-PHRASEBOOK.JS — every headline, subhead, caption, closer and\n' +
+        ' *  classified the Gazette and the Herald can choose from, plus\n' +
+        ' *  Playa Gags (nicknames, one-liners, college team) and House Rules.\n *\n' +
+        ' *  Edit with phrasebook-admin.html — it writes this file for you.\n' +
+        ' *  Load before ofl-newsroom.js:\n *    <script src="ofl-phrasebook.js"><\/script>\n' +
+        ' *  Generated ' + new Date().toLocaleString() + '\n' +
+        ' * ============================================================\n */\n' +
+        'window.OFL_PHRASEBOOK = ' + JSON.stringify(PB, null, 2) + ';\n';
+    }
+    document.getElementById('pbaDownload').onclick = function () {
+      var blob = new Blob([fileText()], { type: 'application/javascript' }), a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = 'ofl-phrasebook.js'; document.body.appendChild(a); a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+      DEPLOYED = JSON.stringify(PB); save();
+      toast('Downloaded — replace ofl-phrasebook.js on the site');
+    };
+    document.getElementById('pbaCopy').onclick = function () {
+      var txt = fileText();
+      (navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(txt) : Promise.reject()).then(function () { toast('Copied to clipboard'); }, function () {
+        var ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); toast('Copied to clipboard'); } catch (x) { toast('Copy failed — use Download'); }
+        ta.remove();
+      });
+    };
+    document.getElementById('pbaDiscard').onclick = function () {
+      if (!isDirty()) { toast('Nothing to discard'); return; }
+      if (!confirm('Discard all unsaved phrasebook changes?')) return;
+      PB = JSON.parse(DEPLOYED); save(); render(); toast('Changes discarded');
+    };
+    document.querySelectorAll('.pba-tab').forEach(function (b) {
+      b.onclick = function () {
+        state.tab = b.getAttribute('data-tab');
+        document.querySelectorAll('.pba-tab').forEach(function (x) { x.classList.toggle('on', x === b); });
+        render();
+      };
+    });
+
+    /* ── Shared: an editable list of lines ──────────────── */
+    // opts: { arr, allowed[], headStyle, vars, emptyText, onChange }
+    function lineList(host, opts) {
+      function draw() {
+        host.innerHTML = '';
+        if (!opts.arr.length) host.insertAdjacentHTML('beforeend', '<div class="pba-empty">' + (opts.emptyText || 'No lines yet.') + '</div>');
+        opts.arr.forEach(function (txt, i) {
+          var row = document.createElement('div'); row.className = 'pba-line';
+          row.innerHTML = '<textarea class="admin-input" rows="1"></textarea>' +
+            '<div class="pba-line-btns"><button class="btn btn-sm" title="Move up"' + (i === 0 ? ' disabled' : '') + '>&uarr;</button>' +
+            '<button class="btn btn-sm" title="Move down"' + (i === opts.arr.length - 1 ? ' disabled' : '') + '>&darr;</button>' +
+            '<button class="btn btn-sm btn-danger" title="Delete">&#x2715;</button></div>' +
+            '<div class="pba-preview' + (opts.headStyle ? ' head' : '') + '"></div><div class="pba-warn"></div>';
+          var ta = row.querySelector('textarea'), pv = row.querySelector('.pba-preview'), wn = row.querySelector('.pba-warn');
+          ta.value = txt;
+          function refresh() {
+            var out = fill(ta.value, opts.vars || SAMPLE); pv.textContent = opts.transform ? opts.transform(out) : out;
+            var chk = badTokens(ta.value, opts.allowed);
+            var msg = [];
+            if (chk.bad.length) msg.push('Not available here: ' + chk.bad.map(function (t) { return '{' + t + '}'; }).join(', ') + ' (prints blank)');
+            if (chk.stray) msg.push('Check your curly braces — one looks unmatched');
+            wn.textContent = msg.join(' · ');
+          }
+          function grow() { ta.style.height = 'auto'; ta.style.height = (ta.scrollHeight + 2) + 'px'; }
+          ta.addEventListener('focus', function () { lastInput = ta; });
+          ta.addEventListener('input', function () { opts.arr[i] = ta.value; refresh(); grow(); save(); if (opts.onChange) opts.onChange(); });
+          var bs = row.querySelectorAll('.pba-line-btns .btn');
+          bs[0].onclick = function () { var t = opts.arr[i - 1]; opts.arr[i - 1] = opts.arr[i]; opts.arr[i] = t; save(); draw(); };
+          bs[1].onclick = function () { var t = opts.arr[i + 1]; opts.arr[i + 1] = opts.arr[i]; opts.arr[i] = t; save(); draw(); };
+          bs[2].onclick = function () { opts.arr.splice(i, 1); save(); draw(); if (opts.onChange) opts.onChange(); };
+          refresh();
+          host.appendChild(row);
+          setTimeout(grow, 0);
+        });
+        var add = document.createElement('button'); add.className = 'btn btn-sm pba-add'; add.textContent = '+ Add line';
+        add.onclick = function () {
+          opts.arr.push(''); save(); draw(); if (opts.onChange) opts.onChange();
+          var all = host.querySelectorAll('textarea'); if (all.length) all[all.length - 1].focus();
+        };
+        host.appendChild(add);
+      }
+      draw();
+    }
+    function chipsHtml(tokens) {
+      return '<div class="pba-chips"><span class="pba-chips-label">Fill-ins</span>' +
+        tokens.map(function (t) { return '<button type="button" class="pba-chip" data-tok="' + esc(t) + '">{' + esc(t) + '}</button>'; }).join('') + '</div>';
+    }
+    function bindChips(root) {
+      root.querySelectorAll('.pba-chip').forEach(function (c) {
+        c.addEventListener('mousedown', function (e) { e.preventDefault(); });
+        c.onclick = function () {
+          var ta = lastInput && document.body.contains(lastInput) ? lastInput : root.querySelector('textarea');
+          if (!ta) { toast('Click into a line first'); return; }
+          var tok = '{' + c.getAttribute('data-tok') + '}', s = ta.selectionStart || ta.value.length, e2 = ta.selectionEnd || s;
+          ta.value = ta.value.slice(0, s) + tok + ta.value.slice(e2);
+          ta.focus(); ta.selectionStart = ta.selectionEnd = s + tok.length;
+          ta.dispatchEvent(new Event('input'));
+        };
+      });
+    }
+    var HELP = '<p class="pba-help"><code>{team}</code> inserts a value &middot; <code>{team’s}</code> adds a possessive &middot; ' +
+      '<code>{team:wins|win}</code> picks the verb that agrees with that name (Spiders <i>win</i>, Dirty Dolly <i>wins</i>). ' +
+      'Owner fill-ins sometimes become a nickname from Playa Gags. Words in House Rules &rarr; Never Capitalize always print lowercase.</p>';
+
+    /* ── Tab: Lines ─────────────────────────────────────── */
+    function typesOf(g) { return Object.keys(PB[g] || {}).filter(function (k) { return k.charAt(0) !== '_'; }); }
+    function countOf(g, t) {
+      var o = PB[g][t] || {}, n = 0;
+      Object.keys(o).forEach(function (k) { if (k.charAt(0) !== '_' && Array.isArray(o[k])) n += o[k].filter(function (x) { return String(x).trim(); }).length; });
+      return n;
+    }
+    function renderLines(body) {
+      var types = typesOf(state.group);
+      if (!state.type || types.indexOf(state.type) < 0) state.type = types[0] || null;
+      body.innerHTML = '<div class="pba-cols"><aside class="pba-side"><div class="pba-side-head">' +
+        '<select class="admin-input" id="pbaGroup">' + GROUPS.map(function (g) { return '<option value="' + g.key + '"' + (g.key === state.group ? ' selected' : '') + '>' + esc(g.label) + '</option>'; }).join('') + '</select>' +
+        '<input class="admin-input" id="pbaSearch" type="search" placeholder="Search every line…" value="' + esc(state.search) + '" /></div>' +
+        '<div id="pbaTypes"></div></aside><section class="pba-panel" id="pbaPanel"></section></div>';
+      var list = body.querySelector('#pbaTypes');
+      types.forEach(function (t) {
+        var meta = PB[state.group][t] || {}, b = document.createElement('button');
+        b.className = 'pba-type' + (t === state.type && !state.search ? ' on' : '');
+        b.innerHTML = '<span>' + esc(meta._label || t) + '</span><small>' + countOf(state.group, t) + '</small>';
+        b.onclick = function () { state.type = t; state.search = ''; renderLines(body); };
+        list.appendChild(b);
+      });
+      body.querySelector('#pbaGroup').onchange = function () { state.group = this.value; state.type = null; state.search = ''; renderLines(body); };
+      var si = body.querySelector('#pbaSearch');
+      si.oninput = function () { state.search = si.value; drawPanel(); list.querySelectorAll('.pba-type').forEach(function (x) { x.classList.toggle('on', !state.search && x.textContent.indexOf((PB[state.group][state.type] || {})._label) === 0); }); };
+      function drawPanel() {
+        var panel = body.querySelector('#pbaPanel');
+        if (state.search.trim()) return searchPanel(panel, body);
+        if (!state.type) { panel.innerHTML = '<p class="pba-empty">Nothing here.</p>'; return; }
+        var meta = PB[state.group][state.type], grp = GROUPS.find(function (g) { return g.key === state.group; });
+        var allowed = (meta._tokens || []).slice();
+        panel.innerHTML = '<h2>' + esc(meta._label || state.type) + '</h2><p class="pba-when"><b>When it runs:</b> ' + esc(meta._when || '') + '</p>' +
+          chipsHtml(allowed) + HELP + '<div id="pbaSlots"></div>';
+        var slotsHost = panel.querySelector('#pbaSlots');
+        grp.slots.forEach(function (slot) {
+          if (!Array.isArray(meta[slot])) meta[slot] = [];
+          var info = SLOT_INFO[slot], wrap = document.createElement('div');
+          wrap.className = 'pba-slot'; wrap.id = 'pba-slot-' + slot;
+          wrap.innerHTML = '<div class="pba-slot-head"><b>' + info[0] + '</b><span>' + info[1] + '</span></div><div></div>';
+          slotsHost.appendChild(wrap);
+          lineList(wrap.lastChild, { arr: meta[slot], allowed: allowed, headStyle: slot === 'headline' || slot === 'kicker',
+            emptyText: slot === 'closer' ? 'No closers — stories end with the facts.' : 'Empty — the paper falls back to its built-in line.',
+            onChange: function () { var btn = list.querySelector('.pba-type.on small'); if (btn) btn.textContent = countOf(state.group, state.type); } });
+        });
+        bindChips(panel);
+      }
+      drawPanel();
+    }
+    function searchPanel(panel, body) {
+      var q = state.search.trim().toLowerCase(), hits = [];
+      GROUPS.forEach(function (g) {
+        typesOf(g.key).forEach(function (t) {
+          var meta = PB[g.key][t];
+          g.slots.forEach(function (slot) {
+            (meta[slot] || []).forEach(function (txt, i) { if (String(txt).toLowerCase().indexOf(q) >= 0) hits.push({ g: g, t: t, slot: slot, i: i, txt: txt, label: meta._label || t }); });
+          });
+        });
+      });
+      Object.keys(PB.members).forEach(function (id) {
+        (PB.members[id].gags || []).forEach(function (txt) { if (String(txt).toLowerCase().indexOf(q) >= 0) hits.push({ member: id, txt: txt, label: (PB.members[id].name || id) + ' — Gags' }); });
+      });
+      function mark(s) { var i = s.toLowerCase().indexOf(q); return i < 0 ? esc(s) : esc(s.slice(0, i)) + '<mark>' + esc(s.slice(i, i + q.length)) + '</mark>' + esc(s.slice(i + q.length)); }
+      panel.innerHTML = '<h2>Search</h2><p class="pba-when">' + hits.length + (hits.length === 1 ? ' line contains' : ' lines contain') + ' &ldquo;' + esc(state.search) + '&rdquo;</p><div class="pba-results"></div>';
+      var host = panel.querySelector('.pba-results');
+      hits.slice(0, 200).forEach(function (h) {
+        var b = document.createElement('button'); b.className = 'pba-result';
+        b.innerHTML = '<small>' + esc(h.member ? 'Playa Gags' : h.g.label) + ' &middot; ' + esc(h.label) + (h.slot ? ' &middot; ' + SLOT_INFO[h.slot][0] : '') + '</small>' + mark(String(h.txt));
+        b.onclick = function () {
+          state.search = '';
+          if (h.member) { state.member = h.member; document.querySelector('.pba-tab[data-tab=gags]').click(); return; }
+          state.group = h.g.key; state.type = h.t; renderLines(body);
+          setTimeout(function () {
+            var slot = document.getElementById('pba-slot-' + h.slot);
+            if (slot) { slot.scrollIntoView({ behavior: 'smooth', block: 'start' }); var tas = slot.querySelectorAll('textarea'); if (tas[h.i]) tas[h.i].focus(); }
+          }, 50);
+        };
+        host.appendChild(b);
+      });
+    }
+
+    /* ── Tab: Playa Gags ────────────────────────────────── */
+    function renderGags(body) {
+      body.innerHTML = '<div class="pba-cols"><aside class="pba-side"><div class="pba-side-head"><span class="pba-chips-label">Playas</span></div><div id="pbaMembers"></div></aside>' +
+        '<section class="pba-panel" id="pbaMember"></section></div>';
+      var list = body.querySelector('#pbaMembers');
+      ROSTER.forEach(function (m) {
+        var e = PB.members[m.id] || {}, has = (e.gags || []).length || (e.nicknames || []).length || e.school;
+        var b = document.createElement('button');
+        b.className = 'pba-type' + (m.id === state.member ? ' on' : '');
+        b.innerHTML = '<span>' + esc(m.name || m.id) + (has ? '<span class="pba-dot" title="Has gags"></span>' : '') + '</span>';
+        b.onclick = function () { state.member = m.id; renderGags(body); };
+        list.appendChild(b);
+      });
+      var m = ROSTER.find(function (r) { return r.id === state.member; });
+      var panel = body.querySelector('#pbaMember');
+      if (!m) { panel.innerHTML = '<p class="pba-empty">No members found in ofl-data.js.</p>'; return; }
+      var entry = PB.members[m.id];
+      if (!entry) entry = { name: m.name || '', school: '', nicknames: [], gags: [] };
+      ['nicknames', 'gags'].forEach(function (k) { if (!Array.isArray(entry[k])) entry[k] = []; });
+      function commit() {   // keep empty entries out of the file
+        entry.name = m.name || entry.name || '';
+        var empty = !String(entry.school || '').trim() && !entry.nicknames.some(function (x) { return String(x).trim(); }) && !entry.gags.some(function (x) { return String(x).trim(); });
+        if (empty) delete PB.members[m.id]; else PB.members[m.id] = entry;
+        save();
+      }
+      var teams = (m.leagues || []).map(function (l) { var t = (l.teams || [])[(l.teams || []).length - 1]; return t ? l.leagueKey + ': ' + t.name : ''; }).filter(Boolean).join(' · ');
+      panel.innerHTML = '<div class="pba-member-head">' + (m.mugshot ? '<img src="' + esc(m.mugshot) + '" alt="" />' : '<span class="pba-init">' + esc(String(m.name || '?').slice(0, 2).toUpperCase()) + '</span>') +
+        '<div><h2>' + esc(m.name || m.id) + '</h2><p class="pba-when" style="margin:0.2rem 0 0;">' + esc(teams) + '</p></div></div>' +
+        '<div class="pba-field"><label>College team</label><input class="admin-input" id="pbaSchool" placeholder="e.g. Tennessee" value="' + esc(entry.school || '') + '" />' +
+          '<p class="pba-help">When this team plays in the BRC tournament, the Herald runs a Fan Watch story about ' + esc(m.name || 'them') + '. Use the name the bracket uses (e.g. "Michigan St." or "Michigan State" both work).</p></div>' +
+        '<div class="pba-slot"><div class="pba-slot-head"><b>Nicknames</b><span>Sometimes used in place of the name</span></div><div id="pbaNicks"></div></div>' +
+        '<div class="pba-slot"><div class="pba-slot-head"><b>Gags</b><span>One-liners tacked onto stories about this playa</span></div>' + chipsHtml(GAG_TOKENS) + '<div id="pbaGagList"></div></div>';
+      panel.querySelector('#pbaSchool').oninput = function () { entry.school = this.value; commit(); };
+      var nm = m.name || 'Name', nn = entry.nicknames.filter(Boolean);
+      var vars = { owner: nm, team: ((m.leagues || [])[0] && ((m.leagues[0].teams || []).slice(-1)[0] || {}).name) || 'Team', nick: nn[0] || nm };
+      lineList(panel.querySelector('#pbaNicks'), { arr: entry.nicknames, allowed: [], vars: vars, emptyText: 'No nicknames yet.', onChange: commit });
+      lineList(panel.querySelector('#pbaGagList'), { arr: entry.gags, allowed: GAG_TOKENS, vars: vars, emptyText: 'No gags yet.', onChange: commit });
+      bindChips(panel);
+    }
+
+    /* ── Tab: House Rules ───────────────────────────────── */
+    function renderHouse(body) {
+      body.innerHTML = '<section class="pba-panel">' +
+        '<h2>House Rules</h2><p class="pba-when">Family-wide settings for both papers.</p>' +
+        '<div class="pba-field"><label>Family team</label><input class="admin-input" id="pbaFamily" placeholder="e.g. Auburn" value="' + esc(PB.house.familyTeam || '') + '" />' +
+          '<p class="pba-help">When this team plays in the BRC tournament, the Herald runs a House Team story (War Eagle).</p></div>' +
+        '<div class="pba-slot"><div class="pba-slot-head"><b>Rivals</b><span>Their losses are celebrated; their wins are reported grudgingly</span></div><div id="pbaRivals"></div></div>' +
+        '<div class="pba-slot"><div class="pba-slot-head"><b>Never Capitalize</b><span>Always printed lowercase, even in all-caps headlines</span></div><div id="pbaLower"></div>' +
+          '<p class="pba-help">Matches whole words or phrases, in any capitalization, anywhere on the Gazette, the Herald and the league-page card.</p></div>' +
+        '</section>';
+      body.querySelector('#pbaFamily').oninput = function () { PB.house.familyTeam = this.value; save(); };
+      lineList(body.querySelector('#pbaRivals'), { arr: PB.house.rivals, allowed: [], emptyText: 'No rivals. Suspicious.' });
+      lineList(body.querySelector('#pbaLower'), { arr: PB.house.lowercase, allowed: [], vars: {}, emptyText: 'Nothing on the list.', transform: function (x) { return x.toLowerCase(); } });
+    }
+
+    function render() {
+      var body = document.getElementById('pbaBody');
+      if (state.tab === 'gags') renderGags(body);
+      else if (state.tab === 'house') renderHouse(body);
+      else renderLines(body);
+    }
+    save();
+    render();
+  }
+})();
+</script>
+</body>
+</html>
