@@ -578,6 +578,99 @@
     .playa-card.t-legend:hover .playa-holo { opacity: 0.8; }
     .playa-card.t-rare.retired .playa-holo, .playa-card.is-inactive .playa-holo { display: none; }
 
+    /* ── Rookie cards (first 2 seasons) ─────────────────────── */
+    .playa-card.t-rookie, .pv-card.t-rookie { --foil: #1b8a4c; }
+    .pv-card.t-rookie .pv-face {
+      border-color: transparent;
+      background: linear-gradient(#0e0e0e, #0e0e0e) padding-box, linear-gradient(135deg, #1b8a4c, #6538b0 50%, #1b8a4c) border-box;
+    }
+    .pv-card.t-rookie .pv-top { color: #1b8a4c; background: linear-gradient(90deg, rgba(27,138,76,0.2), rgba(0,0,0,0.5)); }
+    .pv-card.t-rookie .pv-photo {
+      background: repeating-linear-gradient(135deg, rgba(27,138,76,0.07) 0 12px, transparent 12px 24px),
+                  radial-gradient(circle at 50% 35%, rgba(27,138,76,0.12), rgba(0,0,0,0.6));
+    }
+    .pv-card.t-rookie .pv-holo { opacity: 0.3; }
+    .pv-card.pv-mini.t-rookie .pv-face { box-shadow: 0 0 14px rgba(27,138,76,0.22), 0 6px 18px rgba(0,0,0,0.5); }
+    .pv-rc {
+      position: absolute; top: 0.55rem; right: 0.55rem; z-index: 2; width: 38px; height: 44px; box-sizing: border-box; padding-bottom: 5px;
+      display: flex; align-items: center; justify-content: center;
+      clip-path: polygon(50% 0, 100% 14%, 100% 62%, 50% 100%, 0 62%, 0 14%);
+      background: linear-gradient(160deg, #fff1b8, #e8c864 45%, #a77f22);
+      font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; letter-spacing: 0.02em; color: #1a1408;
+    }
+    .pv-mini .pv-rc { width: 26px; height: 30px; top: 0.4rem; right: 0.4rem; font-size: 0.72rem; padding-bottom: 3px; }
+    .pv-rookie-band {
+      text-align: center; font-family: var(--font-body); font-size: 0.5rem; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase;
+      color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.7); background: linear-gradient(90deg, #1b8a4c, #6538b0, #1b8a4c); padding: 0.22rem 0;
+    }
+    .pv-mini .pv-rookie-band { font-size: 0.36rem; letter-spacing: 0.2em; padding: 0.14rem 0; }
+    .pv-debut {
+      display: flex; align-items: center; gap: 0.45rem; margin: 0.2rem 0 0.6rem;
+      font-family: var(--font-body); font-size: 0.55rem; letter-spacing: 0.15em; text-transform: uppercase; color: #1b8a4c;
+    }
+    .pv-rc-mini {
+      display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 23px; padding-bottom: 2px; box-sizing: border-box;
+      clip-path: polygon(50% 0, 100% 14%, 100% 62%, 50% 100%, 0 62%, 0 14%);
+      background: linear-gradient(160deg, #fff1b8, #e8c864 45%, #a77f22); color: #1a1408; font-family: var(--font-display); font-weight: 700; font-size: 0.6rem; letter-spacing: 0;
+    }
+    .pv-fact.rookie b { color: #1b8a4c; }
+    @media (max-width: 600px) { .pv-mini .pv-rc { width: 22px; height: 26px; font-size: 0.6rem; } }
+
+    /* ── Old-School cards — Dark Vintage (copper foil, pennant, stamp). Pennant + stripes also ride on titled cards (.is-vet) ── */
+    .playa-card.t-vet, .pv-card.t-vet { --foil: #a0662f; }
+    .pv-card.t-vet .pv-face {
+      border-color: transparent;
+      background: linear-gradient(#141210, #141210) padding-box, linear-gradient(135deg, #a0662f, #d9b27a 50%, #a0662f) border-box;
+    }
+    .pv-card.t-vet .pv-top { color: #d9b27a; background: rgba(160,102,47,0.18); }
+    .pv-card.t-vet .pv-photo { background: radial-gradient(circle at 50% 40%, #3a2f22, #0d0b08); }
+    .pv-card.t-vet .pv-photo::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle, transparent 55%, rgba(0,0,0,0.55)); }
+    .pv-card.t-vet .pv-holo { opacity: 0.06; }
+    .pv-card.t-vet .pv-plate { border-top: none; }
+    .pv-card.t-vet .pv-nick { color: #d9b27a; }
+    .pv-card.pv-mini.t-vet .pv-face { box-shadow: 0 0 12px rgba(160,102,47,0.25), 0 6px 18px rgba(0,0,0,0.5); }
+    .pv-pennant {
+      position: absolute; top: 0.55rem; left: 0; z-index: 2;
+      font-family: var(--font-body); font-size: 0.5rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+      color: #141210; background: var(--foil); padding: 0.3rem 1.3rem 0.3rem 0.6rem;
+      clip-path: polygon(0 0, 100% 0, 88% 50%, 100% 100%, 0 100%);
+    }
+    .pv-stamp {
+      position: absolute; top: 0.55rem; right: 0.55rem; z-index: 2; width: 52px; height: 52px; border-radius: 50%; box-sizing: border-box;
+      border: 2px solid #d9b27a; color: #d9b27a; background: rgba(20,18,16,0.55); transform: rotate(-12deg);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1;
+    }
+    .pv-stamp i { font-style: normal; font-family: var(--font-body); font-size: 0.4rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; }
+    .pv-stamp b { font-family: var(--font-display); font-size: 0.95rem; margin-top: 0.1rem; }
+    .pv-vet-band { height: 5px; background: repeating-linear-gradient(90deg, #a0662f 0 6px, #7a4c22 6px 12px); }
+    .pv-mini .pv-pennant { top: 0.4rem; font-size: 0.36rem; padding: 0.2rem 1rem 0.2rem 0.4rem; letter-spacing: 0.1em; }
+    /* Ribbon takes the top-left corner; the Active / Alumni badge sits under it */
+    .pv-card.is-vet .pv-status { top: 2.2rem; }
+    .pv-mini.is-vet .pv-status { top: 1.55rem; }
+    /* Ribbon matches the card's scheme: tier foil, holo gradient on Holo cards */
+    .pv-card.t-holo .pv-pennant { background: linear-gradient(90deg, #ff7ad9, #9fd8ff, #b6ff9f, #ffe27a); }
+    .pv-card.t-legend .pv-pennant { background: linear-gradient(90deg, #e8c864, #fff1b8, #e8c864); }
+    .pv-mini .pv-stamp { width: 36px; height: 36px; top: 0.4rem; right: 0.4rem; border-width: 1.5px; }
+    .pv-mini .pv-stamp i { font-size: 0.28rem; }
+    .pv-mini .pv-stamp b { font-size: 0.66rem; }
+    .pv-mini .pv-vet-band { height: 4px; }
+    @media (max-width: 600px) {
+      .pv-mini .pv-pennant { top: 0.4rem; font-size: 0.3rem; padding: 0.16rem 0.9rem 0.16rem 0.35rem; }
+      .pv-mini .pv-stamp { width: 30px; height: 30px; }
+      .pv-mini .pv-stamp i { font-size: 0.24rem; }
+      .pv-mini .pv-stamp b { font-size: 0.56rem; }
+    }
+    /* Back */
+    .pv-card.t-vet .pv-back .pv-sec, .pv-card.t-vet .pv-bno { color: #d9b27a; }
+    .pv-card.t-vet .pv-back .pv-bhead { border-bottom-color: #a0662f; }
+    .pv-vet-tag { margin: 0.2rem 0 0.6rem; font-family: var(--font-body); font-size: 0.52rem; letter-spacing: 0.15em; text-transform: uppercase; color: #d9b27a; }
+    .pv-stripes { display: flex; flex-wrap: wrap; gap: 3px; margin: 0.3rem 0 0.25rem; }
+    .pv-stripes i { width: 5px; height: 14px; transform: skewX(-15deg); }
+    .pv-stripes i.s0, .pv-stripes-key span.s0 { background: #a0662f; }
+    .pv-stripes i.s1, .pv-stripes-key span.s1 { background: #6f8fb0; }
+    .pv-stripes-key { font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.08em; color: var(--accent-dim); }
+    .pv-stripes-key span { display: inline-block; width: 6px; height: 10px; margin-right: 0.3rem; vertical-align: -1px; transform: skewX(-15deg); }
+
     /* ── Full-size viewer ─────────────────────────────────── */
     .pv-overlay {
       position: fixed; inset: 0; z-index: 400; display: flex; align-items: center; justify-content: center;
@@ -855,7 +948,7 @@
       var awardCount    = allAwards.length;
       var recentAwards  = allAwards.slice(0, 2);
       var isActive      = member.active !== false;
-      var tier          = tierFor(champCount);
+      var tier          = cardTier(member.id, leagueData);
       var cardNo        = cardNumber(member.id);
 
       // Does this member have an OFC team page?
@@ -964,7 +1057,7 @@
 
       // ── Assemble ──────────────────────────────────────
       var card = document.createElement('div');
-      card.className = 'playa-card pv-card pv-mini section-reveal t-' + tier.key + (isActive ? '' : ' is-inactive');
+      card.className = 'playa-card pv-card pv-mini section-reveal ' + tier.cls + (isActive ? '' : ' is-inactive');
       card.style.animationDelay = delay + 's';
       // Grid shows the same front as the viewer, just smaller; the stat-sheet back opens in the viewer
       card.innerHTML = cardFront(member, leagueData, tier);
@@ -990,6 +1083,75 @@
       if (titles >= 3) return { key: 'holo',   label: 'Holo' };
       if (titles >= 1) return { key: 'rare',   label: 'Rare' };
       return { key: 'base', label: 'Base' };
+    }
+
+    /* ── Rookie cards ─────────────────────────────────────────
+       A member is a rookie for their first ROOKIE_YEARS seasons, counted from their
+       first season in ANY league, against the newest season on file (not the calendar).
+       Rookie + no titles → Rookie card design. Rookie + titles → the title tier's design,
+       with the RC shield kept. */
+    var ROOKIE_YEARS = 2;
+    function seasonHas(season, mid) {
+      if ((season.standings || []).some(function (r) { return r.memberId === mid; })) return true;
+      if ((season.roster || []).some(function (r) { return r.memberId === mid; })) return true;
+      return (season.weeks || []).some(function (w) {
+        return (w.games || []).some(function (g) { return (g.home && g.home.memberId === mid) || (g.away && g.away.memberId === mid); });
+      });
+    }
+    function rookieInfo(mid, leagueData) {
+      var cur = 0, first = null;
+      (leagueData || []).forEach(function (lg) {
+        (lg.seasons || []).forEach(function (s) {
+          var y = parseInt(s.year, 10) || 0;
+          if (y > cur) cur = y;
+          if (!seasonHas(s, mid)) return;
+          if (!first || y < first.year || (y === first.year && lg.sport === 'football')) {
+            var wk = null;
+            if (lg.sport === 'football') {
+              (s.weeks || []).slice().sort(function (a, b) { return (a.weekNumber || 0) - (b.weekNumber || 0); }).some(function (w) {
+                var hit = (w.games || []).some(function (g) { return (g.home && g.home.memberId === mid) || (g.away && g.away.memberId === mid); });
+                if (hit) wk = w.weekNumber;
+                return hit;
+              });
+            }
+            first = { year: y, league: lg.name || (lg.sport === 'football' ? 'OFC' : 'BRC'), week: wk };
+          }
+        });
+      });
+      if (!first || cur - first.year >= ROOKIE_YEARS) return null;
+      return { year: first.year, debut: first.year + ' ' + first.league + (first.week ? ', Week ' + first.week : '') };
+    }
+    /* ── Old-School cards ─────────────────────────────────────
+       VET_LEAGUE_SEASONS+ seasons in one league, or VET_TOTAL_SEASONS+ combined.
+       Old-Schoolers with no titles get the Old-School card (replaces Base).
+       A title trades you up (Rare / Holo / Legendary) — you keep the Old-School
+       pennant on the front and the Service Stripes on the back. */
+    var VET_LEAGUE_SEASONS = 10, VET_TOTAL_SEASONS = 20;
+    function veteranInfo(mid, leagueData) {
+      var per = [], total = 0, since = null;
+      (leagueData || []).forEach(function (lg) {
+        var n = 0;
+        (lg.seasons || []).forEach(function (s) {
+          if (!seasonHas(s, mid)) return;
+          n++; total++;
+          var y = parseInt(s.year, 10) || 0;
+          if (y && (!since || y < since)) since = y;
+        });
+        if (n) per.push({ key: lg.name || (lg.sport === 'football' ? 'OFC' : 'BRC'), sport: lg.sport, n: n });
+      });
+      var qualifies = per.some(function (x) { return x.n >= VET_LEAGUE_SEASONS; }) || total >= VET_TOTAL_SEASONS;
+      return qualifies ? { per: per, total: total, since: since } : null;
+    }
+    /* Card tier for a member, including rookie / veteran status → { key, label, rookie, vet, cls } */
+    function cardTier(mid, leagueData) {
+      var t = tierFor(getChampionships(mid, leagueData).length), rk = rookieInfo(mid, leagueData);
+      var vet = rk ? null : veteranInfo(mid, leagueData);
+      if (rk && t.key === 'base') t = { key: 'rookie', label: 'Rookie' };
+      else if (vet && t.key === 'base') t = { key: 'vet', label: 'Old-School' };
+      t.rookie = rk;
+      t.vet = vet;
+      t.cls = 't-' + t.key + (rk ? ' is-rookie' : '') + (vet ? ' is-vet' : '');
+      return t;
     }
     function cardNumber(id) {
       var i = ((window.OFL_DATA && window.OFL_DATA.masterRoster) || []).findIndex(function (m) { return m.id === id; });
@@ -1069,7 +1231,12 @@
           '<span class="pv-status">' + (active ? 'Active' : 'Alumni') + '</span>' +
           '<div class="pv-photo-badges">' + (m.leagues || []).map(function (l) { return '<span>' + esc(l.leagueKey || l.leagueName) + '</span>'; }).join('') + '</div>' +
           (team && team.logo ? '<img class="pv-teamlogo" src="' + esc(team.logo) + '" alt="" />' : '') +
+          (tier.rookie ? '<span class="pv-rc" title="Rookie card">RC</span>' : '') +
+          (tier.vet ? '<span class="pv-pennant">' + tier.vet.total + ' Seasons</span>' : '') +
+          (tier.key === 'vet' ? '<span class="pv-stamp"><i>Since</i><b>' + tier.vet.since + '</b></span>' : '') +
         '</div>' +
+        (tier.key === 'rookie' ? '<div class="pv-rookie-band">' + tier.rookie.year + ' Rookie Card</div>' : '') +
+        (tier.key === 'vet' ? '<div class="pv-vet-band"></div>' : '') +
         '<div class="pv-plate"><div class="pv-name">' + esc(m.name || 'Unknown') + '</div>' +
           (m.nickname ? '<div class="pv-nick">&ldquo;' + esc(m.nickname) + '&rdquo;</div>' : '') + '</div>' +
         '<div class="pv-strip">' +
@@ -1088,11 +1255,14 @@
       if (o.rows.length) tabs.push('OFC');
       if (b.rows.length) tabs.push('BRC');
       if (!backTab || tabs.indexOf(backTab) === -1) backTab = tabs[0] || null;
-      var awards = getAwardsWon(m.id, leagueData);
+      var awards = getAwardsWon(m.id, leagueData), rk = rookieInfo(m.id, leagueData);
+      var vt = cardTier(m.id, leagueData).vet;
       var html = '<div class="pv-face pv-back"><div class="pv-back-inner">' +
         '<div class="pv-bhead"><div><div class="pv-bname">' + esc(m.name || '') + '</div>' +
           '<div class="pv-bsub">' + (m.nickname ? '&ldquo;' + esc(m.nickname) + '&rdquo; &middot; ' : '') + (m.active !== false ? 'Active' : 'Alumni') + '</div></div>' +
-          '<div class="pv-bno">#' + cardNumber(m.id) + '</div></div>';
+          '<div class="pv-bno">#' + cardNumber(m.id) + '</div></div>' +
+        (rk ? '<div class="pv-debut"><span class="pv-rc-mini">RC</span> Debut: ' + esc(rk.debut) + '</div>' : '') +
+        (vt ? '<div class="pv-vet-tag">Old-School &middot; Since ' + vt.since + ' &middot; ' + vt.per.map(function (x) { return esc(x.key) + ' ' + x.n; }).join(' &middot; ') + '</div>' : '');
 
       if (tabs.length > 1) html += '<div class="pv-tabs">' + tabs.map(function (t) { return '<button class="pv-tab' + (t === backTab ? ' on' : '') + '" data-tab="' + t + '">' + t + '</button>'; }).join('') + '</div>';
       else if (tabs.length) html += '<div class="pv-sec">' + tabs[0] + ' Career</div>';
@@ -1105,6 +1275,10 @@
           }).join('') +
           '<tr class="total"><td>Car</td><td>' + o.rows.length + ' seasons</td><td>' + o.w + '-' + o.l + (o.t ? '-' + o.t : '') + '</td><td>' + o.pf.toFixed(0) + '</td><td colspan="2">' + pct + '%</td></tr>' +
         '</tbody></table>' +
+        (rk && o.rows.length ? (function (r0) {
+          return '<div class="pv-sec">Rookie Season</div><div class="pv-fact rookie"><span>' + esc(r0.year) + ' &middot; ' + esc(r0.team) + '</span><b>' + esc(r0.rec) +
+            (r0.rank ? ', ' + ordinal(r0.rank) : '') + ' &middot; ' + r0.pf.toFixed(0) + ' PF' + (r0.res === 'Live' ? ' (in progress)' : '') + '</b></div>';
+        })(o.rows[o.rows.length - 1]) : '') +
         '<div class="pv-sec">Career Highlights</div>' +
         '<div class="pv-fact"><span>Titles &middot; Finals &middot; Playoffs</span><b>' + o.titles + ' &middot; ' + o.finals + ' &middot; ' + o.po + '</b></div>' +
         (o.hi ? '<div class="pv-fact"><span>Career-high week</span><b>' + o.hi.score.toFixed(2) + ' (' + o.hi.year + ' Wk ' + o.hi.week + ')</b></div>' : '') +
@@ -1117,6 +1291,10 @@
           }).join('') +
           '<tr class="total"><td>Car</td><td>' + b.rows.length + ' brackets</td><td colspan="3">Avg finish ' + (b.rows.length ? (b.finSum / b.rows.length).toFixed(1) : '\u2014') + '</td></tr>' +
         '</tbody></table>' +
+        (rk && b.rows.length ? (function (r0) {
+          return '<div class="pv-sec">Rookie Season</div><div class="pv-fact rookie"><span>' + esc(r0.year) + ' &middot; ' + esc(r0.team) + '</span><b>' +
+            (r0.pts ? r0.pts.toFixed(0) + ' pts, ' : '') + ordinal(r0.rank) + ' of ' + r0.of + '</b></div>';
+        })(b.rows[b.rows.length - 1]) : '') +
         '<div class="pv-sec">Career Highlights</div>' +
         '<div class="pv-fact"><span>Titles</span><b>' + b.titles + '</b></div>' +
         (b.best ? '<div class="pv-fact"><span>Best finish</span><b>' + ordinal(b.best.rank) + ' (' + b.best.year + ')</b></div>' : '') +
@@ -1125,6 +1303,12 @@
         html += '<p class="pv-empty">No seasons on record yet. Rookie card.</p>';
       }
 
+      if (vt) {
+        html += '<div class="pv-sec">Service Stripes</div><div class="pv-stripes">' +
+          vt.per.map(function (x, i) { return new Array(x.n + 1).join('<i class="s' + (i % 2) + '"></i>'); }).join('') + '</div>' +
+          '<div class="pv-stripes-key">' + vt.per.map(function (x, i) { return '<span class="s' + (i % 2) + '"></span>' + esc(x.key) + ' ' + x.n; }).join(' &nbsp; ') +
+          ' &nbsp;= ' + vt.total + ' seasons</div>';
+      }
       if (awards.length) {
         html += '<div class="pv-sec">Trophy Case (' + awards.length + ')</div><div class="pv-awards">' +
           awards.slice(0, 12).map(function (a) { return '<span class="pv-award">' + esc(a.awardName) + ' <i>' + esc(String(a.year).slice(2)) + '</i></span>'; }).join('') +
@@ -1210,9 +1394,9 @@
       var data = window.OFL_DATA || {}, leagueData = data.leagueData || [];
       var m = (data.masterRoster || []).find(function (x) { return x.id === VIEW_LIST[viewIdx]; });
       if (!m) return;
-      var tier = tierFor(getChampionships(m.id, leagueData).length);
+      var tier = cardTier(m.id, leagueData);
       var card = document.getElementById('pvCard');
-      card.className = 'pv-card t-' + tier.key + (keepFlip && card.classList.contains('flipped') ? ' flipped' : '');
+      card.className = 'pv-card ' + tier.cls + (keepFlip && card.classList.contains('flipped') ? ' flipped' : '');
       var scroll = keepFlip ? (card.querySelector('.pv-back-inner') || {}).scrollTop : 0;
       document.getElementById('pvFlip').innerHTML = cardFront(m, leagueData, tier) + cardBack(m, leagueData);
       if (keepFlip && scroll) card.querySelector('.pv-back-inner').scrollTop = scroll;
@@ -1321,6 +1505,8 @@
           '<button class="playas-filter-pill is-active" data-filter="career">Active</button>' +
           '<button class="playas-filter-pill" data-filter="ofc">OFC</button>' +
           '<button class="playas-filter-pill" data-filter="brc">BRC</button>' +
+          '<button class="playas-filter-pill" data-filter="rookies">Rookies</button>' +
+          '<button class="playas-filter-pill" data-filter="veterans">Old-School</button>' +
           '<button class="playas-filter-pill" data-filter="retired">Retired</button>' +
         '</div>' +
         // Line 2: view dropdown left, heading right
@@ -1390,6 +1576,12 @@
         } else if (filterVal === 'brc') {
           heading.textContent = 'BRC';
           members = roster.filter(function (m) { return inLeague(m, 'BRC'); });
+        } else if (filterVal === 'veterans') {
+          heading.textContent = 'Old-School';
+          members = roster.filter(function (m) { return !!cardTier(m.id, leagues).vet; });
+        } else if (filterVal === 'rookies') {
+          heading.textContent = 'Rookies';
+          members = roster.filter(function (m) { return !!rookieInfo(m.id, leagues); });
         } else if (filterVal === 'retired') {
           heading.textContent = 'Retired';
           members = inactive.slice();
