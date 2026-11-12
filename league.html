@@ -78,7 +78,9 @@
       background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--tc, #888) 40%, transparent), rgba(0,0,0,0.65) 70%);
     }
     .lgz-card.brc .lgz-photo { border-color: #3d52c9; }
-    .lgz-photo img { width: 78%; height: 78%; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.8)); }
+    .lgz-photo { overflow: hidden; position: relative; }
+    .lgz-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; padding: 6%; box-sizing: border-box; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.8)); }
+    .lgz-photo.is-mug img { object-fit: cover; object-position: center 20%; padding: 0; filter: none; }
     .lgz-photo i { font-style: normal; font-family: var(--font-display); font-size: 1.8rem; color: var(--accent-dim); }
     .lgz-k { font-family: var(--font-body); font-size: 0.48rem; letter-spacing: 0.32em; text-transform: uppercase; color: #e8c864; margin-bottom: 0.3rem; }
     .lgz-card.brc .lgz-k { color: #98b8ec; }
@@ -1304,7 +1306,7 @@
       return '<a class="lgz-card' + (lg === 'brc' ? ' brc' : '') + '" href="' + esc(L.href) + '">' +
         '<span class="lgz-mast"><b>' + esc(L.mast) + '</b><span>' + esc(L.label) +
           '<span class="lgz-when"> &middot; Latest</span></span></span>' +
-        '<span class="lgz-photo" style="--tc:' + esc(P.color || '#888888') + '">' +
+        '<span class="lgz-photo' + (P.mug ? ' is-mug' : '') + '" style="--tc:' + esc(P.color || '#888888') + '">' +
           (P.logo ? '<img src="' + esc(P.logo) + '" alt="" />' : '<i>' + esc(init) + '</i>') + '</span>' +
         '<span class="lgz-text">' +
           (L.kicker ? '<span class="lgz-k">' + esc(L.kicker) + '</span>' : '') +

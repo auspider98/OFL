@@ -80,14 +80,19 @@
       float: left; font-family: var(--font-display); font-weight: 700; font-size: 3.1rem; line-height: 0.85;
       padding: 0.25rem 0.45rem 0 0; color: var(--accent);
     }
+    /* Lead photo: the picture fills the frame (mugshots cropped to fill, logos as large as they fit) */
     .gz-photo {
-      position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      border: 1px solid var(--drawer-border); background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--tc, #888) 35%, transparent), rgba(0,0,0,0.6) 70%);
-      padding: 1rem 0.8rem 0.7rem; min-height: 220px;
+      position: relative; display: flex; flex-direction: column; align-self: start; margin: 0;
+      border: 1px solid var(--drawer-border); background: rgba(0,0,0,0.6);
     }
-    .gz-photo img { width: 140px; height: 140px; object-fit: contain; filter: drop-shadow(0 6px 20px rgba(0,0,0,0.8)); }
-    .gz-photo-init { width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 3rem; color: var(--accent-dim); }
-    .gz-caption { margin-top: 0.6rem; font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.08em; color: var(--accent-dim); text-align: center; line-height: 1.5; font-style: italic; }
+    .gz-photo-frame {
+      position: relative; width: 100%; aspect-ratio: 1 / 1; overflow: hidden;
+      background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--tc, #888) 35%, transparent), rgba(0,0,0,0.6) 70%);
+    }
+    .gz-photo-frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; padding: 6%; box-sizing: border-box; filter: drop-shadow(0 6px 20px rgba(0,0,0,0.8)); }
+    .gz-photo-frame.is-mug img { object-fit: cover; object-position: center 20%; padding: 0; filter: none; }
+    .gz-photo-init { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 4rem; color: var(--accent-dim); }
+    .gz-caption { padding: 0.55rem 0.7rem 0.6rem; font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.08em; color: var(--accent-dim); text-align: center; line-height: 1.5; font-style: italic; border-top: 1px solid var(--drawer-border); }
 
     /* ── Columns ──────────────────────────────────────────── */
     .gz-cols { display: grid; grid-template-columns: 1fr 1px 300px; gap: 1.6rem; margin-top: 1.4rem; }
@@ -215,9 +220,8 @@
       .gz-paper { padding: 1rem 0.9rem 1.4rem; }
       .gz-mast-top span:nth-child(2) { display: none; }
       .gz-lead { grid-template-columns: 1fr; gap: 1rem; }
-      .gz-photo { min-height: 0; flex-direction: row; gap: 0.8rem; justify-content: flex-start; padding: 0.6rem; order: -1; }
-      .gz-photo img, .gz-photo-init { width: 72px; height: 72px; }
-      .gz-caption { margin-top: 0; text-align: left; }
+      .gz-photo { order: -1; }
+      .gz-photo-frame { aspect-ratio: 4 / 3; }
       .gz-boxes { grid-template-columns: 1fr; }
       .gz-table .gz-hide-sm { display: none; }
     }
@@ -298,12 +302,13 @@
 
       /* Lead */
       if (lead) {
-        var P = T[lead.photo] || {};
+        var P = lead.pic || T[lead.photo] || {};
         html += '<section class="gz-lead">' +
           '<div><div class="gz-kicker">' + esc(lead.kicker) + '</div><h2 class="gz-head">' + esc(lead.head) + '</h2>' +
             (lead.sub ? '<p class="gz-sub">' + lead.sub + '</p>' : '') + '<div class="gz-text">' + lead.body + '</div></div>' +
           '<figure class="gz-photo" style="--tc:' + (P.color || '#888') + '">' +
-            (P.logo ? '<img src="' + esc(P.logo) + '" alt="" />' : '<div class="gz-photo-init">' + esc(initials(P.team)) + '</div>') +
+            '<div class="gz-photo-frame' + (P.mug ? ' is-mug' : '') + '">' +
+              (P.logo ? '<img src="' + esc(P.logo) + '" alt="" />' : '<div class="gz-photo-init">' + esc(initials(P.team)) + '</div>') + '</div>' +
             (lead.caption ? '<figcaption class="gz-caption">' + lead.caption + '</figcaption>' : '') +
           '</figure>' +
         '</section>';
@@ -444,7 +449,8 @@
           '<div><div class="gz-kicker">' + esc(lead.kicker) + '</div><h2 class="gz-head">' + esc(lead.head) + '</h2>' +
             (lead.sub ? '<p class="gz-sub">' + lead.sub + '</p>' : '') + '<div class="gz-text">' + lead.body + '</div></div>' +
           '<figure class="gz-photo" style="--tc:' + (P.color || BLUE) + '">' +
-            (P.logo ? '<img src="' + esc(P.logo) + '" alt="" />' : '<div class="gz-photo-init">' + esc(initials(P.team)) + '</div>') +
+            '<div class="gz-photo-frame' + (P.team !== 'BRC' && P.logo ? ' is-mug' : '') + '">' +
+              (P.logo ? '<img src="' + esc(P.logo) + '" alt="" />' : '<div class="gz-photo-init">' + esc(initials(P.team)) + '</div>') + '</div>' +
             (lead.caption ? '<figcaption class="gz-caption">' + lead.caption + '</figcaption>' : '') +
           '</figure></section>';
       }

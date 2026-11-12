@@ -78,26 +78,76 @@
     });
     return out;
   }
+  /* Which side of a story each fill-in refers to, and whether it pictures a team logo or an owner.
+     OFC: W/Wo = winner, L/Lo = loser, team/owner = the story's team, old = the dethroned leader.
+     BRC: M = a bracket / member (mugshot), S = a school (BRC logo). */
+  var SIDES = {
+    ofc: { W: ['W', 'team'], Wo: ['W', 'owner'], L: ['L', 'team'], Lo: ['L', 'owner'], team: ['T', 'team'], owner: ['T', 'owner'], old: ['O', 'team'] },
+    brc: { team: ['M', 'owner'], owner: ['M', 'owner'], fan: ['M', 'owner'], owners: ['M', 'none'], w: ['S', 'school'], l: ['S', 'school'], opp: ['S', 'school'], rival: ['S', 'school'], school: ['S', 'school'] }
+  };
+  function tokensIn(tpl) { var out = [], m, re = new RegExp(TOKEN_RE.source, 'g'); while ((m = re.exec(String(tpl)))) out.push(m[1]); return out; }
+  function subjectOf(group, tpl) {
+    var map = SIDES[group] || {}, t = tokensIn(tpl), i;
+    // Herald: a bracket / member named anywhere in the headline is the subject ("Florida Loss Busts CK Golden picks…")
+    if (group === 'brc') for (i = 0; i < t.length; i++) if (map[t[i]] && map[t[i]][0] === 'M') return { tok: t[i], side: 'M', kind: map[t[i]][1] };
+    // Gazette: the dethroned leader ({old}) is only the subject when nobody else is named
+    for (i = 0; i < t.length; i++) if (map[t[i]] && t[i] !== 'old') return { tok: t[i], side: map[t[i]][0], kind: map[t[i]][1] };
+    for (i = 0; i < t.length; i++) if (map[t[i]]) return { tok: t[i], side: map[t[i]][0], kind: map[t[i]][1] };
+    return null;
+  }
+  function refsIn(group, tpl) {
+    var map = SIDES[group] || {}, out = [];
+    tokensIn(tpl).forEach(function (t) { if (map[t]) out.push({ side: map[t][0], kind: map[t][1] }); });
+    return out;
+  }
+  function sidesIn(group, tpl) {
+    var map = SIDES[group] || {}, out = [];
+    tokensIn(tpl).forEach(function (t) { if (map[t] && out.indexOf(map[t][0]) < 0) out.push(map[t][0]); });
+    return out;
+  }
   function Writer(group, edNo) { this.group = group; this.edNo = edNo || 0; this.occ = {}; }
   /* types: one type or [tier, fallbackType]; fb: built-in lines if the phrasebook slot is empty */
-  Writer.prototype.say = function (types, slot, vars, html, fb) {
+  /* Choose a line (optionally only lines passing filt) → { tpl, key, occ } or null */
+  Writer.prototype.pick = function (types, slot, fb, filt) {
     types = [].concat(types);
     var arr = [], used = types[0];
-    for (var i = 0; i < types.length; i++) { arr = lines(this.group, types[i], slot); if (arr.length) { used = types[i]; break; } }
-    if (!arr.length) arr = clean([].concat(fb || []));
-    if (!arr.length) return '';
+    for (var i = 0; i < types.length; i++) {
+      arr = lines(this.group, types[i], slot);
+      if (filt) arr = arr.filter(filt);
+      if (arr.length) { used = types[i]; break; }
+    }
+    if (!arr.length) { arr = clean([].concat(fb || [])); if (filt) arr = arr.filter(filt); }
+    if (!arr.length) return null;
     var key = this.group + '.' + used + '.' + slot, occ = this.occ[key] || 0;
     this.occ[key] = occ + 1;
     var n = arr.length, idx = (hash(key) + this.edNo * stepFor(n) + occ) % n;
-    var out = fill(arr[idx], nick(vars, key + '|' + this.edNo + '|' + occ), html);
+    return { tpl: arr[idx], key: key, occ: occ };
+  };
+  Writer.prototype.render = function (p, slot, vars, html) {
+    if (!p) return '';
+    var out = fill(p.tpl, nick(vars, p.key + '|' + this.edNo + '|' + p.occ), html);
     return (slot === 'headline' || slot === 'kicker') ? out : cap(out);
   };
-  /* A full story's wording: kicker, headline, sub, caption, closer */
-  Writer.prototype.story = function (types, vars, fb) {
+  Writer.prototype.say = function (types, slot, vars, html, fb) { return this.render(this.pick(types, slot, fb), slot, vars, html); };
+  /* A full story's wording: kicker, headline, sub, caption, closer.
+     The headline's first team / owner fill-in is its subject — that picks the picture —
+     and the caption must be about that same side (or about no one). side0 = the default
+     picture's side when the headline names nobody. */
+  Writer.prototype.story = function (types, vars, fb, side0) {
     fb = fb || {};
-    return { kicker: this.say(types, 'kicker', vars, false, fb.kicker), head: this.say(types, 'headline', vars, false, fb.head),
-      sub: this.say(types, 'sub', vars, true, fb.sub), caption: this.say(types, 'caption', vars, true, fb.caption),
-      closer: this.say(types, 'closer', vars, true, []) };
+    var g = this.group, hp = this.pick(types, 'headline', fb.head);
+    var subj = hp ? subjectOf(g, hp.tpl) : null;
+    var side = subj ? subj.side : (side0 || null);
+    // Gazette: the picture is either the team logo or the owner's mugshot, so the caption
+    // must name that same side AND the same kind (team ↔ logo, owner ↔ mugshot), or no one.
+    var kind = g === 'ofc' ? (subj ? subj.kind : 'team') : null;
+    var cp = this.pick(types, 'caption', fb.caption, function (line) {
+      return refsIn(g, line).every(function (x) { return x.side === side && (!kind || x.kind === kind); });
+    });
+    var caption = this.render(cp, 'caption', vars, true) || (fb.capNeutral ? cap(fill(fb.capNeutral, vars, true)) : '');
+    return { kicker: this.say(types, 'kicker', vars, false, fb.kicker), head: this.render(hp, 'headline', vars, false),
+      sub: this.say(types, 'sub', vars, true, fb.sub), caption: caption,
+      closer: this.say(types, 'closer', vars, true, []), subject: subj, side: side };
   };
   Writer.prototype.ad = function (type, vars, fb) {
     var group = this.group === 'brc' ? 'brcAds' : 'ofcAds', d = (PB[group] || {})[type] || {};
@@ -224,10 +274,22 @@
     var stories = [];
     var curGame = null;   // set while writing a game's stories; null for league-level stories
     /* types: phrasebook story type(s); vars: fill-ins; fb: built-in fallback wording */
-    function add(score, key, types, vars, fb, body, photoId) {
-      var t = W8.story(types, vars, fb);
+    /* sides: which member is the winner (W), loser (L), story team (T) or old leader (O) */
+    function add(score, key, types, vars, fb, body, photoId, sides) {
+      sides = sides || { T: photoId };
+      var side0 = Object.keys(sides).filter(function (x) { return sides[x] === photoId; })[0] || null;
+      if (vars.ws && !fb.capNeutral) fb.capNeutral = 'Final: {ws}–{ls}.';
+      var t = W8.story(types, vars, fb, side0);
+      var picId = photoId, kind = 'team';
+      if (t.subject && sides[t.subject.side]) { picId = sides[t.subject.side]; kind = t.subject.kind; }
       stories.push({ score: score, key: key, game: curGame || ('L-' + key), team: photoId,
-        kicker: t.kicker, head: t.head, sub: t.sub, body: withCloser(body, t.closer), photo: photoId, caption: t.caption });
+        kicker: t.kicker, head: t.head, sub: t.sub, body: withCloser(body, t.closer), photo: picId, pic: picFor(picId, kind), caption: t.caption });
+    }
+    /* The picture: an owner's mugshot (falls back to the team logo) or the team logo */
+    function picFor(id, kind) {
+      var I = T[id] || {}, mug = member(id).mugshot;
+      if (kind === 'owner' && mug) return { logo: mug, team: I.owner || I.team, color: I.color, mug: true };
+      return { logo: I.logo, team: I.team, color: I.color };
     }
     function own(id) { return { v: T[id].owner, id: id }; }
     function oddsLine(id) {
@@ -252,35 +314,35 @@
       var W = T[Wid], L = T[Lid], margin = ws - ls;
       var pW = pre.map[Wid], pL = pre.map[Lid];
       var pctW = pW.gp ? (pW.w + pW.t / 2) / pW.gp : 0.5, pctL = pL.gp ? (pL.w + pL.t / 2) / pL.gp : 0.5;
-      var body = gameBody(g, Wid, Lid, ws, ls);
+      var body = gameBody(g, Wid, Lid, ws, ls), GS = { W: Wid, L: Lid };
       var v = { W: W.team, L: L.team, Wo: own(Wid), Lo: own(Lid), ws: f2(ws), ls: f2(ls), margin: f2(margin), marginR: Math.round(margin),
         week: k, year: season.year, Wrec: rec(post.map[Wid]), Lrec: rec(post.map[Lid]) };
       function vx(extra) { var o = {}; Object.keys(v).forEach(function (x) { o[x] = v[x]; }); Object.keys(extra).forEach(function (x) { o[x] = extra[x]; }); return o; }
 
-      if (ws > allHi) add(96, 'hi' + Wid, 'allTimeHigh', vx({ old: f2(allHi) }), { kicker: 'Record Book', head: '{W} {W:sets|set} All-Time OFC Record With {ws}' }, body, Wid);
-      else if (ws > seasonHi && k > 1) add(60, 'shi' + Wid, 'seasonHigh', v, { kicker: 'Season High', head: '{W} {W:posts|post} Season-Best {ws}' }, body, Wid);
+      if (ws > allHi) add(96, 'hi' + Wid, 'allTimeHigh', vx({ old: f2(allHi) }), { kicker: 'Record Book', head: '{W} {W:sets|set} All-Time OFC Record With {ws}' }, body, Wid, GS);
+      else if (ws > seasonHi && k > 1) add(60, 'shi' + Wid, 'seasonHigh', v, { kicker: 'Season High', head: '{W} {W:posts|post} Season-Best {ws}' }, body, Wid, GS);
 
-      if (ls < allLo) add(90, 'lo' + Lid, 'allTimeLow', vx({ old: f2(allLo) }), { kicker: 'Record Book', head: 'New All-Time Low: {ls}' }, body, Lid);
+      if (ls < allLo) add(90, 'lo' + Lid, 'allTimeLow', vx({ old: f2(allLo) }), { kicker: 'Record Book', head: 'New All-Time Low: {ls}' }, body, Lid, GS);
 
       if (k >= 4 && pctL - pctW >= 0.3) add(44 + (pctL - pctW) * 35, 'up' + Wid, 'upset', vx({ Wrec: rec(pW), Lrec: rec(pL) }),
-        { kicker: 'Upset Alert', head: 'Stunner! {W} {W:topples|topple} {L}' }, body, Wid);
+        { kicker: 'Upset Alert', head: 'Stunner! {W} {W:topples|topple} {L}' }, body, Wid, GS);
 
       if (margin >= 40) add(46 + Math.min(20, (margin - 40) * 0.6), 'bo' + Wid, margin >= 60 ? ['blowoutBig', 'blowout'] : 'blowout', v,
-        { kicker: 'Blowout', head: '{W} {W:buries|bury} {L} By {marginR}' }, body, Wid);
+        { kicker: 'Blowout', head: '{W} {W:buries|bury} {L} By {marginR}' }, body, Wid, GS);
 
-      if (margin < 3) add(58 - margin * 4, 'nb' + Wid, 'photoFinish', v, { kicker: 'Photo Finish', head: '{W} {W:escapes|escape} By {margin}' }, body, Wid);
+      if (margin < 3) add(58 - margin * 4, 'nb' + Wid, 'photoFinish', v, { kicker: 'Photo Finish', head: '{W} {W:escapes|escape} By {margin}' }, body, Wid, GS);
 
       var ps = pre.map[Lid].streak;
       if (ps && ps.type === 'W' && ps.n >= 4) add(42 + ps.n, 'sn' + Lid, 'streakSnapped', vx({ streak: ps.n }),
-        { kicker: 'Streak Snapped', head: '{W} {W:ends|end} {L’s} {streak}-Game Win Streak' }, body, Wid);
+        { kicker: 'Streak Snapped', head: '{W} {W:ends|end} {L’s} {streak}-Game Win Streak' }, body, Wid, GS);
       var pw2 = pre.map[Wid].streak;
       if (pw2 && pw2.type === 'L' && pw2.n >= 3) add(40 + pw2.n, 'sk' + Wid, 'skidOver', vx({ streak: pw2.n }),
-        { kicker: 'Skid Over', head: '{W} {W:snaps|snap} {streak}-Game Losing Streak' }, body, Wid);
+        { kicker: 'Skid Over', head: '{W} {W:snaps|snap} {streak}-Game Losing Streak' }, body, Wid, GS);
       var nw = post.map[Wid].streak;
       if (nw && nw.type === 'W' && nw.n >= 5) add(38 + nw.n, 'hs' + Wid, 'hotStreak', vx({ streak: nw.n, others: post.rows.length - 1 }),
-        { kicker: 'Hot Streak', head: '{W} {W:wins|win} {streak} Straight' }, body, Wid);
+        { kicker: 'Hot Streak', head: '{W} {W:wins|win} {streak} Straight' }, body, Wid, GS);
 
-      add(10 + margin / 10, 'g' + Wid, 'gameRecap', v, { kicker: 'Week {week}', head: '{W} {W:beats|beat} {L}' }, body, Wid);
+      add(10 + margin / 10, 'g' + Wid, 'gameRecap', v, { kicker: 'Week {week}', head: '{W} {W:beats|beat} {L}' }, body, Wid, GS);
     });
 
     // League-level stories
@@ -291,7 +353,7 @@
       add(50, 'lead' + lead1.id, 'newLeader', { team: NL.team, owner: own(lead1.id), rec: rec(lead1), pf: f2(lead1.pf), old: T[lead0.id].team, week: k, year: season.year },
         { kicker: 'Standings', head: 'New King Of The Hill: {team}' },
         '<p><b>' + esc(NL.team) + '</b> sit atop the OFC after Week ' + k + ', unseating ' + esc(T[lead0.id].team) + '. ' +
-        'Points for: ' + f2(lead1.pf) + '.' + oddsLine(lead1.id) + '</p>', lead1.id);
+        'Points for: ' + f2(lead1.pf) + '.' + oddsLine(lead1.id) + '</p>', lead1.id, { T: lead1.id, O: lead0.id });
     }
     var swings = post.rows.map(function (r) { return { id: r.id, d: (oddsPost[r.id] || 0) - (oddsPre[r.id] || 0) }; })
       .sort(function (a, b) { return Math.abs(b.d) - Math.abs(a.d); });
@@ -410,7 +472,9 @@
     var WB = new Writer('brc', edNoOf(BEDITIONS, season, r));
     /* types: phrasebook story type(s); vars: fill-ins; fb: built-in fallback wording */
     function add(score, game, team, types, vars, fb, body, photo) {
-      var t = WB.story(types, vars, fb);
+      var isMember = photo && photo.team !== 'BRC';
+      var t = WB.story(types, vars, fb, isMember ? 'M' : 'S');
+      if (t.subject && t.subject.side === 'S') photo = leaguePhoto();     // headline is about a school → BRC logo
       stories.push({ score: score, game: game || ('L' + stories.length), team: team, kicker: t.kicker, head: t.head, sub: t.sub,
         body: withCloser(body, t.closer), photo: photo, caption: t.caption });
     }
@@ -536,7 +600,7 @@
       var fin = games[0], fsw = season.finalScoreWinner, fsl = season.finalScoreLoser;
       var margin = ru ? ch.cum - ru.cum : 0, tn = titleNote(ch.id, ch.t.owner, yr);
       var hadIt = fin && ch.champ && normTeam(ch.champ) === normTeam(fin.w);
-      var cs = WB.story('champion', bv(ch, { pts: ch.cum, award: AWARDS.champion || 'title', margin: margin }), { kicker: 'Champion', head: '{owner} Cuts Down The Nets' });
+      var cs = WB.story('champion', bv(ch, { pts: ch.cum, award: AWARDS.champion || 'title', margin: margin }), { kicker: 'Champion', head: '{owner} Cuts Down The Nets' }, 'M');
       stories.push({ score: 120, game: 'L-champ', team: ch.id, kicker: tn.kicker === 'Champion' ? cs.kicker : tn.kicker, head: cs.head,
         sub: (fin ? esc(fin.w) + ' beats ' + esc(fin.l) + (fsw && fsl ? ' ' + fsw + '&ndash;' + fsl : '') + ', and ' : '') + esc(ch.t.team) + ' ' + verb(ch.t.team, 'takes', 'take') + ' the ' + esc(AWARDS.champion || 'title') + '.',
         body: withCloser('<p>' + nm(ch) + ' won the ' + season.year + ' BRC with ' + ch.cum + ' points' + (ru ? ', ' + margin + ' ahead of ' + nm(ru) : '') + '. ' +
@@ -588,7 +652,7 @@
     var ch = M[season.championMemberId] || post[0], ru = M[season.runnerUpMemberId] || post[1] || null, last = post[post.length - 1];
     var stories = [];
     function add(score, team, types, vars, fb, body, photo, kickerOverride) {
-      var t = WB.story(types, vars, fb);
+      var t = WB.story(types, vars, fb, 'M');
       stories.push({ score: score, game: 'L' + stories.length, team: team, kicker: kickerOverride || t.kicker, head: t.head, sub: t.sub,
         body: withCloser(body, t.closer), photo: photo, caption: t.caption });
     }
@@ -602,7 +666,7 @@
     var priorWins = BSEASONS.filter(function (s) { return parseInt(s.year, 10) < yr; }).map(function (s) {
       var w = (s.standings || []).find(function (x) { return x.memberId === s.championMemberId; }); return w ? num(w.totalPoints) : 0; });
     var record = priorWins.length >= 3 && ch.cum > Math.max.apply(null, priorWins);
-    var cs = WB.story('champion', bv(ch, { award: AWARDS.champion || 'title', margin: margin }), { kicker: 'Champion', head: '{owner} Cuts Down The Nets' });
+    var cs = WB.story('champion', bv(ch, { award: AWARDS.champion || 'title', margin: margin }), { kicker: 'Champion', head: '{owner} Cuts Down The Nets' }, 'M');
     stories.push({ score: 100, game: 'L-champ', team: ch.id, kicker: tn.kicker === 'Champion' ? cs.kicker : tn.kicker, head: cs.head,
       sub: ch.cum + ' points' + (ru ? (margin <= 3 ? ', and by a whisker: ' + margin + ' ahead of ' + esc(ru.t.team) + '.' : ', ' + margin + ' clear of the field.') : '.'),
       body: withCloser('<p>' + nm(ch) + ' won the ' + season.year + ' BRC with ' + ch.cum + ' points' + (ch.correct ? ' and ' + ch.correct + ' correct picks' : '') +
@@ -679,7 +743,8 @@
     var e = eds[eds.length - 1], st, ed;
     try { ed = lg === 'brc' ? writeBRC(e) : writeEdition(e.s, e.k); } catch (x) { return null; }
     st = ed.stories[0] || null;
-    var photo = st ? (lg === 'brc' ? st.photo : ed.T[st.photo]) : null;
+    var photo = st ? (lg === 'brc' ? st.photo : (st.pic || ed.T[st.photo])) : null;
+    if (photo && lg === 'brc' && photo.team !== 'BRC' && photo.logo) photo = { logo: photo.logo, team: photo.team, color: photo.color, mug: true };
     return {
       league: lg, season: e.s, edition: e,
       mast: lg === 'brc' ? 'The Hardwood Herald' : 'The OFC Gazette',

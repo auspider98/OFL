@@ -7,6 +7,7 @@
  *  Edit with phrasebook-admin.html — it writes this file for you.
  *  Load before ofl-newsroom.js:
  *    <script src="ofl-phrasebook.js"></script>
+ *  Generated 11/12/2026, 3:05:49 PM (owner headlines merged 11/12/2026)
  * ============================================================
  */
 window.OFL_PHRASEBOOK = {
@@ -48,6 +49,105 @@ window.OFL_PHRASEBOOK = {
         "War Eagle, {owner}. War Eagle.",
         "{owner} was seen wearing orange in public again. Unprompted."
       ]
+    },
+    "mbr_006": {
+      "name": "Amy",
+      "school": "",
+      "nicknames": [
+        "ladybug",
+        "your honor"
+      ],
+      "gags": []
+    },
+    "mbr_mm7vn0ihpa7k": {
+      "name": "Annabelle",
+      "school": "",
+      "nicknames": [
+        "Mollys Mom"
+      ],
+      "gags": []
+    },
+    "mbr_mm1629iqfyaj": {
+      "name": "Ansley",
+      "school": "",
+      "nicknames": [
+        "sissy"
+      ],
+      "gags": []
+    },
+    "mbr_002": {
+      "name": "Big Rob",
+      "school": "",
+      "nicknames": [
+        "Vanilla Thunder"
+      ],
+      "gags": []
+    },
+    "mbr_003": {
+      "name": "Bubba",
+      "school": "",
+      "nicknames": [
+        "Colonel",
+        "Booger"
+      ],
+      "gags": []
+    },
+    "mbr_mm1635nfdqvt": {
+      "name": "Kayla",
+      "school": "",
+      "nicknames": [
+        "Kdawg"
+      ],
+      "gags": []
+    },
+    "mbr_mm161lj76qt7": {
+      "name": "Sherry Beth",
+      "school": "",
+      "nicknames": [
+        "Big Red",
+        "Gangan"
+      ],
+      "gags": []
+    },
+    "mbr_007": {
+      "name": "Sonya",
+      "school": "",
+      "nicknames": [
+        "Browns"
+      ],
+      "gags": []
+    },
+    "mbr_mm164qiz6e6j": {
+      "name": "Tristan",
+      "school": "",
+      "nicknames": [
+        "Bear"
+      ],
+      "gags": []
+    },
+    "mbr_mm164375ur1b": {
+      "name": "Emery",
+      "school": "",
+      "nicknames": [
+        "Eso"
+      ],
+      "gags": []
+    },
+    "mbr_005": {
+      "name": "William",
+      "school": "",
+      "nicknames": [
+        "Aiden"
+      ],
+      "gags": []
+    },
+    "mbr_004": {
+      "name": "Evan",
+      "school": "",
+      "nicknames": [
+        "EE"
+      ],
+      "gags": []
     }
   },
   "ofc": {
@@ -82,7 +182,12 @@ window.OFL_PHRASEBOOK = {
         "Somebody Call The Record Book: {W} {W:scores|score} {ws}",
         "{ws}: {W} {W:writes|write} {W:its|their} Name In History",
         "The Greatest Week Ever Played, Courtesy Of {W}",
-        "{W} Just Did Something Nobody In The OFC Has Ever Done"
+        "{W} Just Did Something Nobody In The OFC Has Ever Done",
+        "{Wo} Just Rewrote The Record Book",
+        "{Wo} Drops {ws} And Breaks The OFC",
+        "{Wo} Is Now The Answer To A Trivia Question: {ws}",
+        "{Lo} Picked The Wrong Week To Play {Wo}",
+        "{Wo} Will Be Talking About This One Forever"
       ],
       "sub": [
         "The highest score in league history. The old mark of {old} is now a footnote.",
@@ -95,7 +200,14 @@ window.OFL_PHRASEBOOK = {
         "{W}, pictured shortly after breaking the scoreboard.",
         "{Wo} demands this be printed on a T-shirt.",
         "The moment {ws} went final.",
-        "{Wo}, refusing to come down from the ceiling."
+        "{Wo}, refusing to come down from the ceiling.",
+        "{W}, now officially in the record book.",
+        "{W}, the new standard.",
+        "{L}, the answer to \"who was in the room when it happened?\"",
+        "{L}, collateral damage in a historic afternoon.",
+        "{L}, filing this one under \"wrong place, wrong time.\"",
+        "{Lo}, a witness to history. An unwilling one.",
+        "{Lo}, who would like this record to come with an asterisk."
       ],
       "closer": [
         "The commissioner has been asked to have the number laminated.",
@@ -134,7 +246,12 @@ window.OFL_PHRASEBOOK = {
         "{W} {W:drops|drop} The Hammer: {ws}",
         "{W} {W:lights|light} Up The Scoreboard",
         "Fire Marshal Called On {W} After {ws}-Point Week",
-        "{W} {W:hangs|hang} {ws} On {L}"
+        "{W} {W:hangs|hang} {ws} On {L}",
+        "{Wo} Goes Off For {ws}",
+        "{Wo} Puts Up The Best Week Of {year}",
+        "{Wo} Hangs {ws} On {Lo}",
+        "{Lo} Gets Steamrolled By A {ws}-Point {Wo}",
+        "{Wo} Found The Cheat Codes"
       ],
       "sub": [
         "Best single-week total of the {year} season.",
@@ -146,8 +263,13 @@ window.OFL_PHRASEBOOK = {
       "caption": [
         "{W} celebrates a {ws}-point afternoon.",
         "{Wo}, mid-victory lap.",
-        "The look of a manager who checked the box score twice.",
-        "{W} after hanging {ws} on {L}."
+        "{W} after hanging {ws} on {L}.",
+        "{Wo}, the look of a manager who checked the box score twice.",
+        "{W}, the hottest team of {year}.",
+        "{L}, who will be seeing this score in nightmares.",
+        "{L}, flattened by the best week of the season.",
+        "{Lo}, still counting the points that went the other way.",
+        "{Lo}, who picked a bad week to be the opponent."
       ],
       "closer": [
         "{Lo} has requested a copy of the game film for \"research.\"",
@@ -187,7 +309,12 @@ window.OFL_PHRASEBOOK = {
         "{L} {L:digs|dig} Below Rock Bottom",
         "A Historic Day For All The Wrong Reasons",
         "{L} {L:scores|score} {ls}. On Purpose? Investigation Ongoing.",
-        "The Bottom Has A Basement, And {L} Found It"
+        "The Bottom Has A Basement, And {L} Found It",
+        "{Lo} Hits A New All-Time Low",
+        "{Lo} Scores {ls}. On Purpose? Investigation Ongoing.",
+        "{Lo} Makes History, Just Not The Good Kind",
+        "{Lo} Would Like To Speak To The Manager. {Lo} Is The Manager.",
+        "Someone Check On {Lo}"
       ],
       "sub": [
         "The lowest score in OFL history. Thoughts and prayers to {Lo}.",
@@ -199,8 +326,14 @@ window.OFL_PHRASEBOOK = {
       "caption": [
         "{Lo} declined to comment.",
         "{Lo}, pictured avoiding the group chat.",
-        "The lineup, shortly before the incident.",
-        "{Lo} would like to speak to the manager. {Lo} is the manager."
+        "{Lo} would like to speak to the manager. {Lo} is the manager.",
+        "{L’s} lineup, shortly before the incident.",
+        "{L}, setting a record nobody wanted.",
+        "{L}, pictured at rock bottom.",
+        "{W}, who barely had to try.",
+        "{W}, gift-wrapped a win.",
+        "{Wo}, accepting a win that arrived pre-wrapped.",
+        "{Wo}, a grateful beneficiary."
       ],
       "closer": [
         "The league has opened a GoFundMe for {L}.",
@@ -239,7 +372,13 @@ window.OFL_PHRASEBOOK = {
         "{L} {L:gets|get} Upset By {W}",
         "{W} {W:stuns|stun} {L} In Week {week}",
         "Hide The Children: {W} Just Beat {L}",
-        "{L} {L:trips|trip} Over {W}"
+        "{L} {L:trips|trip} Over {W}",
+        "{Wo} Pulls Off The Upset Of The Week",
+        "{Lo} Just Got Taken Down By {Wo}",
+        "{Wo} Was Supposed To Lose. {Wo} Did Not Lose.",
+        "{Lo} Did Not See {Wo} Coming",
+        "{Wo} Shocks {Lo}",
+        "{Lo} Owes The Group Chat An Explanation"
       ],
       "sub": [
         "A {Wrec} team walked in and took down a favorite.",
@@ -252,7 +391,13 @@ window.OFL_PHRASEBOOK = {
         "{W} after pulling off the upset of the week.",
         "{Wo}, still in disbelief.",
         "{Lo}, pictured looking for answers.",
-        "The final, which {Lo} has asked to be retracted."
+        "The final, which {Lo} has asked to be retracted.",
+        "{Wo}, the people’s champion.",
+        "{W}, giant slayers.",
+        "{W}, nobody’s favorite and everybody’s problem.",
+        "{L}, favorites no more.",
+        "{L}, wondering what just happened.",
+        "{L}, on the wrong end of the upset of the week."
       ],
       "closer": [
         "{Lo} will be hearing about this one for a while.",
@@ -291,7 +436,13 @@ window.OFL_PHRASEBOOK = {
         "{W} {W:dismantles|dismantle} {L} By {marginR}",
         "{L} {L:is|are} Still Looking For The License Plate",
         "{W} {W:turns|turn} {L} Into A Highlight Reel",
-        "No Contest: {W} Over {L}"
+        "No Contest: {W} Over {L}",
+        "{Wo} Runs Up The Score On {Lo}",
+        "{Lo} Gets Buried By {marginR}",
+        "{Wo} Shows {Lo} No Mercy",
+        "{Lo} Is Still Looking For The License Plate",
+        "{Wo} Turns {Lo} Into A Highlight Reel",
+        "{Lo} Would Like To Forget This Week"
       ],
       "sub": [
         "{Lo} reportedly \"fine, totally fine.\"",
@@ -304,7 +455,14 @@ window.OFL_PHRASEBOOK = {
         "{W} won by {margin}. It was not close.",
         "{Wo} running up the score, unapologetically.",
         "{L}, last seen somewhere around the 20-yard line.",
-        "The scoreboard operator needed a break."
+        "The scoreboard operator needed a break.",
+        "{Lo}, pictured before kickoff, back when there was hope.",
+        "{W}, running up the score.",
+        "{W}, not taking prisoners.",
+        "{L}, wishing the clock moved faster.",
+        "{L}, pictured during the final 40 points.",
+        "{Wo}, who asked for one more touchdown anyway.",
+        "{Lo}, reportedly \"fine, totally fine.\""
       ],
       "closer": [
         "{Lo} has asked that this game be \"removed from the internet.\"",
@@ -343,7 +501,12 @@ window.OFL_PHRASEBOOK = {
         "{W} {W:sends|send} {L} Into Another Dimension",
         "{L} {L:files|file} Police Report After {W} Game",
         "{W} {W:wins|win} By {marginR}, Then Keeps Going",
-        "Nobody Has Seen {L} Since Sunday"
+        "Nobody Has Seen {L} Since Sunday",
+        "{Lo} Has Not Been Seen Since Sunday",
+        "{Wo} Wins By {marginR}, Then Keeps Going",
+        "{Lo} Files A Police Report After {marginR}-Point Loss",
+        "{Wo} Commits A Crime Against {Lo}",
+        "{Lo} Has Changed Phone Numbers"
       ],
       "sub": [
         "A {marginR}-point margin. The game was over before kickoff.",
@@ -356,7 +519,13 @@ window.OFL_PHRASEBOOK = {
         "{W}, shown here not stopping.",
         "{Lo}, pictured hiding from the scoreboard.",
         "{marginR} points. Let that sink in.",
-        "{Wo} after asking for \"just one more touchdown.\""
+        "{Wo} after asking for \"just one more touchdown.\"",
+        "{W}, officially out of control.",
+        "{W}, still scoring.",
+        "{L}, pictured shortly before the mercy rule was denied.",
+        "{L}, missing, presumed flattened.",
+        "{Wo}, who has not stopped smiling since Sunday.",
+        "{Lo}, who would like this game removed from the internet."
       ],
       "closer": [
         "{L} has been placed on the league’s endangered species list.",
@@ -395,7 +564,12 @@ window.OFL_PHRASEBOOK = {
         "Too Close For Comfort: {W} Over {L}",
         "{L} {L:loses|lose} By {margin}. Ouch.",
         "Monday Night Miracle For {W}",
-        "{W} {W:steals|steal} One From {L}"
+        "{W} {W:steals|steal} One From {L}",
+        "{Wo} Survives By {margin}",
+        "{Lo} Loses By {margin}. Ouch.",
+        "{Wo} Can Breathe Again",
+        "{Wo} Steals One From {Lo}",
+        "{Lo} Left It On The Bench"
       ],
       "sub": [
         "Decided by {margin} points. Somebody’s kicker is getting a fruit basket.",
@@ -408,7 +582,15 @@ window.OFL_PHRASEBOOK = {
         "Final margin: {margin}.",
         "{Lo}, staring at the bench points.",
         "{Wo} exhaling for the first time since Sunday.",
-        "The look of a manager who left points on the bench."
+        "{Lo}, the look of a manager who left points on the bench.",
+        "{Wo}, nerves shot.",
+        "{Lo}, still doing the math.",
+        "{W}, survivors.",
+        "{W}, winners by a whisker.",
+        "{W}, living dangerously.",
+        "{L}, one play short.",
+        "{L}, so close it hurts.",
+        "{L}, robbed by the bench."
       ],
       "closer": [
         "{Lo} has already found three bench players who would have won it.",
@@ -448,7 +630,12 @@ window.OFL_PHRASEBOOK = {
         "{W} {W:pops|pop} {L’s} Bubble",
         "{streak} And Done: {L} Finally {L:loses|lose}",
         "{W} {W:brings|bring} {L} Back To Earth",
-        "{L} {L:remembers|remember} How To Lose"
+        "{L} {L:remembers|remember} How To Lose",
+        "{Wo} Snaps {Lo’s} {streak}-Game Streak",
+        "{Lo’s} Streak Dies At {streak}",
+        "{Wo} Plays Spoiler",
+        "{Lo} Remembers How To Lose",
+        "{Wo} Brings {Lo} Back To Earth"
       ],
       "sub": [
         "All good things, etc.",
@@ -461,7 +648,12 @@ window.OFL_PHRASEBOOK = {
         "{W} playing the role of spoiler.",
         "{Lo}, adjusting to life after the streak.",
         "{Wo} enjoying every second of this.",
-        "The streak, pictured shortly before its death."
+        "{L’s} streak, pictured shortly before its death.",
+        "{W}, professional party poopers.",
+        "{W}, the streak stoppers.",
+        "{L}, mortal after all.",
+        "{Wo}, enjoying every second of this.",
+        "{Lo}, adjusting to losing again."
       ],
       "closer": [
         "The rest of the league sent {W} a thank-you card.",
@@ -501,7 +693,12 @@ window.OFL_PHRASEBOOK = {
         "{W} {W:ends|end} The Skid At {L’s} Expense",
         "{L} {L:helps|help} {W} Snap Out Of It",
         "{W} {W:wins|win}. Check Your Calendars.",
-        "Hell Freezes Over: {W} {W:gets|get} A W"
+        "Hell Freezes Over: {W} {W:gets|get} A W",
+        "{Wo} Finally Wins One",
+        "{Wo} Snaps A {streak}-Game Skid",
+        "{Wo} Remembers How To Win",
+        "{Wo} Gets Off The Schneid",
+        "{Lo} Helps {Wo} Snap Out Of It"
       ],
       "sub": [
         "Somewhere, a fantasy analyst is taking credit.",
@@ -514,7 +711,13 @@ window.OFL_PHRASEBOOK = {
         "{W}, winners again.",
         "{Wo}, remembering what winning feels like.",
         "{Lo} helped. Unintentionally.",
-        "The rare sight of {Wo} smiling."
+        "The rare sight of {Wo} smiling.",
+        "{W}, back in the win column.",
+        "{W}, losers no more.",
+        "{L}, the cure for {W:its|their} skid.",
+        "{L}, the get-well opponent.",
+        "{Lo}, who did not intend to be anyone’s cure.",
+        "{Lo}, hearing about this one for a while."
       ],
       "closer": [
         "{L} should probably feel bad about being the cure.",
@@ -555,7 +758,12 @@ window.OFL_PHRASEBOOK = {
         "{W} {W:keeps|keep} Rolling",
         "The {W} Freight Train Rolls On",
         "{streak} Wins In A Row. {W} {W:is|are} Just Showing Off.",
-        "Somebody Check {W} For Performance Enhancers"
+        "Somebody Check {W} For Performance Enhancers",
+        "{Wo} Has Won {streak} Straight",
+        "Can Anybody Stop {Wo}?",
+        "{Wo} Is On Fire",
+        "{Wo} Just Keeps Winning",
+        "{Wo} Makes It {streak} In A Row"
       ],
       "sub": [
         "Can anybody stop them? Asking for {others} friends.",
@@ -568,7 +776,13 @@ window.OFL_PHRASEBOOK = {
         "{W} riding a {streak}-game streak.",
         "{Wo}, pictured not losing.",
         "{W} rolls on.",
-        "{Wo} after win No. {streak} in a row."
+        "{Wo} after win No. {streak} in a row.",
+        "{W}, the hottest team in the OFC.",
+        "{L}, the latest victim of the streak.",
+        "{L}, roadkill on the {W} tour.",
+        "{L}, the next name on {W:its|their} list.",
+        "{Lo}, stop No. {streak} on the tour.",
+        "{Lo}, who could not stop the freight train."
       ],
       "closer": [
         "The league office is exploring whether {W} can be stopped legally.",
@@ -607,7 +821,13 @@ window.OFL_PHRASEBOOK = {
         "{L} {L:falls|fall} To {W}",
         "{W} {W:moves|move} To {Wrec}",
         "{W} {W:tops|top} {L}, {ws}–{ls}",
-        "{W} {W:does|do} Enough Against {L}"
+        "{W} {W:does|do} Enough Against {L}",
+        "{Wo} Takes Care Of Business",
+        "{Wo} Gets The W",
+        "{Lo} Comes Up Short",
+        "{Wo} Handles {Lo}",
+        "{Lo} Falls To {Wo}",
+        "{Wo} Moves To {Wrec}"
       ],
       "sub": [
         "{W} {W:improves|improve} to {Wrec}.",
@@ -618,7 +838,14 @@ window.OFL_PHRASEBOOK = {
       "caption": [
         "{W} after a Week {week} win.",
         "{Wo} takes the W.",
-        "A day at the office for {W}."
+        "A day at the office for {W}.",
+        "{Wo}, all business.",
+        "{Lo}, heading back to the drawing board.",
+        "{W}, taking care of business.",
+        "{L}, back to the drawing board.",
+        "{L}, falling to {Lrec}.",
+        "{L}, who will try again next week.",
+        "{Lo} will try again next week."
       ],
       "closer": [
         "Not flashy, but a W is a W.",
@@ -651,7 +878,12 @@ window.OFL_PHRASEBOOK = {
         "{old} {old:is|are} Out, {team} {team:is|are} In",
         "The OFC Has A New Boss: {team}",
         "All Hail {team}, Your New League Leader",
-        "First Place Changes Hands: {team}"
+        "First Place Changes Hands: {team}",
+        "{owner} Takes Over First Place",
+        "{owner} Is Your New League Leader",
+        "{owner} Climbs To The Top",
+        "All Hail {owner}",
+        "{owner} Sits On The Throne"
       ],
       "sub": [
         "{team} {team:takes|take} over first place at {rec}.",
@@ -663,7 +895,9 @@ window.OFL_PHRASEBOOK = {
         "{owner} surveys the kingdom.",
         "{owner}, comfortable at the top.",
         "{team}, new tenants of first place.",
-        "{owner} measuring the throne."
+        "{owner} measuring the throne.",
+        "{team}, comfortable at the top.",
+        "{team}, the new top dogs."
       ],
       "closer": [
         "{old} would like the throne back.",
@@ -696,7 +930,12 @@ window.OFL_PHRASEBOOK = {
         "{team} {team:books|book} A Ticket? Not So Fast. But Maybe.",
         "Hey, {team} {team:is|are} Back In This Thing",
         "{team} {team:jumps|jump} From {from}% To {to}%",
-        "Look Who’s Making A Run: {team}"
+        "Look Who’s Making A Run: {team}",
+        "{owner} Is Suddenly A Contender",
+        "{owner} Is Printing Playoff Tickets",
+        "{owner’s} Playoff Odds Soar To {to}%",
+        "Hey, {owner} Is Back In This Thing",
+        "{owner} Makes A Playoff Push"
       ],
       "sub": [
         "Odds up {swing} points in one week.",
@@ -707,7 +946,9 @@ window.OFL_PHRASEBOOK = {
       "caption": [
         "{owner} is updating the group chat.",
         "{owner}, doing math on a napkin.",
-        "{team} with a sudden pep in {team:its|their} step."
+        "{team} with a sudden pep in {team:its|their} step.",
+        "{team}, suddenly in the hunt.",
+        "{team}, on the rise."
       ],
       "closer": [
         "{owner} has already started trash-talking the top seeds.",
@@ -740,7 +981,12 @@ window.OFL_PHRASEBOOK = {
         "Mayday, Mayday: {team} {team:is|are} Going Down",
         "{team’s} January Plans Are In Jeopardy",
         "From {from}% To {to}%: Ouch, {team}",
-        "{team} Just Lost A Lot Of Ground"
+        "{team} Just Lost A Lot Of Ground",
+        "{owner’s} Playoff Hopes Crater",
+        "{owner} Is Running Out Of Time",
+        "{owner} Is Now Rooting For Chaos",
+        "{owner’s} January Plans Are In Jeopardy",
+        "{owner} Watches The Playoff Odds Fall To {to}%"
       ],
       "sub": [
         "Odds down {swing} points in one week.",
@@ -751,7 +997,9 @@ window.OFL_PHRASEBOOK = {
       "caption": [
         "{owner} has gone quiet.",
         "{owner}, refreshing the standings for the 40th time.",
-        "{team} could use a miracle. Or three."
+        "{team} could use a miracle. Or three.",
+        "{team}, sliding down the board.",
+        "{team}, running out of runway."
       ],
       "closer": [
         "Mathematically alive is still alive, {owner}. Barely.",
@@ -781,7 +1029,10 @@ window.OFL_PHRASEBOOK = {
         "The {year} Playoff Field Is Set",
         "{team} {team:finishes|finish} On Top At {rec}",
         "Regular Season Crown Goes To {team}",
-        "{team} {team:enters|enter} The Playoffs As The Team To Beat"
+        "{team} {team:enters|enter} The Playoffs As The Team To Beat",
+        "{owner} Locks Up The No. 1 Seed",
+        "{owner} Finishes On Top At {rec}",
+        "{owner} Enters The Playoffs As The Team To Beat"
       ],
       "sub": [
         "The regular season is in the books. {field} are playoff bound.",
@@ -791,7 +1042,9 @@ window.OFL_PHRASEBOOK = {
       "caption": [
         "The top seed, ready for January. Well, December.",
         "{owner} with the regular-season crown.",
-        "{team}, playoff ready."
+        "{team}, playoff ready.",
+        "{team}, the No. 1 seed.",
+        "{team}, the team to beat."
       ],
       "closer": [
         "Everybody else has officially started their offseason.",
