@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Playa Profiles — every OFL member's whole career, OFC and BRC, on one page." />
+  <title>OFL — Playa Profile</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="admin-config.js"></script>
+  <script src="ofl-data.js"></script>
+  <script src="ofl-brc-analysis.js"></script>
+  <script src="admin.js"></script>
+  <script src="ofl-engine.js"></script>
+  <script src="ofl-phrasebook.js"></script>
+  <script src="ofl-newsroom.js"></script>
+
+  <style>
+    /* ══════════════════════════════════════════════════════════
+       PLAYA PROFILE — all classes prefixed pp-
+       Styled to match the Team and Playas pages.
+    ══════════════════════════════════════════════════════════ */
+    .pp-page { position: relative; width: 100%; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+    .pp-page > .slide-layer      { position: fixed; inset: 0; z-index: 0; height: 100%; }
+    .pp-page > .landing-overlay  { position: fixed; inset: 0; z-index: 10; height: 100%; pointer-events: none; }
+    .pp-page > .landing-vignette { position: fixed; inset: 0; z-index: 11; height: 100%; pointer-events: none; }
+    #ppRoot { --pc: #3f5bff; position: relative; z-index: 20; flex: 1; display: flex; flex-direction: column; }
+
+    /* ── Hero (matches team.html / playas.html) ──────────── */
+    .pp-hero { position: relative; z-index: 20; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 5rem 2rem 0; }
+    .pp-hero.is-pick { min-height: calc(32vh - 10px); justify-content: flex-start; }
+    .pp-hero .landing-rule { position: absolute; bottom: 0; left: 0; right: 0; z-index: 10; }
+    .pp-hero-inner { position: relative; z-index: 13; display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; max-width: 760px; padding-bottom: 2.5rem; }
+    .pp-hero.is-pick .pp-hero-inner { padding-bottom: 2rem; }
+    .pp-mug { width: 230px; height: 230px; margin-bottom: 1.4rem; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--drawer-border); background: rgba(0,0,0,0.4); box-shadow: 0 4px 30px rgba(0,0,0,0.6); opacity: 0; animation: heroReveal 1s 0.1s ease forwards; }
+    .pp-mug img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
+    .pp-mug span { font-family: var(--font-display); font-weight: 300; font-size: 3.4rem; color: var(--accent-dim); opacity: 0.5; }
+    .pp-eyebrow { font-family: var(--font-body); font-weight: 300; font-size: var(--size-eyebrow, 8pt); letter-spacing: 0.45em; text-transform: uppercase; color: var(--accent-dim); margin-bottom: 0.8rem; opacity: 0; animation: heroReveal 1.2s 0.2s ease forwards; }
+    .pp-title { font-family: var(--font-display); font-weight: 300; font-size: var(--size-title, 72pt); line-height: 0.92; letter-spacing: -0.02em; color: var(--accent); margin-bottom: 1rem; opacity: 0; animation: heroReveal 1.2s 0.35s ease forwards; }
+    .pp-subtitle { font-family: var(--font-body); font-weight: 200; font-size: var(--size-subtitle, 10pt); letter-spacing: 0.35em; text-transform: uppercase; color: var(--accent-dim); margin-bottom: 1rem; opacity: 0; animation: heroReveal 1.2s 0.5s ease forwards; }
+    .pp-aka { cursor: pointer; user-select: none; -webkit-user-select: none; }
+    .pp-aka b { font-weight: 400; color: var(--accent); }
+    .pp-colors { display: flex; gap: 0.4rem; margin-bottom: 1rem; justify-content: center; opacity: 0; animation: heroReveal 1s 0.5s ease forwards; }
+    .pp-colors i { width: 28px; height: 4px; border-radius: 2px; display: block; }
+    .pp-meta { display: flex; gap: 0.6rem; align-items: center; justify-content: center; flex-wrap: wrap; opacity: 0; animation: heroReveal 1.2s 0.55s ease forwards; }
+    .pp-pill { font-family: var(--font-body); font-size: 0.48rem; letter-spacing: 0.25em; text-transform: uppercase; border: 1px solid var(--drawer-border); padding: 0.22rem 0.6rem; color: var(--accent); font-weight: 700; text-decoration: none; transition: border-color 0.2s; }
+    a.pp-pill:hover { border-color: var(--accent-dim); }
+    .pp-pill.is-active { color: var(--pc); border-color: var(--pc); }
+    .pp-tier { font-family: var(--font-body); font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; border: 1px solid; border-radius: 3px; padding: 0.2rem 1.2rem; margin-top: 0.6rem; display: inline-block; opacity: 0; animation: heroReveal 1.2s 0.65s ease forwards; }
+
+    /* ── Body ─────────────────────────────────────────────── */
+    .pp-body { position: relative; z-index: 20; flex: 1; padding: 0 0 6rem; }
+    .pp-wrap { max-width: 1060px; margin: 0 auto; padding: 2rem 2rem 0; }
+    .pp-h { font-family: var(--font-body); font-weight: var(--weight-section-heading, 300); font-size: var(--size-section-heading, 7pt); letter-spacing: 0.4em; text-transform: uppercase; color: var(--hint-color, var(--accent-dim)); margin: 0 0 1.2rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--drawer-border); display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+    .pp-h span + span { font-size: 0.85em; letter-spacing: 0.18em; opacity: 0.55; white-space: nowrap; }
+    .pp-sec { margin-bottom: 2.5rem; }
+
+    /* ── Career strip (matches .team-career-strip) ───────── */
+    .pp-strip { display: flex; flex-wrap: wrap; border: 1px solid var(--drawer-border); margin-bottom: 2.5rem; background: rgba(255,255,255,0.02); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+    .pp-stat { flex: 1 1 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.4rem 1rem; text-align: center; border-right: 1px solid var(--drawer-border); transition: background 0.2s, transform 0.2s; }
+    .pp-stat:last-child { border-right: none; }
+    .pp-stat:hover { background: rgba(255,255,255,0.04); transform: translateY(-2px); }
+    .pp-stat-v { font-family: var(--font-display); font-weight: 300; font-size: 2.6rem; line-height: 1; color: var(--accent); margin-bottom: 0.35rem; }
+    .pp-stat-v.is-pc { color: var(--pc); }
+    .pp-stat-l { font-family: var(--font-body); font-size: 0.46rem; letter-spacing: 0.28em; text-transform: uppercase; color: var(--accent-dim); }
+
+    /* ── Through the Years: mirrored finish chart ─────────
+       BRC bars grow up, OFC bars grow down, sharing the year axis.
+       Bar length = finish (1st = full bar), scaled to that year's field. */
+    .pp-tl { border: 1px solid var(--drawer-border); background: rgba(255,255,255,0.02); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 1rem 1rem 0.9rem 0.4rem; display: grid; grid-template-columns: auto 1fr; }
+    .pp-tl-lanes { display: flex; flex-direction: column; }
+    .pp-tl-lane { height: var(--hh); display: flex; align-items: center; padding: 0 0.7rem 0 0.5rem; font-family: var(--font-body); font-size: 0.46rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent-dim); white-space: nowrap; }
+    .pp-tl-axisgap { height: 1.4rem; }
+    .pp-tl-plot { position: relative; display: flex; flex-direction: column; min-width: 0; }
+    .pp-tl-half { position: relative; height: var(--hh); display: flex; gap: 3px; }
+    .pp-tl-half.is-up { align-items: flex-end; }
+    .pp-tl-half.is-dn { align-items: flex-start; }
+    .pp-tl-axis { display: flex; gap: 3px; height: 1.4rem; align-items: center; border-top: 1px solid var(--drawer-border); border-bottom: 1px solid var(--drawer-border); }
+    .pp-tl-axis span { flex: 1 1 0; min-width: 0; text-align: center; font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.04em; color: var(--accent-dim); overflow: hidden; }
+    .pp-tl-axis span.is-dec { color: var(--accent); }
+    .pp-slot { position: relative; flex: 1 1 0; min-width: 0; height: 100%; display: flex; flex-direction: column; align-items: stretch; }
+    .is-up .pp-slot { justify-content: flex-end; }
+    .is-dn .pp-slot { justify-content: flex-start; }
+    .pp-bar { position: relative; display: block; width: 100%; padding: 0; border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.06); border-radius: 1.5px; cursor: default; transition: opacity 0.2s, filter 0.2s; }
+    .is-up .pp-bar { border-bottom: none; border-radius: 1.5px 1.5px 0 0; }
+    .is-dn .pp-bar { border-top: none; border-radius: 0 0 1.5px 1.5px; }
+    .pp-bar.is-click { cursor: pointer; }
+    .pp-bar.is-click:hover, .pp-bar.is-click:focus-visible { filter: brightness(1.35); outline: none; }
+    .pp-bar.r-champ  { background: var(--lc); border-color: var(--lc); }
+    .pp-bar.r-runner { background: color-mix(in srgb, var(--lc) 50%, transparent); border-color: var(--lc); }
+    .pp-bar.r-pod    { background: color-mix(in srgb, var(--lc) 16%, transparent); border-color: var(--lc); }
+    .pp-bar.r-live   { background: transparent; border-style: dashed; border-color: rgba(255,255,255,0.35); }
+    .pp-num { display: block; text-align: center; font-family: var(--font-body); font-size: 0.55rem; line-height: 1.5; color: rgba(232,232,232,0.85); white-space: nowrap; pointer-events: none; }
+    .pp-num.is-gold { color: #e8c864; font-weight: 700; }
+    .pp-dotless { position: absolute; left: 50%; width: 3px; height: 3px; margin-left: -1.5px; border-radius: 50%; background: var(--drawer-border); }
+    .is-up .pp-dotless { bottom: 3px; } .is-dn .pp-dotless { top: 3px; }
+    /* 3-year average line (like the league-average line on the Team page chart) */
+    .pp-form { position: absolute; left: 0; right: 0; width: 100%; height: calc(100% - 0.9rem); pointer-events: none; z-index: 2; overflow: visible; }
+    .is-up .pp-form { bottom: 0; } .is-dn .pp-form { top: 0; }
+    .pp-form line { stroke: rgba(255,255,255,0.8); stroke-width: 1.5; stroke-dasharray: 4 3; stroke-linecap: round; }
+    .pp-form circle { fill: rgba(255,255,255,0.85); }
+    .pp-tl-lane { flex-direction: column; align-items: flex-start; justify-content: center; gap: 0.45rem; }
+    .pp-avg-lab { font-size: 0.85em; letter-spacing: 0.12em; opacity: 0.75; line-height: 1.4; }
+    .pp-tl-key { display: flex; flex-wrap: wrap; gap: 0.6rem 1.2rem; font-family: var(--font-body); font-size: 0.46rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent-dim); margin-top: 0.7rem; }
+    .pp-tl-key i { display: inline-block; width: 10px; height: 10px; border: 1px solid; vertical-align: -2px; margin-right: 0.4rem; }
+    .pp-tl-key i.k-avg { width: 14px; height: 0; border: none; border-top: 2px dashed rgba(255,255,255,0.75); vertical-align: 2px; }
+
+    /* ── League panels (matches the This Season box) ─────── */
+    .pp-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2.5rem; }
+    .pp-cols.is-one { grid-template-columns: 1fr; }
+    .pp-card { position: relative; border: 1px solid var(--drawer-border); background: rgba(255,255,255,0.02); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 1.1rem 1.3rem 1.3rem; }
+    .pp-card::before { content: ''; position: absolute; left: -1px; top: -1px; bottom: -1px; width: 3px; background: var(--lc, var(--pc)); }
+    .pp-card-top { display: flex; align-items: center; gap: 0.85rem; margin-bottom: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid var(--drawer-border); }
+    .pp-card-logo { width: 52px; height: 52px; flex: none; display: flex; align-items: center; justify-content: center; }
+    .pp-card-logo img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5)); }
+    .pp-card-logo span { font-family: var(--font-display); font-weight: 300; color: var(--accent-dim); font-size: 1.2rem; }
+    .pp-card-k { font-family: var(--font-body); font-size: 0.46rem; letter-spacing: 0.32em; text-transform: uppercase; color: var(--accent-dim); }
+    .pp-card-t { font-family: var(--font-display); font-weight: 300; font-size: 1.7rem; line-height: 1.05; color: var(--accent); margin-top: 0.2rem; }
+    .pp-mini { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--drawer-border); margin-bottom: 0.9rem; }
+    .pp-mini div { text-align: center; padding: 0.75rem 0.3rem 0.65rem; border-right: 1px solid var(--drawer-border); }
+    .pp-mini div:nth-child(3n) { border-right: none; }
+    .pp-mini div:nth-child(n+4) { border-top: 1px solid var(--drawer-border); }
+    .pp-mini b { display: block; font-family: var(--font-display); font-weight: 300; font-size: 1.6rem; line-height: 1; color: var(--accent); }
+    .pp-mini span { display: block; font-family: var(--font-body); font-size: 0.42rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent-dim); margin-top: 0.35rem; }
+    .pp-line { font-family: var(--font-body); font-size: 0.62rem; line-height: 1.6; letter-spacing: 0.04em; color: var(--accent-dim); margin: 0 0 0.4rem; }
+    .pp-line b { color: var(--accent); font-weight: 700; }
+    .pp-live { border: 1px dashed var(--drawer-border); padding: 0.6rem 0.75rem; margin: 0 0 0.9rem; display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+    .pp-live-k { font-family: var(--font-body); font-size: 0.44rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent-dim); }
+    .pp-live-v { font-family: var(--font-display); font-weight: 300; font-size: 1.2rem; color: var(--accent); margin-top: 0.15rem; }
+    .pp-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+    .pp-btn { font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); text-decoration: none; border: 1px solid var(--drawer-border); padding: 0.45rem 0.75rem; transition: border-color 0.2s; background: none; cursor: pointer; }
+    .pp-btn:hover { border-color: var(--lc, var(--pc)); }
+
+    /* ── Bracket Battles (matches the Head to Head cards) ── */
+    .pp-bb { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+    .pp-bb-card { display: block; border: 1px solid var(--drawer-border); background: rgba(255,255,255,0.02); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); text-decoration: none; color: inherit; overflow: hidden; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; }
+    .pp-bb-card:hover { border-color: rgba(232,232,232,0.2); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.35); }
+    .pp-bb-head { display: flex; align-items: center; gap: 0.65rem; padding: 0.75rem 0.85rem; border-bottom: 1px solid var(--drawer-border); }
+    .pp-bb-pic { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; flex: none; border: 1px solid var(--drawer-border); background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; }
+    .pp-bb-pic img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
+    .pp-bb-pic span { font-family: var(--font-display); font-size: 0.9rem; color: var(--accent-dim); }
+    .pp-bb-info { flex: 1; min-width: 0; }
+    .pp-bb-n { font-family: var(--font-display); font-weight: 600; font-size: 1rem; color: var(--accent); line-height: 1; margin-bottom: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pp-bb-rec { font-family: var(--font-body); font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+    .pp-bb-rec .win { color: var(--pc); }
+    .pp-bb-go { font-size: 0.55rem; color: var(--accent-dim); opacity: 0.5; flex: none; }
+    .pp-bb-bar-wrap { padding: 0.6rem 0.85rem 0.7rem; }
+    .pp-bb-bar { height: 4px; background: var(--drawer-border); border-radius: 2px; overflow: hidden; }
+    .pp-bb-bar i { display: block; height: 100%; background: var(--bc, var(--pc)); border-radius: 2px; }
+    .pp-bb-tag { font-family: var(--font-body); font-size: 0.44rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--bc, var(--accent-dim)); margin-top: 0.5rem; font-weight: 700; }
+    /* Bracket Battles verdict colors: BRC blue → soft blue → gray → soft red → strong red */
+    .pp-bb-card.t-own   { --bc: #3f5bff; }
+    .pp-bb-card.t-edge  { --bc: #8fa0ff; }
+    .pp-bb-card.t-even  { --bc: #9a9a9a; }
+    .pp-bb-card.t-edged { --bc: #e88a8a; }
+    .pp-bb-card.t-owned { --bc: #d94f4f; }
+
+    /* ── Bracket Log (matches .team-table) ───────────────── */
+    .pp-table-wrap { overflow-x: auto; }
+    .pp-table { width: 100%; border-collapse: collapse; font-family: var(--font-body); font-size: 0.68rem; }
+    .pp-table th { font-size: 0.44rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent-dim); font-weight: 300; padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--drawer-border); white-space: nowrap; }
+    .pp-table th.num, .pp-table td.num { text-align: right; }
+    .pp-table td { padding: 0.65rem 0.75rem; border-bottom: 1px solid rgba(232,232,232,0.05); color: var(--accent); vertical-align: middle; white-space: nowrap; font-weight: 600; }
+    .pp-table tr:last-child td { border-bottom: none; }
+    .pp-table tr.is-wr { cursor: pointer; transition: background 0.2s; }
+    .pp-table tr.is-wr:hover, .pp-table tr.is-wr:focus-visible { background: color-mix(in srgb, var(--pc) 14%, transparent); outline: none; }
+    .pp-table .go { width: 1.6rem; padding-left: 0; padding-right: 0.6rem; text-align: right; font-size: 0.55rem; color: var(--pc); opacity: 0; transition: opacity 0.2s; }
+    .pp-table tr.is-wr:hover .go, .pp-table tr.is-wr:focus-visible .go { opacity: 1; }
+    @media (hover: none) { .pp-table tr.is-wr .go { opacity: 0.6; } }
+    .pp-dim { color: var(--accent-dim); font-weight: 300; }
+    .pp-hit { color: #4caf7d; } .pp-miss { color: #d94f4f; }
+    .pp-champ { color: #e8c864; }
+
+    /* ── The Bit ─────────────────────────────────────────── */
+    .pp-bit { border: 1px solid var(--drawer-border); background: rgba(255,255,255,0.02); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 1.3rem 1.5rem; display: flex; gap: 1.2rem; align-items: center; }
+    .pp-bit-t { font-family: var(--font-display); font-weight: 300; font-style: italic; font-size: 1.35rem; line-height: 1.35; color: var(--accent); flex: 1; transition: opacity 0.3s; }
+
+    /* ── Roster picker ───────────────────────────────────── */
+    .pp-pick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.2rem; }
+    .pp-tile { display: flex; flex-direction: column; align-items: center; gap: 0.45rem; padding: 1.4rem 0.8rem 1.1rem; border: 1px solid var(--drawer-border); background: rgba(255,255,255,0.02); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); text-decoration: none; color: var(--accent); text-align: center; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; }
+    .pp-tile:hover { border-color: rgba(232,232,232,0.2); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.35); }
+    .pp-tile-pic { width: 92px; height: 92px; border-radius: 50%; overflow: hidden; border: 1px solid var(--drawer-border); background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; margin-bottom: 0.3rem; }
+    .pp-tile-pic img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
+    .pp-tile-pic span { font-family: var(--font-display); font-weight: 300; font-size: 1.6rem; color: var(--accent-dim); }
+    .pp-tile-n { font-family: var(--font-display); font-weight: 300; font-size: 1.5rem; line-height: 1; }
+    .pp-tile-s { font-family: var(--font-body); font-size: 0.46rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent-dim); }
+    .pp-tile-t { font-family: var(--font-body); font-size: 0.46rem; letter-spacing: 0.25em; text-transform: uppercase; color: #e8c864; min-height: 0.8em; }
+
+    /* ── Wrapped popup ───────────────────────────────────── */
+    .pp-pop { position: fixed; inset: 0; z-index: 10000; background: #000; opacity: 0; transition: opacity 0.25s ease; }
+    .pp-pop.is-on { opacity: 1; }
+    .pp-pop iframe { width: 100%; height: 100%; border: 0; display: block; background: #000; }
+    body.pp-pop-open { overflow: hidden; }
+    .pp-footer { position: relative; z-index: 20; text-align: center; font-family: var(--font-body); font-size: 0.55rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent-dim); opacity: 0.5; padding: 0 2rem 3rem; }
+    .pp-empty { text-align: center; font-family: var(--font-body); font-size: 0.65rem; color: var(--accent-dim); letter-spacing: 0.15em; text-transform: uppercase; padding: 3rem 0; }
+    .ofl-lc { text-transform: lowercase !important; }
+
+    @media (max-width: 760px) {
+      .pp-cols { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .pp-hero { padding: 4.5rem 1.2rem 0; }
+      .pp-title { font-size: clamp(2.5rem, 12vw, 5rem); }
+      .pp-mug { width: 170px; height: 170px; }
+      .pp-wrap { padding: 1.5rem 1rem 0; }
+      .pp-stat { padding: 1rem 0.5rem; flex-basis: 33%; }
+      .pp-stat:nth-child(3) { border-right: none; }
+      .pp-stat:nth-child(n+4) { border-top: 1px solid var(--drawer-border); }
+      .pp-stat-v { font-size: 2rem; }
+      .pp-tl { padding: 0.8rem 0.5rem 0.7rem 0.2rem; }
+      .pp-tl-lane { padding: 0 0.4rem 0 0.3rem; letter-spacing: 0.15em; font-size: 0.42rem; }
+      .pp-tl-half, .pp-tl-axis { gap: 2px; }
+      .pp-num { font-size: 0.46rem; }
+      .pp-tl-axis span { font-size: 0.42rem; letter-spacing: 0; }
+      .pp-tl-axis span.is-odd { visibility: hidden; }
+      .pp-bb { grid-template-columns: 1fr; }
+      .pp-pick-grid { grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+      .pp-tile-pic { width: 72px; height: 72px; }
+      .pp-tile-n { font-size: 1.25rem; }
+      .pp-bit { flex-direction: column; align-items: flex-start; padding: 1.1rem; }
+      .pp-bit-t { font-size: 1.15rem; }
+      .pp-h { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="topnav" role="navigation" aria-label="Site navigation">
+    <a href="index.html" class="topnav-logo">OFC</a>
+    <button class="menu-trigger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="site-drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <div class="drawer-overlay" aria-hidden="true"></div>
+  <aside id="site-drawer" class="drawer" role="dialog" aria-modal="true" aria-label="Navigation">
+    <p class="drawer-label">Navigate</p>
+    <ul class="drawer-nav"></ul>
+    <div class="drawer-footer"></div>
+  </aside>
+
+  <div class="pp-page">
+    <div class="slide-layer" id="slideA" aria-hidden="true"></div>
+    <div class="slide-layer" id="slideB" aria-hidden="true"></div>
+    <div class="landing-overlay" id="ppOverlay" aria-hidden="true"></div>
+    <div class="landing-vignette" aria-hidden="true"></div>
+    <div id="ppRoot"></div>
+    <div class="pp-footer" id="ppFooter"></div>
+  </div>
+
+  <script src="sound.js"></script>
+  <script src="menu.js"></script>
+
+  <script>
+  (function () {
+    'use strict';
+
+    var E = window.OFL_ENGINE, N = window.OFL_NEWSROOM, D = window.OFL_DATA || {};
+    var root = document.getElementById('ppRoot');
+    if (!E || !N) { root.innerHTML = '<div class="pp-body"><div class="pp-wrap" style="padding-top:6rem"><p class="pp-empty">ofl-engine.js / ofl-newsroom.js not found.</p></div></div>'; return; }
+    var esc = E.util.esc, ord = E.util.ord, initials = E.util.initials, member = E.util.member, num = E.util.num, hash = E.util.hash, pctTxt = E.util.pctTxt, f2 = E.util.f2;
+    var BRC_BLUE = '#3f5bff';
+    var ROSTER = D.masterRoster || [];
+    var PB = window.OFL_PHRASEBOOK || {};
+
+    function pic(src, label) { return src ? '<img src="' + esc(src) + '" alt="" />' : '<span>' + esc(initials(label)) + '</span>'; }
+    function plural(n, a, b) { return n === 1 ? a : b; }
+    function entry(mm, key) { return (mm.leagues || []).find(function (l) { return l.leagueKey === key; }) || null; }
+
+    /* ══════════════════════════════════════════════════════════
+       CAREER BUILDERS
+    ══════════════════════════════════════════════════════════ */
+    function ofcCareer(m) {
+      var out = { years: {}, list: [], w: 0, l: 0, t: 0, pf: 0, titles: 0, runner: 0, po: 0, n: 0, best: null, live: null };
+      E.ofc.seasons.forEach(function (s) {
+        var K = E.ofc.lastDone(s); if (!K) return;
+        var st = E.ofc.standingsThrough(s, K), me = st.map[m];
+        if (!me) return;
+        var yr = parseInt(s.year, 10), res;
+        if (s.isFinal) {
+          var po = s.playoffs || {}, inPO = {}, fin = {};
+          ['wildcard', 'semis', 'finals'].forEach(function (r) { (po[r] || []).forEach(function (g) { inPO[g.homeMemberId] = 1; inPO[g.awayMemberId] = 1; }); });
+          (po.finals || []).forEach(function (g) { fin[g.homeMemberId] = 1; fin[g.awayMemberId] = 1; });
+          res = s.championMemberId === m ? 'champ' : (s.runnerUpMemberId === m || fin[m]) ? 'runner' : (inPO[m] || (!Object.keys(inPO).length && me.rank <= E.ofc.PLAYOFF_TEAMS)) ? 'po' : 'miss';
+          out.n++; out.w += me.w; out.l += me.l; out.t += me.t; out.pf += me.pf;
+          if (res === 'champ') out.titles++; if (res === 'runner') out.runner++; if (res !== 'miss') out.po++;
+          var pct = (me.w + me.t / 2) / Math.max(1, me.w + me.l + me.t);
+          if (!out.best || pct > out.best.pct || (pct === out.best.pct && me.pf > out.best.pf)) out.best = { yr: yr, pct: pct, rec: E.ofc.rec(me), pf: me.pf, rank: me.rank, res: res };
+        } else {
+          res = 'live';
+          out.live = { yr: yr, K: K, me: me, n: st.rows.length, odds: null, season: s };
+        }
+        /* Finish = the Team page Season Log "Finish" (standings sorted by total points); live season uses the current rank */
+        var byPts = (s.standings || []).slice().sort(function (a, b) { return (parseFloat(b.totalPoints) || 0) - (parseFloat(a.totalPoints) || 0); });
+        var fin = byPts.findIndex(function (r) { return r.memberId === m; }) + 1;
+        if (!s.isFinal || !fin) fin = me.rank;
+        var row = { yr: yr, final: !!s.isFinal, rank: me.rank, n: st.rows.length, fin: fin, fn: byPts.length || st.rows.length, res: res, rec: E.ofc.rec(me), team: me.name, pf: me.pf };
+        out.years[yr] = row; out.list.push(row);
+      });
+      return out;
+    }
+
+    function brcRows(season) {
+      var rows = (season.standings || []).filter(function (r) { return r.memberId; }).map(function (r) {
+        return { id: r.memberId, r: r, pts: num(r.totalPoints), champ: r.predictedChampion || '' };
+      });
+      E.brc.assignRank(rows, 'pts', 'rank');
+      return rows;
+    }
+    function sameTeam(a, b) {
+      a = E.brc.normTeam(a); b = E.brc.normTeam(b); if (!a || !b) return false;
+      return a === b || a.indexOf(b + ' ') === 0 || b.indexOf(a + ' ') === 0;
+    }
+    var BRC_ROWS = E.brc.seasons.map(function (s) { return { s: s, yr: parseInt(s.year, 10), rows: brcRows(s) }; });
+
+    function brcCareer(m) {
+      var out = { years: {}, list: [], n: 0, titles: 0, pod: 0, best: 99, pctSum: 0, picks: 0, hits: 0, bestPts: null, live: null, vs: {} };
+      BRC_ROWS.forEach(function (B) {
+        var me = B.rows.find(function (x) { return x.id === m; });
+        if (!me) return;
+        var s = B.s, n = B.rows.length, champ = s.isFinal && s.championMemberId === m;
+        var hit = me.champ && s.tournamentWinner ? sameTeam(me.champ, s.tournamentWinner) : null;
+        var row = { yr: B.yr, final: !!s.isFinal, rank: me.rank, n: n, pts: me.pts, name: me.r.bracketName || me.r.teamName || '', champPick: me.champ, hit: hit, champ: champ,
+          res: !s.isFinal ? 'live' : champ ? 'champ' : me.rank === 2 ? 'runner' : me.rank === 3 ? 'third' : 'x' };
+        out.years[B.yr] = row; out.list.push(row);
+        if (!s.isFinal) { out.live = row; return; }
+        out.n++; if (champ) out.titles++; if (me.rank <= 3) out.pod++;
+        out.best = Math.min(out.best, me.rank); out.pctSum += n > 1 ? (me.rank - 1) / (n - 1) : 0;
+        if (hit !== null) { out.picks++; if (hit) out.hits++; }
+        /* Bracket Battles: finished ahead / behind each family member */
+        B.rows.forEach(function (o) {
+          if (o.id === m) return;
+          var v = out.vs[o.id] || (out.vs[o.id] = { id: o.id, a: 0, b: 0, t: 0 });
+          if (me.rank < o.rank) v.a++; else if (me.rank > o.rank) v.b++; else v.t++;
+        });
+      });
+      return out;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       PROFILE PAGE
+    ══════════════════════════════════════════════════════════ */
+    function renderProfile(mm) {
+      var m = mm.id, ofcE = entry(mm, 'OFC'), brcE = entry(mm, 'BRC');
+      var O = ofcCareer(m), B = brcCareer(m);
+      var hasO = O.list.length > 0, hasB = B.list.length > 0;
+      var I = hasO || ofcE ? N.ofc.ident(m, null) : null;
+      var pc = I && I.color && I.color !== '#888888' ? I.color : 'var(--hint-color, #8fa0ff)';
+      root.style.setProperty('--pc', pc);
+      document.title = 'OFL — ' + (mm.name || 'Playa');
+
+      var pb = (PB.members || {})[m] || {};
+      var nicks = (pb.nicknames || []).slice();
+      if (mm.nickname && nicks.indexOf(mm.nickname) < 0) nicks.unshift(mm.nickname);
+      var gags = (pb.gags || []).map(function (g) { return N.fill(g, { owner: mm.name, team: I ? I.team : mm.name }); }).filter(Boolean);
+      var school = pb.school || ((PB.house || {}).familyTeam) || '';
+
+      var oYears = O.list.map(function (r) { return r.yr; }), bYears = B.list.map(function (r) { return r.yr; });
+      var allY = oYears.concat(bYears);
+      var since = allY.length ? Math.min.apply(null, allY) : null;
+      var titles = O.titles + B.titles;
+
+      /* ── Hero (same structure as the Team page header) ── */
+      var curTeam = ofcE && (ofcE.teams || []).length ? ofcE.teams[ofcE.teams.length - 1] : null;
+      var colors = curTeam && (curTeam.primaryColor || curTeam.secondaryColor)
+        ? '<div class="pp-colors">' + [curTeam.primaryColor, curTeam.secondaryColor].filter(Boolean).map(function (c) { return '<i style="background:' + esc(c) + '"></i>'; }).join('') + '</div>' : '';
+      var seasonsAll = O.n + B.n;
+      var pills = '<span class="pp-pill' + (mm.active !== false ? ' is-active' : '') + '">' + (mm.active !== false ? 'Active' : 'Alumni') + '</span>' +
+        (seasonsAll ? '<span class="pp-pill">' + seasonsAll + ' ' + plural(seasonsAll, 'Season', 'Seasons') + '</span>' : '') +
+        (titles ? '<span class="pp-pill">' + titles + ' ' + plural(titles, 'Title', 'Titles') + '</span>' : '') +
+        (hasO ? '<a class="pp-pill" href="team.html?id=' + encodeURIComponent(m) + '">OFC Owner</a>' : '') +
+        (hasB ? '<span class="pp-pill">BRC</span>' : '');
+      var SCHOOL_COLORS = { auburn: '#e87722', tennessee: '#ff8200' };
+      var schoolCol = SCHOOL_COLORS[String(school).toLowerCase()] || 'var(--accent-dim)';
+      var hero =
+        '<header class="pp-hero">' +
+          '<div class="landing-rule" aria-hidden="true"></div>' +
+          '<div class="pp-hero-inner">' +
+            '<div class="pp-mug">' + pic(mm.mugshot, mm.name) + '</div>' +
+            '<p class="pp-eyebrow">Playa Profile' + (since ? ' &nbsp;&middot;&nbsp; Since ' + since : '') + '</p>' +
+            '<h1 class="pp-title">' + esc(mm.name) + '</h1>' +
+            (nicks.length ? '<p class="pp-subtitle pp-aka" id="ppAka"' + (nicks.length > 1 ? ' title="Tap for another"' : '') + '>a.k.a. <b>' + esc(nicks[0]) + '</b></p>' : '') +
+            colors +
+            '<div class="pp-meta">' + pills + '</div>' +
+            (school ? '<div class="pp-tier" style="color:' + schoolCol + ';border-color:' + schoolCol + '">' + esc(school) + '</div>' : '') +
+          '</div>' +
+        '</header>';
+
+      /* ── Résumé ── */
+      var stats = [
+        ['OFL Titles', titles, titles > 0],
+        [plural(O.n + B.n, 'Season', 'Seasons'), O.n + B.n, false],
+        hasO && O.n ? ['OFC Record', O.w + '&ndash;' + O.l + (O.t ? '&ndash;' + O.t : ''), false] : null,
+        hasO && O.n ? ['OFC Playoffs', O.po, O.po > 0] : null,
+        hasO && !O.n && O.live ? ['OFC Rookie &middot; Live', E.ofc.rec(O.live.me), true] : null,
+        hasB ? ['BRC Podiums', B.pod, B.pod > 0] : null,
+        hasB ? ['BRC Best', B.n ? ord(B.best) : '&mdash;', B.best === 1] : null
+      ].filter(Boolean);
+      var strip = '<div class="pp-strip">' + stats.map(function (x) { return '<div class="pp-stat"><div class="pp-stat-v' + (x[2] ? ' is-pc' : '') + '">' + x[1] + '</div><div class="pp-stat-l">' + x[0] + '</div></div>'; }).join('') + '</div>';
+
+      /* ── Through the Years: mirrored finish chart ── */
+      var tl = '';
+      if (allY.length) {
+        var y0 = Math.min.apply(null, allY), y1 = Math.max.apply(null, allY), nY = y1 - y0 + 1;
+        var MIN_H = 0.08;
+        var hOf = function (fin, n) { return n > 1 ? MIN_H + (1 - MIN_H) * (n - fin) / (n - 1) : 1; };
+        var lanes = [];
+        if (hasB) lanes.push({ lg: 'brc', label: 'BRC &#x25B2;', dir: 'up', color: BRC_BLUE, data: B.years, fin: function (r) { return r.rank; }, n: function (r) { return r.n; } });
+        if (hasO) lanes.push({ lg: 'ofc', label: 'OFC &#x25BC;', dir: 'dn', color: pc, data: O.years, fin: function (r) { return r.fin; }, n: function (r) { return r.fn; } });
+        var halfH = 130;
+        var half = function (L) {
+          var cells = '', sum = 0, cnt = 0, pts = [], hist = [];
+          for (var y = y0; y <= y1; y++) {
+            var r = L.data[y];
+            if (!r) { cells += '<div class="pp-slot"><span class="pp-dotless"></span></div>'; continue; }
+            var fin = L.fin(r), n = L.n(r), h = hOf(fin, n);
+            if (r.final) {
+              sum += h; cnt++;
+              /* 3-year average: this season and the two before it that they played (skipped years are bridged) */
+              hist.push(h); var win = hist.slice(-3);
+              pts.push({ x: (y - y0 + 0.5) / nY * 100, h: win.reduce(function (a, b) { return a + b; }, 0) / win.length });
+            }
+            var cls = r.res === 'live' ? 'r-live' : r.res === 'champ' ? 'r-champ' : r.res === 'runner' ? 'r-runner' : (r.res === 'third' || r.res === 'po') ? 'r-pod' : 'r-x';
+            var what = r.res === 'champ' ? 'Champion' : r.res === 'runner' ? 'Runner-up' : r.res === 'po' ? 'Made the playoffs' : r.res === 'live' ? 'In progress' : '';
+            var tip = y + ' ' + L.lg.toUpperCase() + ' · ' + ord(fin) + ' of ' + n + (what ? ' · ' + what : '') +
+              (L.lg === 'ofc' ? ' · ' + r.rec : ' · ' + r.pts + ' pts') + (r.final ? ' — tap for Wrapped' : '');
+            var num = '<span class="pp-num' + (r.res === 'champ' ? ' is-gold' : '') + '">' + fin + '</span>';
+            var bar = '<button type="button" class="pp-bar ' + cls + (r.final ? ' is-click" data-wr="' + L.lg + ':' + y + '" aria-label="' + esc(tip) : '') + '" title="' + esc(tip) + '" style="height:calc((100% - 0.9rem) * ' + h.toFixed(3) + ')"></button>';
+            cells += '<div class="pp-slot">' + (L.dir === 'up' ? num + bar : bar + num) + '</div>';
+          }
+          var avg = cnt ? sum / cnt : null, avgFinTxt = '';
+          if (avg !== null) {
+            /* convert the average bar height back into an "average finish" label using this member's own fields */
+            var fs = [], ns = [];
+            for (var yy = y0; yy <= y1; yy++) { var rr = L.data[yy]; if (rr && rr.final) { fs.push(L.fin(rr)); ns.push(L.n(rr)); } }
+            avgFinTxt = 'Avg ' + (fs.reduce(function (a, b) { return a + b; }, 0) / fs.length).toFixed(1);
+          }
+          var yv = function (h) { return (L.dir === 'up' ? (1 - h) : h) * 100; };
+          var form = '';
+          if (pts.length >= 2) {
+            for (var q = 1; q < pts.length; q++) form += '<line x1="' + pts[q - 1].x.toFixed(2) + '%" y1="' + yv(pts[q - 1].h).toFixed(2) + '%" x2="' + pts[q].x.toFixed(2) + '%" y2="' + yv(pts[q].h).toFixed(2) + '%"/>';
+          } else if (pts.length === 1) form = '<circle cx="' + pts[0].x.toFixed(2) + '%" cy="' + yv(pts[0].h).toFixed(2) + '%" r="2.5"/>';
+          L.avgTxt = avg !== null ? avgFinTxt.replace('Avg ', '') : '';
+          var avgLine = form ? '<svg class="pp-form" aria-hidden="true">' + form + '</svg>' : '';
+          return '<div class="pp-tl-half is-' + L.dir + '" style="--lc:' + L.color + '">' + cells + avgLine + '</div>';
+        };
+        var axis = '<div class="pp-tl-axis">';
+        for (var ya = y0; ya <= y1; ya++) axis += '<span class="' + (ya % 10 === 0 ? 'is-dec' : '') + ((ya - y0) % 2 ? ' is-odd' : '') + '">&rsquo;' + (ya % 100 < 10 ? '0' : '') + (ya % 100) + '</span>';
+        axis += '</div>';
+        var up = lanes.filter(function (L) { return L.dir === 'up'; })[0], dn = lanes.filter(function (L) { return L.dir === 'dn'; })[0];
+        var plotHtml = (up ? half(up) : '') + axis + (dn ? half(dn) : '');   // builds avgTxt for the lane labels
+        var laneLab = function (L) { return '<div class="pp-tl-lane"><span>' + L.label + '</span>' + (L.avgTxt ? '<span class="pp-avg-lab">Career avg<br>' + L.avgTxt + '</span>' : '') + '</div>'; };
+        var lanesHtml = (up ? laneLab(up) : '') + '<div class="pp-tl-axisgap"></div>' + (dn ? laneLab(dn) : '');
+        var keyCol = up && dn ? 'var(--accent-dim)' : (up || dn).color;
+        tl = '<section class="pp-sec"><p class="pp-h"><span>Through the Years</span><span>&#x25B6; Tap a year for Wrapped</span></p>' +
+          '<div class="pp-tl" style="--hh:' + halfH + 'px"><div class="pp-tl-lanes">' + lanesHtml + '</div>' +
+            '<div class="pp-tl-plot">' + plotHtml + '</div></div>' +
+          '<div class="pp-tl-key">' +
+            '<span><i style="background:' + keyCol + ';border-color:' + keyCol + '"></i>Champion</span>' +
+            '<span><i style="background:color-mix(in srgb,' + keyCol + ' 50%,transparent);border-color:' + keyCol + '"></i>Runner-up</span>' +
+            '<span><i style="background:color-mix(in srgb,' + keyCol + ' 16%,transparent);border-color:' + keyCol + '"></i>' + (up && dn ? 'BRC 3rd / OFC Playoffs' : up ? '3rd' : 'Playoffs') + '</span>' +
+            '<span><i style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.4)"></i>Finish</span>' +
+            '<span><i style="border-style:dashed;border-color:rgba(255,255,255,.35)"></i>In progress</span>' +
+            '<span><i class="k-avg"></i>3-year average</span>' +
+            '<span>Longer bar = better finish</span>' +
+          '</div></section>';
+      }
+
+      /* ── League panels ── */
+      var panels = [];
+      if (hasO) {
+        var ofcTeams = ofcE ? (ofcE.teams || []) : [];
+        var liveHtml = '';
+        if (O.live) {
+          var od = null; try { od = (E.ofc.odds(O.live.season, O.live.K) || {})[m]; } catch (x) {}
+          liveHtml = '<div class="pp-live"><div><div class="pp-live-k">' + O.live.yr + ' &middot; Week ' + O.live.K + '</div><div class="pp-live-v">' + E.ofc.rec(O.live.me) + ' &middot; ' + ord(O.live.me.rank) + ' of ' + O.live.n + '</div></div>' +
+            (od != null ? '<div style="text-align:right"><div class="pp-live-k">Playoff Odds</div><div class="pp-live-v">' + pctTxt(od) + '%</div></div>' : '') + '</div>';
+        }
+        var gp = O.w + O.l + O.t;
+        panels.push('<div class="pp-card" style="--lc:' + pc + '">' +
+          '<div class="pp-card-top"><div class="pp-card-logo">' + pic(I.logo, I.team) + '</div><div><div class="pp-card-k">OFC Franchise &middot; ' + plural(ofcTeams.length, '1 name', ofcTeams.length + ' names') + '</div><div class="pp-card-t">' + esc(I.team) + '</div></div></div>' +
+          liveHtml +
+          '<div class="pp-mini">' +
+            '<div><b>' + O.titles + '</b><span>Titles</span></div>' +
+            '<div><b>' + O.runner + '</b><span>Runner-up</span></div>' +
+            '<div><b>' + O.po + '</b><span>Playoffs</span></div>' +
+            '<div><b>' + (gp ? (((O.w + O.t / 2) / gp) * 100).toFixed(0) + '%' : '&mdash;') + '</b><span>Win %</span></div>' +
+            '<div><b>' + O.n + '</b><span>Seasons</span></div>' +
+            '<div><b>' + (O.n ? Math.round(O.pf / O.n) : '&mdash;') + '</b><span>Avg PF</span></div>' +
+          '</div>' +
+          (O.best ? '<p class="pp-line">Best season: <b>' + O.best.yr + '</b>, ' + O.best.rec + (O.best.res === 'champ' ? ' and the title.' : O.best.res === 'runner' ? ', lost in the final.' : ', finished ' + ord(O.best.rank) + '.') + '</p>' : '') +
+          (ofcTeams.length > 1 ? '<p class="pp-line">Also known as: ' + ofcTeams.slice(0, -1).reverse().map(function (t) { return '<b>' + esc(t.name) + '</b>'; }).join(', ') + '.</p>' : '') +
+          '<div class="pp-btns"><a class="pp-btn" href="team.html?id=' + encodeURIComponent(m) + '">Team Page &#x2197;</a>' + (O.live ? '<a class="pp-btn" href="race.html">Playoff Race</a>' : '') + '</div>' +
+        '</div>');
+      }
+      if (hasB) {
+        var avgTop = B.n ? Math.max(1, Math.round((B.pctSum / B.n) * 100)) : null;
+        var latestName = B.list.length ? B.list[0].name : '';
+        panels.push('<div class="pp-card" style="--lc:' + BRC_BLUE + '">' +
+          '<div class="pp-card-top"><div><div class="pp-card-k">Bracket Challenge</div><div class="pp-card-t">' + (latestName ? '&ldquo;' + esc(latestName) + '&rdquo;' : 'BRC') + '</div></div></div>' +
+          (B.live ? '<div class="pp-live"><div><div class="pp-live-k">' + B.live.yr + ' &middot; In Progress</div><div class="pp-live-v">' + ord(B.live.rank) + ' of ' + B.live.n + ' &middot; ' + B.live.pts + ' pts</div></div></div>' : '') +
+          '<div class="pp-mini">' +
+            '<div><b>' + B.titles + '</b><span>Titles</span></div>' +
+            '<div><b>' + B.pod + '</b><span>Podiums</span></div>' +
+            '<div><b>' + (B.n ? ord(B.best) : '&mdash;') + '</b><span>Best</span></div>' +
+            '<div><b>' + B.n + '</b><span>Brackets</span></div>' +
+            '<div><b>' + (avgTop !== null ? 'Top ' + avgTop + '%' : '&mdash;') + '</b><span>Avg Finish</span></div>' +
+            '<div><b>' + (B.picks ? B.hits + '/' + B.picks : '&mdash;') + '</b><span>Champ Picks</span></div>' +
+          '</div>' +
+          (B.picks ? '<p class="pp-line">' + (B.hits ? 'Called the national champion <b>' + B.hits + ' ' + plural(B.hits, 'time', 'times') + '</b> in ' + B.picks + ' ' + plural(B.picks, 'try', 'tries') + '.' : B.picks >= 3 ? 'Has never once called the national champion. <b>0 for ' + B.picks + '</b>.' : 'Champion picks on file: <b>0 for ' + B.picks + '</b>. Still looking for the first one.') + '</p>' : '') +
+          '<div class="pp-btns"><a class="pp-btn" href="standings.html">Standings</a><a class="pp-btn" href="gazette.html?league=brc">The Herald</a></div>' +
+        '</div>');
+      }
+      var cols2 = panels.length ? '<div class="pp-cols' + (panels.length === 1 ? ' is-one' : '') + '">' + panels.join('') + '</div>' : '';
+
+      /* ── Bracket Battles ── */
+      var bb = '';
+      var vs = Object.keys(B.vs).map(function (k) { return B.vs[k]; }).filter(function (v) { return v.a + v.b + v.t >= 2; });
+      if (vs.length) {
+        vs.sort(function (x, y) { return (y.a - y.b) - (x.a - x.b) || (y.a + y.b) - (x.a + x.b); });
+        bb = '<section class="pp-sec"><p class="pp-h"><span>Bracket Battles</span><span>Years finished ahead &ndash; behind</span></p><div class="pp-bb">' +
+          vs.map(function (v) {
+            var o = member(v.id), g = v.a + v.b + v.t, d = v.a - v.b;
+            var tag = d >= 3 ? ['own', 'You own them'] : d > 0 ? ['edge', 'Edge: you'] : d <= -3 ? ['owned', 'They own you'] : d < 0 ? ['edged', 'Edge: them'] : ['even', 'Dead even'];
+            return '<a class="pp-bb-card t-' + tag[0] + '" href="playa.html?id=' + encodeURIComponent(v.id) + '">' +
+              '<div class="pp-bb-head"><div class="pp-bb-pic">' + pic(o.mugshot, o.name) + '</div>' +
+                '<div class="pp-bb-info"><div class="pp-bb-n">' + esc(o.name || '?') + '</div>' +
+                  '<div class="pp-bb-rec"><span class="win">' + v.a + 'W</span> &nbsp;' + v.b + 'L' + (v.t ? ' &nbsp;' + v.t + 'T' : '') + '</div></div>' +
+                '<span class="pp-bb-go">&#x2197;</span></div>' +
+              '<div class="pp-bb-bar-wrap"><div class="pp-bb-bar"><i style="width:' + (g ? (v.a + v.t / 2) / g * 100 : 0).toFixed(1) + '%"></i></div>' +
+                '<div class="pp-bb-tag">' + tag[1] + '</div></div></a>';
+          }).join('') + '</div></section>';
+      }
+
+      /* ── Bracket Log ── */
+      var blog = '';
+      if (hasB) {
+        blog = '<section class="pp-sec"><p class="pp-h"><span>Bracket Log</span><span>&#x25B6; Tap a year for Wrapped</span></p><div class="pp-table-wrap"><table class="pp-table">' +
+          '<thead><tr><th>Year</th><th>Bracket</th><th class="num">Points</th><th class="num">Finish</th><th>Champion Pick</th><th class="go"></th></tr></thead><tbody>' +
+          B.list.map(function (r) {
+            var attrs = r.final ? ' class="is-wr" data-wr="brc:' + r.yr + '" tabindex="0" role="link" aria-label="Play ' + r.yr + ' BRC Wrapped"' : '';
+            return '<tr' + attrs + '><td>' + r.yr + (r.final ? '' : ' <span class="pp-dim">&middot; live</span>') + '</td><td>' + esc(r.name || '—') + '</td><td class="num">' + r.pts + '</td>' +
+              '<td class="num' + (r.champ ? ' pp-champ' : '') + '">' + (r.champ ? 'Champion &middot; ' : '') + ord(r.rank) + ' <span class="pp-dim">/ ' + r.n + '</span></td>' +
+              '<td>' + (r.champPick ? '<span class="' + (r.hit === true ? 'pp-hit' : r.hit === false ? 'pp-miss' : '') + '">' + (r.hit === true ? '&#x2713; ' : r.hit === false ? '&#x2717; ' : '') + esc(r.champPick) + '</span>' : '<span class="pp-dim">&mdash;</span>') + '</td>' +
+              '<td class="go" aria-hidden="true">' + (r.final ? '&#x25B6;' : '') + '</td></tr>';
+          }).join('') + '</tbody></table></div></section>';
+      }
+
+      /* ── The Bit ── */
+      var bit = gags.length ? '<section class="pp-sec"><p class="pp-h"><span>The Bit</span><span>From the Playa Gags file</span></p>' +
+        '<div class="pp-bit"><div class="pp-bit-t" id="ppBit">' + esc(gags[hash(m + new Date().toDateString()) % gags.length]) + '</div>' +
+        (gags.length > 1 ? '<button class="pp-btn" id="ppBitMore">Another One</button>' : '') + '</div></section>' : '';
+
+      root.innerHTML = hero + '<div class="pp-body"><div class="pp-wrap">' + strip + tl + cols2 + bb + blog + bit +
+        '<p class="pp-line" style="text-align:center;margin-top:1rem"><a class="pp-btn" href="playa.html">All Playas</a></p></div></div>';
+      N.lowercase(root);
+
+      /* Wire up */
+      Array.prototype.forEach.call(root.querySelectorAll('[data-wr]'), function (el) {
+        function go() { var p = el.getAttribute('data-wr').split(':'); openWrapped(p[0], p[1], m); }
+        el.addEventListener('click', go);
+        el.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+      });
+      var aka = document.getElementById('ppAka');
+      if (aka && nicks.length > 1) { var ni = 0; aka.addEventListener('click', function () { ni = (ni + 1) % nicks.length; aka.querySelector('b').textContent = nicks[ni]; }); }
+      var more = document.getElementById('ppBitMore'), bitEl = document.getElementById('ppBit');
+      if (more && bitEl) {
+        var gi = gags.indexOf(bitEl.textContent);
+        more.addEventListener('click', function () {
+          gi = (gi + 1) % gags.length; bitEl.style.opacity = 0;
+          setTimeout(function () { bitEl.textContent = gags[gi]; N.lowercase(bitEl); bitEl.style.opacity = 1; }, 250);
+        });
+      }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       ROSTER PICKER (no ?id=)
+    ══════════════════════════════════════════════════════════ */
+    function renderPicker() {
+      document.title = 'OFL — Playas';
+      var list = ROSTER.slice().sort(function (a, b) { return ((b.active !== false) - (a.active !== false)) || String(a.name).localeCompare(String(b.name)); });
+      root.innerHTML =
+        '<header class="pp-hero is-pick"><div class="landing-rule" aria-hidden="true"></div><div class="pp-hero-inner">' +
+          '<p class="pp-eyebrow">Official Fantasy Commission</p><h1 class="pp-title">Playa Profiles</h1><p class="pp-subtitle">The Whole Family</p>' +
+        '</div></header>' +
+        '<div class="pp-body"><div class="pp-wrap"><p class="pp-h"><span>All Playas &mdash; ' + list.length + ' Members</span></p><div class="pp-pick-grid">' + list.map(function (mm) {
+          var O = ofcCareer(mm.id), B = brcCareer(mm.id), t = O.titles + B.titles;
+          var lg = [O.list.length ? 'OFC' : '', B.list.length ? 'BRC' : ''].filter(Boolean).join(' &middot; ') || '&mdash;';
+          return '<a class="pp-tile" href="playa.html?id=' + encodeURIComponent(mm.id) + '"><div class="pp-tile-pic">' + pic(mm.mugshot, mm.name) + '</div>' +
+            '<div class="pp-tile-n">' + esc(mm.name) + '</div><div class="pp-tile-s">' + lg + (mm.active === false ? ' &middot; Alumni' : '') + '</div>' +
+            '<div class="pp-tile-t">' + (t ? t + ' ' + plural(t, 'Title', 'Titles') : '') + '</div></a>';
+        }).join('') + '</div></div></div>';
+      N.lowercase(root);
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       WRAPPED POPUP (wrapped.html in popup mode)
+    ══════════════════════════════════════════════════════════ */
+    var pop = null, pushed = false;
+    function openWrapped(lg, year, m) {
+      if (pop) return;
+      pop = document.createElement('div');
+      pop.className = 'pp-pop'; pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-modal', 'true'); pop.setAttribute('aria-label', year + ' Wrapped');
+      var f = document.createElement('iframe');
+      f.title = year + ' Wrapped'; f.setAttribute('allow', 'web-share; clipboard-write');
+      f.src = 'wrapped.html?embed=1&league=' + lg + '&season=' + encodeURIComponent(year) + '&m=' + encodeURIComponent(m);
+      f.addEventListener('load', function () { try { f.focus(); } catch (x) {} });
+      pop.appendChild(f); document.body.appendChild(pop); document.body.classList.add('pp-pop-open');
+      requestAnimationFrame(function () { if (pop) pop.classList.add('is-on'); });
+      try { history.pushState({ ppWrapped: 1 }, ''); pushed = true; } catch (x) { pushed = false; }
+    }
+    function removePop() {
+      if (!pop) return;
+      var el = pop; pop = null; el.classList.remove('is-on'); document.body.classList.remove('pp-pop-open');
+      setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 250);
+    }
+    function closePop() { if (!pop) return; if (pushed) { pushed = false; history.back(); } else removePop(); }
+    window.addEventListener('popstate', function () { pushed = false; removePop(); });
+    window.addEventListener('message', function (e) { if (e.data && e.data.type === 'ofl-wrapped-close') closePop(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && pop) closePop(); });
+
+    /* ══════════════════════════════════════════════════════════
+       INIT
+    ══════════════════════════════════════════════════════════ */
+    function init() {
+      var config = window.SITE_CONFIG || {};
+      var ov = document.getElementById('ppOverlay');
+      if (ov && config.slideshow && config.slideshow.overlay) ov.style.background = config.slideshow.overlay;
+      var foot = document.getElementById('ppFooter');
+      if (foot) { if (config.footer && config.footer.show) foot.textContent = config.footer.text; else foot.style.display = 'none'; }
+      var id = new URLSearchParams(window.location.search).get('id');
+      var mm = id ? ROSTER.find(function (r) { return r.id === id; }) : null;
+      if (id && !mm) { root.innerHTML = '<div class="pp-body"><div class="pp-wrap" style="padding-top:6rem"><p class="pp-empty">No playa found for that link. <a class="pp-btn" href="playa.html">All Playas</a></p></div></div>'; return; }
+      if (mm) renderProfile(mm); else renderPicker();
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+  })();
+  </script>
+</body>
+</html>

@@ -781,6 +781,9 @@
       padding: 0.45rem 0.9rem; background: rgba(0,0,0,0.55); border: 1px solid var(--drawer-border); color: var(--accent); cursor: pointer;
     }
     .pv-btn:hover { border-color: rgba(232,232,232,0.4); }
+    a.pv-btn { text-decoration: none; display: inline-block; }
+    .pv-foot-links { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+    .pv-foot .pv-foot-links a + a { margin-left: 0; }
     .pv-count { font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.2em; color: var(--accent-dim); min-width: 3.5rem; text-align: center; }
     @media (max-width: 600px) {
       .pv-row { gap: 0.3rem; }
@@ -1321,7 +1324,8 @@
           (awards.length > 12 ? '<span class="pv-award"><i>+' + (awards.length - 12) + ' more</i></span>' : '') + '</div>';
       }
       var hasOFC = (m.leagues || []).some(function (l) { return l.leagueKey === 'OFC'; });
-      html += '<div class="pv-foot">' + (hasOFC ? '<a href="team.html?id=' + encodeURIComponent(m.id) + '">Team Page &#x2197;</a>' : '<span></span>') + '<span>Tap to flip</span></div>';
+      html += '<div class="pv-foot"><span class="pv-foot-links"><a href="playa.html?id=' + encodeURIComponent(m.id) + '">Profile &#x2197;</a>' +
+        (hasOFC ? '<a href="team.html?id=' + encodeURIComponent(m.id) + '">Team Page &#x2197;</a>' : '') + '</span><span>Tap to flip</span></div>';
       return html + '<div class="pv-holo"></div></div></div>';
     }
 
@@ -1337,7 +1341,7 @@
             '<div class="pv-card" id="pvCard"><div class="pv-tilt"><div class="pv-flip" id="pvFlip"></div></div></div>' +
             '<button class="pv-nav" id="pvNext" aria-label="Next card">&#x203A;</button>' +
           '</div>' +
-          '<div class="pv-controls"><button class="pv-btn" id="pvFlipBtn">Flip &#x21BB;</button><span class="pv-count" id="pvCount"></span><button class="pv-btn" id="pvClose">Close &#x2715;</button></div>' +
+          '<div class="pv-controls"><button class="pv-btn" id="pvFlipBtn">Flip &#x21BB;</button><span class="pv-count" id="pvCount"></span><a class="pv-btn" id="pvProfile" href="playa.html">Profile &#x2197;</a><button class="pv-btn" id="pvClose">Close &#x2715;</button></div>' +
         '</div>';
       document.body.appendChild(ov);
 
@@ -1407,6 +1411,7 @@
       document.getElementById('pvFlip').innerHTML = cardFront(m, leagueData, tier) + cardBack(m, leagueData);
       if (keepFlip && scroll) card.querySelector('.pv-back-inner').scrollTop = scroll;
       document.getElementById('pvCount').textContent = (viewIdx + 1) + ' / ' + VIEW_LIST.length;
+      document.getElementById('pvProfile').href = 'playa.html?id=' + encodeURIComponent(m.id);
       document.getElementById('pvPrev').disabled = viewIdx <= 0;
       document.getElementById('pvNext').disabled = viewIdx >= VIEW_LIST.length - 1;
     }

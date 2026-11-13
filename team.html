@@ -9,6 +9,9 @@
   <script src="admin-config.js"></script>
   <script src="ofl-data.js"></script>
   <script src="admin.js"></script>
+  <script src="ofl-engine.js"></script>
+  <script src="ofl-phrasebook.js"></script>
+  <script src="ofl-newsroom.js"></script>
 
   <style>
     /* ══════════════════════════════════════════════════════════
@@ -102,6 +105,8 @@
       border: 1px solid var(--drawer-border);
       padding: 0.22rem 0.6rem; color: var(--accent); font-weight: 700;
     }
+    a.team-hero-pill-link { text-decoration: none; transition: border-color 0.2s, color 0.2s; }
+    a.team-hero-pill-link:hover { border-color: var(--team-primary, var(--accent-dim)); color: var(--team-primary, var(--accent)); }
     .team-hero-pill.active {
       color: var(--team-primary, var(--hint-color, var(--accent-dim)));
       border-color: var(--team-primary, var(--hint-color, var(--drawer-border)));
@@ -172,6 +177,107 @@
       font-family: var(--font-body); font-size: 0.46rem;
       letter-spacing: 0.28em; text-transform: uppercase; color: var(--accent-dim);
     }
+
+
+    /* ══════════════════════════════════════════════════════════
+       THIS SEASON — live war room (classes prefixed tsn-)
+       Shows only while the OFC season is in progress.
+    ══════════════════════════════════════════════════════════ */
+    .tsn { position: relative; border: 1px solid var(--drawer-border); background: rgba(8,8,8,0.72); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); margin-bottom: 2.5rem; overflow: hidden; }
+    .tsn::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--team-primary, var(--accent)); }
+    .tsn::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 0% 0%, var(--team-primary, transparent), transparent 55%); opacity: 0.16; }
+    .tsn > * { position: relative; z-index: 1; }
+    .tsn-head { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; padding: 1rem 1.3rem 0.8rem; border-bottom: 1px solid var(--drawer-border); }
+    .tsn-kicker { font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--accent-dim); }
+    .tsn-title { font-family: var(--font-display); font-size: 1.6rem; line-height: 1.05; color: var(--accent); margin-top: 0.2rem; }
+    .tsn-status { font-family: var(--font-body); font-size: 0.55rem; letter-spacing: 0.25em; text-transform: uppercase; padding: 0.35rem 0.8rem; border: 1px solid currentColor; font-weight: 700; white-space: nowrap; }
+    .tsn-grid { display: grid; grid-template-columns: 1.35fr 1fr; }
+    .tsn-col { padding: 1.1rem 1.3rem 1.3rem; min-width: 0; }
+    .tsn-col + .tsn-col { border-left: 1px solid var(--drawer-border); }
+    .tsn-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--drawer-border); margin-bottom: 1.1rem; }
+    .tsn-tile { padding: 0.75rem 0.4rem 0.65rem; text-align: center; border-right: 1px solid var(--drawer-border); }
+    .tsn-tile:last-child { border-right: none; }
+    .tsn-tile-v { font-family: var(--font-display); font-size: 1.7rem; line-height: 1; color: var(--accent); }
+    .tsn-tile-v.is-team { color: var(--team-primary, var(--accent)); filter: brightness(1.35); }
+    .tsn-tile-l { font-family: var(--font-body); font-size: 0.44rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent-dim); margin-top: 0.35rem; }
+    .tsn-tile-s { font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.08em; color: var(--accent-dim); margin-top: 0.15rem; }
+    .tsn-spark { display: block; width: 100%; height: 22px; margin-top: 0.3rem; }
+    .tsn-spark polyline { fill: none; stroke: var(--team-primary, var(--accent)); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; filter: brightness(1.4); }
+    .tsn-sub { font-family: var(--font-body); font-size: 0.48rem; letter-spacing: 0.32em; text-transform: uppercase; color: var(--accent-dim); margin: 0 0 0.6rem; display: flex; justify-content: space-between; gap: 0.5rem; }
+    .tsn-sub span:last-child { letter-spacing: 0.12em; opacity: 0.7; }
+    .tsn-chart { display: block; width: 100%; height: auto; overflow: visible; }
+    .tsn-chart .b-w { fill: var(--team-primary, #e8e8e8); }
+    .tsn-chart .b-l { fill: rgba(255,255,255,0.06); stroke: rgba(255,255,255,0.4); stroke-width: 1; }
+    .tsn-chart .b-f { fill: none; stroke: rgba(255,255,255,0.18); stroke-width: 1; stroke-dasharray: 3 3; }
+    .tsn-chart .avg { fill: none; stroke: rgba(255,255,255,0.75); stroke-width: 1.5; stroke-dasharray: 4 3; }
+    .tsn-chart text { font-family: var(--font-body); font-size: 9px; fill: rgba(232,232,232,0.6); letter-spacing: 0.06em; }
+    .tsn-chart .sc { font-size: 8.5px; fill: rgba(232,232,232,0.9); }
+    .tsn-chart .bar { cursor: default; transition: opacity 0.2s; }
+    .tsn-chart .bar:hover { opacity: 0.75; }
+    .tsn-legend { display: flex; gap: 1rem; flex-wrap: wrap; font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.12em; color: var(--accent-dim); margin-top: 0.5rem; }
+    .tsn-legend i { display: inline-block; width: 10px; height: 10px; vertical-align: -1px; margin-right: 0.35rem; }
+    .tsn-legend .k-w { background: var(--team-primary, #e8e8e8); }
+    .tsn-legend .k-l { border: 1px solid rgba(255,255,255,0.4); }
+    .tsn-legend .k-a { height: 0; border-top: 2px dashed rgba(255,255,255,0.75); width: 14px; vertical-align: 3px; }
+
+    .tsn-next { border: 1px solid var(--drawer-border); padding: 0.9rem; margin-bottom: 1.1rem; background: rgba(0,0,0,0.3); }
+    .tsn-vs { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 0.5rem; text-align: center; }
+    .tsn-side img, .tsn-side .tsn-init { width: 56px; height: 56px; object-fit: contain; display: block; margin: 0 auto 0.35rem; }
+    .tsn-side .tsn-init { display: flex; align-items: center; justify-content: center; border: 1px solid var(--drawer-border); font-family: var(--font-display); color: var(--accent-dim); }
+    .tsn-side-n { font-family: var(--font-display); font-size: 1.02rem; line-height: 1.1; color: var(--accent); }
+    .tsn-side-r { font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.15em; color: var(--accent-dim); margin-top: 0.15rem; }
+    .tsn-side-p { font-family: var(--font-display); font-size: 1.35rem; color: var(--accent); margin-top: 0.3rem; }
+    .tsn-at { font-family: var(--font-body); font-size: 0.55rem; letter-spacing: 0.25em; color: var(--accent-dim); }
+    .tsn-wp { margin: 0.8rem 0 0.2rem; }
+    .tsn-wp-bar { display: flex; height: 8px; border: 1px solid var(--drawer-border); }
+    .tsn-wp-bar i { display: block; height: 100%; }
+    .tsn-wp-bar .me { background: var(--team-primary, #e8e8e8); }
+    .tsn-wp-bar .op { background: var(--oc, #555); opacity: 0.7; }
+    .tsn-wp-lab { display: flex; justify-content: space-between; font-family: var(--font-body); font-size: 0.55rem; letter-spacing: 0.12em; color: var(--accent); margin-top: 0.3rem; font-weight: 700; }
+    .tsn-swing { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.8rem; }
+    .tsn-swing div { border: 1px solid var(--drawer-border); padding: 0.45rem; text-align: center; }
+    .tsn-swing b { display: block; font-family: var(--font-display); font-size: 1.4rem; font-weight: 400; line-height: 1; }
+    .tsn-swing span { font-family: var(--font-body); font-size: 0.44rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent-dim); }
+    .tsn-swing .up b { color: #4caf7d; } .tsn-swing .dn b { color: #d94f4f; }
+    .tsn-note { font-family: var(--font-body); font-size: 0.62rem; line-height: 1.5; letter-spacing: 0.03em; color: var(--accent-dim); margin-top: 0.7rem; }
+    .tsn-note b { color: var(--accent); font-weight: 700; }
+
+    .tsn-path { display: flex; gap: 4px; margin-bottom: 0.5rem; }
+    .tsn-path div { flex: 1; min-width: 0; border: 1px solid var(--drawer-border); text-align: center; padding: 0.4rem 0 0.35rem; position: relative; overflow: hidden; }
+    .tsn-path div::before { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: var(--h); background: var(--team-primary, #e8e8e8); opacity: 0.28; }
+    .tsn-path div.is-mark { border-color: var(--team-primary, var(--accent)); }
+    .tsn-path b { position: relative; display: block; font-family: var(--font-display); font-size: 0.95rem; font-weight: 400; color: var(--accent); }
+    .tsn-path span { position: relative; display: block; font-family: var(--font-body); font-size: 0.42rem; letter-spacing: 0.12em; color: var(--accent-dim); margin-top: 0.1rem; }
+    .tsn-news { display: block; border-top: 1px solid var(--drawer-border); margin-top: 1rem; padding-top: 0.8rem; text-decoration: none; }
+    .tsn-news-k { font-family: var(--font-body); font-size: 0.46rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent-dim); }
+    .tsn-news-h { font-family: var(--font-display); font-size: 1.15rem; line-height: 1.15; color: var(--accent); margin-top: 0.25rem; }
+    .tsn-news:hover .tsn-news-h { text-decoration: underline; text-underline-offset: 3px; }
+    .tsn-links { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+    .tsn-links a { font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); text-decoration: none; border: 1px solid var(--drawer-border); padding: 0.45rem 0.75rem; transition: border-color 0.2s; }
+    .tsn-links a:hover { border-color: var(--team-primary, var(--accent)); }
+    .tsn-wait { padding: 2rem; text-align: center; font-family: var(--font-body); font-size: 0.55rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent-dim); }
+    .ofl-lc { text-transform: lowercase !important; }
+    @media (max-width: 760px) {
+      .tsn-grid { grid-template-columns: 1fr; }
+      .tsn-col + .tsn-col { border-left: none; border-top: 1px solid var(--drawer-border); }
+      .tsn-col { padding: 1rem; }
+      .tsn-head { padding: 0.9rem 1rem 0.7rem; }
+      .tsn-tile-v { font-size: 1.4rem; }
+    }
+
+
+    /* ── Season Log → Wrapped ─────────────────────────────── */
+    .team-section-heading-split { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+    .team-wr-hint { font-size: 0.85em; letter-spacing: 0.18em; opacity: 0.55; white-space: nowrap; }
+    .team-table .team-wr-go { width: 1.6rem; padding-left: 0; padding-right: 0.6rem; text-align: right; font-size: 0.55rem; color: var(--team-primary, var(--accent)); opacity: 0; transition: opacity 0.2s; }
+    .team-table tr.team-wr-row { cursor: pointer; transition: background 0.2s; }
+    .team-table tr.team-wr-row:hover, .team-table tr.team-wr-row:focus-visible { background: color-mix(in srgb, var(--team-primary, #ffffff) 14%, transparent); outline: none; }
+    .team-table tr.team-wr-row:hover .team-wr-go, .team-table tr.team-wr-row:focus-visible .team-wr-go { opacity: 1; }
+    @media (hover: none) { .team-table tr.team-wr-row .team-wr-go { opacity: 0.6; } }
+    .team-wr-pop { position: fixed; inset: 0; z-index: 10000; background: #000; opacity: 0; transition: opacity 0.25s ease; }
+    .team-wr-pop.is-on { opacity: 1; }
+    .team-wr-pop iframe { width: 100%; height: 100%; border: 0; display: block; background: #000; }
+    body.team-wr-open { overflow: hidden; }
 
     /* ══════════════════════════════════════════════════════════
        SEASON LOG TABLE
@@ -658,6 +764,7 @@
           rank:         rank,
           playoff:      playoffResult,
           isChamp:      season.championMemberId === memberId,
+          wrapped:      !!season.isFinal && (season.weeks || []).some(function (w) { return w.isComplete; }),
           luck:         (function () {
             if (!season.isFinal) return null;
             var allWeeks = (season.weeks || []).filter(function (w) { return w.isComplete; });
@@ -1049,7 +1156,7 @@
           '<div class="team-hero-inner">' +
             '<div class="team-hero-logo-wrap">' + logoHtml + '</div>' +
             '<p class="team-hero-owner">' +
-              '<a href="playas.html">' + esc(member.name) + '</a>' +
+              '<a href="playa.html?id=' + encodeURIComponent(member.id) + '" title="Playa Profile">' + esc(member.name) + '</a>' +
               (member.nickname ? ' &nbsp;&middot;&nbsp; &ldquo;' + esc(member.nickname) + '&rdquo;' : '') +
             '</p>' +
             '<h1 class="team-hero-name">' + esc(currentTeam ? currentTeam.name : member.name) + '</h1>' +
@@ -1060,6 +1167,7 @@
               '</span>' +
               (career.seasonsPlayed ? '<span class="team-hero-pill">' + career.seasonsPlayed + ' Season' + (career.seasonsPlayed !== 1 ? 's' : '') + '</span>' : '') +
               (career.championships ? '<span class="team-hero-pill">' + career.championships + ' Title' + (career.championships !== 1 ? 's' : '') + '</span>' : '') +
+              '<a class="team-hero-pill team-hero-pill-link" href="playa.html?id=' + encodeURIComponent(member.id) + '">Profile &#x2197;</a>' +
             '</div>' +
             (function () {
               var tier = computePowerTier(member.id, ofcLeague);
@@ -1111,7 +1219,10 @@
         var logoCell = s.logo
           ? '<img class="season-team-logo" src="' + esc(s.logo) + '" alt="" />'
           : '';
-        return '<tr>' +
+        var wrAttrs = s.wrapped
+          ? ' class="team-wr-row" data-wr-year="' + esc(s.year) + '" tabindex="0" role="link" aria-label="Play ' + esc(s.year) + ' Wrapped"'
+          : '';
+        return '<tr' + wrAttrs + '>' +
           '<td>' + esc(s.year) + '</td>' +
           '<td class="team-name-cell">' + logoCell + esc(s.teamName) + '</td>' +
           '<td class="num">' + esc(s.record) + '</td>' +
@@ -1122,6 +1233,7 @@
             : '<td class="num">—</td>') +
           '<td class="num">' + (s.rank ? '#' + s.rank : '—') + '</td>' +
           '<td>' + renderPlayoffBadge(s.playoff) + '</td>' +
+          '<td class="team-wr-go" aria-hidden="true">' + (s.wrapped ? '&#x25B6;' : '') + '</td>' +
         '</tr>';
       }).join('');
 
@@ -1136,6 +1248,7 @@
                 '<th class="num">Luck</th>' +
                 '<th class="num">Finish</th>' +
                 '<th>Playoff</th>' +
+                '<th class="team-wr-go"></th>' +
               '</tr></thead>' +
               '<tbody>' + seasonRowsHtml + '</tbody>' +
             '</table>' +
@@ -1276,12 +1389,14 @@
         heroHtml +
         '<div class="team-body">' +
           '<div class="team-wrap">' +
+            '<div id="tsnSlot"></div>' +
             careerStripHtml +
 
             '<p class="team-section-heading section-reveal">Head to Head</p>' +
             h2hHtml +
 
-            '<p class="team-section-heading section-reveal">Season Log</p>' +
+            '<p class="team-section-heading team-section-heading-split section-reveal"><span>Season Log</span>' +
+              (seasonLog.some(function (x) { return x && x.wrapped; }) ? '<span class="team-wr-hint">&#x25B6; Tap a season for Wrapped</span>' : '') + '</p>' +
             seasonLogHtml +
 
             '<p class="team-section-heading section-reveal">Weekly MVP Log</p>' +
@@ -1292,6 +1407,16 @@
           '</div>' +
         '</div>';
 
+      /* ── This Season war room (fills in after the page draws) ── */
+      setTimeout(function () { try { buildThisSeason(member); } catch (x) { if (window.console) console.error(x); } }, 30);
+
+      /* ── Season Log rows → Wrapped popup ── */
+      content.querySelectorAll('.team-wr-row').forEach(function (row) {
+        function go() { openWrapped(member.id, row.getAttribute('data-wr-year')); }
+        row.addEventListener('click', go);
+        row.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+      });
+
       /* ── H2H card expand/collapse ── */
       content.querySelectorAll('.team-h2h-card-header').forEach(function (header) {
         header.addEventListener('click', function () {
@@ -1301,6 +1426,220 @@
     }
 
     /* ── Not found state ──────────────────────────────────── */
+    /* ═════════════════════════════════════════════════════
+       THIS SEASON — live war room for the current OFC season
+       Uses ofl-engine.js (same simulation + seed as race.html)
+       and ofl-newsroom.js (latest Gazette mention).
+       Hidden in the offseason / preseason / if the engine is missing.
+    ═════════════════════════════════════════════════════ */
+    function buildThisSeason(member) {
+      var slot = document.getElementById('tsnSlot');
+      var E = window.OFL_ENGINE, N = window.OFL_NEWSROOM;
+      if (!slot || !E) return;
+      var S = E.ofc.seasons[0];
+      if (!S || S.isFinal) return;
+      var m = member.id, ids = E.ofc.teamIds(S);
+      if (ids.indexOf(m) < 0) return;
+      var K = E.ofc.lastDone(S), yr = parseInt(S.year, 10), R = E.ofc.regWeeks(S);
+      var st = E.ofc.standingsThrough(S, K), me = st.map[m];
+      if (!me || !K) return;
+      var f2 = E.util.f2, ord = E.util.ord, pctTxt = E.util.pctTxt, rec = E.ofc.rec;
+      function ident(id) {
+        if (N && N.ofc && N.ofc.ident) return N.ofc.ident(id, (st.map[id] || {}).name);
+        var mm = E.util.member(id); return { owner: mm.name || '?', team: (st.map[id] || {}).name || mm.name || '?', logo: mm.mugshot || '', color: '#888888' };
+      }
+      function logo(I) { return I.logo ? '<img src="' + esc(I.logo) + '" alt="" />' : '<div class="tsn-init">' + esc(initials(I.team)) + '</div>'; }
+      function pp(v) { return pctTxt(v) + '%'; }
+
+      /* Week by week */
+      var log = [];
+      E.ofc.completeWeeks(S).forEach(function (w) {
+        var gs = E.ofc.gamesOf(w), all = [], mine = null;
+        gs.forEach(function (g) {
+          all.push(g.hs, g.as);
+          if (g.h === m) mine = { s: g.hs, o: g.a, os: g.as }; else if (g.a === m) mine = { s: g.as, o: g.h, os: g.hs };
+        });
+        if (!mine) return;
+        mine.k = w.weekNumber; mine.avg = all.reduce(function (a, b) { return a + b; }, 0) / all.length;
+        mine.res = mine.s > mine.os ? 'W' : mine.s < mine.os ? 'L' : 'T';
+        log.push(mine);
+      });
+      var pfRank = st.rows.slice().sort(function (a, b) { return b.pf - a.pf; }).findIndex(function (r) { return r.id === m; }) + 1;
+
+      /* Rest of the season: the same 10,000-season simulation the Playoff Race runs */
+      var sched = E.ofc.remainingSchedule(S, K), games = sched.games, base = {};
+      ids.forEach(function (id) { var r = st.map[id]; base[id] = r ? { w: r.w, t: r.t, pf: r.pf } : { w: 0, t: 0, pf: 0 }; });
+      var model = E.ofc.scoringModel(S, K, ids), res = null, mine = null;
+      if (games.length) { res = E.ofc.simulate(E.ofc.SIMS, games, {}, model, base, E.ofc.SEED, ids, E.ofc.PLAYOFF_TEAMS); mine = res[m]; }
+      var odds = mine ? mine.playoff : (me.rank <= E.ofc.PLAYOFF_TEAMS ? 1 : 0);
+
+      var statusTxt, statusCol;
+      if (!games.length) { statusTxt = odds ? 'Playoff Bound' : 'Season Over'; statusCol = odds ? '#4caf7d' : '#d94f4f'; }
+      else if (odds >= 0.995) { statusTxt = 'All But In'; statusCol = '#4caf7d'; }
+      else if (odds >= 0.6) { statusTxt = 'In Control'; statusCol = '#4caf7d'; }
+      else if (odds >= 0.35) { statusTxt = 'On the Bubble'; statusCol = '#e8c864'; }
+      else if (odds >= 0.005) { statusTxt = 'Need Help'; statusCol = '#e8935a'; }
+      else { statusTxt = 'All But Out'; statusCol = '#d94f4f'; }
+
+      var streak = me.streak ? me.streak.type + me.streak.n : '—';
+
+      /* ── Left column: tiles + chart ── */
+      var tiles =
+        '<div class="tsn-tiles">' +
+          '<div class="tsn-tile"><div class="tsn-tile-v">' + rec(me) + '</div><div class="tsn-tile-l">Record</div><div class="tsn-tile-s">' + ord(me.rank) + ' of ' + st.rows.length + '</div></div>' +
+          '<div class="tsn-tile"><div class="tsn-tile-v">' + Math.round(me.pf) + '</div><div class="tsn-tile-l">Points For</div><div class="tsn-tile-s">' + ord(pfRank) + ' in league</div></div>' +
+          '<div class="tsn-tile"><div class="tsn-tile-v">' + streak + '</div><div class="tsn-tile-l">Streak</div><div class="tsn-tile-s">' + (me.streak && me.streak.type === 'W' ? 'Rolling' : me.streak && me.streak.type === 'L' ? 'Skidding' : '&nbsp;') + '</div></div>' +
+          '<div class="tsn-tile"><div class="tsn-tile-v is-team">' + pp(odds) + '</div><div class="tsn-tile-l">Playoff Odds</div><svg class="tsn-spark" id="tsnSpark" viewBox="0 0 100 22" preserveAspectRatio="none" aria-hidden="true"></svg></div>' +
+        '</div>';
+
+      /* Weekly scores: played weeks as bars, remaining weeks as dashed slots with the opponent */
+      var upcoming = games.filter(function (g) { return g.h === m || g.a === m; }).sort(function (a, b) { return a.week - b.week; });
+      var maxS = Math.max.apply(null, log.map(function (x) { return Math.max(x.s, x.avg); }).concat([150]));
+      var nW = Math.max(R, log.length ? log[log.length - 1].k : 0), CW = 340, CH = 120, gap = 3, bw = (CW - gap * (nW - 1)) / nW;
+      function y(v) { return CH - (v / maxS) * (CH - 14); }
+      var bars = '', avgPts = [];
+      for (var wk = 1; wk <= nW; wk++) {
+        var x = (wk - 1) * (bw + gap), L = log.find(function (q) { return q.k === wk; });
+        if (L) {
+          var oI = ident(L.o);
+          bars += '<g class="bar"><title>Week ' + wk + ': ' + f2(L.s) + ' vs ' + esc(oI.team) + ' ' + f2(L.os) + ' (' + L.res + ')</title>' +
+            '<rect class="' + (L.res === 'W' ? 'b-w' : 'b-l') + '" x="' + x.toFixed(1) + '" y="' + y(L.s).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + (CH - y(L.s)).toFixed(1) + '" rx="1.5"/>' +
+            (bw >= 16 ? '<text class="sc" x="' + (x + bw / 2).toFixed(1) + '" y="' + (y(L.s) - 3).toFixed(1) + '" text-anchor="middle">' + Math.round(L.s) + '</text>' : '') + '</g>';
+          avgPts.push((x + bw / 2).toFixed(1) + ',' + y(L.avg).toFixed(1));
+        } else {
+          var U = upcoming.find(function (g) { return g.week === wk; }), uI = U ? ident(U.h === m ? U.a : U.h) : null;
+          bars += '<g class="bar">' + (uI ? '<title>Week ' + wk + ': vs ' + esc(uI.team) + '</title>' : '') +
+            '<rect class="b-f" x="' + x.toFixed(1) + '" y="' + (CH * 0.35).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + (CH * 0.65).toFixed(1) + '" rx="1.5"/>' +
+            (uI && bw >= 16 ? '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (CH * 0.35 + 12).toFixed(1) + '" text-anchor="middle">' + esc(initials(uI.owner)) + '</text>' : '') + '</g>';
+        }
+        bars += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (CH + 12) + '" text-anchor="middle">' + wk + '</text>';
+      }
+      var chart = '<p class="tsn-sub"><span>Weekly Scores</span><span>' + K + ' played &middot; ' + Math.max(0, R - K) + ' to go</span></p>' +
+        '<svg class="tsn-chart" viewBox="0 0 ' + CW + ' ' + (CH + 16) + '" role="img" aria-label="Weekly scores this season">' + bars +
+          (avgPts.length > 1 ? '<polyline class="avg" points="' + avgPts.join(' ') + '"/>' : '') + '</svg>' +
+        '<div class="tsn-legend"><span><i class="k-w"></i>Win</span><span><i class="k-l"></i>Loss</span><span><i class="k-a"></i>League average</span><span>Dashed slots = still to play</span></div>';
+
+      /* ── Right column: next matchup + path ── */
+      var right = '';
+      var next = upcoming[0];
+      if (next) {
+        var home = next.h === m, opp = home ? next.a : next.h, oI = ident(opp), mI = ident(m);
+        var mu1 = model[m].mu, mu2 = model[opp].mu, sd = Math.sqrt(model[m].sd * model[m].sd + model[opp].sd * model[opp].sd);
+        var wp = normCdf((mu1 - mu2) / (sd || 1));
+        var oRow = st.map[opp];
+        var ser = N && N.seriesThrough ? N.seriesThrough(m, opp, yr, K) : null;
+        var gi = games.indexOf(next), idx = res._idx[m], hw = res._gHW[gi], n = res._n;
+        var poHW = hw ? res._gamePO[gi][idx] / hw : null, poHL = (n - hw) ? (res._poTotal[idx] - res._gamePO[gi][idx]) / (n - hw) : null;
+        var ifWin = home ? poHW : poHL, ifLose = home ? poHL : poHW;
+        right += '<p class="tsn-sub"><span>Next Up &middot; Week ' + next.week + '</span><span>' + (sched.source === 'pattern' && !(S.weeks || []).some(function (w) { return w.weekNumber === next.week && (w.games || []).length; }) ? 'Projected matchup' : 'Projection') + '</span></p>' +
+          '<div class="tsn-next" style="--oc:' + (oI.color || '#555') + '">' +
+            '<div class="tsn-vs">' +
+              '<div class="tsn-side">' + logo(mI) + '<div class="tsn-side-n">' + esc(mI.team) + '</div><div class="tsn-side-r">' + rec(me) + '</div><div class="tsn-side-p">' + f2(mu1) + '</div></div>' +
+              '<div class="tsn-at">VS</div>' +
+              '<div class="tsn-side">' + logo(oI) + '<div class="tsn-side-n">' + esc(oI.team) + '</div><div class="tsn-side-r">' + (oRow ? rec(oRow) + ' &middot; ' + ord(oRow.rank) : '') + '</div><div class="tsn-side-p">' + f2(mu2) + '</div></div>' +
+            '</div>' +
+            '<div class="tsn-wp"><div class="tsn-wp-bar"><i class="me" style="width:' + (wp * 100).toFixed(1) + '%"></i><i class="op" style="width:' + ((1 - wp) * 100).toFixed(1) + '%"></i></div>' +
+              '<div class="tsn-wp-lab"><span>' + Math.round(wp * 100) + '% win</span><span>' + Math.round((1 - wp) * 100) + '%</span></div></div>' +
+            (ifWin !== null && ifLose !== null ?
+              '<div class="tsn-swing"><div class="up"><b>' + pp(ifWin) + '</b><span>Playoff odds with a win</span></div><div class="dn"><b>' + pp(ifLose) + '</b><span>With a loss</span></div></div>' : '') +
+            '<p class="tsn-note">' +
+              (ser && (ser.a + ser.b + ser.t) ? 'All-time vs ' + esc(oI.owner) + ': <b>' + ser.a + '&ndash;' + ser.b + (ser.t ? '&ndash;' + ser.t : '') + '</b>. ' : 'First-ever meeting. ') +
+              (ifWin !== null && ifLose !== null && Math.abs(ifWin - ifLose) >= 0.15 ? 'This one swings <b>' + Math.round(Math.abs(ifWin - ifLose) * 100) + ' points</b> of playoff odds. Big game.' :
+               ifWin !== null && ifLose !== null && Math.abs(ifWin - ifLose) < 0.04 ? 'Not much riding on it either way.' : '') +
+              ' <a href="rivals.html?a=' + encodeURIComponent(m) + '&b=' + encodeURIComponent(opp) + '" style="color:var(--accent);">Full rivalry &#x2197;</a></p>' +
+          '</div>';
+      }
+
+      if (mine && mine.byWins && mine.rem) {
+        var bk = mine.byWins, mark = -1;
+        for (var q = 0; q < bk.length; q++) if (bk[q].n && bk[q].po >= 0.9) { mark = q; break; }
+        right += '<p class="tsn-sub"><span>Path to the Playoffs</span><span>Wins in last ' + mine.rem + '</span></p>' +
+          '<div class="tsn-path">' + bk.map(function (b) {
+            return '<div class="' + (b.k === mark ? 'is-mark' : '') + '" style="--h:' + (b.n ? Math.round(b.po * 100) : 0) + '%" title="Win ' + b.k + ' of ' + mine.rem + ': ' + (b.n ? pp(b.po) : 'did not happen in the simulations') + '">' +
+              '<b>' + (b.n ? pctTxt(b.po) : '–') + '</b><span>' + b.k + 'W</span></div>';
+          }).join('') + '</div>' +
+          '<p class="tsn-note">' + (mark === 0 ? 'Could lose out and <b>still</b> get in most of the time.' :
+            mark > 0 ? 'Win <b>' + mark + ' of ' + mine.rem + '</b> and you&rsquo;re in 90%+ of the time. Projected finish: <b>' + mine.projW.toFixed(1) + ' wins</b>.' :
+            'Even winning out isn&rsquo;t a lock. Projected finish: <b>' + mine.projW.toFixed(1) + ' wins</b>.') + '</p>';
+      }
+
+      /* Latest Gazette mention (current season only) */
+      if (N && N.ofc && N.ofc.editions && N.ofc.editions.length) {
+        var e = N.ofc.editions[N.ofc.editions.length - 1];
+        if (e.s === S) {
+          try {
+            var ed = N.ofc.write(e.s, e.k), hit = null;
+            ed.stories.forEach(function (sto, i) { if (!hit && sto.photo === m) hit = { s: sto, lead: i === 0 }; });
+            if (!hit) ed.stories.forEach(function (sto, i) { if (!hit && sto.team === m) hit = { s: sto, lead: i === 0 }; });
+            if (hit) right += '<a class="tsn-news" href="gazette.html?league=ofc&season=' + yr + '&week=' + e.k + '"><div class="tsn-news-k">The OFC Gazette &middot; Week ' + e.k + (hit.lead ? ' &middot; Front Page' : '') + '</div><div class="tsn-news-h">' + esc(hit.s.head) + '</div></a>';
+          } catch (x) {}
+        }
+      }
+      right += '<div class="tsn-links"><a href="race.html">Playoff Race</a></div>';
+
+      slot.innerHTML =
+        '<p class="team-section-heading">This Season</p>' +
+        '<section class="tsn" aria-label="This season">' +
+          '<div class="tsn-head"><div><div class="tsn-kicker">' + yr + ' OFC &middot; Through Week ' + K + '</div><div class="tsn-title">' + esc(me.name || ident(m).team) + '</div></div>' +
+            '<span class="tsn-status" style="color:' + statusCol + '">' + statusTxt + '</span></div>' +
+          '<div class="tsn-grid"><div class="tsn-col">' + tiles + chart + '</div><div class="tsn-col">' + right + '</div></div>' +
+        '</section>';
+      if (N && N.lowercase) N.lowercase(slot);
+
+      /* Playoff-odds sparkline, a week at a time so the page never stalls */
+      var spark = document.getElementById('tsnSpark'), J = [], k = 0;
+      (function nextWeek() {
+        if (!spark || k > K) return;
+        J.push(k === K ? odds : ((E.ofc.odds(S, k) || {})[m] || 0)); k++;
+        if (J.length >= 2) spark.innerHTML = '<polyline points="' + J.map(function (v, i) { return (i * 100 / K).toFixed(1) + ',' + (2 + (1 - v) * 18).toFixed(1); }).join(' ') + '"/>';
+        setTimeout(nextWeek, 0);
+      })();
+    }
+    function normCdf(z) {   // standard normal CDF (Abramowitz–Stegun)
+      var t = 1 / (1 + 0.2316419 * Math.abs(z)), d = 0.3989423 * Math.exp(-z * z / 2);
+      var p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+      return z > 0 ? 1 - p : p;
+    }
+
+    /* ═════════════════════════════════════════════════════
+       WRAPPED POPUP — plays wrapped.html (popup mode) over the team page.
+       Close with its X, swipe down, Escape or the phone's back button.
+    ═════════════════════════════════════════════════════ */
+    var wrPop = null, wrPushed = false;
+    function openWrapped(memberId, year) {
+      if (wrPop) return;
+      wrPop = document.createElement('div');
+      wrPop.className = 'team-wr-pop';
+      wrPop.setAttribute('role', 'dialog'); wrPop.setAttribute('aria-modal', 'true'); wrPop.setAttribute('aria-label', year + ' Wrapped');
+      var f = document.createElement('iframe');
+      f.title = year + ' Wrapped';
+      f.setAttribute('allow', 'web-share; clipboard-write');
+      f.src = 'wrapped.html?embed=1&league=ofc&season=' + encodeURIComponent(year) + '&m=' + encodeURIComponent(memberId);
+      f.addEventListener('load', function () { try { f.focus(); } catch (x) {} });
+      wrPop.appendChild(f);
+      document.body.appendChild(wrPop);
+      document.body.classList.add('team-wr-open');
+      requestAnimationFrame(function () { if (wrPop) wrPop.classList.add('is-on'); });
+      try { history.pushState({ teamWrapped: 1 }, ''); wrPushed = true; } catch (x) { wrPushed = false; }
+    }
+    function removeWrapped() {
+      if (!wrPop) return;
+      var el = wrPop; wrPop = null;
+      el.classList.remove('is-on');
+      document.body.classList.remove('team-wr-open');
+      setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 250);
+    }
+    function closeWrapped() {
+      if (!wrPop) return;
+      if (wrPushed) { wrPushed = false; history.back(); }   // popstate removes it
+      else removeWrapped();
+    }
+    window.addEventListener('popstate', function () { wrPushed = false; removeWrapped(); });
+    window.addEventListener('message', function (e) {
+      if (e.data && e.data.type === 'ofl-wrapped-close') closeWrapped();
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && wrPop) closeWrapped(); });
+
     function renderNotFound(msg) {
       var content = document.getElementById('teamContent');
       content.innerHTML =

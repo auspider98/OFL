@@ -209,6 +209,8 @@
     .brc-ident-cell span { display: block; }
     .brc-ident-bracket { font-size: 0.8rem; font-weight: 600; color: var(--accent); }
     .brc-ident-owner   { font-size: 0.72rem; color: var(--accent-dim); }
+    .brc-ident-link { display: block; color: inherit; text-decoration: none; transition: opacity 0.2s; }
+    .brc-ident-link:hover { opacity: 0.75; }   /* same hover as the OFC .standings-team-link */
     .brc-ident-champ   { font-size: 0.65rem; color: var(--hint-color, var(--accent)); font-style: italic; }
 
     /* Round + Total shared */
@@ -1063,7 +1065,9 @@
           if (bName) identLines.push('<span class="brc-ident-bracket">' + esc(bName) + '</span>');
           if (row.owner || row.ownerName) identLines.push('<span class="brc-ident-owner">' + esc(row.owner || row.ownerName) + '</span>');
           if (row.predictedChampion) identLines.push('<span class="brc-ident-champ">' + esc(row.predictedChampion) + '</span>');
-          tdCells += '<td class="brc-ident-cell" style="' + BG + 'left:' + identLeft + '">' + identLines.join('') + '</td>';
+          /* Bracket name + owner link to the playa's profile */
+          var identHtml = row.memberId ? '<a class="brc-ident-link" href="playa.html?id=' + encodeURIComponent(row.memberId) + '">' + identLines.join('') + '</a>' : identLines.join('');
+          tdCells += '<td class="brc-ident-cell" style="' + BG + 'left:' + identLeft + '">' + identHtml + '</td>';
 
           // Round cells
           activeRoundIndices.forEach(function (rIdx) {
@@ -1120,7 +1124,10 @@
         var imgHtml = logo
           ? '<img class="standings-team-logo" src="' + esc(logo) + '" alt="' + esc(teamName) + '" />'
           : '<span class="standings-team-initial">' + esc(initial) + '</span>';
-        var teamUrl = (league.sport === 'football' && row.memberId) ? 'team.html?id=' + encodeURIComponent(row.memberId) : null;
+        /* OFC → team page; BRC → playa profile */
+        var teamUrl = !row.memberId ? null
+          : league.sport === 'football' ? 'team.html?id=' + encodeURIComponent(row.memberId)
+          : league.sport === 'madness' ? 'playa.html?id=' + encodeURIComponent(row.memberId) : null;
         var inner = '<span class="standings-team-cell">' + (tagHtml || '') + imgHtml + '<span class="standings-team-name-text">' + esc(teamName) + '</span></span>';
         return teamUrl ? '<a class="standings-team-link" href="' + esc(teamUrl) + '">' + inner + '</a>' : inner;
       }
@@ -2536,7 +2543,10 @@
           ? '<img class="roster-card-logo" src="' + esc(logo) + '" alt="' + esc(name) + '" />'
           : '<div class="roster-card-initial">' + esc(initial) + '</div>';
 
-        var teamUrl = (isFootball && entry.memberId) ? 'team.html?id=' + encodeURIComponent(entry.memberId) : null;
+        /* OFC → team page; BRC → playa profile */
+        var teamUrl = !entry.memberId ? null
+          : isFootball ? 'team.html?id=' + encodeURIComponent(entry.memberId)
+          : league.sport === 'madness' ? 'playa.html?id=' + encodeURIComponent(entry.memberId) : null;
         return (teamUrl ? '<a class="roster-card" href="' + esc(teamUrl) + '">' : '<div class="roster-card">') +
           imgHtml +
           '<div class="roster-card-name">' + esc(name || entry.ownerName || '—') + '</div>' +
