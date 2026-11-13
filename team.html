@@ -205,13 +205,22 @@
     .tsn-spark polyline { fill: none; stroke: var(--team-primary, var(--accent)); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; filter: brightness(1.4); }
     .tsn-sub { font-family: var(--font-body); font-size: 0.48rem; letter-spacing: 0.32em; text-transform: uppercase; color: var(--accent-dim); margin: 0 0 0.6rem; display: flex; justify-content: space-between; gap: 0.5rem; }
     .tsn-sub span:last-child { letter-spacing: 0.12em; opacity: 0.7; }
-    .tsn-chart { display: block; width: 100%; height: auto; overflow: visible; }
+    .tsn-scroll-wrap { position: relative; }
+    .tsn-scroll { overflow-x: auto; overflow-y: hidden; scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+    .tsn-scroll::-webkit-scrollbar { display: none; }
+    .tsn-scroll-wrap::before, .tsn-scroll-wrap::after { content: ''; position: absolute; top: 0; bottom: 0; width: 28px; pointer-events: none; z-index: 2; opacity: 0; transition: opacity 0.25s; }
+    .tsn-scroll-wrap::before { left: 0; background: linear-gradient(90deg, rgba(10,10,10,0.95), transparent); }
+    .tsn-scroll-wrap::after { right: 0; background: linear-gradient(270deg, rgba(10,10,10,0.95), transparent); }
+    .tsn-scroll-wrap.is-l::before, .tsn-scroll-wrap.is-r::after { opacity: 1; }
+    .tsn-chart { display: block; overflow: visible; }
     .tsn-chart .b-w { fill: var(--team-primary, #e8e8e8); }
     .tsn-chart .b-l { fill: rgba(255,255,255,0.06); stroke: rgba(255,255,255,0.4); stroke-width: 1; }
     .tsn-chart .b-f { fill: none; stroke: rgba(255,255,255,0.18); stroke-width: 1; stroke-dasharray: 3 3; }
     .tsn-chart .avg { fill: none; stroke: rgba(255,255,255,0.75); stroke-width: 1.5; stroke-dasharray: 4 3; }
-    .tsn-chart text { font-family: var(--font-body); font-size: 9px; fill: rgba(232,232,232,0.6); letter-spacing: 0.06em; }
-    .tsn-chart .sc { font-size: 8.5px; fill: rgba(232,232,232,0.9); }
+    .tsn-chart text { font-family: var(--font-body); font-size: 11px; fill: rgba(232,232,232,0.6); letter-spacing: 0.06em; }
+    .tsn-chart .sc { font-size: 11px; fill: rgba(232,232,232,0.9); }
+    .tsn-chart .op { font-size: 10px; letter-spacing: 0.08em; fill: rgba(232,232,232,0.55); }
+    .tsn-chart .wk.po { fill: var(--accent); font-weight: 700; }
     .tsn-chart .bar { cursor: default; transition: opacity 0.2s; }
     .tsn-chart .bar:hover { opacity: 0.75; }
     .tsn-legend { display: flex; gap: 1rem; flex-wrap: wrap; font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.12em; color: var(--accent-dim); margin-top: 0.5rem; }
@@ -1492,32 +1501,42 @@
           '<div class="tsn-tile"><div class="tsn-tile-v is-team">' + pp(odds) + '</div><div class="tsn-tile-l">Playoff Odds</div><svg class="tsn-spark" id="tsnSpark" viewBox="0 0 100 22" preserveAspectRatio="none" aria-hidden="true"></svg></div>' +
         '</div>';
 
-      /* Weekly scores: played weeks as bars, remaining weeks as dashed slots with the opponent */
+      /* Weekly scores: one column per game this team plays — regular-season weeks, then any playoff /
+         consolation games once they're entered. Played = bar, not yet played = dashed slot with the
+         opponent's team initials. Scrolls left/right when the columns don't fit (drawn in drawWeekly). */
       var upcoming = games.filter(function (g) { return g.h === m || g.a === m; }).sort(function (a, b) { return a.week - b.week; });
-      var maxS = Math.max.apply(null, log.map(function (x) { return Math.max(x.s, x.avg); }).concat([150]));
-      var nW = Math.max(R, log.length ? log[log.length - 1].k : 0), CW = 340, CH = 120, gap = 3, bw = (CW - gap * (nW - 1)) / nW;
-      function y(v) { return CH - (v / maxS) * (CH - 14); }
-      var bars = '', avgPts = [];
+      var wcols = [];
+      var nW = Math.max(R, log.length ? log[log.length - 1].k : 0);
       for (var wk = 1; wk <= nW; wk++) {
-        var x = (wk - 1) * (bw + gap), L = log.find(function (q) { return q.k === wk; });
-        if (L) {
-          var oI = ident(L.o);
-          bars += '<g class="bar"><title>Week ' + wk + ': ' + f2(L.s) + ' vs ' + esc(oI.team) + ' ' + f2(L.os) + ' (' + L.res + ')</title>' +
-            '<rect class="' + (L.res === 'W' ? 'b-w' : 'b-l') + '" x="' + x.toFixed(1) + '" y="' + y(L.s).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + (CH - y(L.s)).toFixed(1) + '" rx="1.5"/>' +
-            (bw >= 16 ? '<text class="sc" x="' + (x + bw / 2).toFixed(1) + '" y="' + (y(L.s) - 3).toFixed(1) + '" text-anchor="middle">' + Math.round(L.s) + '</text>' : '') + '</g>';
-          avgPts.push((x + bw / 2).toFixed(1) + ',' + y(L.avg).toFixed(1));
-        } else {
-          var U = upcoming.find(function (g) { return g.week === wk; }), uI = U ? ident(U.h === m ? U.a : U.h) : null;
-          bars += '<g class="bar">' + (uI ? '<title>Week ' + wk + ': vs ' + esc(uI.team) + '</title>' : '') +
-            '<rect class="b-f" x="' + x.toFixed(1) + '" y="' + (CH * 0.35).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + (CH * 0.65).toFixed(1) + '" rx="1.5"/>' +
-            (uI && bw >= 16 ? '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (CH * 0.35 + 12).toFixed(1) + '" text-anchor="middle">' + esc(initials(uI.owner)) + '</text>' : '') + '</g>';
+        var L = log.find(function (q) { return q.k === wk; });
+        if (L) wcols.push({ lab: String(wk), name: 'Week ' + wk, s: L.s, os: L.os, o: L.o, res: L.res, avg: L.avg });
+        else {
+          var U = upcoming.find(function (g) { return g.week === wk; });
+          wcols.push({ lab: String(wk), name: 'Week ' + wk, o: U ? (U.h === m ? U.a : U.h) : null, up: true });
         }
-        bars += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (CH + 12) + '" text-anchor="middle">' + wk + '</text>';
       }
+      var PO = S.playoffs || {}, ROUND_LAB = { wildcard: ['WC', 'Wild Card'], semis: ['SF', 'Semifinal'], consolation: ['C', 'Consolation'], finals: ['F', 'Championship'] };
+      var rounds = ['wildcard', 'semis', 'consolation', 'finals'].concat(Object.keys(PO).filter(function (k) { return !ROUND_LAB[k] && Array.isArray(PO[k]); }));
+      rounds.forEach(function (rk) {
+        var gs = Array.isArray(PO[rk]) ? PO[rk] : [];
+        var scored = [], mineG = [];
+        gs.forEach(function (g) {
+          var hs = parseFloat(g.homeScore), as = parseFloat(g.awayScore), done = hs > 0 || as > 0;
+          if (done) scored.push(hs || 0, as || 0);
+          if (g.homeMemberId === m) mineG.push({ s: hs, os: as, o: g.awayMemberId, done: done });
+          else if (g.awayMemberId === m) mineG.push({ s: as, os: hs, o: g.homeMemberId, done: done });
+        });
+        var rAvg = scored.length ? scored.reduce(function (a, b) { return a + b; }, 0) / scored.length : null;
+        var lab = ROUND_LAB[rk] || [rk.charAt(0).toUpperCase(), rk];
+        mineG.forEach(function (g, gi) {
+          var l = lab[0] + (mineG.length > 1 ? gi + 1 : ''), nm = lab[1] + (mineG.length > 1 ? ' ' + (gi + 1) : '');
+          if (g.done) wcols.push({ lab: l, name: nm, s: g.s || 0, os: g.os || 0, o: g.o, res: (g.s || 0) > (g.os || 0) ? 'W' : (g.s || 0) < (g.os || 0) ? 'L' : 'T', avg: rAvg, po: true });
+          else wcols.push({ lab: l, name: nm, o: g.o, up: true, po: true });
+        });
+      });
       var chart = '<p class="tsn-sub"><span>Weekly Scores</span><span>' + K + ' played &middot; ' + Math.max(0, R - K) + ' to go</span></p>' +
-        '<svg class="tsn-chart" viewBox="0 0 ' + CW + ' ' + (CH + 16) + '" role="img" aria-label="Weekly scores this season">' + bars +
-          (avgPts.length > 1 ? '<polyline class="avg" points="' + avgPts.join(' ') + '"/>' : '') + '</svg>' +
-        '<div class="tsn-legend"><span><i class="k-w"></i>Win</span><span><i class="k-l"></i>Loss</span><span><i class="k-a"></i>League average</span><span>Dashed slots = still to play</span></div>';
+        '<div class="tsn-scroll-wrap"><div class="tsn-scroll" id="tsnScroll"><div class="tsn-scroll-in" id="tsnScrollIn"></div></div></div>' +
+        '<div class="tsn-legend"><span><i class="k-w"></i>Win</span><span><i class="k-l"></i>Loss</span><span><i class="k-a"></i>League average</span><span>Dashed = still to play</span></div>';
 
       /* ── Right column: next matchup + path ── */
       var right = '';
@@ -1585,6 +1604,9 @@
           '<div class="tsn-grid"><div class="tsn-col">' + tiles + chart + '</div><div class="tsn-col">' + right + '</div></div>' +
         '</section>';
       if (N && N.lowercase) N.lowercase(slot);
+      drawWeekly(wcols, ident, true);
+      var rT = 0;
+      window.addEventListener('resize', function () { clearTimeout(rT); rT = setTimeout(function () { drawWeekly(wcols, ident, true); }, 150); });
 
       /* Playoff-odds sparkline, a week at a time so the page never stalls */
       var spark = document.getElementById('tsnSpark'), J = [], k = 0;
@@ -1594,6 +1616,57 @@
         if (J.length >= 2) spark.innerHTML = '<polyline points="' + J.map(function (v, i) { return (i * 100 / K).toFixed(1) + ',' + (2 + (1 - v) * 18).toFixed(1); }).join(' ') + '"/>';
         setTimeout(nextWeek, 0);
       })();
+    }
+    /* Team initials for upcoming opponents: "Flying Bubbas" → FB, "Spiders" → S */
+    function teamAbbr(name) {
+      var w = String(name || '').replace(/[^A-Za-z0-9 ]/g, ' ').trim().split(/\s+/).filter(Boolean);
+      if (!w.length) return '?';
+      return w.slice(0, 3).map(function (x) { return x.charAt(0); }).join('').toUpperCase();
+    }
+    /* Draws the weekly-scores chart at real pixel size so it can scroll.
+       Column width: phones (< 480px) show ~8.5 columns; wider screens use a 34px minimum and
+       stretch columns to fill when everything fits.
+       Starts with the most recent game centred, or the last column just inside the right edge. */
+    function drawWeekly(cols, ident, recenter) {
+      var sc = document.getElementById('tsnScroll'), inn = document.getElementById('tsnScrollIn');
+      if (!sc || !inn || !cols.length) return;
+      var f2 = window.OFL_ENGINE.util.f2;
+      var viewW = sc.clientWidth || 340, n = cols.length, MIN = viewW < 480 ? viewW / 8.5 : 34, GAP = 4, PADL = 2, PADR = 14;
+      var fits = n * MIN + PADL + 2 <= viewW;
+      var colW = fits ? (viewW - PADL - 2) / n : MIN, padR = fits ? 2 : PADR;
+      var W = PADL + n * colW + padR, CH = viewW < 500 ? 130 : 160, TOP = 16, bw = colW - GAP;
+      var played = cols.filter(function (c) { return !c.up; });
+      var maxS = Math.max.apply(null, played.map(function (c) { return Math.max(c.s, c.avg || 0); }).concat([150]));
+      function y(v) { return TOP + (CH - TOP) - (v / maxS) * (CH - TOP); }
+      var out = '', avgPts = [], lastPlayed = -1;
+      cols.forEach(function (c, i) {
+        var x = PADL + i * colW + GAP / 2, cx = x + bw / 2, oI = c.o ? ident(c.o) : null;
+        if (!c.up) {
+          lastPlayed = i;
+          out += '<g class="bar"><title>' + c.name + ': ' + f2(c.s) + (oI ? ' vs ' + esc(oI.team) : '') + ' ' + f2(c.os) + ' (' + c.res + ')</title>' +
+            '<rect class="' + (c.res === 'W' ? 'b-w' : 'b-l') + '" x="' + x.toFixed(1) + '" y="' + y(c.s).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + (TOP + CH - TOP - y(c.s)).toFixed(1) + '" rx="1.5"/>' +
+            '<text class="sc" x="' + cx.toFixed(1) + '" y="' + (y(c.s) - 4).toFixed(1) + '" text-anchor="middle">' + Math.round(c.s) + '</text></g>';
+          if (c.avg != null) avgPts.push(cx.toFixed(1) + ',' + y(c.avg).toFixed(1));
+        } else {
+          var top = TOP + (CH - TOP) * 0.35;
+          out += '<g class="bar">' + (oI ? '<title>' + c.name + ': vs ' + esc(oI.team) + '</title>' : '') +
+            '<rect class="b-f" x="' + x.toFixed(1) + '" y="' + top.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + (CH - top).toFixed(1) + '" rx="1.5"/>' +
+            (oI ? '<text class="op" x="' + cx.toFixed(1) + '" y="' + (top + 15).toFixed(1) + '" text-anchor="middle">' + esc(teamAbbr(oI.team)) + '</text>' : '') + '</g>';
+        }
+        out += '<text class="wk' + (c.po ? ' po' : '') + '" x="' + cx.toFixed(1) + '" y="' + (CH + 15) + '" text-anchor="middle">' + c.lab + '</text>';
+      });
+      inn.innerHTML = '<svg class="tsn-chart" width="' + W.toFixed(0) + '" height="' + (CH + 20) + '" viewBox="0 0 ' + W.toFixed(1) + ' ' + (CH + 20) + '" role="img" aria-label="Weekly scores this season">' + out +
+        (avgPts.length > 1 ? '<polyline class="avg" points="' + avgPts.join(' ') + '"/>' : '') + '</svg>';
+      if (recenter) {
+        var target = lastPlayed >= 0 ? PADL + lastPlayed * colW + colW / 2 - viewW / 2 : 0;
+        sc.scrollLeft = Math.max(0, Math.min(target, W - viewW));
+      }
+      var fade = function () {
+        sc.parentNode.classList.toggle('is-l', sc.scrollLeft > 4);
+        sc.parentNode.classList.toggle('is-r', sc.scrollLeft < sc.scrollWidth - sc.clientWidth - 4);
+      };
+      if (!sc._tsnFade) { sc.addEventListener('scroll', fade, { passive: true }); sc._tsnFade = true; }
+      fade();
     }
     function normCdf(z) {   // standard normal CDF (Abramowitz–Stegun)
       var t = 1 / (1 + 0.2316419 * Math.abs(z)), d = 0.3989423 * Math.exp(-z * z / 2);

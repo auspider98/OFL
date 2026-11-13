@@ -72,7 +72,16 @@
     .pp-tl-lanes { display: flex; flex-direction: column; }
     .pp-tl-lane { height: var(--hh); display: flex; align-items: center; padding: 0 0.7rem 0 0.5rem; font-family: var(--font-body); font-size: 0.46rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent-dim); white-space: nowrap; }
     .pp-tl-axisgap { height: 1.4rem; }
-    .pp-tl-plot { position: relative; display: flex; flex-direction: column; min-width: 0; }
+    .pp-tl-plot { position: relative; display: flex; flex-direction: column; min-width: 0; flex: 1 0 auto; }
+    /* Scrolls left/right when the years don't fit: phones show ~8.5 years, wider screens a 34px minimum */
+    .pp-tl-scroll-wrap { position: relative; min-width: 0; }
+    .pp-tl-scroll { display: flex; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+    .pp-tl-scroll::-webkit-scrollbar { display: none; }
+    .pp-tl-end { flex: none; width: 0; }
+    .pp-tl-scroll-wrap::before, .pp-tl-scroll-wrap::after { content: ''; position: absolute; top: 0; bottom: 0; width: 26px; pointer-events: none; z-index: 4; opacity: 0; transition: opacity 0.25s; }
+    .pp-tl-scroll-wrap::before { left: 0; background: linear-gradient(90deg, rgba(10,10,10,0.95), transparent); }
+    .pp-tl-scroll-wrap::after { right: 0; background: linear-gradient(270deg, rgba(10,10,10,0.95), transparent); }
+    .pp-tl-scroll-wrap.is-l::before, .pp-tl-scroll-wrap.is-r::after { opacity: 1; }
     .pp-tl-half { position: relative; height: var(--hh); display: flex; gap: 3px; }
     .pp-tl-half.is-up { align-items: flex-end; }
     .pp-tl-half.is-dn { align-items: flex-start; }
@@ -213,7 +222,6 @@
       .pp-tl-half, .pp-tl-axis { gap: 2px; }
       .pp-num { font-size: 0.46rem; }
       .pp-tl-axis span { font-size: 0.42rem; letter-spacing: 0; }
-      .pp-tl-axis span.is-odd { visibility: hidden; }
       .pp-bb { grid-template-columns: 1fr; }
       .pp-pick-grid { grid-template-columns: 1fr 1fr; gap: 0.8rem; }
       .pp-tile-pic { width: 72px; height: 72px; }
@@ -455,7 +463,7 @@
         var keyCol = up && dn ? 'var(--accent-dim)' : (up || dn).color;
         tl = '<section class="pp-sec"><p class="pp-h"><span>Through the Years</span><span>&#x25B6; Tap a year for Wrapped</span></p>' +
           '<div class="pp-tl" style="--hh:' + halfH + 'px"><div class="pp-tl-lanes">' + lanesHtml + '</div>' +
-            '<div class="pp-tl-plot">' + plotHtml + '</div></div>' +
+            '<div class="pp-tl-scroll-wrap"><div class="pp-tl-scroll" id="ppTlScroll"><div class="pp-tl-plot" id="ppTlPlot" data-ny="' + nY + '">' + plotHtml + '</div><div class="pp-tl-end" id="ppTlEnd"></div></div></div></div>' +
           '<div class="pp-tl-key">' +
             '<span><i style="background:' + keyCol + ';border-color:' + keyCol + '"></i>Champion</span>' +
             '<span><i style="background:color-mix(in srgb,' + keyCol + ' 50%,transparent);border-color:' + keyCol + '"></i>Runner-up</span>' +
@@ -556,6 +564,11 @@
         '<p class="pp-line" style="text-align:center;margin-top:1rem"><a class="pp-btn" href="playa.html">All Playas</a></p></div></div>';
       N.lowercase(root);
 
+      /* Through the Years: size the columns and start scrolled to the most recent year */
+      sizeTimeline(true);
+      var tlT = 0;
+      if (!window._ppTlResize) { window._ppTlResize = true; window.addEventListener('resize', function () { clearTimeout(tlT); tlT = setTimeout(function () { sizeTimeline(true); }, 150); }); }
+
       /* Wire up */
       Array.prototype.forEach.call(root.querySelectorAll('[data-wr]'), function (el) {
         function go() { var p = el.getAttribute('data-wr').split(':'); openWrapped(p[0], p[1], m); }
@@ -572,6 +585,23 @@
           setTimeout(function () { bitEl.textContent = gags[gi]; N.lowercase(bitEl); bitEl.style.opacity = 1; }, 250);
         });
       }
+    }
+
+    function sizeTimeline(toEnd) {
+      var sc = document.getElementById('ppTlScroll'), plot = document.getElementById('ppTlPlot'), end = document.getElementById('ppTlEnd');
+      if (!sc || !plot) return;
+      var ny = +plot.getAttribute('data-ny') || 1, viewW = sc.clientWidth;
+      var colW = viewW < 480 ? viewW / 8.5 : 34, need = ny * colW;
+      var fits = need <= viewW;
+      plot.style.minWidth = fits ? '0' : need.toFixed(0) + 'px';
+      if (end) end.style.width = fits ? '0' : '12px';   // keeps the newest year just inside the right edge
+      if (toEnd) sc.scrollLeft = sc.scrollWidth;
+      var fade = function () {
+        sc.parentNode.classList.toggle('is-l', sc.scrollLeft > 4);
+        sc.parentNode.classList.toggle('is-r', sc.scrollLeft < sc.scrollWidth - sc.clientWidth - 4);
+      };
+      if (!sc._ppFade) { sc.addEventListener('scroll', fade, { passive: true }); sc._ppFade = true; }
+      fade();
     }
 
     /* ══════════════════════════════════════════════════════════
