@@ -703,6 +703,12 @@
     .pv-card.t-holo .pv-face { border-color: transparent; background: linear-gradient(#0e0e0e, #0e0e0e) padding-box, linear-gradient(135deg, #ff7ad9, #9fd8ff, #b6ff9f, #ffe27a, #ff7ad9) border-box; }
     .pv-card.t-legend .pv-face { box-shadow: 0 0 40px rgba(232,200,100,0.35), 0 20px 60px rgba(0,0,0,0.7); }
     .pv-back { transform: rotateY(180deg); }
+    /* Safari fix: Safari can leak a face's layered items (RC shield, ribbon, stamp, badges) through to the
+       other side, mirrored. Hide every item on a face when it turns away, and lift each face a hair
+       off the shared plane so the two sides never fight mid-flip. No visible change in other browsers. */
+    .pv-face, .pv-face * { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+    .pv-front { -webkit-transform: rotateY(0deg) translateZ(1px); transform: rotateY(0deg) translateZ(1px); }
+    .pv-back { -webkit-transform: rotateY(180deg) translateZ(1px); transform: rotateY(180deg) translateZ(1px); }
     .pv-card .pv-holo { border-radius: 8px; }
     .pv-card.t-base .pv-holo   { opacity: 0.12; }
     .pv-card.t-rare .pv-holo   { opacity: 0.35; background-image: radial-gradient(circle at calc(var(--mx) * 1%) calc(var(--my) * 1%), rgba(255,255,255,0.45), transparent 50%); }
