@@ -32,6 +32,11 @@
       width: 13px; height: 13px; font-size: 0.48rem; border-radius: 50%;
       background-color: #0a0a0a; box-shadow: 0 0 0 2px #0a0a0a;
     }
+    /* ── Playoff line (OFC standings, live season from 60% of the regular season) ── */
+    .league-standings-table tr.standings-cutline td,
+    .league-standings-table tr.standings-cutline:hover td { padding: 0; height: 0; border: none; background: none; }
+    .standings-cutline-rule { position: relative; border-top: 1px dashed rgba(232,200,100,0.75); margin: 0.15rem 0; }
+    .standings-cutline-rule span { position: absolute; right: 0.4rem; top: 0; transform: translateY(-50%); font-family: var(--font-body); font-size: 0.42rem; letter-spacing: 0.28em; text-transform: uppercase; font-weight: 700; color: #e8c864; background: #0b0b0b; padding: 0.05rem 0.45rem; border: 1px solid rgba(232,200,100,0.45); white-space: nowrap; }
     .standings-clinch-legend {
       display: flex; flex-wrap: wrap; gap: 0.5rem 1.2rem; margin-top: 0.7rem;
       font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.18em;
@@ -1202,8 +1207,16 @@
         return t ? '<span class="standings-clinch standings-clinch-' + clinch[mid] + '" title="' + t.title + '">' + t.label + '</span>' : '';
       }
 
+      // ── Playoff line (live football seasons, from 60% of the regular season on) ──
+      var PLAYOFF_LINE_AT = 4;
+      var weeksDone = (season.weeks || []).filter(function (w) { return w.isComplete; }).length;
+      var showCutline = isFootball && !season.isFinal && rows.length > PLAYOFF_LINE_AT &&
+                        weeksDone >= Math.ceil(regularSeasonWeeks(season) * 0.6);
+      var colCount = (rankCol ? 1 : 0) + cols.length + (hasLuck ? 1 : 0) + (hasPR ? 1 : 0);
+      var cutlineRow = '<tr class="standings-cutline" aria-hidden="true"><td colspan="' + colCount + '"><div class="standings-cutline-rule"><span>Playoff Line</span></div></td></tr>';
+
       var tbody = rows.map(function (row, i) {
-        return '<tr>' +
+        return (showCutline && i === PLAYOFF_LINE_AT ? cutlineRow : '') + '<tr>' +
           (rankCol ? '<td class="standings-rank-cell">' + esc(row.rank || (i + 1)) + '</td>' : '') +
           cols.map(function (c) {
             if (c.key === 'team') return '<td>' + teamCellHtml(row, clinchTag(row.memberId)) + '</td>';
