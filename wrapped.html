@@ -201,6 +201,61 @@
     @media (prefers-reduced-motion: reduce) {
       .wr-slide.is-on .wr-r, .wr-slide.is-on .wr-strip span, .wr-slide.is-on .wr-spark * { animation-duration: 0.01s !important; animation-delay: 0s !important; }
     }
+    /* ══ THE DIRECTOR: per-story looks ═══════════════════════ */
+    .wr-ep { display: inline-block; align-self: flex-start; font-family: var(--font-body); font-size: 0.62rem; letter-spacing: 0.32em; text-transform: uppercase; padding: 0.35rem 0.7rem; margin: 0 0 0.9rem; border: 1px solid var(--a2t, #fff); color: #fff; background: rgba(0,0,0,0.35); }
+    .wr-ep::before { content: '\201C'; } .wr-ep::after { content: '\201D'; }
+    .wr-top-txt i { font-style: normal; opacity: 0.75; }
+    .wr-k i { font-style: normal; opacity: 0.85; }
+    /* Transitions */
+    .wr-card.tx-slide .wr-slide { transform: translateX(7%); transition: opacity 0.4s ease, transform 0.55s cubic-bezier(.2,.7,.2,1); }
+    .wr-card.tx-zoom .wr-slide  { transform: scale(1.07); transition: opacity 0.45s ease, transform 0.8s cubic-bezier(.2,.7,.2,1); }
+    .wr-card.tx-wipe .wr-slide  { clip-path: inset(0 0 0 100%); transition: opacity 0.2s ease, clip-path 0.6s cubic-bezier(.7,0,.2,1); }
+    .wr-card.tx-fade .wr-slide  { transition: opacity 0.7s ease; }
+    .wr-card.tx-slide .wr-slide.is-on, .wr-card.tx-zoom .wr-slide.is-on { transform: none; }
+    .wr-card.tx-wipe .wr-slide.is-on { clip-path: inset(0); }
+    /* Type treatments */
+    .wr-card.ty-outline .wr-big { color: transparent; -webkit-text-stroke: 2px #fff; }
+    .wr-card.ty-outline .wr-big small, .wr-card.ty-outline .wr-big .wr-dash { -webkit-text-stroke: 1px #fff; }
+    .wr-card.ty-stack .wr-big { font-size: 7.6rem; letter-spacing: -0.04em; }
+    .wr-card.ty-caps .wr-h { font-family: var(--font-body); text-transform: uppercase; font-weight: 700; letter-spacing: 0.03em; font-size: 1.85rem; line-height: 1.08; }
+    .wr-card.ty-caps .wr-h em { font-style: normal; color: var(--a2t, #fff); }
+    .wr-card.ty-italic .wr-h { font-style: italic; font-weight: 500; }
+    .wr-card.ty-italic .wr-h em { font-style: normal; text-decoration: underline; text-decoration-color: var(--a2t); text-underline-offset: 6px; text-decoration-thickness: 2px; }
+    /* Layouts */
+    .wr-card.ly-center .wr-slide { align-items: center; text-align: center; }
+    .wr-card.ly-center .wr-p, .wr-card.ly-center .wr-clip { margin-left: auto; margin-right: auto; }
+    .wr-card.ly-center .wr-strip, .wr-card.ly-center .wr-btns { justify-content: center; }
+    .wr-card.ly-center .wr-ep { align-self: center; }
+    .wr-card.ly-center .wr-vs { text-align: left; width: 100%; }
+    .wr-card.ly-center .wr-sum { width: 100%; text-align: left; }
+    .wr-card.ly-low .wr-slide { justify-content: flex-end; padding-bottom: 4.2rem; }
+    .wr-card.ly-low .wr-ghost { top: 4.5rem; bottom: auto; }
+    /* Mood touches */
+    .wr-card.md-gold .wr-bar i { background: #f6c85f; }
+    .wr-card.md-gold .wr-ep { border-color: #f6c85f; color: #f6c85f; }
+    .wr-card.md-silver .wr-bar i { background: #cfd6df; }
+    .wr-card.md-neon .wr-k { color: var(--a2t); opacity: 1; }
+    .wr-card.md-neon .wr-big { text-shadow: 0 0 24px var(--a1), 0 0 2px #fff; }
+    .wr-card.md-gloom .wr-slide::after { opacity: 0.16; }
+    .wr-card.md-gloom .wr-intro-pic img, .wr-card.md-gloom .wr-vs-pic img { filter: grayscale(0.7); }
+    .wr-card.md-basement .wr-ep { background: #e8c84a; color: #111; border-color: #e8c84a; transform: rotate(-2deg); }
+    .wr-card.md-basement .wr-h { transform: rotate(-0.6deg); }
+    /* Weather + effects */
+    .wr-weather { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+    .wr-weather-rain { background: repeating-linear-gradient(104deg, transparent 0 22px, rgba(200,215,235,0.10) 22px 23px, transparent 23px 47px); background-size: 120px 160px; animation: wrRain 0.55s linear infinite; mix-blend-mode: screen; }
+    .wr-weather-dust { background-image: radial-gradient(rgba(255,240,200,0.12) 1px, transparent 1.5px), radial-gradient(rgba(255,240,200,0.08) 1px, transparent 1.5px); background-size: 90px 90px, 140px 140px; animation: wrDust 14s linear infinite; }
+    @keyframes wrRain { to { background-position: -40px 160px; } }
+    @keyframes wrDust { to { background-position: 90px -180px, -140px -280px; } }
+    .wr-fx { position: absolute; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; }
+    .wr-fx i { position: absolute; display: block; opacity: 0; }
+    .wr-fx-confetti i { width: 7px; height: 12px; border-radius: 1px; animation-name: wrConfetti; animation-timing-function: cubic-bezier(.3,.6,.5,1); animation-fill-mode: forwards; }
+    .wr-fx-sparks i { width: 4px; height: 4px; border-radius: 50%; box-shadow: 0 0 10px currentColor; animation-name: wrSpark; animation-iteration-count: 2; animation-timing-function: ease-in-out; }
+    @keyframes wrConfetti { 0% { opacity: 1; transform: translate(0, 0) rotate(0); } 100% { opacity: 0.9; transform: translate(var(--dx), 115vh) rotate(var(--rot)); } }
+    @keyframes wrSpark { 0%, 100% { opacity: 0; transform: scale(0.3); } 50% { opacity: 1; transform: scale(1.4); } }
+    @media (prefers-reduced-motion: reduce) {
+      .wr-weather { animation: none !important; }
+      .wr-card.tx-slide .wr-slide, .wr-card.tx-zoom .wr-slide, .wr-card.tx-wipe .wr-slide { transform: none; clip-path: none; }
+    }
     .ofl-lc { text-transform: lowercase !important; }
   </style>
 </head>
@@ -390,7 +445,7 @@
 
       /* 3 — best week */
       var b = W.best, bPct = pctBelow(b.s), bOpp = N.ofc.ident(b.o, b.ot);
-      S.push({ bg: glow(c, 2, '#0b1a10'), html:
+      S.push({ k: 'best', bg: glow(c, 2, '#0b1a10'), html:
         '<div class="wr-k wr-r" style="--d:.1">Your Best Week</div>' +
         '<div class="wr-big wr-r" style="--d:.25">' + count(f2(b.s), 2) + '</div>' +
         '<h2 class="wr-h wr-r" style="--d:.5">Week ' + b.k + '. ' + (b.res === 'W' ? 'You dropped it on ' + esc(bOpp.team) + '.' : 'And you <em>still</em> lost to ' + esc(bOpp.team) + '.') + '</h2>' +
@@ -401,7 +456,7 @@
 
       /* 4 — worst week */
       var w = W.worst, wOpp = N.ofc.ident(w.o, w.ot), wPct = pctBelow(w.s);
-      S.push({ bg: glow(c, 3, '#1a0b0b'), html:
+      S.push({ k: 'worst', bg: glow(c, 3, '#1a0b0b'), html:
         '<div class="wr-k wr-r" style="--d:.1">The One We Don&rsquo;t Talk About</div>' +
         '<div class="wr-big wr-r" style="--d:.25">' + count(f2(w.s), 2) + '</div>' +
         '<h2 class="wr-h wr-r" style="--d:.5">Week ' + w.k + '. ' + pick(['Yikes.', 'Oof.', 'We&rsquo;ll never speak of it again.', 'Did you set a lineup?'], seed + 'w') + '</h2>' +
@@ -412,7 +467,7 @@
       /* 5 — luck */
       var L = W.luck, aw = W.ap.w + W.ap.t / 2, ag = W.ap.w + W.ap.l + W.ap.t;
       var luckHead = L >= 1.5 ? 'Lucky. <em>Very</em> lucky.' : L <= -1.5 ? 'You got <em>robbed.</em>' : L >= 0.5 ? 'A little lucky.' : L <= -0.5 ? 'A little unlucky.' : 'Exactly as good as your record.';
-      S.push({ bg: glow(c, 4), html:
+      S.push({ k: 'luck', bg: glow(c, 4), html:
         '<div class="wr-k wr-r" style="--d:.1">The Luck Meter</div>' +
         '<h2 class="wr-h wr-r" style="--d:.25">' + luckHead + '</h2>' +
         '<p class="wr-p wr-r" style="--d:.5">If you had played <b>every team every week</b>, you&rsquo;d be <b>' + W.ap.w + '&ndash;' + W.ap.l + (W.ap.t ? '&ndash;' + W.ap.t : '') + '</b>. That&rsquo;s a ' + Math.round(ag ? aw / ag * 100 : 0) + '% team.</p>' +
@@ -427,7 +482,7 @@
             '<div class="wr-vs-body"><div class="wr-vs-lab">' + (lab === 'nem' ? 'Your Nemesis' : 'Your Punching Bag') + '</div><div class="wr-vs-name">' + esc(x.I.owner) + '</div><div class="wr-vs-note">' + note + '</div></div>' +
             '<div class="wr-vs-rec">' + x.a + '&ndash;' + x.b + (x.t ? '&ndash;' + x.t : '') + '</div></div>';
         };
-        S.push({ bg: glow(c, 5, '#120a1a'), html:
+        S.push({ k: 'riv', bg: glow(c, 5, '#120a1a'), html:
           '<div class="wr-k wr-r" style="--d:.1">All-Time, Through ' + W.yr + '</div>' +
           '<h2 class="wr-h wr-r" style="--d:.2">Who owns you. Who you own.</h2>' +
           (W.nem ? row(W.nem, 'nem', W.nem.pct <= 0.25 ? 'This is not a rivalry. It&rsquo;s a subscription.' : 'They have your number.') : '') +
@@ -464,7 +519,7 @@
         missed:   { k: 'How It Ended', h: 'No playoffs. <em>There&rsquo;s always next year.</em>', p: pick(['The draft board awaits.', 'Plenty of time to think about what went wrong.', 'Watching from the couch like the rest of us.'], seed + 'e'), big: '&#x2205;', alt: '#111' }
       };
       var en = endMap[W.ending];
-      S.push({ bg: glow(W.ending === 'champ' ? '#f6c85f' : c, 1, en.alt), html:
+      S.push({ k: 'end', bg: glow(W.ending === 'champ' ? '#f6c85f' : c, 1, en.alt), html:
         '<div class="wr-k wr-r" style="--d:.1">' + en.k + '</div>' +
         '<div class="wr-big wr-r wr-pop" style="--d:.3">' + en.big + '</div>' +
         '<h2 class="wr-h wr-r" style="--d:.7">' + en.h + '</h2>' +
@@ -584,7 +639,7 @@
         if (hit === true) { h = 'You <em>called it.</em>'; p = esc(me.champ) + ' cut down the nets, just like you said.'; }
         else if (hit === false) { h = pick(['It did not go well.', 'Yeah&hellip; about that.', 'Bold. Wrong, but bold.'], seed + 'c'); p = 'The real champion: <b>' + esc(W.winner) + '</b>.'; }
         else { h = 'The record books are blank.'; p = 'No tournament winner on file for ' + W.yr + '.'; }
-        S.push({ bg: glow(hit ? '#f6c85f' : '#3f5bff', 3, '#05081a'), html:
+        S.push({ k: 'end', bg: glow(hit ? '#f6c85f' : '#3f5bff', 3, '#05081a'), html:
           '<div class="wr-k wr-r" style="--d:.1">Your Champion Pick</div>' +
           '<h2 class="wr-h wr-r wr-pop" style="--d:.25;font-size:2.9rem">' + esc(me.champ) + '</h2>' +
           '<h2 class="wr-h wr-r" style="--d:.7">' + h + '</h2>' +
@@ -633,6 +688,129 @@
     }
 
     /* ══════════════════════════════════════════════════════════
+       THE DIRECTOR — every story gets its own look.
+       Mood (how the season ended) sets the palette, title, weather and effects.
+       A seed (member + year + league) picks layout, type, transitions and
+       background patterns, so no two stories cut the same way.
+    ══════════════════════════════════════════════════════════ */
+    var MOODS = {
+      gold:     { name: 'Gold Rush',     accent: '#f6c85f', pats: ['sunburst', 'glow', 'stripes', 'sunburst', 'dots'], tx: ['zoom', 'wipe'],  ty: ['outline', 'stack'], fx: 'confetti', weather: null,
+                  ofc: ['The Coronation', 'Heavy Is the Head', 'Ring Season', 'The Victory Lap', 'Nobody Did It Better', 'Crowned'],
+                  brc: ['Bracket Royalty', 'One Shining Moment', 'Cut Down the Nets', 'The Perfect Storm', 'Crowned'] },
+      silver:   { name: 'Silver Lining', accent: '#cfd6df', pats: ['split', 'glow', 'grid', 'stripes'],             tx: ['slide', 'wipe'],  ty: ['caps', 'italic'],   fx: 'sparks',   weather: null,
+                  ofc: ['So Close', 'The One That Got Away', 'Almost Famous', 'One Game Short', 'Close but No Ring'],
+                  brc: ['So Close', 'Second Place Is a Medal Too', 'Almost Famous', 'The Near Miss'] },
+      neon:     { name: 'Neon Nights',   accent: '#44d1c5', pats: ['grid', 'glow', 'dots', 'split'],                tx: ['wipe', 'slide'],  ty: ['caps', 'stack'],    fx: 'sparks',   weather: null,
+                  ofc: ['Dance Card Punched', 'Playoff Fever', 'In the Mix', 'Bracket Bound', 'Bounced at the Door'],
+                  brc: ['Medal Stand', 'Top Shelf', 'Sweet Sixteen Energy', 'In the Hunt'] },
+      gloom:    { name: 'Rain Check',    accent: '#7d8796', pats: ['rain', 'dots', 'glow', 'rain'],                 tx: ['fade', 'slide'],  ty: ['italic', 'serif'],  fx: null,       weather: 'rain',
+                  ofc: ['The Long Winter', 'Couch Season', 'Rebuild Year', 'Wait Till Next Year', 'Lost in the Middle'],
+                  brc: ['March Sadness', 'Busted by Friday', 'Wait Till Next Year', 'The Long Weekend'] },
+      basement: { name: 'Basement Tapes', accent: '#e8c84a', pats: ['caution', 'dots', 'stripes', 'rain'],          tx: ['slide', 'zoom'],  ty: ['caps', 'outline'],  fx: null,       weather: 'dust',
+                  ofc: ['Rock Bottom', 'The Basement Tapes', 'Dead Last, Still Here', 'Nowhere to Go but Up'],
+                  brc: ['Busted', 'Rock Bottom', 'Nowhere to Go but Up', 'The Basement Tapes'] }
+    };
+    function moodOf(W) {
+      if (W.lg === 'brc') {
+        if (W.won) return 'gold';
+        if (W.me.rank === 2) return 'silver';
+        if (W.me.rank === W.n && W.n > 3) return 'basement';
+        if (W.me.rank <= Math.max(3, Math.round(W.n * 0.4))) return 'neon';
+        return 'gloom';
+      }
+      if (W.ending === 'champ') return 'gold';
+      if (W.ending === 'runner') return 'silver';
+      if (W.ending === 'playoffs') return 'neon';
+      if (W.me.rank === W.nT) return 'basement';
+      return 'gloom';
+    }
+    function rosterTeam(m, name) {
+      var mm = member(m), e = (mm.leagues || []).find(function (l) { return l.leagueKey === 'OFC'; }), ts = e ? (e.teams || []) : [];
+      return ts.find(function (t) { return t.name === name; }) || ts[ts.length - 1] || {};
+    }
+    function pat(kind, c1, c2, i) {
+      var base = 'linear-gradient(160deg, #141414 0%, #000 100%)';
+      var g = 'radial-gradient(' + GLOWS[i % GLOWS.length] + ', ' + rgba(c1, 0.85) + ' 0%, ' + rgba(c1, 0.25) + ' 40%, transparent 70%)';
+      switch (kind) {
+        case 'sunburst': return 'repeating-conic-gradient(from ' + (i * 23) + 'deg at 50% 108%, ' + rgba(c2, 0.2) + ' 0deg 5deg, transparent 5deg 13deg), radial-gradient(circle at 50% 105%, ' + rgba(c2, 0.7) + ', transparent 55%), ' + g + ', ' + base;
+        case 'stripes':  return 'repeating-linear-gradient(' + (i % 2 ? 135 : 45) + 'deg, ' + rgba(c2, 0.13) + ' 0 16px, transparent 16px 40px), ' + g + ', ' + base;
+        case 'grid':     return 'linear-gradient(' + rgba(c2, 0.16) + ' 1px, transparent 1px) 0 0 / 30px 30px, linear-gradient(90deg, ' + rgba(c2, 0.16) + ' 1px, transparent 1px) 0 0 / 30px 30px, ' + g + ', ' + base;
+        case 'dots':     return 'radial-gradient(' + rgba(c2, 0.32) + ' 1.4px, transparent 1.6px) 0 0 / 15px 15px, ' + g + ', ' + base;
+        case 'split':    return 'linear-gradient(' + (i % 2 ? 115 : 245) + 'deg, ' + rgba(c1, 0.6) + ' 0 34%, ' + rgba(c2, 0.55) + ' 34% 35.2%, transparent 35.2%), ' + base;
+        case 'rain':     return 'repeating-linear-gradient(100deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 11px), radial-gradient(' + GLOWS[i % GLOWS.length] + ', ' + rgba(c1, 0.45) + ', transparent 65%), linear-gradient(170deg, #1a1d22 0%, #050608 100%)';
+        case 'caution':  return 'repeating-linear-gradient(-45deg, ' + rgba(c2, 0.17) + ' 0 18px, transparent 18px 36px), radial-gradient(circle at 50% 120%, ' + rgba(c1, 0.5) + ', transparent 60%), linear-gradient(180deg, #17150f, #050505)';
+        default:         return g + ', ' + base;
+      }
+    }
+    function direct(W, slides) {
+      var key = moodOf(W), M = MOODS[key], seed = fnv(W.m + ':' + W.yr + ':' + W.lg);
+      var r = function (n, salt) { return fnv(seed + ':' + salt) % n; };
+      var c1, c2;
+      if (W.lg === 'brc') { c1 = '#3f5bff'; c2 = M.accent; }
+      else {
+        c1 = W.I.color;
+        var t = rosterTeam(W.m, W.I.team), sec = E.util.hex(t.secondaryColor);
+        c2 = sec && sec.toLowerCase() !== '#000000' && sec.toLowerCase() !== '#ffffff' ? sec : M.accent;
+      }
+      if (key === 'gloom') c1 = mix(c1, '#6b7280', 0.55);          // drain the color out of a lost season
+      /* Re-cut the middle: bad seasons lead with the worst week; luck & rivals swap by seed */
+      var ix = function (k) { return slides.findIndex(function (s) { return s.k === k; }); };
+      var b = ix('best'), w = ix('worst');
+      if (b >= 0 && w >= 0 && (key === 'gloom' || key === 'basement') !== (w < b)) { var tmp = slides[b]; slides[b] = slides[w]; slides[w] = tmp; }
+      var l = ix('luck'), v = ix('riv');
+      if (l >= 0 && v >= 0 && r(2, 'order')) { var t2 = slides[l]; slides[l] = slides[v]; slides[v] = t2; }
+      /* Backgrounds + effects */
+      var off = r(M.pats.length, 'pat');
+      slides.forEach(function (s, i) {
+        var kind = M.pats[(i + off) % M.pats.length], hot = i === 0 || s.k === 'end' || s.outro;
+        var a = (i % 2 && key !== 'gloom') ? c2 : c1, bb = a === c1 ? c2 : c1;
+        if (hot && (key === 'gold' || key === 'silver')) { a = M.accent; bb = c1; }
+        s.bg = pat(hot && key === 'gold' ? 'sunburst' : kind, a, bb, i + seed);
+        if (M.fx && hot) s.fx = M.fx;
+      });
+      /* Episode title on the intro + in the wrap-up */
+      var pool = W.lg === 'brc' ? M.brc : M.ofc, title = pool[r(pool.length, 'title')];
+      slides[0].html = slides[0].html.replace('<h2 class="wr-h', '<div class="wr-ep wr-r" style="--d:.25">' + esc(title) + '</div><h2 class="wr-h');
+      var last = slides[slides.length - 1];
+      last.html = last.html.replace('<div class="wr-k wr-r" style="--d:.1">That&rsquo;s a Wrap</div>', '<div class="wr-k wr-r" style="--d:.1">That&rsquo;s a Wrap &middot; <i>' + esc(title) + '</i></div>');
+      var layout = ['left', 'center', 'low'][r(3, 'layout')];
+      var cls = 'md-' + key + ' tx-' + M.tx[r(M.tx.length, 'tx')] + ' ty-' + M.ty[r(M.ty.length, 'ty')] + ' ly-' + layout;
+      return { key: key, name: M.name, title: title, cls: cls, a1: c1, a2: c2, a2t: legible(c2), weather: M.weather };
+    }
+    function fnv(str) {   // FNV-1a — well-mixed, so each choice (layout, type, transition…) varies independently
+      var h = 0x811c9dc5; str = String(str);
+      for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+      h ^= h >>> 15; h = Math.imul(h, 0x2c1b3c6d) >>> 0; h ^= h >>> 12;
+      return h >>> 0;
+    }
+    /* A text-safe version of a color: lightens dark team colors until they read on black */
+    function legible(c) {
+      var lum = function (h) { h = E.util.hex(h) || '#888888'; var v = [1, 3, 5].map(function (o) { var x = parseInt(h.slice(o, o + 2), 16) / 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); }); return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]; };
+      var out = c, t = 0;
+      while (lum(out) < 0.28 && t < 0.9) { t += 0.15; out = mix(c, '#ffffff', t); }
+      return out;
+    }
+    function mix(a, b, t) {
+      a = E.util.hex(a) || '#888888'; b = E.util.hex(b) || '#888888';
+      var p = function (h, o) { return parseInt(h.slice(o, o + 2), 16); }, q = function (x, y) { return Math.round(x + (y - x) * t).toString(16).padStart(2, '0'); };
+      return '#' + q(p(a, 1), p(b, 1)) + q(p(a, 3), p(b, 3)) + q(p(a, 5), p(b, 5));
+    }
+    /* Confetti / sparks for the big moments */
+    function burst(sec) {
+      var fx = sec.getAttribute('data-fx'); if (!fx) return;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var old = sec.querySelector('.wr-fx'); if (old) old.remove();
+      var box = document.createElement('div'); box.className = 'wr-fx wr-fx-' + fx; box.setAttribute('aria-hidden', 'true');
+      var cs = getComputedStyle(sec), cols = [cs.getPropertyValue('--a1'), cs.getPropertyValue('--a2'), '#f6c85f', '#ffffff'];
+      var n = fx === 'confetti' ? 42 : 26, h = '';
+      for (var i = 0; i < n; i++) {
+        var x = Math.random() * 100, d = Math.random() * 1.6, dur = (fx === 'confetti' ? 2.6 : 1.8) + Math.random() * 1.8, c = cols[i % cols.length].trim() || '#fff';
+        h += '<i style="left:' + x.toFixed(1) + '%;top:' + (fx === 'sparks' ? (10 + Math.random() * 80).toFixed(1) + '%' : '-6%') + ';background:' + c + ';animation-delay:' + d.toFixed(2) + 's;animation-duration:' + dur.toFixed(2) + 's;--rot:' + Math.round(Math.random() * 720 - 360) + 'deg;--dx:' + Math.round(Math.random() * 80 - 40) + 'px"></i>';
+      }
+      box.innerHTML = h; sec.appendChild(box);
+    }
+
+    /* ══════════════════════════════════════════════════════════
        STORY PLAYER
     ══════════════════════════════════════════════════════════ */
     var P = { slides: [], i: 0, t0: 0, el: 0, paused: false, raf: 0, W: null };
@@ -647,12 +825,15 @@
         try { W = lg === 'brc' ? brcWrap(season, m) : ofcWrap(season, m); } catch (x) { console.error(x); }
         if (!W) { card.innerHTML = '<div class="wr-load">Nothing on file for this one.<button class="wr-btn is-ghost" data-act="close">Close</button></div>'; return; }
         P.W = W; P.slides = lg === 'brc' ? brcSlides(W) : ofcSlides(W);
+        var T = direct(W, P.slides);   // pick this story's look: mood, palette, layout, type, transitions, effects
         var img = lg === 'brc' ? W.I.mug : (member(m).mugshot || W.I.logo);
+        card.className = 'wr-card ' + T.cls;
         card.innerHTML =
           '<div class="wr-bars">' + P.slides.map(function () { return '<div class="wr-bar"><i></i></div>'; }).join('') + '</div>' +
-          '<div class="wr-top"><div class="wr-top-pic">' + pic(img, W.I.owner) + '</div><div class="wr-top-txt"><b>' + esc(W.I.owner) + '</b> &middot; ' + W.yr + ' ' + (lg === 'brc' ? 'BRC' : 'OFC') + ' Wrapped</div>' +
+          '<div class="wr-top"><div class="wr-top-pic">' + pic(img, W.I.owner) + '</div><div class="wr-top-txt"><b>' + esc(W.I.owner) + '</b> &middot; ' + W.yr + ' ' + (lg === 'brc' ? 'BRC' : 'OFC') + ' Wrapped &middot; <i>' + esc(T.title) + '</i></div>' +
             '<button data-act="close" aria-label="Close">&times;</button></div>' +
-          P.slides.map(function (s, i) { return '<section class="wr-slide" data-i="' + i + '" style="--glow:' + s.bg + '">' + s.html + '</section>'; }).join('') +
+          P.slides.map(function (s, i) { return '<section class="wr-slide" data-i="' + i + '"' + (s.fx ? ' data-fx="' + s.fx + '"' : '') + ' style="--glow:' + s.bg + ';--a1:' + T.a1 + ';--a2:' + T.a2 + ';--a2t:' + T.a2t + '">' + s.html + '</section>'; }).join('') +
+          (T.weather ? '<div class="wr-weather wr-weather-' + T.weather + '" aria-hidden="true"></div>' : '') +
           '<div class="wr-hint">Tap to advance &middot; Hold to pause</div><div class="wr-toast" id="wrToast"></div>';
         N.lowercase(card);
         if (EMBED) Array.prototype.forEach.call(card.querySelectorAll('a[href]'), function (a) { a.target = '_top'; });
@@ -666,7 +847,7 @@
         return;
       }
       cancelAnimationFrame(P.raf); P.slides = []; story.classList.remove('is-open'); document.body.classList.remove('wr-locked');
-      card.innerHTML = ''; setUrl(STATE.lg, null, null);
+      card.innerHTML = ''; card.className = 'wr-card'; setUrl(STATE.lg, null, null);
     }
     function show(i) {
       if (!P.slides.length) return;
@@ -679,6 +860,7 @@
       /* Restart CSS animations on this slide */
       cur.classList.remove('is-on'); void cur.offsetWidth; cur.classList.add('is-on');
       runCounts(cur);
+      burst(cur);
       Array.prototype.forEach.call(cur.querySelectorAll('.wr-rbar i'), function (b) { b.style.height = '0'; });
       setTimeout(function () { Array.prototype.forEach.call(cur.querySelectorAll('.wr-rbar i'), function (b, j) { b.style.transitionDelay = (j * 0.12) + 's'; b.style.height = b.getAttribute('data-h') + '%'; }); }, 600);
       var hint = card.querySelector('.wr-hint'); if (hint) hint.style.display = i === 0 ? '' : 'none';
