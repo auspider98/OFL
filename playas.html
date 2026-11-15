@@ -671,6 +671,109 @@
     .pv-stripes-key { font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.08em; color: var(--accent-dim); }
     .pv-stripes-key span { display: inline-block; width: 6px; height: 10px; margin-right: 0.3rem; vertical-align: -1px; transform: skewX(-15deg); }
 
+    /* ══ Hall of Fame card — Prism Black (top tier, above Legendary) ══════════
+       Black-label card, living rainbow frame, pearl lettering, glimmering specks. */
+    .pv-card.t-hof { --foil: #ffffff; }
+    .pv-card.t-hof .pv-face {
+      border: 3px solid transparent;
+      background: linear-gradient(#050506, #050506) padding-box,
+                  linear-gradient(120deg, #ff4d6d, #ffb84d, #f6ff6b, #4dff9a, #4dd6ff, #7a6bff, #ff4dd8, #ff4d6d) border-box;
+      background-size: 100% 100%, 300% 300%;
+      animation: pvHofPrism 5s linear infinite;
+      box-shadow: 0 0 40px rgba(140,120,255,0.35), 0 20px 60px rgba(0,0,0,0.7);
+    }
+    @keyframes pvHofPrism { to { background-position: 0 0, 300% 50%; } }
+    .pv-card.pv-mini.t-hof .pv-face { box-shadow: 0 0 18px rgba(140,120,255,0.35), 0 6px 18px rgba(0,0,0,0.5); }
+    .pv-card.t-hof .pv-top { background: #000; border-bottom-color: rgba(255,255,255,0.15); }
+    .pv-card.t-hof .pv-top span, .pv-card.t-hof .pv-name, .pv-card.t-hof .pv-strip div:nth-child(2) b,
+    .pv-card.t-hof .pv-bname, .pv-card.t-hof .pv-bno, .pv-hof-row b {
+      background: linear-gradient(90deg, #ffd1dc, #ffe9a8, #c9ffd9, #b8ecff, #d9c9ff, #ffd1f0);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .pv-card.t-hof .pv-photo::before { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4), inset 0 -60px 60px -20px rgba(0,0,0,0.55); }
+    .pv-card.t-hof .pv-holo { opacity: 0.45; }
+    .pv-card.t-hof .pv-pennant { background: #000; color: #fff; border: 1px solid rgba(255,255,255,0.5); border-left: none; clip-path: none; }
+    .pv-hof-sash {
+      position: absolute; top: 1.15rem; right: -2.7rem; width: 10rem; z-index: 3; transform: rotate(40deg); text-align: center;
+      font-family: var(--font-body); font-size: 0.44rem; font-weight: 700; letter-spacing: 0.26em; text-transform: uppercase; color: #111; padding: 0.24rem 0;
+      background: linear-gradient(90deg, #ffd1dc, #ffe9a8, #c9ffd9, #b8ecff, #d9c9ff); box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+    }
+    .pv-hof-mono {
+      position: absolute; left: 0.55rem; bottom: 1.9rem; z-index: 2; font-family: var(--font-display); font-weight: 700; font-size: 3.4rem; line-height: 1; letter-spacing: -0.02em;
+      color: transparent; -webkit-text-stroke: 1.4px rgba(255,255,255,0.75); text-shadow: 0 0 18px rgba(170,150,255,0.6); pointer-events: none;
+    }
+    .pv-card.t-hof .pv-plate { position: relative; border-top: 1px solid rgba(255,255,255,0.18);
+      background: radial-gradient(ellipse at 50% 130%, color-mix(in srgb, var(--tc, #7a6bff) 45%, transparent), transparent 65%), #050506; }
+    .pv-card.t-hof .pv-plate::before { content: ''; position: absolute; inset: 0; opacity: 0.22; pointer-events: none; background-image: radial-gradient(#fff 1px, transparent 1.5px); background-size: 12px 12px;
+      -webkit-mask: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent); mask: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent); }
+    .pv-card.t-hof .pv-name, .pv-card.t-hof .pv-nick { position: relative; }
+    .pv-card.t-hof .pv-nick { color: rgba(255,255,255,0.7); }
+    .pv-card.t-hof .pv-strip { background: #050506; border-top-color: rgba(255,255,255,0.18); }
+    .pv-card.t-hof .pv-strip b { color: #fff; }
+    .pv-card.t-hof .pv-strip div:nth-child(2) b { font-size: 1.45rem; }
+    .pv-mini .pv-hof-sash { top: 0.75rem; right: -2.3rem; width: 7.6rem; font-size: 0.32rem; letter-spacing: 0.18em; padding: 0.16rem 0; }
+    .pv-mini .pv-hof-mono { font-size: 2.2rem; bottom: 1.35rem; left: 0.4rem; -webkit-text-stroke-width: 1px; }
+    .pv-card.pv-mini.t-hof .pv-strip div:nth-child(2) b { font-size: 1.15rem; }
+    /* Glimmering specks */
+    .pv-glimmer { position: absolute; inset: 0; z-index: 6; pointer-events: none; overflow: hidden; border-radius: inherit; }
+    .pv-glimmer i { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: #fff; opacity: 0; animation: pvGlim 3.2s ease-in-out infinite;
+      box-shadow: 0 0 6px 1px rgba(255,255,255,0.9), 0 0 12px 2px rgba(255,220,140,0.55); }
+    .pv-glimmer i.x::before, .pv-glimmer i.x::after { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+    .pv-glimmer i.x::before { width: 16px; height: 1px; background: linear-gradient(90deg, transparent, #fff, transparent); }
+    .pv-glimmer i.x::after { width: 1px; height: 16px; background: linear-gradient(180deg, transparent, #fff, transparent); }
+    @keyframes pvGlim { 0%, 100% { opacity: 0; transform: scale(0.3) rotate(0deg); } 45%, 55% { opacity: 1; transform: scale(1) rotate(45deg); } }
+    /* Back */
+    .pv-card.t-hof .pv-back { background: #050506; }
+    .pv-card.t-hof .pv-bhead { border-bottom: 2px solid transparent; border-image: linear-gradient(90deg, #ff4d6d, #ffb84d, #f6ff6b, #4dff9a, #4dd6ff, #7a6bff, #ff4dd8) 1; }
+    .pv-card.t-hof .pv-tab.on { box-shadow: inset 0 -2px 0 #4dd6ff; }
+    .pv-hof-box { margin: 0.6rem 0 0.2rem; padding: 0.55rem 0.6rem 0.5rem; border: 1px solid rgba(255,255,255,0.28); border-radius: 6px;
+      background: radial-gradient(ellipse at 0% 0%, rgba(122,107,255,0.18), transparent 60%), radial-gradient(ellipse at 100% 100%, rgba(77,214,255,0.14), transparent 60%); }
+    .pv-hof-row { display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; }
+    .pv-hof-row div + div { border-left: 1px solid rgba(255,255,255,0.14); }
+    .pv-hof-row b { display: block; font-family: var(--font-display); font-size: 1rem; line-height: 1; }
+    .pv-hof-row span { display: block; font-family: var(--font-body); font-size: 0.36rem; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-top: 0.25rem; }
+    .pv-hof-meter { height: 3px; margin: 0.45rem 0 0.35rem; background: rgba(255,255,255,0.12); border-radius: 2px; overflow: hidden; }
+    .pv-hof-meter i { display: block; height: 100%; background: linear-gradient(90deg, #ff4d6d, #ffb84d, #f6ff6b, #4dff9a, #4dd6ff, #7a6bff); }
+    .pv-hof-quote { font-family: var(--font-display); font-style: italic; font-size: 0.6rem; line-height: 1.35; color: rgba(255,255,255,0.88); text-align: center; }
+    /* Hall of Fame Watch (every other card back) */
+    .pv-watch { display: flex; align-items: center; gap: 0.5rem; }
+    .pv-watch-bar { flex: 1; height: 4px; background: rgba(232,232,232,0.12); border-radius: 2px; overflow: hidden; }
+    .pv-watch-bar i { display: block; height: 100%; background: linear-gradient(90deg, #7a6bff, #4dd6ff, #f6ff6b); border-radius: 2px; }
+    .pv-watch b { font-family: var(--font-body); font-size: 0.55rem; color: var(--accent); min-width: 2.2rem; text-align: right; }
+    .pv-watch-path { font-family: var(--font-body); font-size: 0.42rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-dim); margin-top: 0.25rem; }
+
+    /* ══ Retired — sealed in a clear collector's case with a label ══════════ */
+    .pv-card.is-slab .pv-tilt { position: relative; }
+    .pv-card.is-slab .pv-flip { position: absolute; top: 17%; left: 6%; right: 6%; bottom: 3%; width: auto; height: auto; }
+    .pv-mini.is-slab .pv-face { inset: 17% 6% 3% 6%; }
+    .pv-slab-case { position: absolute; inset: 0; z-index: 0; border-radius: 14px; pointer-events: none;
+      background: linear-gradient(160deg, rgba(225,240,255,0.2), rgba(170,195,220,0.08) 40%, rgba(225,240,255,0.16));
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.55), inset 0 0 0 5px rgba(190,215,240,0.14), inset 0 0 0 6px rgba(255,255,255,0.3), 0 4px 0 rgba(120,140,160,0.25), 0 20px 50px rgba(0,0,0,0.6); }
+    .pv-card.is-slab .pv-face { z-index: 1; }
+    .pv-slab-case::after { content: ''; position: absolute; inset: 0; border-radius: inherit; z-index: 8; pointer-events: none;
+      background: radial-gradient(ellipse 45% 30% at calc(var(--mx) * 1%) calc(var(--my) * 1%), rgba(255,255,255,0.22), transparent 70%), linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.12) 46%, transparent 52%); }
+    .pv-slab-label { position: absolute; top: 2.6%; left: 5%; right: 5%; height: 12%; z-index: 2; box-sizing: border-box; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+      padding: 0 0.7rem; background: linear-gradient(180deg, #fdfbf4, #e9e3d3); color: #1a1a1a; box-shadow: inset 0 0 0 2px #8a95a3, inset 0 0 0 3px #fff, 0 1px 2px rgba(0,0,0,0.3); }
+    .pv-slab-label.is-gold { box-shadow: inset 0 0 0 2px #b8862f, inset 0 0 0 3px #fff, 0 1px 2px rgba(0,0,0,0.3); }
+    .pv-slab-l { display: flex; flex-direction: column; min-width: 0; font-family: var(--font-body); }
+    .pv-slab-l span { font-size: 0.42rem; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: #555; white-space: nowrap; }
+    .pv-slab-l b { font-family: var(--font-display); font-size: 1.05rem; line-height: 1.05; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pv-slab-r { display: grid; grid-template-columns: auto auto; gap: 0 0.3rem; align-items: baseline; border-left: 1px solid #c9c2b0; padding-left: 0.6rem; text-align: right; }
+    .pv-slab-r b { font-family: var(--font-display); font-size: 0.95rem; line-height: 1.1; color: #8a1c1c; }
+    .pv-slab-label.is-gold .pv-slab-r b { color: #9a6a1c; }
+    .pv-slab-r span { font-family: var(--font-body); font-size: 0.36rem; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; color: #555; text-align: left; }
+    .pv-mini .pv-slab-label { padding: 0 0.4rem; border-radius: 4px; }
+    .pv-mini .pv-slab-l span { font-size: 0.28rem; letter-spacing: 0.1em; }
+    .pv-mini .pv-slab-l b { font-size: 0.72rem; }
+    .pv-mini .pv-slab-r { padding-left: 0.35rem; }
+    .pv-mini .pv-slab-r b { font-size: 0.62rem; }
+    .pv-mini .pv-slab-r span { font-size: 0.26rem; letter-spacing: 0.08em; }
+    .pv-mini .pv-slab-case { border-radius: 10px; }
+    @media (prefers-reduced-motion: reduce) {
+      .pv-card.t-hof .pv-face { animation: none; }
+      .pv-glimmer { display: none; }
+    }
+
     /* ── Full-size viewer ─────────────────────────────────── */
     .pv-overlay {
       position: fixed; inset: 0; z-index: 400; display: flex; align-items: center; justify-content: center;
@@ -848,7 +951,7 @@
       var entries = [];
       (leagueData || []).forEach(function (league) {
         (league.seasons || []).forEach(function (season) {
-          if (season.championMemberId && season.championMemberId === memberId) {
+          if (season.isFinal && season.championMemberId && season.championMemberId === memberId) {   // completed seasons only
             entries.push({ year: season.year || '?', leagueName: league.name || '' });
           }
         });
@@ -862,6 +965,7 @@
       var total = 0;
       (leagueData || []).forEach(function (league) {
         (league.seasons || []).forEach(function (season) {
+          if (!season.isFinal) return;   // completed seasons only
           var inRoster    = (season.roster    || []).some(function (r) { return r.memberId === memberId; });
           var inStandings = (season.standings || []).some(function (r) { return r.memberId === memberId; });
           if (inRoster || inStandings) total++;
@@ -880,6 +984,7 @@
         var awardDefs = schema.awards || [];
 
         (league.seasons || []).forEach(function (season) {
+          if (!season.isFinal) return;   // completed seasons only
           var stats       = season.stats       || {};
           var customStats = season.customStats || [];
 
@@ -1069,7 +1174,7 @@
       card.className = 'playa-card pv-card pv-mini section-reveal ' + tier.cls + (isActive ? '' : ' is-inactive');
       card.style.animationDelay = delay + 's';
       // Grid shows the same front as the viewer, just smaller; the stat-sheet back opens in the viewer
-      card.innerHTML = cardFront(member, leagueData, tier);
+      card.innerHTML = cardFront(member, leagueData, tier) + (tier.retired ? slabLabel(member, leagueData, tier) : '');
       card.setAttribute('role', 'button');
       card.setAttribute('tabindex', '0');
       card.setAttribute('aria-label', 'View ' + (member.name || '') + ' card');
@@ -1141,7 +1246,7 @@
       (leagueData || []).forEach(function (lg) {
         var n = 0;
         (lg.seasons || []).forEach(function (s) {
-          if (!seasonHas(s, mid)) return;
+          if (!s.isFinal || !seasonHas(s, mid)) return;   // completed seasons only
           n++; total++;
           var y = parseInt(s.year, 10) || 0;
           if (y && (!since || y < since)) since = y;
@@ -1151,15 +1256,78 @@
       var qualifies = per.some(function (x) { return x.n >= VET_LEAGUE_SEASONS; }) || total >= VET_TOTAL_SEASONS;
       return qualifies ? { per: per, total: total, since: since } : null;
     }
+    /* ── Hall of Fame ─────────────────────────────────────────
+       In when ANY one of these is reached (completed seasons only):
+         Titles:  7 OFC  ·  5 BRC  ·  8 combined
+         Awards: 25 OFC  · 15 BRC  · 40 combined
+       Per-league paths keep it fair for playas who only play one league.
+       Alumni keep what they earned. Class = the season they first reached a path;
+       inductee numbers follow that order. The Watch meter shows each playa's best path. */
+    var HOF_PATHS = [
+      { key: 'ofcT', label: 'OFC Titles', need: 7 },
+      { key: 'brcT', label: 'BRC Titles', need: 5 },
+      { key: 'allT', label: 'Titles',     need: 8 },
+      { key: 'ofcA', label: 'OFC Awards', need: 25 },
+      { key: 'brcA', label: 'BRC Awards', need: 15 },
+      { key: 'allA', label: 'Awards',     need: 40 }
+    ];
+    var HOF_CACHE = null;
+    function hofTable(leagueData) {
+      if (HOF_CACHE && HOF_CACHE.ld === leagueData) return HOF_CACHE;
+      var roster = (window.OFL_DATA && window.OFL_DATA.masterRoster) || [];
+      var sportOf = {}; (leagueData || []).forEach(function (l) { sportOf[l.name || ''] = l.sport; });
+      var info = {};
+      roster.forEach(function (m) {
+        var years = {};
+        function add(y, k) { y = parseInt(y, 10) || 0; (years[y] = years[y] || { ofcT: 0, brcT: 0, ofcA: 0, brcA: 0 })[k]++; }
+        getChampionships(m.id, leagueData).forEach(function (t) { add(t.year, sportOf[t.leagueName] === 'madness' ? 'brcT' : 'ofcT'); });
+        getAwardsWon(m.id, leagueData).forEach(function (a) { add(a.year, sportOf[a.leagueName] === 'madness' ? 'brcA' : 'ofcA'); });
+        var c = { ofcT: 0, brcT: 0, ofcA: 0, brcA: 0, allT: 0, allA: 0 }, cls = null, path = null;
+        Object.keys(years).map(Number).sort(function (a, b) { return a - b; }).forEach(function (y) {
+          var e = years[y];
+          c.ofcT += e.ofcT; c.brcT += e.brcT; c.ofcA += e.ofcA; c.brcA += e.brcA;
+          c.allT = c.ofcT + c.brcT; c.allA = c.ofcA + c.brcA;
+          if (cls === null) {
+            var hit = HOF_PATHS.filter(function (pt) { return c[pt.key] >= pt.need; })[0];
+            if (hit) { cls = y; path = hit.label; }
+          }
+        });
+        var best = HOF_PATHS.reduce(function (b, pt) { var v = c[pt.key] / pt.need; return v > b.v ? { v: v, label: pt.label } : b; }, { v: 0, label: '' });
+        info[m.id] = { counts: c, pct: Math.min(1, best.v), bestPath: best.label, inducted: cls !== null, classYear: cls, path: path, no: 0, titles: c.allT, awards: c.allA };
+      });
+      var inducted = roster.filter(function (m) { return info[m.id].inducted; }).sort(function (a, b) {
+        var x = info[a.id], y = info[b.id];
+        return (x.classYear - y.classYear) || (y.titles - x.titles) || (y.awards - x.awards) || String(a.name).localeCompare(String(b.name));
+      });
+      inducted.forEach(function (m, i) { info[m.id].no = i + 1; });
+      HOF_CACHE = { ld: leagueData, info: info };
+      return HOF_CACHE;
+    }
+    function hofInfo(mid, leagueData) { return hofTable(leagueData).info[mid] || { inducted: false, pct: 0, titles: 0, awards: 0 }; }
+    function roman(n) { var r = '', v = [[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']]; v.forEach(function (p) { while (n >= p[0]) { r += p[1]; n -= p[0]; } }); return r; }
+    /* Twinkling specks across a Hall of Fame card face (random spots, random timing) */
+    function hofGlimmer(n) {
+      var h = '';
+      for (var i = 0; i < n; i++) {
+        h += '<i class="' + (i % 4 === 0 ? 'x' : '') + '" style="left:' + (Math.random() * 97).toFixed(1) + '%;top:' + (Math.random() * 97).toFixed(1) + '%;animation-delay:' + (Math.random() * 3.2).toFixed(2) + 's;animation-duration:' + (2.4 + Math.random() * 2).toFixed(2) + 's' + (i % 3 ? ';width:3px;height:3px' : '') + '"></i>';
+      }
+      return '<div class="pv-glimmer" aria-hidden="true">' + h + '</div>';
+    }
+
     /* Card tier for a member, including rookie / veteran status → { key, label, rookie, vet, cls } */
     function cardTier(mid, leagueData) {
       var t = tierFor(getChampionships(mid, leagueData).length), rk = rookieInfo(mid, leagueData);
       var vet = rk ? null : veteranInfo(mid, leagueData);
-      if (rk && t.key === 'base') t = { key: 'rookie', label: 'Rookie' };
+      var hof = hofInfo(mid, leagueData);
+      if (hof.inducted) t = { key: 'hof', label: '&#x2605;&#x2605;&#x2605; Hall of Fame' };   // the top tier
+      else if (rk && t.key === 'base') t = { key: 'rookie', label: 'Rookie' };
       else if (vet && t.key === 'base') t = { key: 'vet', label: 'Old-School' };
+      t.hof = hof;
       t.rookie = rk;
       t.vet = vet;
-      t.cls = 't-' + t.key + (rk ? ' is-rookie' : '') + (vet ? ' is-vet' : '');
+      var m0 = ((window.OFL_DATA && window.OFL_DATA.masterRoster) || []).find(function (x) { return x.id === mid; }) || {};
+      t.retired = m0.active === false || m0.active === 'false';
+      t.cls = 't-' + t.key + (rk ? ' is-rookie' : '') + (vet ? ' is-vet' : '') + (t.retired ? ' is-slab' : '');
       return t;
     }
     function cardNumber(id) {
@@ -1174,6 +1342,7 @@
       var out = { rows: [], w: 0, l: 0, t: 0, pf: 0, games: 0, titles: 0, po: 0, finals: 0, hi: null, best: null };
       if (!lg) return out;
       (lg.seasons || []).slice().sort(function (a, b) { return (parseInt(b.year, 10) || 0) - (parseInt(a.year, 10) || 0); }).forEach(function (s) {
+        if (!s.isFinal) return;   // completed seasons only
         var row = (s.standings || []).find(function (r) { return r.memberId === mid; });
         // weekly highs
         (s.weeks || []).forEach(function (w) {
@@ -1209,6 +1378,7 @@
       var out = { rows: [], titles: 0, best: null, finSum: 0, ptsBest: null };
       if (!lg) return out;
       (lg.seasons || []).slice().sort(function (a, b) { return (parseInt(b.year, 10) || 0) - (parseInt(a.year, 10) || 0); }).forEach(function (s) {
+        if (!s.isFinal) return;   // completed seasons only
         var st = s.standings || [], row = st.find(function (r) { return r.memberId === mid; });
         if (!row) return;
         var rank = parseInt(row.rank, 10) || (st.indexOf(row) + 1), pts = n2(row.totalPoints), champ = s.championMemberId === mid;
@@ -1233,8 +1403,9 @@
       var awards = getAwardsWon(m.id, leagueData).length, active = m.active !== false;
       var ofcLg = (m.leagues || []).find(function (l) { return l.leagueKey === 'OFC'; });
       var team = ofcLg && ofcLg.teams && ofcLg.teams.length ? ofcLg.teams[ofcLg.teams.length - 1] : null;
-      return '<div class="pv-face pv-front">' +
-        '<div class="pv-top"><span>' + tier.label + '</span><span>OFL &middot; #' + cardNumber(m.id) + '</span></div>' +
+      var isHof = tier.key === 'hof';
+      return '<div class="pv-face pv-front"' + (isHof && team && team.primaryColor ? ' style="--tc:' + esc(team.primaryColor) + '"' : '') + '>' +
+        '<div class="pv-top"><span>' + tier.label + '</span><span>' + (isHof ? '1 / 1' : 'OFL &middot; #' + cardNumber(m.id)) + '</span></div>' +
         '<div class="pv-photo">' +
           (m.mugshot ? '<img class="pv-mug" src="' + esc(m.mugshot) + '" alt="" />' : '<div class="pv-mono">' + esc(initials(m.name)) + '</div>') +
           '<span class="pv-status">' + (active ? 'Active' : 'Alumni') + '</span>' +
@@ -1243,6 +1414,8 @@
           (tier.rookie ? '<span class="pv-rc" title="Rookie card">RC</span>' : '') +
           (tier.vet ? '<span class="pv-pennant">' + tier.vet.total + ' Seasons</span>' : '') +
           (tier.key === 'vet' ? '<span class="pv-stamp"><i>Since</i><b>' + tier.vet.since + '</b></span>' : '') +
+          (isHof ? '<span class="pv-hof-sash">Inducted ' + tier.hof.classYear + '</span><span class="pv-hof-mono">HOF</span>' +
+                   (!tier.vet ? '<span class="pv-pennant">' + seasons + ' Seasons</span>' : '') : '') +
         '</div>' +
         (tier.key === 'rookie' ? '<div class="pv-rookie-band">' + tier.rookie.year + ' Rookie Card</div>' : '') +
         (tier.key === 'vet' ? '<div class="pv-vet-band"></div>' : '') +
@@ -1255,7 +1428,23 @@
           '<div><b>' + (m.leagues || []).length + '</b><span>Leagues</span></div>' +
         '</div>' +
         '<div class="pv-holo"></div>' +
+        (isHof ? hofGlimmer(30) : '') +
       '</div>';
+    }
+
+    /* One-line plaque for the Hall of Fame card back, built from the record */
+    function hofQuote(o, b) {
+      var bits = [];
+      if (o.titles) bits.push(o.titles + ' OFC title' + (o.titles === 1 ? '' : 's'));
+      if (b.titles) bits.push(b.titles + ' BRC crown' + (b.titles === 1 ? '' : 's'));
+      var lead = bits.length ? bits.join(' and ') + '. ' : '';
+      if (o.games) {
+        var rec = o.w + '&ndash;' + o.l + (o.t ? '&ndash;' + o.t : '');
+        lead += o.w >= o.l ? 'A ' + rec + ' career that set the standard.' : 'Won it all despite a ' + rec + ' career mark, proof that only December matters.';
+      } else if (b.rows.length) {
+        lead += b.rows.length + ' brackets and a trophy shelf to show for it.';
+      }
+      return lead;
     }
 
     function cardBack(m, leagueData) {
@@ -1272,6 +1461,15 @@
           '<div class="pv-bno">#' + cardNumber(m.id) + '</div></div>' +
         (rk ? '<div class="pv-debut"><span class="pv-rc-mini">RC</span> Debut: ' + esc(rk.debut) + '</div>' : '') +
         (vt ? '<div class="pv-vet-tag">Old-School &middot; Since ' + vt.since + ' &middot; ' + vt.per.map(function (x) { return esc(x.key) + ' ' + x.n; }).join(' &middot; ') + '</div>' : '');
+      var hf = hofInfo(m.id, leagueData);
+      if (hf.inducted) {
+        html += '<div class="pv-hof-box"><div class="pv-hof-row">' +
+            '<div><b>' + hf.classYear + '</b><span>Class</span></div>' +
+            '<div><b>No. ' + roman(hf.no) + '</b><span>Inductee</span></div>' +
+            '<div><b>' + hf.path + '</b><span>Path</span></div></div>' +
+          '<div class="pv-hof-meter"><i style="width:100%"></i></div>' +
+          '<div class="pv-hof-quote">&ldquo;' + hofQuote(o, b) + '&rdquo;</div></div>';
+      }
 
       if (tabs.length > 1) html += '<div class="pv-tabs">' + tabs.map(function (t) { return '<button class="pv-tab' + (t === backTab ? ' on' : '') + '" data-tab="' + t + '">' + t + '</button>'; }).join('') + '</div>';
       else if (tabs.length) html += '<div class="pv-sec">' + tabs[0] + ' Career</div>';
@@ -1318,6 +1516,11 @@
           '<div class="pv-stripes-key">' + vt.per.map(function (x, i) { return '<span class="s' + (i % 2) + '"></span>' + esc(x.key) + ' ' + x.n; }).join(' &nbsp; ') +
           ' &nbsp;= ' + vt.total + ' seasons</div>';
       }
+      if (!hf.inducted && hf.pct > 0) {
+        var hp = Math.min(99, Math.floor(hf.pct * 100));
+        html += '<div class="pv-sec">Hall of Fame Watch</div><div class="pv-watch"><div class="pv-watch-bar"><i style="width:' + hp + '%"></i></div><b>' + hp + '%</b></div>' +
+          '<div class="pv-watch-path">Closest: ' + esc(hf.bestPath) + '</div>';
+      }
       if (awards.length) {
         html += '<div class="pv-sec">Trophy Case (' + awards.length + ')</div><div class="pv-awards">' +
           awards.slice(0, 12).map(function (a) { return '<span class="pv-award">' + esc(a.awardName) + ' <i>' + esc(String(a.year).slice(2)) + '</i></span>'; }).join('') +
@@ -1326,7 +1529,21 @@
       var hasOFC = (m.leagues || []).some(function (l) { return l.leagueKey === 'OFC'; });
       html += '<div class="pv-foot"><span class="pv-foot-links"><a href="playa.html?id=' + encodeURIComponent(m.id) + '">Profile &#x2197;</a>' +
         (hasOFC ? '<a href="team.html?id=' + encodeURIComponent(m.id) + '">Team Page &#x2197;</a>' : '') + '</span><span>Tap to flip</span></div>';
-      return html + '<div class="pv-holo"></div></div></div>';
+      return html + '<div class="pv-holo"></div></div>' + (hf.inducted ? hofGlimmer(26) : '') + '</div>';
+    }
+
+    /* Retired members: the card is sealed in a clear collector's case with a label */
+    function slabLabel(m, leagueData, tier) {
+      var ys = [];
+      (leagueData || []).forEach(function (l) { (l.seasons || []).forEach(function (s) { if (s.isFinal && seasonHas(s, m.id)) ys.push(parseInt(s.year, 10) || 0); }); });
+      ys = ys.filter(Boolean);
+      var span = ys.length ? Math.min.apply(null, ys) + (Math.max.apply(null, ys) > Math.min.apply(null, ys) ? '&ndash;' + Math.max.apply(null, ys) : '') : '';
+      var t = getChampionships(m.id, leagueData).length, n = countSeasons(m.id, leagueData);
+      return '<div class="pv-slab-case" aria-hidden="true"></div>' +
+        '<div class="pv-slab-label' + (tier.key === 'hof' ? ' is-gold' : '') + '">' +
+          '<div class="pv-slab-l"><span>OFL &middot; Retired' + (tier.key === 'hof' ? ' &middot; Hall of Fame' : '') + '</span><b>' + esc(m.name || '') + '</b><span>' + span + '</span></div>' +
+          '<div class="pv-slab-r"><b>' + n + '</b><span>Seasons</span><b>' + t + '</b><span>' + (t === 1 ? 'Title' : 'Titles') + '</span></div>' +
+        '</div>';
     }
 
     function buildViewer() {
@@ -1409,6 +1626,9 @@
       card.className = 'pv-card ' + tier.cls + (keepFlip && card.classList.contains('flipped') ? ' flipped' : '');
       var scroll = keepFlip ? (card.querySelector('.pv-back-inner') || {}).scrollTop : 0;
       document.getElementById('pvFlip').innerHTML = cardFront(m, leagueData, tier) + cardBack(m, leagueData);
+      var tiltEl = card.querySelector('.pv-tilt');
+      Array.prototype.forEach.call(tiltEl.querySelectorAll('.pv-slab-case, .pv-slab-label'), function (el) { el.remove(); });
+      if (tier.retired) tiltEl.insertAdjacentHTML('beforeend', slabLabel(m, leagueData, tier));
       if (keepFlip && scroll) card.querySelector('.pv-back-inner').scrollTop = scroll;
       document.getElementById('pvCount').textContent = (viewIdx + 1) + ' / ' + VIEW_LIST.length;
       document.getElementById('pvProfile').href = 'playa.html?id=' + encodeURIComponent(m.id);
@@ -1514,6 +1734,7 @@
         // Line 1: filter pills centered
         '<div class="playas-filter-pills">' +
           '<button class="playas-filter-pill is-active" data-filter="career">Active</button>' +
+          '<button class="playas-filter-pill" data-filter="hof">Hall of Fame</button>' +
           '<button class="playas-filter-pill" data-filter="ofc">OFC</button>' +
           '<button class="playas-filter-pill" data-filter="brc">BRC</button>' +
           '<button class="playas-filter-pill" data-filter="rookies">Rookies</button>' +
@@ -1593,6 +1814,10 @@
         } else if (filterVal === 'rookies') {
           heading.textContent = 'Rookies';
           members = roster.filter(function (m) { return !!rookieInfo(m.id, leagues); });
+        } else if (filterVal === 'hof') {
+          heading.textContent = 'Hall of Fame';
+          members = roster.filter(function (m) { return hofInfo(m.id, leagues).inducted; })
+            .sort(function (a, b) { return hofInfo(a.id, leagues).no - hofInfo(b.id, leagues).no; });
         } else if (filterVal === 'retired') {
           heading.textContent = 'Retired';
           members = inactive.slice();
@@ -1600,7 +1825,7 @@
           members = roster.slice();
         }
 
-        var sorted = sortMembers(members, leagues, sortVal);
+        var sorted = filterVal === 'hof' && sortVal === 'az' ? members : sortMembers(members, leagues, sortVal);   // Hall of Fame: inductee order
         VIEW_LIST = sorted.map(function (m) { return m.id; });
         countEl.textContent = '— ' + sorted.length + ' Member' + (sorted.length !== 1 ? 's' : '');
 
@@ -1612,7 +1837,9 @@
           });
           wrap.appendChild(flatGrid);
         } else {
-          wrap.innerHTML = '<p class="playas-empty">No members match this filter.</p>';
+          wrap.innerHTML = filterVal === 'hof'
+            ? '<p class="playas-empty">No one has been inducted yet. The first Hall of Famer will be unveiled here.</p>'
+            : '<p class="playas-empty">No members match this filter.</p>';
         }
 
         // Update footer delay
