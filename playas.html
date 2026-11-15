@@ -625,7 +625,7 @@
     .pv-fact.rookie b { color: #1b8a4c; }
     @media (max-width: 600px) { .pv-mini .pv-rc { width: 22px; height: 26px; font-size: 0.6rem; } }
 
-    /* ── Old Skool cards — Dark Vintage (copper foil, pennant, stamp). Pennant + stripes also ride on titled cards (.is-vet) ── */
+    /* ── Old Skool cards — Dark Vintage (copper foil, stamp). Stripes also ride on titled cards (.is-vet) ── */
     .playa-card.t-vet, .pv-card.t-vet { --foil: #a0662f; }
     .pv-card.t-vet .pv-face {
       border-color: transparent;
@@ -638,12 +638,6 @@
     .pv-card.t-vet .pv-plate { border-top: none; }
     .pv-card.t-vet .pv-nick { color: #d9b27a; }
     .pv-card.pv-mini.t-vet .pv-face { box-shadow: 0 0 12px rgba(160,102,47,0.25), 0 6px 18px rgba(0,0,0,0.5); }
-    .pv-pennant {
-      position: absolute; top: 0.55rem; left: 0; z-index: 2;
-      font-family: var(--font-body); font-size: 0.5rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
-      color: #141210; background: var(--foil); padding: 0.3rem 1.3rem 0.3rem 0.6rem;
-      clip-path: polygon(0 0, 100% 0, 88% 50%, 100% 100%, 0 100%);
-    }
     .pv-stamp {
       position: absolute; top: 0.55rem; right: 0.55rem; z-index: 2; width: 52px; height: 52px; border-radius: 50%; box-sizing: border-box;
       border: 2px solid #d9b27a; color: #d9b27a; background: rgba(20,18,16,0.55); transform: rotate(-12deg);
@@ -652,19 +646,25 @@
     .pv-stamp i { font-style: normal; font-family: var(--font-body); font-size: 0.4rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; }
     .pv-stamp b { font-family: var(--font-display); font-size: 0.95rem; margin-top: 0.1rem; }
     .pv-vet-band { height: 5px; background: repeating-linear-gradient(90deg, #a0662f 0 6px, #7a4c22 6px 12px); }
-    .pv-mini .pv-pennant { top: 0.4rem; font-size: 0.36rem; padding: 0.2rem 1rem 0.2rem 0.4rem; letter-spacing: 0.1em; }
-    /* Ribbon takes the top-left corner; the Active / Alumni badge sits under it */
-    .pv-card.is-vet .pv-status { top: 2.2rem; }
-    .pv-mini.is-vet .pv-status { top: 1.55rem; }
-    /* Ribbon matches the card's scheme: tier foil, holo gradient on Holo cards */
-    .pv-card.t-holo .pv-pennant { background: linear-gradient(90deg, #ff7ad9, #9fd8ff, #b6ff9f, #ffe27a); }
-    .pv-card.t-legend .pv-pennant { background: linear-gradient(90deg, #e8c864, #fff1b8, #e8c864); }
+    /* ── Champion ribbon — the latest completed season's OFC / BRC champion wears it until the next one is crowned.
+       Top-left corner of the photo; two stacked if they hold both. The Active / Alumni badge sits under it. */
+    .pv-tl { position: absolute; top: 0.55rem; left: 0; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; gap: 0.3rem; }
+    .pv-tl .pv-status { position: static; margin-left: 0.6rem; }
+    .pv-crown {
+      font-family: var(--font-body); font-size: 0.5rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; white-space: nowrap;
+      padding: 0.3rem 1.3rem 0.3rem 0.6rem; clip-path: polygon(0 0, 100% 0, 88% 50%, 100% 100%, 0 100%);
+    }
+    .pv-crown.c-ofc { color: #141210; background: linear-gradient(90deg, #c9a24a, #ffe9a8 50%, #c9a24a); }
+    .pv-crown.c-brc { color: #fff; background: linear-gradient(90deg, #2c45e0, #6f86ff 50%, #2c45e0); }
+    .pv-mini .pv-tl { top: 0.4rem; gap: 0.22rem; }
+    .pv-mini .pv-tl .pv-status { margin-left: 0.45rem; }
+    .pv-mini .pv-crown { font-size: 0.36rem; padding: 0.2rem 1rem 0.2rem 0.4rem; letter-spacing: 0.1em; }
     .pv-mini .pv-stamp { width: 36px; height: 36px; top: 0.4rem; right: 0.4rem; border-width: 1.5px; }
     .pv-mini .pv-stamp i { font-size: 0.28rem; }
     .pv-mini .pv-stamp b { font-size: 0.66rem; }
     .pv-mini .pv-vet-band { height: 4px; }
     @media (max-width: 600px) {
-      .pv-mini .pv-pennant { top: 0.4rem; font-size: 0.3rem; padding: 0.16rem 0.9rem 0.16rem 0.35rem; }
+      .pv-mini .pv-crown { font-size: 0.3rem; padding: 0.16rem 0.9rem 0.16rem 0.35rem; }
       .pv-mini .pv-stamp { width: 30px; height: 30px; }
       .pv-mini .pv-stamp i { font-size: 0.24rem; }
       .pv-mini .pv-stamp b { font-size: 0.56rem; }
@@ -701,7 +701,6 @@
     }
     .pv-card.t-hof .pv-photo::before { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4), inset 0 -60px 60px -20px rgba(0,0,0,0.55); }
     .pv-card.t-hof .pv-holo { opacity: 0.45; }
-    .pv-card.t-hof .pv-pennant { background: #000; color: #fff; border: 1px solid rgba(255,255,255,0.5); border-left: none; clip-path: none; }
     .pv-hof-sash {
       position: absolute; top: 1.15rem; right: -2.7rem; width: 10rem; z-index: 3; transform: rotate(40deg); text-align: center;
       font-family: var(--font-body); font-size: 0.44rem; font-weight: 700; letter-spacing: 0.26em; text-transform: uppercase; color: #111; padding: 0.24rem 0;
@@ -835,7 +834,7 @@
     .cg-keys > div { display: flex; align-items: center; gap: 0.55rem; font-family: var(--font-body); font-size: 0.55rem; line-height: 1.35; color: var(--accent-dim); }
     .cg-keys b { color: var(--accent); font-weight: 700; }
     .cg-ico { flex: none; width: 40px; height: 22px; display: flex; align-items: center; justify-content: center; }
-    .cg-ribbon { font-family: var(--font-body); font-size: 0.4rem; font-weight: 700; letter-spacing: 0.12em; color: #141210; background: #e8c864; padding: 0.2rem 0.9rem 0.2rem 0.4rem; clip-path: polygon(0 0, 100% 0, 85% 50%, 100% 100%, 0 100%); }
+    .cg-ribbon { font-family: var(--font-body); font-size: 0.4rem; font-weight: 700; letter-spacing: 0.12em; color: #141210; background: linear-gradient(90deg, #c9a24a, #ffe9a8 50%, #c9a24a); white-space: nowrap; padding: 0.2rem 0.9rem 0.2rem 0.4rem; clip-path: polygon(0 0, 100% 0, 85% 50%, 100% 100%, 0 100%); }
     .cg-tag { font-family: var(--font-body); font-size: 0.4rem; letter-spacing: 0.15em; text-transform: uppercase; border: 1px solid rgba(232,232,232,0.3); padding: 0.12rem 0.35rem; color: var(--accent-dim); }
     .cg-stripes { display: flex; gap: 3px; } .cg-stripes i { width: 4px; height: 14px; background: #a0662f; transform: skewX(-15deg); } .cg-stripes i.b { background: #6f8fb0; }
     .cg-watch { display: block; width: 38px; height: 4px; border-radius: 2px; background: linear-gradient(90deg, #7a6bff, #4dd6ff, #f6ff6b); }
@@ -1316,8 +1315,8 @@
     /* ── Old Skool cards ─────────────────────────────────────
        VET_LEAGUE_SEASONS+ seasons in one league, or VET_TOTAL_SEASONS+ combined.
        Old Skool playas with no titles get the Old Skool card (replaces Base).
-       A title trades you up (Rare / Holo / Legendary) — you keep the Old Skool
-       pennant on the front and the Service Stripes on the back. */
+       A title trades you up (Rare / Holo / Legendary) — you keep the
+       Service Stripes on the back. */
     var VET_LEAGUE_SEASONS = 10, VET_TOTAL_SEASONS = 20;
     function veteranInfo(mid, leagueData) {
       var per = [], total = 0, since = null;
@@ -1483,8 +1482,8 @@
       legend:  { n: 'Legendary', c: '#e8c864', s: [20, 5, 14, 2], earn: '5 or more titles, across any leagues.', feat: ['<b>Gold foil</b> frame with a warm glow', 'The strongest <b>holo shimmer</b> when the card tilts', 'Next stop: the Hall of Fame'] },
       holo:    { n: 'Holo', c: '#9fd8ff', s: [15, 3, 9, 2], earn: '3 or 4 titles.', feat: ['<b>Rainbow holographic</b> frame', 'Holo shimmer that follows your finger or mouse'] },
       rare:    { n: 'Rare', c: '#c9d1da', s: [12, 1, 6, 1], earn: '1 or 2 titles.', feat: ['<b>Silver foil</b> frame', 'A soft light that follows your finger or mouse'] },
-      vet:     { n: 'Old Skool', c: '#a0662f', s: [14, 0, 4, 1], filter: 'veterans', earn: '10 seasons in one league, or 20 seasons total, without a title. Win a title and you trade up to Rare, Holo or Legendary, keeping the ribbon and stripes.',
-                 feat: ['<b>Copper foil</b>, dark vintage look', '<b>Seasons ribbon</b> and a <b>Since</b> stamp on the photo', '<b>Service Stripes</b> on the back, one per season'] },
+      vet:     { n: 'Old Skool', c: '#a0662f', s: [14, 0, 4, 1], filter: 'veterans', earn: '10 seasons in one league, or 20 seasons total, without a title. Win a title and you trade up to Rare, Holo or Legendary, keeping the stripes.',
+                 feat: ['<b>Copper foil</b>, dark vintage look', 'A <b>Since</b> stamp on the photo', '<b>Service Stripes</b> on the back, one per season'] },
       rookie:  { n: 'Rookie', c: '#1b8a4c', s: [1, 0, 0, 1], filter: 'rookies', earn: 'Your first 2 seasons in the OFL. Win a title as a rookie and you get the title card, but the RC shield stays.',
                  feat: ['<b>Kelly green and royal purple</b> frame', 'Gold <b>RC shield</b> and a <b>Rookie Card</b> band', 'The back shows your <b>debut</b> and rookie season'] },
       base:    { n: 'Base', c: '#777777', s: [4, 0, 1, 1], earn: 'After your rookie seasons, if you haven\u2019t won a title yet.', feat: ['A clean, simple card', 'Win a title to trade up to Rare'] },
@@ -1499,7 +1498,8 @@
       var tk = key === 'retired' ? 'rare' : key;
       var t = { key: tk, label: labels[key], rookie: key === 'rookie' ? { year: 2030, debut: '2030 OFC' } : null,
         vet: (key === 'vet' || key === 'legend' || key === 'hof') ? { total: g.s[0], since: 2012, per: [] } : null,
-        hof: key === 'hof' ? { classYear: 2030 } : null, retired: key === 'retired' };
+        hof: key === 'hof' ? { classYear: 2030 } : null, retired: key === 'retired',
+        crowns: key === 'hof' ? [{ lg: 'OFC', year: 2025 }] : [] };   // HOF sample wears the champion ribbon
       t.cls = 't-' + tk + (t.rookie ? ' is-rookie' : '') + (t.vet ? ' is-vet' : '') + (t.retired ? ' is-slab' : '');
       var wrap = document.createElement('div');
       wrap.innerHTML = '<div class="playa-card pv-card pv-mini ' + t.cls + '">' + cardFront(m, [], t) +
@@ -1507,7 +1507,6 @@
           '<div class="pv-slab-r"><b>' + g.s[0] + '</b><span>Seasons</span><b>' + g.s[1] + '</b><span>Title</span></div></div>' : '') + '</div>';
       var c = wrap.firstElementChild;
       Array.prototype.forEach.call(c.querySelectorAll('.pv-strip b'), function (b, i) { b.textContent = g.s[i]; });
-      Array.prototype.forEach.call(c.querySelectorAll('.pv-pennant'), function (p) { p.textContent = g.s[0] + ' Seasons'; });
       var ph = c.querySelector('.pv-photo');
       if (ph) {
         var mono = ph.querySelector('.pv-mono'); if (mono) mono.remove();
@@ -1543,7 +1542,7 @@
           '<button class="cg-q" id="cgKeyBtn" aria-expanded="false"><i>?</i> What&rsquo;s on a card</button></div><div id="cgDetail"></div></div>' +
         '<div class="cg-key" id="cgKey" hidden><div class="cg-h">On the card</div><div class="cg-keys">' +
           '<div><span class="cg-ico"><span class="pv-rc-mini">RC</span></span><span><b>RC shield</b> &middot; rookie card</span></div>' +
-          '<div><span class="cg-ico"><span class="cg-ribbon">31</span></span><span><b>Seasons ribbon</b> &middot; Old Skool playas</span></div>' +
+          '<div><span class="cg-ico"><span class="cg-ribbon">&#x265B; OFC</span></span><span><b>Champion ribbon</b> &middot; this year&rsquo;s champion</span></div>' +
           '<div><span class="cg-ico"><span class="cg-tag">Active</span></span><span><b>Active / Alumni</b> &middot; current status</span></div>' +
           '<div><span class="cg-ico"><span class="cg-stripes"><i></i><i></i><i class="b"></i><i class="b"></i></span></span><span><b>Service Stripes</b> &middot; one per season (back)</span></div>' +
           '<div><span class="cg-ico"><span class="cg-watch"></span></span><span><b>HOF Watch</b> &middot; progress to the Hall (back)</span></div>' +
@@ -1594,6 +1593,25 @@
     ══════════════════════════════════════════════════════════ */
     var VIEW_LIST = [], viewIdx = -1, backTab = null;
 
+    /* Reigning champions: the latest completed (isFinal) season in each league.
+       They keep the ribbon until the next season in that league is marked final. */
+    var CROWN_CACHE = null;
+    function reigningChamps(leagueData) {
+      if (CROWN_CACHE && CROWN_CACHE.ld === leagueData) return CROWN_CACHE.list;
+      var list = [];
+      (leagueData || []).forEach(function (lg) {
+        var key = lg.sport === 'football' ? 'OFC' : lg.sport === 'madness' ? 'BRC' : String(lg.name || '').toUpperCase();
+        if (key !== 'OFC' && key !== 'BRC') return;
+        var last = null;
+        (lg.seasons || []).forEach(function (s) { if (s.isFinal && (!last || (parseInt(s.year, 10) || 0) > (parseInt(last.year, 10) || 0))) last = s; });
+        if (last && last.championMemberId) list.push({ lg: key, year: last.year, mid: last.championMemberId });
+      });
+      list.sort(function (a, b) { return a.lg === 'OFC' ? -1 : b.lg === 'OFC' ? 1 : 0; });   // OFC on top
+      CROWN_CACHE = { ld: leagueData, list: list };
+      return list;
+    }
+    function crownsFor(mid, leagueData) { return reigningChamps(leagueData).filter(function (c) { return c.mid === mid; }); }
+
     function cardFront(m, leagueData, tier) {
       var champs = getChampionships(m.id, leagueData).length, seasons = countSeasons(m.id, leagueData);
       var awards = getAwardsWon(m.id, leagueData).length, active = m.active !== false;
@@ -1604,14 +1622,14 @@
         '<div class="pv-top"><span>' + tier.label + '</span><span>' + (isHof ? '1 / 1' : 'OFL &middot; #' + cardNumber(m.id)) + '</span></div>' +
         '<div class="pv-photo">' +
           (m.mugshot ? '<img class="pv-mug" src="' + esc(m.mugshot) + '" alt="" />' : '<div class="pv-mono">' + esc(initials(m.name)) + '</div>') +
-          '<span class="pv-status">' + (active ? 'Active' : 'Alumni') + '</span>' +
+          '<div class="pv-tl">' + (tier.crowns || crownsFor(m.id, leagueData)).map(function (c) {
+            return '<span class="pv-crown c-' + c.lg.toLowerCase() + '">&#x265B; ' + c.lg + ' Champion ' + esc(String(c.year)) + '</span>'; }).join('') +
+            '<span class="pv-status">' + (active ? 'Active' : 'Alumni') + '</span></div>' +
           '<div class="pv-photo-badges">' + (m.leagues || []).map(function (l) { return '<span>' + esc(l.leagueKey || l.leagueName) + '</span>'; }).join('') + '</div>' +
           (team && team.logo ? '<img class="pv-teamlogo" src="' + esc(team.logo) + '" alt="" />' : '') +
           (tier.rookie ? '<span class="pv-rc" title="Rookie card">RC</span>' : '') +
-          (tier.vet ? '<span class="pv-pennant">' + tier.vet.total + ' Seasons</span>' : '') +
           (tier.key === 'vet' ? '<span class="pv-stamp"><i>Since</i><b>' + tier.vet.since + '</b></span>' : '') +
-          (isHof ? '<span class="pv-hof-sash">Inducted ' + tier.hof.classYear + '</span><span class="pv-hof-mono">HOF</span>' +
-                   (!tier.vet ? '<span class="pv-pennant">' + seasons + ' Seasons</span>' : '') : '') +
+          (isHof ? '<span class="pv-hof-sash">Inducted ' + tier.hof.classYear + '</span><span class="pv-hof-mono">HOF</span>' : '') +
         '</div>' +
         (tier.key === 'rookie' ? '<div class="pv-rookie-band">' + tier.rookie.year + ' Rookie Card</div>' : '') +
         (tier.key === 'vet' ? '<div class="pv-vet-band"></div>' : '') +

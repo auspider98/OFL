@@ -46,6 +46,11 @@
     .pp-meta { display: flex; gap: 0.6rem; align-items: center; justify-content: center; flex-wrap: wrap; opacity: 0; animation: heroReveal 1.2s 0.55s ease forwards; }
     .pp-pill { font-family: var(--font-body); font-size: 0.48rem; letter-spacing: 0.25em; text-transform: uppercase; border: 1px solid var(--drawer-border); padding: 0.22rem 0.6rem; color: var(--accent); font-weight: 700; text-decoration: none; transition: border-color 0.2s; }
     a.pp-pill:hover { border-color: var(--accent-dim); }
+    /* Champion pill — latest completed season's champion, until the next one is crowned */
+    .pp-crowns { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem; margin: 0 0 0.9rem; }
+    .pp-crown { font-family: var(--font-body); font-size: 0.48rem; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 700; padding: 0.25rem 0.65rem; border: 1px solid; white-space: nowrap; }
+    .pp-crown.c-ofc { color: #141210; border-color: #e8c864; background: linear-gradient(90deg, #c9a24a, #ffe9a8 50%, #c9a24a); }
+    .pp-crown.c-brc { color: #fff; border-color: #6f86ff; background: linear-gradient(90deg, #2c45e0, #6f86ff 50%, #2c45e0); }
     .pp-pill.is-active { color: var(--pc); border-color: var(--pc); }
     .pp-tier { font-family: var(--font-body); font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; border: 1px solid; border-radius: 3px; padding: 0.2rem 1.2rem; margin-top: 0.6rem; display: inline-block; opacity: 0; animation: heroReveal 1.2s 0.65s ease forwards; }
 
@@ -374,6 +379,16 @@
       var colors = curTeam && (curTeam.primaryColor || curTeam.secondaryColor)
         ? '<div class="pp-colors">' + [curTeam.primaryColor, curTeam.secondaryColor].filter(Boolean).map(function (c) { return '<i style="background:' + esc(c) + '"></i>'; }).join('') + '</div>' : '';
       var seasonsAll = O.n + B.n;
+      // Champion pills: the latest completed season in each league; kept until the next one is final
+      var crowns = (D.leagueData || []).map(function (lg) {
+        var key = lg.sport === 'football' ? 'OFC' : lg.sport === 'madness' ? 'BRC' : String(lg.name || '').toUpperCase();
+        if (key !== 'OFC' && key !== 'BRC') return null;
+        var last = null;
+        (lg.seasons || []).forEach(function (s) { if (s.isFinal && (!last || (parseInt(s.year, 10) || 0) > (parseInt(last.year, 10) || 0))) last = s; });
+        return last && last.championMemberId === m ? { lg: key, year: last.year } : null;
+      }).filter(Boolean).sort(function (a) { return a.lg === 'OFC' ? -1 : 1; });
+      var crownHtml = crowns.length ? '<div class="pp-crowns">' + crowns.map(function (c) {
+        return '<span class="pp-crown c-' + c.lg.toLowerCase() + '">&#x265B; ' + c.lg + ' Champion ' + esc(String(c.year)) + '</span>'; }).join('') + '</div>' : '';
       var pills = '<span class="pp-pill' + (mm.active !== false ? ' is-active' : '') + '">' + (mm.active !== false ? 'Active' : 'Alumni') + '</span>' +
         (seasonsAll ? '<span class="pp-pill">' + seasonsAll + ' ' + plural(seasonsAll, 'Season', 'Seasons') + '</span>' : '') +
         (titles ? '<span class="pp-pill">' + titles + ' ' + plural(titles, 'Title', 'Titles') + '</span>' : '') +
@@ -390,6 +405,7 @@
             '<h1 class="pp-title">' + esc(mm.name) + '</h1>' +
             (nicks.length ? '<p class="pp-subtitle pp-aka" id="ppAka"' + (nicks.length > 1 ? ' title="Tap for another"' : '') + '>a.k.a. <b>' + esc(nicks[0]) + '</b></p>' : '') +
             colors +
+            crownHtml +
             '<div class="pp-meta">' + pills + '</div>' +
             (school ? '<div class="pp-tier" style="color:' + schoolCol + ';border-color:' + schoolCol + '">' + esc(school) + '</div>' : '') +
           '</div>' +
