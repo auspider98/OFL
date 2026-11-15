@@ -1405,7 +1405,7 @@
           if (s.championMemberId === mid) { res = 'Champ'; out.titles++; out.po++; out.finals++; }
           else if (s.runnerUpMemberId === mid || inGame(po.finals)) { res = 'Final'; out.po++; out.finals++; }
           else if (inGame(po.semis)) { res = 'Semi'; out.po++; }
-          else res = '\u2014';
+          else res = '—';
         } else res = 'Live';
         if (!live && (!out.best || w > out.best.w || (w === out.best.w && n2(row.pointsFor) > out.best.pf))) out.best = { w: w, l: l, pf: n2(row.pointsFor), year: s.year };
         out.rows.push({ year: s.year, team: row.teamName || row.team || '', rec: row.record || '', pf: n2(row.pointsFor), rank: row.rank, res: res, champ: res === 'Champ' });
@@ -1446,11 +1446,11 @@
       legend:  { n: 'Legendary', c: '#e8c864', s: [20, 5, 14, 2], earn: '5 or more titles, across any leagues.', feat: ['<b>Gold foil</b> frame with a warm glow', 'The strongest <b>holo shimmer</b> when the card tilts', 'Next stop: the Hall of Fame'] },
       holo:    { n: 'Holo', c: '#9fd8ff', s: [15, 3, 9, 2], earn: '3 or 4 titles.', feat: ['<b>Rainbow holographic</b> frame', 'Holo shimmer that follows your finger or mouse'] },
       rare:    { n: 'Rare', c: '#c9d1da', s: [12, 1, 6, 1], earn: '1 or 2 titles.', feat: ['<b>Silver foil</b> frame', 'A soft light that follows your finger or mouse'] },
-      vet:     { n: 'Old Skool', c: '#a0662f', s: [14, 0, 4, 1], filter: 'veterans', earn: '10 seasons in one league, or 20 seasons total, without a title. Win a title and you trade up to Rare, Holo or Legendary, keeping the stripes.',
+      vet:     { n: 'Old Skool', c: '#a0662f', s: [14, 0, 4, 1], earn: '10 seasons in one league, or 20 seasons total, without a title. Win a title and you trade up to Rare, Holo or Legendary, keeping the stripes.',
                  feat: ['<b>Copper foil</b>, dark vintage look', 'A <b>Since</b> stamp on the photo', '<b>Service Stripes</b> on the back, one per season'] },
-      rookie:  { n: 'Rookie', c: '#1b8a4c', s: [1, 0, 0, 1], filter: 'rookies', earn: 'Your first 2 seasons in the OFL. Win a title as a rookie and you get the title card, but the RC shield stays.',
+      rookie:  { n: 'Rookie', c: '#1b8a4c', s: [1, 0, 0, 1], earn: 'Your first 2 seasons in the OFL. Win a title as a rookie and you get the title card, but the RC shield stays.',
                  feat: ['<b>Kelly green and royal purple</b> frame', 'Gold <b>RC shield</b> and a <b>Rookie Card</b> band', 'The back shows your <b>debut</b> and rookie season'] },
-      base:    { n: 'Base', c: '#777777', s: [4, 0, 1, 1], earn: 'After your rookie seasons, if you haven\u2019t won a title yet.', feat: ['A clean, simple card', 'Win a title to trade up to Rare'] },
+      base:    { n: 'Base', c: '#777777', s: [4, 0, 1, 1], earn: 'After your rookie seasons, if you haven’t won a title yet.', feat: ['A clean, simple card', 'Win a title to trade up to Rare'] },
       retired: { n: 'Retired', c: '#cfd8e3', s: [14, 1, 3, 1], filter: 'retired', earn: 'When a playa retires, their card (whatever it is) is sealed in a clear collector’s case.',
                  feat: ['<b>Clear plastic case</b> that catches the light', 'A label with name, years, seasons and titles', 'A retired Hall of Famer gets a <b>gold</b> label', 'The card still flips inside the case'] }
     };
@@ -1672,9 +1672,9 @@
       } else if (backTab === 'BRC') {
         html += '<table class="pv-table"><thead><tr><th>Yr</th><th>Bracket</th><th>Pts</th><th>Fin</th><th></th></tr></thead><tbody>' +
           b.rows.map(function (r) {
-            return '<tr class="' + (r.champ ? 'champ' : '') + '"><td>' + esc(String(r.year).slice(2)) + '</td><td>' + esc(r.team) + '</td><td>' + (r.pts ? r.pts.toFixed(0) : '\u2014') + '</td><td>' + ordinal(r.rank) + '/' + r.of + '</td><td class="pv-res">' + (r.champ ? '&#x2605;' : '') + '</td></tr>';
+            return '<tr class="' + (r.champ ? 'champ' : '') + '"><td>' + esc(String(r.year).slice(2)) + '</td><td>' + esc(r.team) + '</td><td>' + (r.pts ? r.pts.toFixed(0) : '—') + '</td><td>' + ordinal(r.rank) + '/' + r.of + '</td><td class="pv-res">' + (r.champ ? '&#x2605;' : '') + '</td></tr>';
           }).join('') +
-          '<tr class="total"><td>Car</td><td>' + b.rows.length + ' brackets</td><td colspan="3">Avg finish ' + (b.rows.length ? (b.finSum / b.rows.length).toFixed(1) : '\u2014') + '</td></tr>' +
+          '<tr class="total"><td>Car</td><td>' + b.rows.length + ' brackets</td><td colspan="3">Avg finish ' + (b.rows.length ? (b.finSum / b.rows.length).toFixed(1) : '—') + '</td></tr>' +
         '</tbody></table>' +
         (rk && b.rows.length ? (function (r0) {
           return '<div class="pv-sec">Rookie Season</div><div class="pv-fact rookie"><span>' + esc(r0.year) + ' &middot; ' + esc(r0.team) + '</span><b>' +
@@ -1916,11 +1916,9 @@
         // Line 1: filter pills centered
         '<div class="playas-filter-pills">' +
           '<button class="playas-filter-pill is-active" data-filter="career">Active</button>' +
-          '<button class="playas-filter-pill" data-filter="hof">Hall of Fame</button>' +
-          '<button class="playas-filter-pill" data-filter="ofc">OFC</button>' +
           '<button class="playas-filter-pill" data-filter="brc">BRC</button>' +
-          '<button class="playas-filter-pill" data-filter="rookies">Rookies</button>' +
-          '<button class="playas-filter-pill" data-filter="veterans">Old Skool</button>' +
+          '<button class="playas-filter-pill" data-filter="ofc">OFC</button>' +
+          '<button class="playas-filter-pill" data-filter="hof">HOF</button>' +
           '<button class="playas-filter-pill" data-filter="retired">Retired</button>' +
         '</div>' +
         // Line 2: view dropdown left, heading right
@@ -1991,12 +1989,6 @@
         } else if (filterVal === 'brc') {
           heading.textContent = 'BRC';
           members = roster.filter(function (m) { return inLeague(m, 'BRC'); });
-        } else if (filterVal === 'veterans') {
-          heading.textContent = 'Old Skool';
-          members = roster.filter(function (m) { return !!cardTier(m.id, leagues).vet; });
-        } else if (filterVal === 'rookies') {
-          heading.textContent = 'Rookies';
-          members = roster.filter(function (m) { return !!rookieInfo(m.id, leagues); });
         } else if (filterVal === 'hof') {
           heading.textContent = 'Hall of Fame';
           members = roster.filter(function (m) { return hofInfo(m.id, leagues).inducted; })
@@ -2063,7 +2055,7 @@
       var data   = window.OFL_DATA;
       if (!config) { console.warn('SITE_CONFIG not found'); return; }
       if (!data)   { console.warn('OFL_DATA not found'); return; }
-      document.title = 'OFL \u2014 The Playas';
+      document.title = 'OFL — The Playas';
       initPlayasSlideshow(config);
       renderBody(config, data);
     }
