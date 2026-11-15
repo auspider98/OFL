@@ -26,38 +26,7 @@
     .standings-page > .landing-overlay  { position: fixed; inset: 0; z-index: 10; height: 100%; pointer-events: none; }
     .standings-page > .landing-vignette { position: fixed; inset: 0; z-index: 11; height: 100%; pointer-events: none; }
 
-    /* ── Hero ────────────────────────────────────────────── */
-    .standings-hero {
-      position: relative; z-index: 20; width: 100%;
-      min-height: calc(28vh - 10px);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: flex-start;
-      padding: 5rem 2rem 2rem;
-    }
-    .standings-hero .landing-rule { position: absolute; bottom: 0; left: 0; right: 0; z-index: 10; }
-    .standings-hero-content {
-      position: relative; z-index: 13; text-align: center;
-      animation: heroReveal 1.4s ease forwards; opacity: 0;
-    }
-    .standings-hero-eyebrow {
-      font-family: var(--font-body); font-weight: 300;
-      font-size: var(--size-eyebrow, 8pt); letter-spacing: 0.45em;
-      text-transform: uppercase; color: var(--accent-dim); margin-bottom: 1rem;
-      opacity: 0; animation: heroReveal 1.2s 0.2s ease forwards;
-    }
-    .standings-hero-title {
-      font-family: var(--font-display); font-weight: 300;
-      font-size: var(--size-title, 72pt); line-height: 0.92;
-      letter-spacing: -0.02em; color: var(--accent); margin-bottom: 1rem;
-      opacity: 0; animation: heroReveal 1.2s 0.4s ease forwards;
-    }
-    .standings-hero-subtitle {
-      font-family: var(--font-body); font-weight: 200;
-      font-size: var(--size-subtitle, 10pt); letter-spacing: 0.35em;
-      text-transform: uppercase; color: var(--accent-dim);
-      opacity: 0; animation: heroReveal 1.2s 0.55s ease forwards;
-    }
-
+    /* ── Hero — shared .page-hero styles live in style.css ── */
     /* ── Body ────────────────────────────────────────────── */
     .standings-body { position: relative; z-index: 20; flex: 1; padding: 0 0 5rem; }
     .standings-section { max-width: 500px; margin: 0 auto; padding: 1.5rem 2rem 0; }
@@ -566,11 +535,11 @@
     <div class="landing-vignette" aria-hidden="true"></div>
 
     <!-- Hero -->
-    <div class="standings-hero">
-      <div class="standings-hero-content">
-        <p class="standings-hero-eyebrow">Official Fantasy Commission</p>
-        <h1 class="standings-hero-title">Standings</h1>
-        <p class="standings-hero-subtitle">All-Time Career Records</p>
+    <div class="standings-hero page-hero">
+      <div class="standings-hero-content page-hero-content">
+        <p class="standings-hero-eyebrow page-hero-eyebrow">Official Fantasy Commission</p>
+        <h1 class="standings-hero-title page-hero-title">Standings</h1>
+        <p class="standings-hero-subtitle page-hero-subtitle">All-Time Career Records</p>
       </div>
       <div class="landing-rule" aria-hidden="true"></div>
     </div>

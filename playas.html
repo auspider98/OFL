@@ -26,42 +26,7 @@
     .playas-page > .landing-overlay  { position: fixed; inset: 0; z-index: 10; height: 100%; pointer-events: none; }
     .playas-page > .landing-vignette { position: fixed; inset: 0; z-index: 11; height: 100%; pointer-events: none; }
 
-    /* ── Hero ─────────────────────────────────────────────── */
-    .playas-hero {
-      position: relative;
-      z-index: 20;
-      width: 100%;
-      min-height: calc(32vh - 10px);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 5rem 2rem 2rem;
-    }
-    .playas-hero .landing-rule { position: absolute; bottom: 0; left: 0; right: 0; z-index: 10; }
-    .playas-hero-content {
-      position: relative; z-index: 13; text-align: center;
-      animation: heroReveal 1.4s ease forwards; opacity: 0;
-    }
-    .playas-hero-eyebrow {
-      font-family: var(--font-body); font-weight: 300;
-      font-size: var(--size-eyebrow, 8pt); letter-spacing: 0.45em;
-      text-transform: uppercase; color: var(--accent-dim); margin-bottom: 1rem;
-      opacity: 0; animation: heroReveal 1.2s 0.2s ease forwards;
-    }
-    .playas-hero-title {
-      font-family: var(--font-display); font-weight: 300;
-      font-size: var(--size-title, 72pt); line-height: 0.92;
-      letter-spacing: -0.02em; color: var(--accent); margin-bottom: 1rem;
-      opacity: 0; animation: heroReveal 1.2s 0.4s ease forwards;
-    }
-    .playas-hero-subtitle {
-      font-family: var(--font-body); font-weight: 200;
-      font-size: var(--size-subtitle, 10pt); letter-spacing: 0.35em;
-      text-transform: uppercase; color: var(--accent-dim);
-      opacity: 0; animation: heroReveal 1.2s 0.55s ease forwards;
-    }
-
+    /* ── Hero — shared .page-hero styles live in style.css ── */
     /* ── Body ─────────────────────────────────────────────── */
     .playas-body { position: relative; z-index: 20; flex: 1; padding: 0 0 5rem; }
     .playas-section { max-width: 1040px; margin: 0 auto; padding: 1.5rem 2rem 0; }
@@ -506,7 +471,6 @@
 
     /* ── Responsive ─────────────────────────────────────────── */
     @media (max-width: 600px) {
-      .playas-hero { min-height: 0; padding: 4.5rem 1.2rem 1.5rem; }
       .playas-section { padding: 1.2rem 1rem 0; }
       .playas-grid { grid-template-columns: 1fr 1fr; gap: 0.8rem; }
       .playa-card { height: 320px; }
@@ -999,12 +963,12 @@
     <div class="landing-overlay" id="playasOverlay" aria-hidden="true"></div>
     <div class="landing-vignette" aria-hidden="true"></div>
 
-    <header class="playas-hero" id="playasHero">
+    <header class="playas-hero page-hero" id="playasHero">
       <div class="landing-rule" aria-hidden="true"></div>
-      <div class="playas-hero-content">
-        <p class="playas-hero-eyebrow">Official Fantasy Commission</p>
-        <h1 class="playas-hero-title">The Playas</h1>
-        <p class="playas-hero-subtitle">The Roster</p>
+      <div class="playas-hero-content page-hero-content">
+        <p class="playas-hero-eyebrow page-hero-eyebrow">Official Fantasy Commission</p>
+        <h1 class="playas-hero-title page-hero-title">The Playas</h1>
+        <p class="playas-hero-subtitle page-hero-subtitle">The Roster</p>
       </div>
     </header>
 

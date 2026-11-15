@@ -1462,6 +1462,69 @@ select.admin-input option {
   z-index: 200;
 }
 
+/* ── PAGE HEADER (inner pages) ────────────────────────────────
+   Shared by Standings, Records, Trophy Case and The Playas.
+   Each page keeps its own class names (standings-hero, rec-hero, …)
+   for anything page-specific; the shared look lives here. */
+.page-hero {
+  position: relative;
+  z-index: 20;
+  width: 100%;
+  min-height: calc(28vh - 10px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 5rem 2rem 2rem;
+}
+.page-hero .landing-rule { position: absolute; bottom: 0; left: 0; right: 0; z-index: 10; }
+.page-hero-content {
+  position: relative;
+  z-index: 13;
+  text-align: center;
+  opacity: 0;
+  animation: heroReveal 1.4s ease forwards;
+}
+.page-hero-eyebrow {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: var(--size-eyebrow, 8pt);
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+  margin-bottom: 1rem;
+  opacity: 0;
+  animation: heroReveal 1.2s 0.2s ease forwards;
+}
+.page-hero-title {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: var(--size-title, 72pt);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  opacity: 0;
+  animation: heroReveal 1.2s 0.4s ease forwards;
+}
+.page-hero-subtitle {
+  font-family: var(--font-body);
+  font-weight: 200;
+  font-size: var(--size-subtitle, 10pt);
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+  opacity: 0;
+  animation: heroReveal 1.2s 0.55s ease forwards;
+}
+/* Phones: narrower side padding gives the title more room (keeps "The Playas" on one line) */
+@media (max-width: 600px) {
+  .page-hero { padding-left: 1.2rem; padding-right: 1.2rem; }
+}
+
+/* Lowercase helper — wraps bammer names in Newsroom/Gazette copy */
+.ofl-lc { text-transform: lowercase !important; }
+
 /* ── UTILITY ──────────────────────────────────────────────── */
 .sr-only {
   position: absolute;

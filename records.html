@@ -20,34 +20,7 @@
     .rec-page > .landing-overlay  { position: fixed; inset: 0; z-index: 10; height: 100%; pointer-events: none; }
     .rec-page > .landing-vignette { position: fixed; inset: 0; z-index: 11; height: 100%; pointer-events: none; }
 
-    /* ── Hero ────────────────────────────────────────────── */
-    .rec-hero {
-      position: relative; z-index: 20; width: 100%;
-      min-height: calc(28vh - 10px);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: flex-start;
-      padding: 5rem 2rem 2rem;
-    }
-    .rec-hero .landing-rule { position: absolute; bottom: 0; left: 0; right: 0; z-index: 10; }
-    .rec-hero-eyebrow {
-      font-family: var(--font-body); font-weight: 300;
-      font-size: var(--size-eyebrow, 8pt); letter-spacing: 0.45em;
-      text-transform: uppercase; color: var(--accent-dim); margin-bottom: 1rem;
-      opacity: 0; animation: heroReveal 1.2s 0.2s ease forwards;
-    }
-    .rec-hero-title {
-      font-family: var(--font-display); font-weight: 300;
-      font-size: var(--size-title, 72pt); line-height: 0.92;
-      letter-spacing: -0.02em; color: var(--accent); margin-bottom: 1rem;
-      opacity: 0; animation: heroReveal 1.2s 0.4s ease forwards;
-    }
-    .rec-hero-subtitle {
-      font-family: var(--font-body); font-weight: 200;
-      font-size: var(--size-subtitle, 10pt); letter-spacing: 0.35em;
-      text-transform: uppercase; color: var(--accent-dim);
-      opacity: 0; animation: heroReveal 1.2s 0.55s ease forwards;
-    }
-
+    /* ── Hero — shared .page-hero styles live in style.css ── */
     /* ── Body ────────────────────────────────────────────── */
     .rec-body { position: relative; z-index: 20; flex: 1; padding: 0 0 5rem; }
     .rec-wrap { max-width: 1060px; margin: 0 auto; padding: 1.5rem 2rem 0; }
@@ -356,10 +329,10 @@
     <div class="landing-overlay" id="recOverlay" aria-hidden="true"></div>
     <div class="landing-vignette" aria-hidden="true"></div>
 
-    <div class="rec-hero">
-      <p class="rec-hero-eyebrow" id="heroEyebrow">Hall of Records</p>
-      <h1 class="rec-hero-title">Records</h1>
-      <p class="rec-hero-subtitle">All-Time &middot; Season &middot; Career</p>
+    <div class="rec-hero page-hero">
+      <p class="rec-hero-eyebrow page-hero-eyebrow" id="heroEyebrow">Hall of Records</p>
+      <h1 class="rec-hero-title page-hero-title">Records</h1>
+      <p class="rec-hero-subtitle page-hero-subtitle">All-Time &middot; Season &middot; Career</p>
       <div class="landing-rule" aria-hidden="true"></div>
     </div>
 
@@ -436,11 +409,14 @@
       });
       return ids;
     }
-    function seasonComplete(s) { return !!(s.championName || s.championMemberId); }
+    /* The current season counts as it's played (game records, wins, PF, MVPs…).
+       Records that only make sense once a season is over wait for isFinal:
+       win %, lowest PF, playoff/last-place finishes, ring records, championship games. */
+    function seasonFinal(s) { return s.isFinal === true; }
 
     // ── OFC compute ────────────────────────────────────────
     function computeOFC(league) {
-      var seasons = (league.seasons||[]).filter(seasonComplete);
+      var seasons = (league.seasons||[]).slice();
       var seasonsByYear = seasons.slice().sort(function(a,b){ return (a.year||0)-(b.year||0); });
 
       var allSeasonWins=[], allSeasonLoss=[], allSeasonWinPct=[];
@@ -456,6 +432,7 @@
 
       seasonsByYear.forEach(function(s) {
         var standings = s.standings||[];
+        var fin       = seasonFinal(s);   // end-of-season records wait for this
         var champIds  = champBracketIds(s);
         var lastIdx   = standings.length - 1;
         var finalsIds = {};
@@ -483,13 +460,17 @@
 
           if (rec) { careerWins[mid].wins += rec.w; careerWins[mid].losses += rec.l; }
 
-          if (madePlayoff) {
+          if (!fin) {
+            // season still being played — no playoff / last-place finishes yet
+          } else if (madePlayoff) {
             mostPlayoffs[mid].count++;
             consPlayoffs[mid].current++;
             if (consPlayoffs[mid].current > consPlayoffs[mid].best) consPlayoffs[mid].best = consPlayoffs[mid].current;
           } else { consPlayoffs[mid].current = 0; }
 
-          if (isLast) {
+          if (!fin) {
+            // season still being played
+          } else if (isLast) {
             mostLastPlace[mid].count++;
             consLastPlace[mid].current++;
             if (consLastPlace[mid].current > consLastPlace[mid].best) consLastPlace[mid].best = consLastPlace[mid].current;
@@ -500,24 +481,24 @@
             allSeasonWins.push(Object.assign({}, e, {value:rec.w}));
             allSeasonLoss.push(Object.assign({}, e, {value:rec.l}));
             var wp = winPct(rec);
-            allSeasonWinPct.push(Object.assign({}, e, {value:wp, display:wp.toFixed(1)+'%'}));
+            if (fin) allSeasonWinPct.push(Object.assign({}, e, {value:wp, display:wp.toFixed(1)+'%'}));
           }
           if (pf > 0) {
             allSeasonPF.push(   {memberId:mid, name:name, year:s.year, team:team, value:pf});
-            allSeasonLowPF.push({memberId:mid, name:name, year:s.year, team:team, value:pf});
+            if (fin) allSeasonLowPF.push({memberId:mid, name:name, year:s.year, team:team, value:pf});
           }
-          if (rec && !finalsIds[mid]) {
+          if (fin && rec && !finalsIds[mid]) {
             var wpM = winPct(rec);
             recBestMissedArr.push({memberId:mid, name:name, year:s.year, team:team, value:wpM, rec:rec.w+'-'+rec.l});
           }
-          if (s.championMemberId === mid && rec) {
+          if (fin && s.championMemberId === mid && rec) {
             var wpW = winPct(rec);
             recWorstWonArr.push({memberId:mid, name:name, year:s.year, team:team, value:wpW, rec:rec.w+'-'+rec.l});
           }
         });
 
         // PF gap — push one entry per season, sort later
-        if (standings.length > 1) {
+        if (fin && standings.length > 1) {
           var cr = standings.find(function(r){ return r.memberId === s.championMemberId; });
           var lr = standings[standings.length - 1];
           if (cr && lr) {
@@ -616,7 +597,7 @@
             if (!poCareerWins[hi.mid]) poCareerWins[hi.mid] = {memberId:hi.mid, name:hi.name, wins:0};
             poCareerWins[hi.mid].wins++;
             // Championship game records
-            if (mu.gameType === 'Championship') {
+            if (fin && mu.gameType === 'Championship') {
               poChampHighArr.push(hiEntry);
               poChampBlowoutArr.push({value:margin, memberId:hi.mid, name:hi.name, team:hi.team, sub:lbl, oppTeam:lo.team, oppScore:lo.score, winScore:hi.score});
               poChampClosestArr.push({value:margin, memberId:hi.mid, name:hi.name, team:hi.team, sub:lbl, oppTeam:lo.team, oppScore:lo.score, winScore:hi.score});
@@ -684,7 +665,7 @@
 
     // ── BRC compute ────────────────────────────────────────
     function computeBRC(league) {
-      var seasons = (league.seasons||[]).filter(seasonComplete);
+      var seasons = (league.seasons||[]).slice();
       var seasonsByYear = seasons.slice().sort(function(a,b){ return (a.year||0)-(b.year||0); });
       var allSeasonPts=[], allSeasonPicks=[], careerPts={}, champCorrect={}, finalScore={}, consChamp={}, champWon={};
       var careerByRound = [{},{},{},{},{},{}];
@@ -692,7 +673,8 @@
       var roundCumBest = [{},{},{},{},{}];
 
       seasonsByYear.forEach(function(s) {
-        var champId = s.championMemberId;
+        var fin     = seasonFinal(s);   // champion-based records wait for this
+        var champId = fin ? s.championMemberId : null;
         (s.standings||[]).forEach(function(row) {
           var mid        = row.memberId;
           var name       = row.owner || row.ownerName || '?';
@@ -720,14 +702,14 @@
             if (!roundCumBest[r][mid] || cum > roundCumBest[r][mid].max)
               roundCumBest[r][mid] = {max:cum, name:name, memberId:mid, year:s.year, team:team};
           }
-          if (s.tournamentWinner && row.predictedChampion &&
+          if (fin && s.tournamentWinner && row.predictedChampion &&
               row.predictedChampion.trim().toLowerCase() === s.tournamentWinner.trim().toLowerCase())
             champCorrect[mid].count++;
           var pw = parseFloat(row.predictedScoreWinner) || null;
           var pl = parseFloat(row.predictedScoreLoser)  || null;
           var aw = parseFloat(s.finalScoreWinner) || null;
           var al = parseFloat(s.finalScoreLoser)  || null;
-          if (pw !== null && pl !== null && aw !== null && al !== null && pw === aw && pl === al)
+          if (fin && pw !== null && pl !== null && aw !== null && al !== null && pw === aw && pl === al)
             finalScore[mid].count++;
           if (mid === champId) {
             if (totalPts   > 0) champLowPtsArr.push(  {memberId:mid, name:name, value:totalPts,   year:s.year, team:team});
@@ -736,7 +718,7 @@
             if (s.year > champWon[mid].lastYear) champWon[mid].lastYear = s.year;
           }
         });
-        Object.keys(consChamp).forEach(function(mid) {
+        if (fin) Object.keys(consChamp).forEach(function(mid) {
           if (mid === champId) {
             consChamp[mid].current++;
             if (consChamp[mid].current > consChamp[mid].best) consChamp[mid].best = consChamp[mid].current;
