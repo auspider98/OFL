@@ -1499,7 +1499,7 @@
       var t = { key: tk, label: labels[key], rookie: key === 'rookie' ? { year: 2030, debut: '2030 OFC' } : null,
         vet: (key === 'vet' || key === 'legend' || key === 'hof') ? { total: g.s[0], since: 2012, per: [] } : null,
         hof: key === 'hof' ? { classYear: 2030 } : null, retired: key === 'retired',
-        crowns: key === 'hof' ? [{ lg: 'OFC', year: 2025 }] : [] };   // HOF sample wears the champion ribbon
+        crowns: [] };   // sample cards never wear the champion ribbon
       t.cls = 't-' + tk + (t.rookie ? ' is-rookie' : '') + (t.vet ? ' is-vet' : '') + (t.retired ? ' is-slab' : '');
       var wrap = document.createElement('div');
       wrap.innerHTML = '<div class="playa-card pv-card pv-mini ' + t.cls + '">' + cardFront(m, [], t) +
