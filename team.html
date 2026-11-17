@@ -105,8 +105,11 @@
       border: 1px solid var(--drawer-border);
       padding: 0.22rem 0.6rem; color: var(--accent); font-weight: 700;
     }
-    /* Champion pill — latest completed OFC season's champion, until the next one is crowned */
-    .team-hero-pill.is-crown { color: #141210; border-color: #e8c864; background: linear-gradient(90deg, #c9a24a, #ffe9a8 50%, #c9a24a); }
+    /* Champion badge — latest completed OFC season's champion, until the next one is crowned.
+       Own centered row above the pills (matches the Playa Profile's champion badge). */
+    .team-hero-crowns { display: flex; justify-content: center; margin: 0 0 0.9rem; opacity: 0; animation: heroReveal 1.2s 0.5s ease forwards; }
+    .team-hero-crown { font-family: var(--font-body); font-size: 0.48rem; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 700; padding: 0.25rem 0.65rem; border: 1px solid #e8c864; white-space: nowrap;
+      color: #141210; background: linear-gradient(90deg, #c9a24a, #ffe9a8 50%, #c9a24a); }
     a.team-hero-pill-link { text-decoration: none; transition: border-color 0.2s, color 0.2s; }
     a.team-hero-pill-link:hover { border-color: var(--team-primary, var(--accent-dim)); color: var(--team-primary, var(--accent)); }
     .team-hero-pill.active {
@@ -1171,6 +1174,11 @@
             '</p>' +
             '<h1 class="team-hero-name">' + esc(currentTeam ? currentTeam.name : member.name) + '</h1>' +
             colorBarHtml +
+            (function () {   // OFC champion badge: latest completed season's champion, until the next one is final
+              var last = null;
+              ((ofcLeague && ofcLeague.seasons) || []).forEach(function (s) { if (s.isFinal && (!last || (parseInt(s.year, 10) || 0) > (parseInt(last.year, 10) || 0))) last = s; });
+              return last && last.championMemberId === member.id ? '<div class="team-hero-crowns"><span class="team-hero-crown">&#x265B; OFC Champion ' + esc(String(last.year)) + '</span></div>' : '';
+            })() +
             '<div class="team-hero-meta">' +
               '<span class="team-hero-pill ' + (member.active !== false ? 'active' : '') + '">' +
                 (member.active !== false ? 'Active' : 'Alumni') +
@@ -1178,11 +1186,6 @@
               (career.seasonsPlayed ? '<span class="team-hero-pill">' + career.seasonsPlayed + ' Season' + (career.seasonsPlayed !== 1 ? 's' : '') + '</span>' : '') +
               (career.championships ? '<span class="team-hero-pill">' + career.championships + ' Title' + (career.championships !== 1 ? 's' : '') + '</span>' : '') +
               '<a class="team-hero-pill team-hero-pill-link" href="playa.html?id=' + encodeURIComponent(member.id) + '">Profile &#x2197;</a>' +
-              (function () {   // OFC champion pill: latest completed season's champion, until the next one is final
-                var last = null;
-                ((ofcLeague && ofcLeague.seasons) || []).forEach(function (s) { if (s.isFinal && (!last || (parseInt(s.year, 10) || 0) > (parseInt(last.year, 10) || 0))) last = s; });
-                return last && last.championMemberId === member.id ? '<span class="team-hero-pill is-crown">&#x265B; OFC Champion ' + esc(String(last.year)) + '</span>' : '';
-              })() +
             '</div>' +
             (function () {
               var tier = computePowerTier(member.id, ofcLeague);
