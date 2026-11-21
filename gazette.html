@@ -214,6 +214,26 @@
     .gz-promo-meta { font-family: var(--font-body); font-size: 0.48rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent-dim); margin-top: 0.35rem; }
     button.gz-link { background: none; border: none; border-bottom: 1px solid var(--drawer-border); padding: 0; cursor: pointer; }
 
+    /* ── Playoff editions (Semifinals / Championship) ─────── */
+    .gz-po .gz-mast { border-bottom-color: rgba(232,200,100,0.55); }
+    .gz-po-tag { color: #e8c864; }
+    .gz-bracket { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; align-items: center; }
+    .gz-br-h { font-family: var(--font-body); font-size: 0.46rem; letter-spacing: 0.28em; text-transform: uppercase; color: var(--accent-dim); margin-bottom: 0.4rem; }
+    .gz-br-game { border: 1px solid var(--drawer-border); background: rgba(0,0,0,0.35); margin-bottom: 0.5rem; }
+    .gz-br-game:last-child { margin-bottom: 0; }
+    .gz-br-line { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 0.5rem; align-items: center; padding: 0.35rem 0.5rem; font-family: var(--font-body); font-size: 0.66rem; color: var(--accent-dim); }
+    .gz-br-line + .gz-br-line { border-top: 1px dotted rgba(232,232,232,0.15); }
+    .gz-br-line.won { color: var(--accent); font-weight: 700; }
+    .gz-br-line > span:nth-child(2) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .gz-br-sd { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 0.7rem; border: 1px solid var(--drawer-border); color: var(--accent); }
+    .gz-br-sc { font-family: var(--font-display); font-size: 0.95rem; }
+    .gz-br-champ { margin-top: 0.5rem; text-align: center; font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 700;
+      color: #141210; background: linear-gradient(90deg, #c9a24a, #ffe9a8 50%, #c9a24a); padding: 0.35rem 0.5rem; }
+    .gz-br-tbd { border: 1px dashed var(--drawer-border); padding: 0.55rem 0.6rem; text-align: center; font-family: var(--font-body); font-size: 0.6rem; line-height: 1.5; color: var(--accent-dim); font-style: italic; }
+    .gz-table td.gz-res { text-align: left; font-size: 0.56rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-dim); }
+    .gz-table td.gz-res.is-champ { color: #e8c864; font-weight: 700; }
+    @media (max-width: 600px) { .gz-bracket { grid-template-columns: 1fr; } }
+
     @media (max-width: 860px) {
       .gz-cols { grid-template-columns: 1fr; gap: 0; }
       .gz-rule { display: none; }
@@ -292,7 +312,7 @@
       return t.logo ? '<img class="' + (cls || '') + '" src="' + esc(t.logo) + '" alt="" />' : '<span class="gz-mini-init">' + esc(initials(t.team)) + '</span>';
     }
 
-    function render(season, k) {
+    function render(season, k, isLatest) {
       var ed = writeEdition(season, k), T = ed.T, yr = parseInt(season.year, 10);
       var lead = ed.stories[0], briefs = ed.stories.slice(1);
       var html = '<article class="gz-paper">';
@@ -304,7 +324,7 @@
         '<p class="gz-mast-tag">All the News That&rsquo;s Fit to Trash-Talk</p>' +
       '</header>' +
       '<div class="gz-dateline"><span>' + season.year + ' Season &middot; Week ' + k + ' Edition</span><span>' + (ed.games.length) + ' Games &middot; ' + ed.post.rows.length + ' Teams</span>' +
-        '<span>' + (season.isFinal ? 'Archive' : (k === completeWeeks(season).length ? 'Latest Edition' : 'Back Issue')) + '</span></div>';
+        '<span>' + (season.isFinal ? 'Archive' : (isLatest ? 'Latest Edition' : 'Back Issue')) + '</span></div>';
 
       /* Lead */
       if (lead) {
@@ -391,6 +411,273 @@
       html += '</article>';
       document.getElementById('gzPaper').innerHTML = html;
       document.title = 'OFC Gazette — ' + season.year + ' Week ' + k;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       PLAYOFF EDITIONS — Semifinals / Championship (stories from ofl-newsroom.js)
+    ══════════════════════════════════════════════════════════ */
+    function gameLabel(g) { return N.ofc.isToiletBowl(g) ? 'Toilet Bowl' : (N.ofc.isThirdPlace(g) ? '3rd Place' : (g.type || '')); }
+
+    /* ── OFC Championship Edition: Awards Ceremony + Banner Wall ──
+       Award names come from ofl-data. Unstoppable, Lucklace, Jinxy and
+       Power Grid are worked out the same way trophy-case.html does it
+       (a stored winner always wins over the calculation). */
+    var OFC_LEAGUE = ((window.OFL_DATA && OFL_DATA.leagueData) || []).find(function (l) { return l.sport === 'football'; }) || {};
+    var OFC_AWARD_ORDER = ['champion', 'regularSeasonChamp', 'highestTeamGameScore', 'highestIndividualScore', 'seasonPointsLeader',
+      'mostPointsFor', 'mostPointsAgainst', 'closestWin', 'lucklace', 'jinxed', 'avgPowerRank'];
+    function ofcDoneWeeks(season) {
+      return (season.weeks || []).filter(function (w) { return w.isComplete; }).sort(function (a, b) { return (a.weekNumber || 0) - (b.weekNumber || 0); });
+    }
+    function ofcMids(season) { return (season.standings || []).map(function (r) { return r.memberId; }).filter(Boolean); }
+    function ofcRow(season, mid) { return (season.standings || []).find(function (r) { return r.memberId === mid; }) || {}; }
+    function ofcLuck(season) {
+      var mids = ofcMids(season), tot = {};
+      mids.forEach(function (m) { tot[m] = 0; });
+      ofcDoneWeeks(season).forEach(function (wk) {
+        var sc = {}, won = {};
+        mids.forEach(function (m) { sc[m] = 0; won[m] = 0; });
+        (wk.games || []).forEach(function (g) {
+          var h = g.home && g.home.memberId, a = g.away && g.away.memberId;
+          var hs = parseFloat(g.home && g.home.score) || 0, as = parseFloat(g.away && g.away.score) || 0;
+          if (h) sc[h] = hs; if (a) sc[a] = as;
+          if (h && a) { if (hs > as) won[h] = 1; else if (as > hs) won[a] = 1; }
+        });
+        var all = Object.keys(sc).map(function (m) { return sc[m]; }).filter(function (v) { return v > 0; }), n = all.length;
+        mids.forEach(function (m) {
+          var mine = sc[m] || 0; if (!mine) return;
+          var beat = all.filter(function (v) { return mine > v; }).length;
+          tot[m] += (won[m] || 0) - (n > 1 ? beat / (n - 1) : 0);
+        });
+      });
+      return tot;
+    }
+    function ofcPowerRanks(season) {
+      var mids = ofcMids(season), hist = {}, ranks = {};
+      mids.forEach(function (m) { hist[m] = []; ranks[m] = []; });
+      function pw(a) {
+        if (!a.length) return 0;
+        var avg = a.reduce(function (x, v) { return x + v; }, 0) / a.length, w = [0.5, 0.3, 0.2], w3 = 0, wsum = 0;
+        a.slice(-3).reverse().forEach(function (v, i) { var wi = w[i] || 0.1; w3 += v * wi; wsum += wi; });
+        return avg * 0.6 + (wsum > 0 ? w3 / wsum : avg) * 0.4;
+      }
+      ofcDoneWeeks(season).forEach(function (wk) {
+        (wk.games || []).forEach(function (g) {
+          var h = g.home && g.home.memberId, a = g.away && g.away.memberId;
+          if (h && hist[h]) hist[h].push(parseFloat(g.home.score) || 0);
+          if (a && hist[a]) hist[a].push(parseFloat(g.away.score) || 0);
+        });
+        var sc = {};
+        mids.forEach(function (m) { sc[m] = pw(hist[m]); });
+        mids.slice().sort(function (x, y) { return sc[y] - sc[x]; }).forEach(function (m, i) { ranks[m].push(i + 1); });
+      });
+      return ranks;
+    }
+    function ofcAwardWinner(season, key) {
+      var st = (season.stats || {})[key] || null, row, v;
+      if (key === 'champion') return season.championName ? { name: season.championName, d: (season.championTeamName ? esc(season.championTeamName) : 'Champion') + (season.championshipScore ? ' &middot; ' + esc(season.championshipScore) : '') } : null;
+      if (key === 'lucklace' || key === 'jinxed') {
+        if (st && st.ownerName) return { name: st.ownerName, d: st.luck != null ? 'Luck Index ' + esc(st.luck) : esc(st.teamName || '') };
+        var L = ofcLuck(season), pick = null;
+        Object.keys(L).forEach(function (m) { if (pick === null || (key === 'lucklace' ? L[m] > L[pick] : L[m] < L[pick])) pick = m; });
+        if (pick === null || !ofcDoneWeeks(season).length) return null;
+        row = ofcRow(season, pick); v = L[pick];
+        return (row.owner || row.ownerName) ? { name: row.owner || row.ownerName, d: esc(row.teamName || row.team || '') + ' &middot; Luck Index ' + (v >= 0 ? '+' : '') + v.toFixed(1) } : null;
+      }
+      if (key === 'avgPowerRank') {
+        if (st && st.ownerName) return { name: st.ownerName, d: st.avgRank != null ? 'Avg power rank ' + esc(st.avgRank) : esc(st.teamName || '') };
+        var R = ofcPowerRanks(season), avg = {}, ids = Object.keys(R).filter(function (m) { return R[m].length; }), best = null;
+        if (!ids.length) return null;
+        ids.forEach(function (m) { avg[m] = R[m].reduce(function (x, y) { return x + y; }, 0) / R[m].length; });
+        ids.forEach(function (m) {
+          if (best === null) { best = m; return; }
+          var df = avg[m] - avg[best];
+          if (df < -1e-9) { best = m; return; }
+          if (df > 1e-9) return;
+          var top = Math.max(ids.length, R[m].length, R[best].length);
+          for (var r = 1; r <= top; r++) {
+            var cA = R[m].filter(function (x) { return x === r; }).length, cB = R[best].filter(function (x) { return x === r; }).length;
+            if (cA !== cB) { if (cA > cB) best = m; break; }
+          }
+        });
+        row = ofcRow(season, best);
+        return (row.owner || row.ownerName) ? { name: row.owner || row.ownerName, d: esc(row.teamName || row.team || '') + ' &middot; Avg power rank ' + avg[best].toFixed(1) } : null;
+      }
+      if (key === 'mostPointsFor') {
+        var top = null;
+        (season.standings || []).forEach(function (r) { if (!top || parseFloat(r.pointsFor || 0) > parseFloat(top.pointsFor || 0)) top = r; });
+        return top && (top.owner || top.ownerName) ? { name: top.owner || top.ownerName, d: esc(top.teamName || top.team || '') + (top.pointsFor ? ' &middot; ' + esc(top.pointsFor) + ' points for' : '') } : null;
+      }
+      if (!st || !st.ownerName) return null;
+      var tm = esc(st.teamName || st.team || ''), d = tm;
+      function add(x) { d = tm ? tm + ' &middot; ' + x : x; }
+      if (key === 'regularSeasonChamp' && st.record) add(esc(st.record) + ' record');
+      if (key === 'highestTeamGameScore' && st.score) add(esc(st.score) + ' points' + (st.week ? ', Week ' + esc(st.week) : ''));
+      if (key === 'highestIndividualScore' && st.playerName) add(esc(st.playerName) + (st.points ? ', ' + esc(st.points) + ' pts' : '') + (st.week ? ', Week ' + esc(st.week) : ''));
+      if (key === 'seasonPointsLeader' && st.playerName) add(esc(st.playerName) + (st.total ? ', ' + esc(st.total) + ' pts' : ''));
+      if (key === 'mostPointsAgainst' && st.total) add(esc(st.total) + ' points against');
+      if (key === 'closestWin' && st.margin != null && st.margin !== '') add('Won by ' + esc(st.margin) + (st.opponent ? ' over ' + esc(st.opponent) : '') + (st.week ? ', Week ' + esc(st.week) : ''));
+      if (key === 'lastPlace' && st.record) add(esc(st.record) + ' record');
+      return { name: st.ownerName, d: d };
+    }
+    function ofcAwardsHtml(season) {
+      var names = OFC_LEAGUE.awards || {}, items = [];
+      function push(label, w) {
+        if (w && w.name) items.push('<div class="gz-num"><span>' + esc(label) + (w.d ? '<small>' + w.d + '</small>' : '') + '</span><b>' + esc(w.name) + '</b></div>');
+      }
+      OFC_AWARD_ORDER.forEach(function (k) { if (names[k]) push(names[k], ofcAwardWinner(season, k)); });
+      (OFC_LEAGUE.customAwards || []).forEach(function (ca) {   // custom stats with no matching league award are skipped
+        var c = (season.customStats || []).find(function (x) { return x.customAwardId === ca.id; });
+        if (!c || !c.ownerName) return;
+        var tm = esc(c.teamName || ''), info = (ca.description ? esc(ca.description) : '') + (c.value !== '' && c.value != null ? (ca.description ? ': ' : '') + esc(c.value) : '');
+        push(ca.label, { name: c.ownerName, d: tm && info ? tm + ' &middot; ' + info : (tm || info) });
+      });
+      if (names.lastPlace) push(names.lastPlace, ofcAwardWinner(season, 'lastPlace'));
+      return items.length ? '<section class="gz-sec"><div class="gz-sec-head">Awards Ceremony</div>' + items.join('') + '</section>' : '';
+    }
+    function ofcBannerHtml(yr) {
+      var c = {};
+      (OFC_LEAGUE.seasons || []).forEach(function (s) {
+        var y = parseInt(s.year, 10);
+        if (s.isFinal === true && y <= yr && s.championMemberId) (c[s.championMemberId] = c[s.championMemberId] || []).push(y);
+      });
+      var list = Object.keys(c).map(function (id) { return { id: id, ys: c[id].sort() }; })
+        .sort(function (a, b) { return b.ys.length - a.ys.length || b.ys[b.ys.length - 1] - a.ys[a.ys.length - 1]; });
+      if (!list.length) return '';
+      return '<section class="gz-sec"><div class="gz-sec-head">The Banner Wall</div>' + list.map(function (x) {
+        var m = member(x.id);
+        return '<div class="gz-num gz-banner">' + (m.mugshot ? '<img src="' + esc(m.mugshot) + '" alt="" />' : '<span class="gz-mini-init">' + esc(initials(m.name)) + '</span>') +
+          '<span>' + esc(m.name || '?') + '<small>' + x.ys.join(', ') + '</small></span><b>' + x.ys.length + '</b></div>';
+      }).join('') + '<p class="gz-table-note">OFC titles through ' + yr + '.</p></section>';
+    }
+
+    function renderPlayoff(e, isLatest) {
+      var season = e.s, yr = parseInt(season.year, 10), ed = writeEdition(season, e.k), T = ed.T, R = ed.po, fin = R.key === 'finals';
+      var lead = ed.stories[0], briefs = ed.stories.slice(1), seedOf = ed.seedOf;
+      function team(id) { return T[id] || N.ofc.ident(id, ''); }
+      var html = '<article class="gz-paper gz-po">';
+
+      /* Masthead */
+      html += '<header class="gz-mast">' +
+        '<div class="gz-mast-top"><span>Vol. ' + (yr - FIRST_YEAR + 1) + ' &middot; ' + esc(R.label) + '</span><span>Est. ' + FIRST_YEAR + '</span><span>Price: Free (Playoff Pricing In Effect)</span></div>' +
+        '<h1 class="gz-mast-title">The OFC Gazette</h1>' +
+        '<p class="gz-mast-tag gz-po-tag">' + (fin ? 'Championship Edition' : 'Playoff Edition') + ' &middot; All the News That&rsquo;s Fit to Trash-Talk</p>' +
+      '</header>' +
+      '<div class="gz-dateline"><span>' + season.year + ' Playoffs &middot; ' + esc(R.label) + ' Edition</span>' +
+        '<span>' + ed.games.length + ' Game' + (ed.games.length === 1 ? '' : 's') + (ed.cons.length ? ' &middot; ' + ed.cons.length + ' Consolation' : '') + '</span>' +
+        '<span>' + (season.isFinal ? 'Archive' : (isLatest ? 'Latest Edition' : 'Back Issue')) + '</span></div>';
+
+      /* Lead */
+      if (lead) {
+        var P = lead.pic || T[lead.photo] || {};
+        html += '<section class="gz-lead">' +
+          '<div><div class="gz-kicker">' + esc(lead.kicker) + '</div><h2 class="gz-head">' + esc(lead.head) + '</h2>' +
+            (lead.sub ? '<p class="gz-sub">' + lead.sub + '</p>' : '') + '<div class="gz-text">' + lead.body + '</div></div>' +
+          '<figure class="gz-photo" style="--tc:' + (P.color || '#888') + '">' +
+            '<div class="gz-photo-frame' + (P.mug ? ' is-mug' : '') + '">' +
+              (P.logo ? '<img src="' + esc(P.logo) + '" alt="" />' : '<div class="gz-photo-init">' + esc(initials(P.team)) + '</div>') + '</div>' +
+            (lead.caption ? '<figcaption class="gz-caption">' + lead.caption + '</figcaption>' : '') +
+          '</figure>' +
+        '</section>';
+      }
+
+      /* Main column */
+      var main = '';
+      if (briefs.length) {
+        main += '<section class="gz-sec"><div class="gz-sec-head">Also in the News</div>' + briefs.map(function (b) {
+          return '<div class="gz-brief"><div class="gz-kicker">' + esc(b.kicker) + '</div><div class="gz-brief-head">' + esc(b.head) + '</div>' +
+            (b.sub ? '<p class="gz-sub" style="font-size:0.9rem;margin:0.2rem 0 0.4rem;">' + b.sub + '</p>' : '') +
+            '<div class="gz-text">' + b.body + '</div></div>';
+        }).join('') + '</section>';
+      }
+      var box = function (g) {
+        var H = team(g.h), A = team(g.a), hw = g.hs > g.as, aw = g.as > g.hs;
+        function line(t, id, s, won) {
+          var sd = seedOf(id);
+          return '<div class="gz-box-line' + (won ? ' won' : '') + '">' + mini(t) + '<span class="gz-box-team">' + esc(t.team) + '<small>' + (sd ? 'No. ' + sd + ' seed &middot; ' : '') + esc(t.owner) + '</small></span><span class="gz-box-score">' + f2(s) + '</span></div>';
+        }
+        return '<div class="gz-box">' + line(H, g.h, g.hs, hw) + line(A, g.a, g.as, aw) + '<div class="gz-box-foot">' + esc(gameLabel(g) || R.label) + ' &middot; Margin ' + f2(Math.abs(g.hs - g.as)) + '</div></div>';
+      };
+      main += '<section class="gz-sec"><div class="gz-sec-head">Box Scores</div><div class="gz-boxes">' + ed.games.concat(ed.cons).map(box).join('') + '</div></section>';
+
+      /* The bracket: earlier rounds + this one; the title game only shows in the Championship Edition */
+      var rounds = N.ofc.playoffRounds.filter(function (r, i) { return i <= N.ofc.playoffRounds.indexOf(R); });
+      var brLine = function (id, s, won) {
+        var t = team(id), sd = seedOf(id);
+        return '<div class="gz-br-line' + (won ? ' won' : '') + '"><span class="gz-br-sd">' + (sd || '') + '</span><span>' + esc(t.team) + '</span><span class="gz-br-sc">' + f2(s) + '</span></div>';
+      };
+      var cols = rounds.map(function (r) {
+        var gs = N.ofc.playoffGames(season, r.key);
+        if (!gs.length) return '';
+        return '<div><div class="gz-br-h">' + esc(r.label) + '</div>' + gs.map(function (g) {
+          return '<div class="gz-br-game">' + brLine(g.h, g.hs, g.hs > g.as) + brLine(g.a, g.as, g.as > g.hs) + '</div>';
+        }).join('') + (r.key === 'finals' && ed.champ ? '<div class="gz-br-champ">&#x265B; ' + esc(team(ed.champ).team) + ' &middot; ' + season.year + ' Champions</div>' : '') + '</div>';
+      }).filter(Boolean);
+      if (!fin) {
+        var fins = ed.games.filter(function (g) { return g.hs !== g.as; }).map(function (g) { return g.hs > g.as ? g.h : g.a; });
+        cols.push('<div><div class="gz-br-h">Championship</div><div class="gz-br-tbd">' +
+          (R.key === 'semis' && fins.length === 2 ? esc(team(fins[0]).team) + ' vs. ' + esc(team(fins[1]).team) + '<br>To be decided' : 'To be decided') + '</div></div>');
+      }
+      main += '<section class="gz-sec"><div class="gz-sec-head">The Bracket</div><div class="gz-bracket">' + cols.join('') + '</div>' +
+        '<p class="gz-table-note">Seeds = final ' + season.year + ' regular-season standings.</p></section>';
+
+      /* Championship Edition: final standings, in playoff order */
+      if (fin) {
+        var order = [];
+        var put = function (id, res) { if (id && !order.some(function (o) { return o.id === id; })) order.push({ id: id, res: res }); };
+        put(ed.champ, 'Champion'); put(ed.runnerUp, 'Runner-up');
+        var decide = function (pred, wRes, lRes) {
+          ed.cons.filter(pred).forEach(function (g) { if (g.hs === g.as) return; put(g.hs > g.as ? g.h : g.a, wRes); put(g.hs > g.as ? g.a : g.h, lRes); });
+        };
+        decide(N.ofc.isThirdPlace, '3rd place', '4th place');
+        N.ofc.playoffGames(season, 'semis').forEach(function (g) { put(g.h, 'Semifinals'); put(g.a, 'Semifinals'); });
+        decide(N.ofc.isToiletBowl, 'Toilet Bowl champ', 'Toilet Bowl runner-up');
+        ed.reg.rows.forEach(function (r) { put(r.id, '&mdash;'); });
+        main += '<section class="gz-sec"><div class="gz-sec-head">Final Standings</div>' +
+          '<table class="gz-table"><thead><tr><th>Seed</th><th>Team</th><th>Reg.</th><th>Finish</th></tr></thead><tbody>' +
+          order.map(function (o) {
+            var r = ed.reg.map[o.id];
+            return '<tr><td>' + (seedOf(o.id) || '&ndash;') + '</td><td class="gz-team">' + esc(team(o.id).team) + '<small>' + esc(team(o.id).owner) + '</small></td>' +
+              '<td>' + (r ? rec(r) : '&ndash;') + '</td><td class="gz-res' + (o.res === 'Champion' ? ' is-champ' : '') + '">' + o.res + '</td></tr>';
+          }).join('') + '</tbody></table></section>';
+        if (season.story) main += '<section class="gz-sec"><div class="gz-sec-head">The Story of ' + season.year + '</div><div class="gz-text gz-story">' + storyHtml(season.story) + '</div></section>';
+      }
+
+      /* Sidebar */
+      var side = '', ws = ed.weekScores;
+      var all = ed.games.concat(ed.cons);
+      var close = all.slice().sort(function (a, b) { return Math.abs(a.hs - a.as) - Math.abs(b.hs - b.as); })[0];
+      if (ws.length) side += '<section class="gz-sec"><div class="gz-sec-head">By the Numbers</div>' +
+        '<div class="gz-num"><span>High score<small>' + esc(team(ws[0].id).team) + '</small></span><b>' + f2(ws[0].s) + '</b></div>' +
+        '<div class="gz-num"><span>Low score<small>' + esc(team(ws[ws.length - 1].id).team) + '</small></span><b>' + f2(ws[ws.length - 1].s) + '</b></div>' +
+        (close ? '<div class="gz-num"><span>Closest game<small>' + esc(team(close.h).team) + ' vs ' + esc(team(close.a).team) + '</small></span><b>' + f2(Math.abs(close.hs - close.as)) + '</b></div>' : '') +
+      '</section>';
+      if (fin) side += ofcAwardsHtml(season) + ofcBannerHtml(yr);
+
+      // Rivalry corner — the lead story's matchup (regular-season series)
+      var rg = null;
+      if (lead) rg = all.find(function (g) { return g.h === lead.photo || g.a === lead.photo; });
+      if (!rg) rg = ed.games[0];
+      if (rg) {
+        var sr = seriesThrough(rg.h, rg.a, yr, E.ofc.lastDone(season)), H = team(rg.h), A = team(rg.a);
+        var leadTxt = sr.a > sr.b ? '<b>' + esc(H.team) + '</b> ' + verb(H.team, 'leads', 'lead') + ' the all-time regular-season series <b>' + sr.a + '&ndash;' + sr.b + '</b>'
+          : (sr.b > sr.a ? '<b>' + esc(A.team) + '</b> ' + verb(A.team, 'leads', 'lead') + ' the all-time regular-season series <b>' + sr.b + '&ndash;' + sr.a + '</b>'
+          : 'the all-time regular-season series is dead even at <b>' + sr.a + '&ndash;' + sr.b + '</b>');
+        side += '<section class="gz-sec"><div class="gz-sec-head">Rivalry Corner</div><div class="gz-rival">' +
+          '<div class="gz-rival-logos">' + mini(H) + '<i>vs</i>' + mini(A) + '</div>' +
+          '<div class="gz-text">' + (sr.a + sr.b + sr.t ? 'Going in, ' + leadTxt + (sr.t ? ' (' + sr.t + ' tie' + (sr.t > 1 ? 's' : '') + ')' : '') + '.' : 'These two had never met in the regular season.') + '</div>' +
+          '<a class="gz-link" href="rivals.html?a=' + encodeURIComponent(rg.h) + '&b=' + encodeURIComponent(rg.a) + '">Full Rivalry &#x2197;</a>' +
+        '</div></section>';
+      }
+
+      side += '<section class="gz-sec"><div class="gz-sec-head">Classifieds</div><div class="gz-ads">' + classifieds(ed).map(function (a) {
+        return '<div class="gz-ad"><div class="gz-ad-k">' + esc(a.k) + '</div><div class="gz-text">' + a.t + '</div></div>';
+      }).join('') + '</div></section>';
+      side += promoHtml('brc');
+
+      html += '<div class="gz-cols"><div>' + main + '</div><div class="gz-rule"></div><aside>' + side + '</aside></div>';
+      html += '</article>';
+      document.getElementById('gzPaper').innerHTML = html;
+      document.title = 'OFC Gazette — ' + season.year + ' ' + R.label;
     }
 
     /* ══════════════════════════════════════════════════════════
@@ -566,7 +853,7 @@
         if (!eds.length) return '';
         var e = eds[eds.length - 1], st, label, mast;
         if (target === 'brc') { st = writeBRC(e).stories[0]; label = e.s.year + ' &middot; ' + (e.k === 'final' ? 'Final Edition' : RNAME[e.k] + ' Edition'); mast = 'The Hardwood Herald'; }
-        else { st = writeEdition(e.s, e.k).stories[0]; label = e.s.year + ' &middot; Week ' + e.k + ' Edition'; mast = 'The OFC Gazette'; }
+        else { st = writeEdition(e.s, e.k).stories[0]; label = e.s.year + ' &middot; ' + (e.po ? esc(e.label) : 'Week ' + e.k) + ' Edition'; mast = 'The OFC Gazette'; }
         return '<section class="gz-sec"><div class="gz-sec-head">Meanwhile, in the ' + (target === 'brc' ? 'BRC' : 'OFC') + '&hellip;</div>' +
           '<div class="gz-promo' + (target === 'brc' ? ' brc' : '') + '"><div class="gz-promo-mast">' + mast + '</div>' +
           (st ? '<div class="gz-kicker">' + esc(st.kicker) + '</div><div class="gz-brief-head">' + esc(st.head) + '</div>' : '') +
@@ -592,7 +879,7 @@
       eds.forEach(function (x) { if (years.indexOf(String(x.s.year)) < 0) years.unshift(String(x.s.year)); });
       var opts = years.map(function (y) { return '<option value="' + esc(y) + '"' + (y === String(e.s.year) ? ' selected' : '') + '>' + esc(y) + (LEAGUE === 'ofc' ? ' Season' : ' Tournament') + '</option>'; }).join('');
       var units = '';
-      eds.forEach(function (x, i) { if (x.s === e.s) units += '<option value="' + i + '"' + (i === cur ? ' selected' : '') + '>' + (LEAGUE === 'ofc' ? 'Week ' + x.k : esc(x.label)) + '</option>'; });
+      eds.forEach(function (x, i) { if (x.s === e.s) units += '<option value="' + i + '"' + (i === cur ? ' selected' : '') + '>' + (LEAGUE === 'ofc' ? (x.po ? esc(x.label) : 'Week ' + x.k) : esc(x.label)) + '</option>'; });
       el.innerHTML =
         '<button id="gzPrev"' + (cur === 0 ? ' disabled' : '') + ' aria-label="Previous edition">&#x25C2; Prev</button>' +
         '<select id="gzSeason" aria-label="Season">' + opts + '</select>' +
@@ -616,7 +903,9 @@
       nav();
       var st = LG[LEAGUE], e = st.eds[st.cur];
       if (!e) { document.getElementById('gzPaper').innerHTML = '<p class="gz-empty">The presses are quiet. Nothing to report yet.</p>'; return; }
-      if (LEAGUE === 'ofc') render(e.s, e.k); else renderBRC(e, st.cur === st.eds.length - 1);
+      var isLatest = st.cur === st.eds.length - 1;
+      if (LEAGUE === 'ofc') { if (e.po) renderPlayoff(e, isLatest); else render(e.s, e.k, isLatest); }
+      else renderBRC(e, isLatest);
       N.lowercase(document.getElementById('gzPaper'));
       document.title = N.lowercaseText(document.title);
       Array.prototype.forEach.call(document.querySelectorAll('#gzPaper [data-switch]'), function (b) {
@@ -667,12 +956,12 @@
       if (!LG[LEAGUE].eds.length) LEAGUE = LEAGUE === 'ofc' ? 'brc' : 'ofc';
       var st = LG[LEAGUE], qy = q.get('season');
       if (qy && st.eds.length) {
-        var qw = parseInt(q.get('week'), 10), qr = (q.get('round') || '').toLowerCase(), idx = -1;
+        var qw = (q.get('week') || '').toLowerCase(), qr = (q.get('round') || '').toLowerCase(), idx = -1;   // week = number or semis / final
         for (var i = st.eds.length - 1; i >= 0; i--) {
           var x = st.eds[i];
           if (String(x.s.year) !== qy) continue;
           if (idx < 0) idx = i;   // latest edition of that year
-          if ((LEAGUE === 'ofc' && x.k === qw) || (LEAGUE === 'brc' && x.key === qr)) { idx = i; break; }
+          if ((LEAGUE === 'ofc' && String(x.k) === qw) || (LEAGUE === 'brc' && x.key === qr)) { idx = i; break; }
         }
         if (idx >= 0) st.cur = idx;
       }

@@ -1599,7 +1599,7 @@
             var ed = N.ofc.write(e.s, e.k), hit = null;
             ed.stories.forEach(function (sto, i) { if (!hit && sto.photo === m) hit = { s: sto, lead: i === 0 }; });
             if (!hit) ed.stories.forEach(function (sto, i) { if (!hit && sto.team === m) hit = { s: sto, lead: i === 0 }; });
-            if (hit) right += '<a class="tsn-news" href="gazette.html?league=ofc&season=' + yr + '&week=' + e.k + '"><div class="tsn-news-k">The OFC Gazette &middot; Week ' + e.k + (hit.lead ? ' &middot; Front Page' : '') + '</div><div class="tsn-news-h">' + esc(hit.s.head) + '</div></a>';
+            if (hit) right += '<a class="tsn-news" href="gazette.html?league=ofc&season=' + yr + '&week=' + e.k + '"><div class="tsn-news-k">The OFC Gazette &middot; ' + (e.po ? esc(e.label) : 'Week ' + e.k) + (hit.lead ? ' &middot; Front Page' : '') + '</div><div class="tsn-news-h">' + esc(hit.s.head) + '</div></a>';
           } catch (x) {}
         }
       }

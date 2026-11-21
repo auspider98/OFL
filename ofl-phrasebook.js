@@ -7,7 +7,7 @@
  *  Edit with phrasebook-admin.html — it writes this file for you.
  *  Load before ofl-newsroom.js:
  *    <script src="ofl-phrasebook.js"></script>
- *  Generated 11/12/2026, 3:05:49 PM (owner headlines merged 11/12/2026)
+ *  Generated 11/21/2026, 3:13:31 PM
  * ============================================================
  */
 window.OFL_PHRASEBOOK = {
@@ -148,6 +148,14 @@ window.OFL_PHRASEBOOK = {
         "EE"
       ],
       "gags": []
+    },
+    "mbr_001": {
+      "name": "spider",
+      "school": "",
+      "nicknames": [],
+      "gags": [
+        "{owner} fears woofle ball paddles"
+      ]
     }
   },
   "ofc": {
@@ -569,7 +577,8 @@ window.OFL_PHRASEBOOK = {
         "{Lo} Loses By {margin}. Ouch.",
         "{Wo} Can Breathe Again",
         "{Wo} Steals One From {Lo}",
-        "{Lo} Left It On The Bench"
+        "{Lo} Left It On The Bench",
+        "They're Not Going To Keep Them Off the Field Tonight...{W} Win!"
       ],
       "sub": [
         "Decided by {margin} points. Somebody’s kicker is getting a fruit basket.",
@@ -1050,6 +1059,391 @@ window.OFL_PHRASEBOOK = {
         "Everybody else has officially started their offseason.",
         "The real season starts now."
       ]
+    },
+    "playoffWin": {
+      "_label": "Playoff Win",
+      "_when": "A playoff game (Wild Card / Semifinal) that isn't an upset",
+      "_tokens": [
+        "W",
+        "L",
+        "Wo",
+        "Lo",
+        "ws",
+        "ls",
+        "margin",
+        "marginR",
+        "year",
+        "round",
+        "Wseed",
+        "Lseed",
+        "Wrec",
+        "Lrec"
+      ],
+      "kicker": [
+        "{round}",
+        "Survive And Advance",
+        "Playoff Football"
+      ],
+      "headline": [
+        "{W} {W:advances|advance}",
+        "{W} {W:punches|punch} {W:its|their} Ticket",
+        "{W} {W:sends|send} {L} Home",
+        "{L’s} Season Ends At The Hands Of {W}",
+        "Survive And Advance: {W} Over {L}",
+        "{W} {W:moves|move} On, {L} {L:goes|go} Home",
+        "{Wo} Is One Step Closer",
+        "{Lo’s} Season Is Over",
+        "{Wo} Sends {Lo} Packing",
+        "{Wo} Handles Business In The {round}"
+      ],
+      "sub": [
+        "{ws}–{ls}, and {L} {L:is|are} done for the year.",
+        "The No. {Wseed} seed did what No. {Wseed} seeds are supposed to do.",
+        "{Lo} gets an early start on next season.",
+        "On to the next round for {W}."
+      ],
+      "caption": [
+        "{W}, still alive.",
+        "{W}, playing in December.",
+        "{Wo}, moving on.",
+        "{Wo}, one step closer to the trophy.",
+        "{L}, done for the year.",
+        "{Lo}, cleaning out the locker.",
+        "{Lo}, already talking about the draft."
+      ],
+      "closer": [
+        "{Lo} would like everyone to remember the regular season.",
+        "{W} will take it. Style points don’t carry over.",
+        "Next year starts now for {L}."
+      ]
+    },
+    "playoffUpset": {
+      "_label": "Playoff Upset",
+      "_when": "A lower seed beats a higher seed in the playoffs",
+      "_tokens": [
+        "W",
+        "L",
+        "Wo",
+        "Lo",
+        "ws",
+        "ls",
+        "margin",
+        "marginR",
+        "year",
+        "round",
+        "Wseed",
+        "Lseed",
+        "Wrec",
+        "Lrec"
+      ],
+      "kicker": [
+        "Playoff Upset",
+        "Bracket Buster",
+        "Stunner"
+      ],
+      "headline": [
+        "No. {Wseed} {W} {W:knocks|knock} Off No. {Lseed} {L}",
+        "{W} {W:stuns|stun} {L} In The {round}",
+        "So Much For The No. {Lseed} Seed",
+        "Seeds Are Just Numbers: {W} Over {L}",
+        "{L} {L:bows|bow} Out To No. {Wseed} {W}",
+        "{Wo} Pulls The Playoff Upset",
+        "{Lo} Had The Better Record. {Wo} Had The Better Day.",
+        "{Lo’s} Top Seed Means Nothing Now",
+        "Nobody Told {Wo} About The Seeding"
+      ],
+      "sub": [
+        "A {Wrec} No. {Wseed} seed took down a {Lrec} No. {Lseed}.",
+        "The regular season is officially meaningless. Ask {Lo}.",
+        "{L} earned the higher seed and still got sent home.",
+        "Everything {Lo} built over a {Lrec} season, gone in one afternoon."
+      ],
+      "caption": [
+        "{W}, giant slayers.",
+        "{Wo}, pictured not caring about seeds.",
+        "{L}, the higher seed, heading home.",
+        "{Lo}, staring at a {Lrec} record that no longer matters."
+      ],
+      "closer": [
+        "{Lo} has filed a formal complaint about the playoff format.",
+        "Seeding is a suggestion. {W} {W:has|have} made that clear.",
+        "{L} will be hearing about this one at Christmas."
+      ]
+    },
+    "titlePreview": {
+      "_label": "Title Game Preview",
+      "_when": "Semifinals Edition, once both finalists are set (pictures the higher seed)",
+      "_tokens": [
+        "team",
+        "owner",
+        "opp",
+        "oppOwner",
+        "seed",
+        "oppSeed",
+        "series",
+        "year"
+      ],
+      "kicker": [
+        "Title Game Preview",
+        "The Matchup",
+        "For All The Marbles"
+      ],
+      "headline": [
+        "{team} vs. {opp} For The {year} Crown",
+        "It’s {team} And {opp} For The Title",
+        "One Game Left: {team} vs. {opp}",
+        "{owner} vs. {oppOwner}. Winner Takes Everything.",
+        "{owner} And {oppOwner} Will Settle This",
+        "The {year} Final Is Set"
+      ],
+      "sub": [
+        "No. {seed} vs. No. {oppSeed}. Regular-season series: {series}.",
+        "{owner} and {oppOwner} have exactly one week of trash talk left.",
+        "Somebody’s name is going on the trophy."
+      ],
+      "caption": [
+        "{team}, the higher seed.",
+        "{team}, one game from glory.",
+        "{owner}, one win from a title."
+      ],
+      "closer": [
+        "Clear your Sunday.",
+        "Trash talk is encouraged. Excuses are not.",
+        "Loser buys. Probably."
+      ]
+    },
+    "playoffRecord": {
+      "_label": "Playoff Scoring Record",
+      "_when": "A playoff winner beats the highest playoff score in league history",
+      "_tokens": [
+        "W",
+        "L",
+        "Wo",
+        "Lo",
+        "ws",
+        "ls",
+        "margin",
+        "marginR",
+        "year",
+        "round",
+        "Wseed",
+        "Lseed",
+        "Wrec",
+        "Lrec",
+        "old"
+      ],
+      "kicker": [
+        "Playoff Record",
+        "History Made",
+        "Record Book"
+      ],
+      "headline": [
+        "{W} {W:sets|set} A Playoff Record With {ws}",
+        "{ws}: The Best Playoff Week In OFC History",
+        "{W} {W:picks|pick} The Right Week To Go Off",
+        "{Wo} Saves The Best For The Playoffs",
+        "{Lo} Ran Into A Record-Breaking {Wo}"
+      ],
+      "sub": [
+        "The old playoff mark of {old} is history.",
+        "{ws} points with the season on the line.",
+        "{L} picked the wrong week to meet {W}."
+      ],
+      "caption": [
+        "{W}, clutch.",
+        "{Wo}, rising to the occasion.",
+        "{L}, wrong place, wrong time.",
+        "{Lo}, witness to history."
+      ],
+      "closer": [
+        "Big-game player. {Wo} would like that on the record. It is now on the record.",
+        "{L} did nothing wrong except show up."
+      ]
+    },
+    "champion": {
+      "_label": "Champion",
+      "_when": "Championship Edition lead story (only once the season is final)",
+      "_tokens": [
+        "team",
+        "owner",
+        "opp",
+        "oppOwner",
+        "ws",
+        "ls",
+        "margin",
+        "seed",
+        "titles",
+        "rec",
+        "year"
+      ],
+      "kicker": [
+        "Champion",
+        "Champions",
+        "Hoist The Trophy"
+      ],
+      "headline": [
+        "{team} {team:wins|win} The {year} OFC",
+        "All Hail {team}, {year} Champions",
+        "{owner} Is Your {year} OFC Champion",
+        "{team} {team:is|are} The Champs",
+        "{owner} Takes The Crown",
+        "Bow Down To {owner}",
+        "{team} {team:finishes|finish} The Job",
+        "The {year} Title Belongs To {owner}"
+      ],
+      "sub": [
+        "{ws}–{ls} over {opp}, and the trophy goes home with {owner}.",
+        "Title No. {titles} for {owner}.",
+        "From a {rec} regular season to the top of the mountain.",
+        "No. {seed} seed, No. 1 finish."
+      ],
+      "caption": [
+        "{team}, {year} OFC champions.",
+        "{team}, the last team standing.",
+        "{owner} with the trophy.",
+        "{owner}, champion of the known universe."
+      ],
+      "closer": [
+        "{owner} will be accepting congratulations through next September.",
+        "Everybody else has nine months to come up with excuses.",
+        "{oppOwner} has been invited to the parade. As a spectator."
+      ]
+    },
+    "runnerUp": {
+      "_label": "Runner-Up",
+      "_when": "The championship game loser",
+      "_tokens": [
+        "team",
+        "owner",
+        "opp",
+        "ws",
+        "ls",
+        "margin",
+        "seed",
+        "year"
+      ],
+      "kicker": [
+        "Runner-Up",
+        "So Close",
+        "Second Place"
+      ],
+      "headline": [
+        "{team} {team:falls|fall} One Game Short",
+        "{owner} Comes Up Just Short",
+        "Close, But No Trophy For {owner}",
+        "{owner} Finishes Second. First Loser.",
+        "{opp} Denies {team}"
+      ],
+      "sub": [
+        "Lost {ws}–{ls} to {opp}. So close.",
+        "One win from a title, and {owner} will think about it all offseason.",
+        "Second place in the OFC. There is no trophy for that."
+      ],
+      "caption": [
+        "{team}, one game short.",
+        "{owner}, so close.",
+        "{owner} is fine. Totally fine."
+      ],
+      "closer": [
+        "{owner} will be replaying every lineup decision until September."
+      ]
+    },
+    "thirdPlace": {
+      "_label": "3rd-Place Game",
+      "_when": "The 3rd-place consolation game (Championship Edition)",
+      "_tokens": [
+        "W",
+        "L",
+        "Wo",
+        "Lo",
+        "ws",
+        "ls",
+        "margin",
+        "marginR",
+        "year",
+        "round",
+        "Wseed",
+        "Lseed",
+        "Wrec",
+        "Lrec"
+      ],
+      "kicker": [
+        "3rd Place",
+        "Consolation",
+        "Bronze"
+      ],
+      "headline": [
+        "{W} {W:takes|take} Third",
+        "{W} {W:wins|win} The Bronze",
+        "{Wo} Salvages Third Place",
+        "{L} {L:finishes|finish} Fourth. Of Four.",
+        "{Lo} Loses The Game Nobody Wanted To Play"
+      ],
+      "sub": [
+        "{ws}–{ls} in the 3rd-place game.",
+        "Somebody had to win it.",
+        "A bronze medal, spiritually."
+      ],
+      "caption": [
+        "{W}, third-best and proud of it.",
+        "{Wo}, holding an imaginary bronze medal.",
+        "{L}, fourth place.",
+        "{Lo}, who wanted the season to end a week earlier."
+      ],
+      "closer": [
+        "There is no trophy for third. {Wo} has ordered one anyway."
+      ]
+    },
+    "toiletBowl": {
+      "_label": "Toilet Bowl",
+      "_when": "The Toilet Bowl, the consolation championship (Championship Edition)",
+      "_tokens": [
+        "W",
+        "L",
+        "Wo",
+        "Lo",
+        "ws",
+        "ls",
+        "margin",
+        "marginR",
+        "year",
+        "round",
+        "Wseed",
+        "Lseed",
+        "Wrec",
+        "Lrec"
+      ],
+      "kicker": [
+        "Toilet Bowl",
+        "Consolation Championship",
+        "Flush"
+      ],
+      "headline": [
+        "{W} {W:wins|win} The Toilet Bowl",
+        "Toilet Bowl Champions: {W}",
+        "{W} {W:is|are} The Best Of The Worst",
+        "{L} {L:gets|get} Flushed",
+        "{Wo} Wins The Toilet Bowl. Congrats?",
+        "{Lo} Lost The Toilet Bowl. Let That Sink In.",
+        "{Wo} Rules The Basement"
+      ],
+      "sub": [
+        "{ws}–{ls} for the consolation crown.",
+        "The best team that didn’t matter.",
+        "A title is a title. Kind of.",
+        "Somebody tell {Lo} the season is over. Officially."
+      ],
+      "caption": [
+        "{W}, Toilet Bowl champions.",
+        "{Wo}, holding the plunger high.",
+        "{L}, flushed.",
+        "{Lo}, at the very bottom of the bowl."
+      ],
+      "closer": [
+        "The trophy is a plunger. It has always been a plunger.",
+        "{Lo} has asked that this result stay in the family. Too late.",
+        "{Wo} is already calling it a dynasty."
+      ]
     }
   },
   "ofcAds": {
@@ -1202,6 +1596,38 @@ window.OFL_PHRASEBOOK = {
         "Heat advisory: {high} recorded this week. Frost warning for whoever scored {low}.",
         "Today’s high: {high}. Today’s low: {low}. Today’s mood: chaos.",
         "Forecast calls for 100% chance of somebody blaming their kicker. Average {avg}."
+      ]
+    },
+    "playoffObit": {
+      "_label": "Obituary (Playoffs)",
+      "_when": "A team knocked out in the Wild Card or Semifinals",
+      "_tokens": [
+        "team",
+        "owner",
+        "opp",
+        "round",
+        "year"
+      ],
+      "lines": [
+        "{team’s} {year} title run. Passed away in the {round} at the hands of {opp}. In lieu of flowers, send points to {owner}.",
+        "Here lies {team’s} playoff hopes. Gone in the {round}. {owner} asks for privacy.",
+        "Services for {team’s} season will be held Tuesday. {opp} has been asked not to attend.",
+        "{team}, {year} playoffs. Survived by {owner} and a bench full of what-ifs."
+      ]
+    },
+    "champServices": {
+      "_label": "Services (Champion)",
+      "_when": "The champion, Championship Edition",
+      "_tokens": [
+        "team",
+        "owner",
+        "year"
+      ],
+      "lines": [
+        "{team}, {year} OFC champions, now booking appearances. Rates just went up.",
+        "Championship advice from {owner}. Waiting list only.",
+        "{owner} available for autographs, speeches and unsolicited lineup tips.",
+        "Trophy polishing services needed. Ask {owner}. Daily."
       ]
     }
   },

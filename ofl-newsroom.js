@@ -10,6 +10,9 @@
  *
  *  window.OFL_NEWSROOM
  *    .ofc.editions / .ofc.write(season, week) / .ofc.classifieds(ed)
+ *        week = a week number, or a playoff round: 'wildcard' | 'semis' | 'final'
+ *        (playoff editions come from season.playoffs; the Championship Edition
+ *         only appears once the season is marked final)
  *    .brc.editions / .brc.write(edition)      / .brc.classifieds(ed)
  *    .latest('ofc' | 'brc')  → headline summary for the league-page card
  *    .lowercase(el)          → applies House Rules → Never Capitalize to rendered text
@@ -54,7 +57,7 @@
   /* Step through a pool so consecutive editions land on different lines */
   function stepFor(n) { if (n < 4) return 1; for (var st = 3; st < n; st++) if (gcd(st, n) === 1) return st; return 1; }
   function isPlural(v) { return /s$/i.test(String(v || '').replace(/[^A-Za-z]+$/, '')); }
-  var TOKEN_RE = /\{([A-Za-z]+)(?:(['\u2019]s)|:([^|}]*)\|([^}]*))?\}/g;
+  var TOKEN_RE = /\{([A-Za-z]+)(?:(['’]s)|:([^|}]*)\|([^}]*))?\}/g;
   function fill(tpl, vars, html) {
     return String(tpl).replace(TOKEN_RE, function (m, name, ps, a, b) {
       if (!vars || !(name in vars)) return '';
@@ -250,6 +253,7 @@
      THE NEWSROOM — turn a week into stories
   ══════════════════════════════════════════════════════════ */
   function writeEdition(season, k) {
+    if (typeof k === 'string') return writePlayoff(season, k);   // playoff round edition
     var yr = parseInt(season.year, 10);
     var week = completeWeeks(season).find(function (w) { return w.weekNumber === k; });
     var games = gamesOf(week);
@@ -270,7 +274,7 @@
     games.forEach(function (g) { weekScores.push({ id: g.h, s: g.hs, opp: g.a, os: g.as }, { id: g.a, s: g.as, opp: g.h, os: g.hs }); });
     weekScores.sort(function (a, b) { return b.s - a.s; });
 
-    var W8 = new Writer('ofc', edNoOf(EDITIONS, season, k));
+    var W8 = new Writer('ofc', edNoOf(REG_EDITIONS, season, k));
     var stories = [];
     var curGame = null;   // set while writing a game's stories; null for league-level stories
     /* types: phrasebook story type(s); vars: fill-ins; fb: built-in fallback wording */
@@ -389,8 +393,209 @@
       stories: picked, weekScores: weekScores, seed: seed, allHi: allHi };
   }
 
+  /* ══════════════════════════════════════════════════════════
+     PLAYOFF EDITIONS — Wild Card (if any), Semifinals, Championship
+     Playoff games live in season.playoffs, not in the weekly schedule.
+     Seeds = final regular-season standings. The Championship Edition waits
+     until the season is marked final, so a champion entered early never shows.
+     Consolation games: "3rd Place" and the Toilet Bowl (the consolation
+     championship — a game labeled Toilet Bowl or 5th Place).
+  ══════════════════════════════════════════════════════════ */
+  var OFC_LG = E.ofc.league;
+  var PO_ROUNDS = [
+    { key: 'wildcard', k: 'wildcard', label: 'Wild Card' },
+    { key: 'semis', k: 'semis', label: 'Semifinals' },
+    { key: 'finals', k: 'final', label: 'Championship' }
+  ];
+  function poRound(k) { return PO_ROUNDS.filter(function (r) { return r.k === k; })[0] || null; }
+  function poScored(g) { return !!(g && g.homeMemberId && g.awayMemberId && (num(g.homeScore) > 0 || num(g.awayScore) > 0)); }
+  /* Scored games in a playoff round → [{ h, a, hs, as, ht, at, type }] */
+  function poGames(season, key) {
+    return ((season.playoffs || {})[key] || []).filter(poScored).map(function (g) {
+      return { h: g.homeMemberId, a: g.awayMemberId, hs: num(g.homeScore), as: num(g.awayScore), ht: g.homeTeamName || '', at: g.awayTeamName || '', type: g.gameType || '' };
+    });
+  }
+  function isToilet(g) { return /toilet|5th/i.test(g.type || ''); }
+  function isThird(g) { return /3rd|third/i.test(g.type || ''); }
+  /* Playoff rounds that get an edition for a season */
+  function playoffRoundsOf(season) {
+    return PO_ROUNDS.filter(function (r) {
+      if (!poGames(season, r.key).length) return false;
+      return r.key !== 'finals' || !!season.isFinal;   // champion stays hidden until the season is final
+    });
+  }
+  /* Every playoff score on file (for the playoff scoring record) */
+  var PO_SCORES = (function () {
+    var list = [];
+    ((OFC_LG && OFC_LG.seasons) || []).forEach(function (s) {
+      var y = parseInt(s.year, 10) || 0;
+      PO_ROUNDS.forEach(function (r, ri) {
+        poGames(s, r.key).forEach(function (g) { list.push({ y: y, ri: ri, s: g.hs }, { y: y, ri: ri, s: g.as }); });
+      });
+    });
+    return list;
+  })();
+  /* OFC titles through a year (finished seasons only) */
+  function ofcTitleYears(mid, y) {
+    return ((OFC_LG && OFC_LG.seasons) || []).filter(function (s) { return s.isFinal && s.championMemberId === mid && (parseInt(s.year, 10) || 0) <= y; })
+      .map(function (s) { return parseInt(s.year, 10) || 0; }).sort(function (a, b) { return a - b; });
+  }
+  function ofcTitleNote(mid, ownerName, y) {
+    var ys = ofcTitleYears(mid, y), n = ys.length, streak = 1;
+    while (ys.indexOf(y - streak) >= 0) streak++;
+    if (n <= 1) return { kicker: 'First Title', note: 'the first OFC title for ' + esc(ownerName) };
+    if (streak >= 2) return { kicker: streak === 2 ? 'Back-to-Back' : 'Dynasty', note: (streak === 2 ? 'back-to-back titles' : streak + ' straight titles') + ' and title No. ' + n + ' for ' + esc(ownerName) };
+    var prev = ys.filter(function (x) { return x < y; }).pop();
+    return { kicker: 'Champion', note: 'title No. ' + n + ' for ' + esc(ownerName) + ', the first since ' + prev };
+  }
+
+  function writePlayoff(season, k) {
+    var R = poRound(k) || PO_ROUNDS[1], ri = PO_ROUNDS.indexOf(R), yr = parseInt(season.year, 10), fin = R.key === 'finals';
+    var K = E.ofc.lastDone(season), reg = standingsThrough(season, K);
+    var main = poGames(season, R.key);
+    var cons = fin ? poGames(season, 'consolation').filter(function (g) { return isThird(g) || isToilet(g); }) : [];
+    var T = {};
+    reg.rows.forEach(function (r) { T[r.id] = ident(r.id, r.name); });
+    main.concat(cons).forEach(function (g) {
+      if (g.ht || !T[g.h]) T[g.h] = ident(g.h, g.ht);
+      if (g.at || !T[g.a]) T[g.a] = ident(g.a, g.at);
+    });
+    function seedOf(id) { return reg.map[id] ? reg.map[id].rank : null; }
+    function recOf(id) { return reg.map[id] ? rec(reg.map[id]) : ''; }
+    var seed = hash(season.year + '-' + k);
+    var W8 = new Writer('ofc', edNoOf(EDITIONS, season, k));
+    var stories = [], curGame = null;
+    function own(id) { return { v: T[id].owner, id: id }; }
+    function picFor(id, kind) {
+      var I = T[id] || {}, mug = member(id).mugshot;
+      if (kind === 'owner' && mug) return { logo: mug, team: I.owner || I.team, color: I.color, mug: true };
+      return { logo: I.logo, team: I.team, color: I.color };
+    }
+    /* team: member featured (null = league-level); sides: W / L / T → member */
+    function add(score, key, team, types, vars, fb, body, photoId, sides) {
+      sides = sides || { T: photoId };
+      var side0 = Object.keys(sides).filter(function (x) { return sides[x] === photoId; })[0] || null;
+      if (vars.ws && !fb.capNeutral) fb.capNeutral = 'Final: {ws}–{ls}.';
+      var t = W8.story(types, vars, fb, side0);
+      var picId = photoId, kind = 'team';
+      if (t.subject && sides[t.subject.side]) { picId = sides[t.subject.side]; kind = t.subject.kind; }
+      stories.push({ score: score, key: key, game: curGame || ('L-' + key), team: team,
+        kicker: t.kicker, head: t.head, sub: t.sub, body: withCloser(body, t.closer), photo: picId, pic: picFor(picId, kind), caption: t.caption });
+    }
+    function gv(Wid, Lid, ws, ls, extra) {
+      var o = { W: T[Wid].team, L: T[Lid].team, Wo: own(Wid), Lo: own(Lid), ws: f2(ws), ls: f2(ls), margin: f2(ws - ls), marginR: Math.round(ws - ls),
+        year: season.year, round: R.label, Wseed: seedOf(Wid) || '', Lseed: seedOf(Lid) || '', Wrec: recOf(Wid), Lrec: recOf(Lid) };
+      Object.keys(extra || {}).forEach(function (x) { o[x] = extra[x]; });
+      return o;
+    }
+    function who(id) { var s = seedOf(id); return '<b>' + esc(T[id].team) + '</b> (' + esc(T[id].owner) + (s ? ', No. ' + s + ' seed' : '') + ')'; }
+    var prior = PO_SCORES.filter(function (x) { return x.y < yr || (x.y === yr && x.ri < ri); }).map(function (x) { return x.s; });
+    var poHi = prior.length >= 12 ? Math.max.apply(null, prior) : Infinity;   // playoff record once there's real history
+    var roundHi = main.reduce(function (m, g) { return Math.max(m, g.hs, g.as); }, 0);   // only this round's top score can claim the record
+    var champ = null, runner = null;
+
+    main.forEach(function (g) {
+      if (g.hs === g.as) return;
+      curGame = g.h + '|' + g.a;
+      var hW = g.hs > g.as, Wid = hW ? g.h : g.a, Lid = hW ? g.a : g.h, ws = Math.max(g.hs, g.as), ls = Math.min(g.hs, g.as);
+      var GS = { W: Wid, L: Lid }, sW = seedOf(Wid) || 0, sL = seedOf(Lid) || 0;
+      if (fin) {
+        /* Championship: the season's champion (if it's one of these two) or the game winner */
+        var Cid = (season.championMemberId === g.h || season.championMemberId === g.a) ? season.championMemberId : Wid;
+        var Rid = Cid === g.h ? g.a : g.h, cs = Cid === g.h ? g.hs : g.as, rs = Cid === g.h ? g.as : g.hs;
+        var C = T[Cid], RU = T[Rid], tn = ofcTitleNote(Cid, C.owner, yr), sC = seedOf(Cid), sR = seedOf(Rid);
+        champ = Cid; runner = Rid;
+        var cv = { team: C.team, owner: own(Cid), opp: RU.team, oppOwner: RU.owner, ws: f2(cs), ls: f2(rs), margin: f2(Math.abs(cs - rs)),
+          seed: sC || '', titles: ofcTitleYears(Cid, yr).length, rec: recOf(Cid), year: season.year };
+        var chs = W8.story('champion', cv, { kicker: 'Champion', head: '{team} {team:wins|win} The {year} OFC', capNeutral: 'Final: {ws}–{ls}.' }, 'T');
+        stories.push({ score: 120, key: 'champ', game: 'L-champ', team: Cid, kicker: tn.kicker === 'Champion' ? chs.kicker : tn.kicker, head: chs.head, sub: chs.sub,
+          body: withCloser('<p>' + who(Cid) + ' beat ' + who(Rid) + ' ' + f2(cs) + '–' + f2(rs) + ' to win the ' + season.year + ' OFC championship. ' +
+            'It&rsquo;s ' + tn.note + '.' + (cs > poHi && cs >= roundHi ? ' The ' + f2(cs) + ' is also the highest score in OFC playoff history.' : '') +
+            (recOf(Cid) ? ' ' + esc(cap(C.team)) + ' went ' + recOf(Cid) + ' in the regular season.' : '') + '</p>', chs.closer),
+          photo: Cid, pic: picFor(Cid, chs.subject && chs.subject.kind === 'owner' ? 'owner' : 'team'), caption: chs.caption });
+        curGame = null;
+        add(50, 'ru' + Rid, Rid, 'runnerUp', { team: RU.team, owner: own(Rid), opp: C.team, ws: f2(cs), ls: f2(rs), margin: f2(Math.abs(cs - rs)), seed: sR || '', year: season.year },
+          { kicker: 'Runner-Up', head: '{team} {team:falls|fall} One Game Short' },
+          '<p>' + who(Rid) + ' finish' + (/s$/i.test(RU.team) ? '' : 'es') + ' as the ' + season.year + ' runner-up after a ' + f2(rs) + '–' + f2(cs) + ' loss to ' + esc(C.team) + ' in the championship.</p>', Rid);
+        return;
+      }
+      var body = '<p>' + who(Wid) + ' beat ' + who(Lid) + ' ' + f2(ws) + '–' + f2(ls) + ' in the ' + R.label + '. ' +
+        esc(cap(T[Wid].team)) + ' ' + verb(T[Wid].team, 'advances', 'advance') + ' to the ' + (R.key === 'wildcard' ? 'semifinals' : season.year + ' championship') +
+        '; ' + esc(poss(T[Lid].team)) + ' title run is over.</p>';
+      var v = gv(Wid, Lid, ws, ls);
+      if (ws > poHi && ws >= roundHi) add(70, 'por' + Wid, Wid, 'playoffRecord', gv(Wid, Lid, ws, ls, { old: f2(poHi) }),
+        { kicker: 'Playoff Record', head: '{W} {W:sets|set} A Playoff Record With {ws}' }, body, Wid, GS);
+      if (sW && sL && sW > sL) add(55 + (sW - sL) * 4, 'pu' + Wid, Wid, 'playoffUpset', v,
+        { kicker: 'Playoff Upset', head: 'No. {Wseed} {W} {W:knocks|knock} Off No. {Lseed} {L}' }, body, Wid, GS);
+      add(40 + (ws - ls) / 10, 'pw' + Wid, Wid, 'playoffWin', v, { kicker: '{round}', head: '{W} {W:advances|advance}' }, body, Wid, GS);
+    });
+
+    /* Semifinals: once both finalists are set, preview the title game */
+    if (R.key === 'semis') {
+      var fins = main.filter(function (g) { return g.hs !== g.as; }).map(function (g) { return g.hs > g.as ? g.h : g.a; });
+      if (fins.length === 2) {
+        var A = (seedOf(fins[0]) || 99) <= (seedOf(fins[1]) || 99) ? fins[0] : fins[1], B = A === fins[0] ? fins[1] : fins[0];
+        var ser = seriesThrough(A, B, yr, K), serTxt = ser.a + '–' + ser.b + (ser.t ? '–' + ser.t : '');
+        curGame = null;
+        add(45, 'prev', null, 'titlePreview', { team: T[A].team, owner: own(A), opp: T[B].team, oppOwner: T[B].owner, seed: seedOf(A) || '', oppSeed: seedOf(B) || '', series: serTxt, year: season.year },
+          { kicker: 'Title Game Preview', head: '{team} vs. {opp} For The {year} Crown' },
+          '<p>The ' + season.year + ' championship is set: ' + who(A) + ' against ' + who(B) + '. ' +
+          (ser.a + ser.b + ser.t ? 'They split the all-time regular-season series ' + serTxt + (ser.a > ser.b ? ' in favor of ' + esc(T[A].team) : ser.b > ser.a ? ' in favor of ' + esc(T[B].team) : '') + '.' : 'They have never met in the regular season.') + '</p>', A);
+      }
+    }
+
+    /* Championship Edition: the 3rd-place game and the Toilet Bowl */
+    cons.forEach(function (g) {
+      if (g.hs === g.as) return;
+      curGame = 'c' + g.h + '|' + g.a;
+      var hW = g.hs > g.as, Wid = hW ? g.h : g.a, Lid = hW ? g.a : g.h, ws = Math.max(g.hs, g.as), ls = Math.min(g.hs, g.as), tb = isToilet(g);
+      add(tb ? 34 : 30, (tb ? 'tb' : 'tp') + Wid, Wid, tb ? 'toiletBowl' : 'thirdPlace', gv(Wid, Lid, ws, ls, { round: tb ? 'Toilet Bowl' : '3rd-place game' }),
+        tb ? { kicker: 'Toilet Bowl', head: '{W} {W:wins|win} The Toilet Bowl' } : { kicker: '3rd Place', head: '{W} {W:takes|take} Third' },
+        '<p>' + who(Wid) + ' beat ' + who(Lid) + ' ' + f2(ws) + '–' + f2(ls) + (tb ? ' to win the Toilet Bowl, the OFC consolation championship.' : ' in the 3rd-place game.') + '</p>',
+        Wid, { W: Wid, L: Lid });
+    });
+
+    var picked = pickStories(stories);
+    picked.forEach(function (st, i) {   // Playa Gags
+      var gl = st.team && T[st.team] ? gagLine(st.team, W8.edNo, 'ofcpo' + i, { owner: T[st.team].owner, team: T[st.team].team }) : '';
+      if (gl) st.body = withCloser(st.body, gl);
+    });
+    var weekScores = [];
+    main.concat(cons).forEach(function (g) { weekScores.push({ id: g.h, s: g.hs, opp: g.a, os: g.as }, { id: g.a, s: g.as, opp: g.h, os: g.hs }); });
+    weekScores.sort(function (a, b) { return b.s - a.s; });
+    return { season: season, k: k, po: R, W8: W8, games: main, cons: cons, reg: reg, post: reg, T: T, seedOf: seedOf,
+      stories: picked, weekScores: weekScores, seed: seed, champ: champ, runnerUp: runner };
+  }
+
+  /* ── Playoff classifieds ──────────────────────────────── */
+  function playoffClassifieds(ed) {
+    var T = ed.T, w = ed.W8 || new Writer('ofc', 0), ads = [], ws = ed.weekScores, fin = ed.po.key === 'finals';
+    function own(id) { return { v: T[id].owner, id: id }; }
+    if (fin && ed.champ) ads.push(w.ad('champServices', { team: T[ed.champ].team, owner: own(ed.champ), year: ed.season.year },
+      { k: 'Services', t: '{team}, {year} OFC champions, now booking appearances. Rates just went up.' }));
+    ed.games.forEach(function (g) {
+      if (g.hs === g.as) return;
+      var L = g.hs < g.as ? g.h : g.a, Wn = L === g.h ? g.a : g.h;
+      if (fin) ads.push(w.ad('lost', { team: T[L].team, owner: own(L), pts: f2(Math.min(g.hs, g.as)), opp: T[Wn].team },
+        { k: 'Lost', t: 'One (1) championship. Last seen in a loss to {opp}. Contact {owner}.' }));
+      else ads.push(w.ad('playoffObit', { team: T[L].team, owner: own(L), opp: T[Wn].team, round: ed.po.label, year: ed.season.year },
+        { k: 'Obituary', t: '{team’s} {year} title run. Passed away in the {round}. {owner} asks for privacy.' }));
+    });
+    if (ws.length) {
+      var hi = ws[0], lo = ws[ws.length - 1];
+      ads.push(w.ad('services', { team: T[hi.id].team, owner: own(hi.id), pts: f2(hi.s) }, { k: 'Services', t: '{team} now offering scoring lessons. {pts} references available.' }));
+      ads.push(w.ad('wanted', { team: T[lo.id].team, owner: own(lo.id), pts: f2(lo.s), week: ed.po.label }, { k: 'Wanted', t: 'Points. Any points. Contact {team} ({pts} this week).' }));
+    }
+    ads.forEach(function (a) { if (/^Services \(/.test(a.k)) a.k = 'Services'; if (/^Obituary \(/.test(a.k)) a.k = 'Obituary'; });   // print the plain heading, not the admin label
+    if (fin) return ads.slice(0, 3);   // the champion's ad always leads the Championship Edition
+    var out = [];
+    for (var i = 0; i < ads.length && out.length < 3; i++) out.push(ads[(i + ed.seed) % ads.length]);
+    return out;
+  }
+
   /* ── Classifieds ──────────────────────────────────────── */
   function classifieds(ed) {
+    if (ed.po) return playoffClassifieds(ed);
     var T = ed.T, ws = ed.weekScores, ads = [], s = ed.seed, w = ed.W8 || new Writer('ofc', 0), k = ed.k;
     function own(id) { return { v: T[id].owner, id: id }; }
     var low = ws[ws.length - 1], high = ws[0];
@@ -725,8 +930,13 @@
     return outAds;
   }
 
-  var EDITIONS = [];   // OFC, chronological { s, k }
-  SEASONS.slice().reverse().forEach(function (s) { completeWeeks(s).forEach(function (w) { EDITIONS.push({ s: s, k: w.weekNumber }); }); });
+  var EDITIONS = [];   // OFC, chronological { s, k (week number | 'wildcard' | 'semis' | 'final'), label, po? }
+  SEASONS.slice().reverse().forEach(function (s) {
+    completeWeeks(s).forEach(function (w) { EDITIONS.push({ s: s, k: w.weekNumber, label: 'Week ' + w.weekNumber }); });
+    playoffRoundsOf(s).forEach(function (r) { EDITIONS.push({ s: s, k: r.k, po: r.key, label: r.label }); });
+  });
+  // Weekly editions keep their own numbering, so adding playoff editions doesn't reshuffle old headlines
+  var REG_EDITIONS = EDITIONS.filter(function (e) { return !e.po; });
   var BEDITIONS = [];  // BRC, chronological { s, k (round index | 'final'), key, label }
   BSEASONS.slice().reverse().forEach(function (s) {
     var rs = roundsOf(s);
@@ -748,7 +958,7 @@
     return {
       league: lg, season: e.s, edition: e,
       mast: lg === 'brc' ? 'The Hardwood Herald' : 'The OFC Gazette',
-      label: lg === 'brc' ? (e.k === 'final' ? 'Final Edition' : RNAME[e.k] + ' Edition') : 'Week ' + e.k + ' Edition',
+      label: lg === 'brc' ? (e.k === 'final' ? 'Final Edition' : RNAME[e.k] + ' Edition') : (e.po ? e.label : 'Week ' + e.k) + ' Edition',
       kicker: st ? st.kicker : '', head: st ? st.head : '', sub: st ? st.sub : '',
       photo: photo || null,
       href: 'gazette.html?league=' + lg + '&season=' + encodeURIComponent(e.s.year) + (lg === 'brc' ? '&round=' + e.key : '&week=' + e.k)
@@ -759,7 +969,7 @@
     BLUE: BLUE, BRC_FIRST: BRC_FIRST, AWARDS: AWARDS, FIRST_YEAR: 2016,
     seriesThrough: seriesThrough, listNames: listNames, verb: verb, poss: poss, cap: cap,
     phrasebook: PB, fill: fill, lowercase: lowercaseDom, lowercaseText: lowercaseText,
-    ofc: { editions: EDITIONS, write: writeEdition, classifieds: classifieds, ident: ident },
+    ofc: { editions: EDITIONS, write: writeEdition, classifieds: classifieds, ident: ident, playoffGames: poGames, playoffRounds: PO_ROUNDS, isToiletBowl: isToilet, isThirdPlace: isThird },
     brc: { editions: BEDITIONS, write: writeBRC, writeRound: writeBRCRound, writeFinal: writeBRCFinal, classifieds: brcClassifieds },
     latest: latest
   };

@@ -204,6 +204,13 @@
     ['ofc', 'ofcAds', 'brc', 'brcAds', 'members', 'house'].forEach(function (k) { if (!PB[k] || typeof PB[k] !== 'object') PB[k] = {}; });
     ['rivals', 'lowercase'].forEach(function (k) { if (!Array.isArray(PB.house[k])) PB.house[k] = []; });
     if (PB.house.familyTeam == null) PB.house.familyTeam = '';
+    // Story types added to ofl-phrasebook.js after a draft was saved still show up in the draft
+    (function () {
+      var dep = JSON.parse(DEPLOYED);
+      ['ofc', 'ofcAds', 'brc', 'brcAds'].forEach(function (g) {
+        Object.keys(dep[g] || {}).forEach(function (t) { if (t.charAt(0) !== '_' && !PB[g][t]) PB[g][t] = dep[g][t]; });
+      });
+    })();
 
     var DATA = window.OFL_DATA || {};
     var ROSTER = (DATA.masterRoster || []).slice().sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); });
@@ -233,6 +240,12 @@
       rank: '3rd', behind: '107', w: 'Tennessee', l: 'Virginia', wsd: '6', lsd: '3', diff: '3', pickers: '2', fan: 'Christian', school: 'Tennessee',
       opp: 'Virginia', rival: 'alabama', upsets: '2', avg: '104.20', high: '143.08', low: '83.40', nick: 'Rocky Top Christian'
     };
+    /* OFC Gazette previews: playoff fill-ins, and OFC values where the Herald's samples would read oddly */
+    var OFC_SAMPLE = {};
+    Object.keys(SAMPLE).forEach(function (k) { OFC_SAMPLE[k] = SAMPLE[k]; });
+    ['round:Semifinals', 'opp:Boknowsbest', 'oppOwner:Evan', 'Wseed:4', 'Lseed:1', 'seed:2', 'oppSeed:3', 'titles:2', 'series:9–7'].forEach(function (p) {
+      var i = p.indexOf(':'); OFC_SAMPLE[p.slice(0, i)] = p.slice(i + 1);
+    });
     var TOKEN_RE = /\{([A-Za-z]+)(?:(['’]s)|:([^|}]*)\|([^}]*))?\}/g;
     function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
     function poss(t) { return t + (/s$/i.test(t) ? '’' : '’s'); }
@@ -411,6 +424,7 @@
           wrap.innerHTML = '<div class="pba-slot-head"><b>' + info[0] + '</b><span>' + info[1] + '</span></div><div></div>';
           slotsHost.appendChild(wrap);
           lineList(wrap.lastChild, { arr: meta[slot], allowed: allowed, headStyle: slot === 'headline' || slot === 'kicker',
+            vars: state.group === 'ofc' || state.group === 'ofcAds' ? OFC_SAMPLE : SAMPLE,
             emptyText: slot === 'closer' ? 'No closers — stories end with the facts.' : 'Empty — the paper falls back to its built-in line.',
             onChange: function () { var btn = list.querySelector('.pba-type.on small'); if (btn) btn.textContent = countOf(state.group, state.type); } });
         });
