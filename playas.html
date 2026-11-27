@@ -10,6 +10,7 @@
   <script src="admin-config.js"></script>
   <script src="ofl-data.js"></script>
   <script src="admin.js"></script>
+  <script src="ofl-engine.js"></script>
 
   <style>
     /* ── Playas page layout ─────────────────────────────────── */
@@ -987,80 +988,18 @@
       return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
+    // Titles, seasons, awards and the Hall of Fame come from ofl-engine.js (OFL_ENGINE.cards),
+    // shared with the Playa Profile so the numbers always match. Finished seasons only.
+    var CARDS = window.OFL_ENGINE.cards;
+
     // ── Get championship entries for a member ──
-    function getChampionships(memberId, leagueData) {
-      var entries = [];
-      (leagueData || []).forEach(function (league) {
-        (league.seasons || []).forEach(function (season) {
-          if (season.isFinal && season.championMemberId && season.championMemberId === memberId) {   // completed seasons only
-            entries.push({ year: season.year || '?', leagueName: league.name || '' });
-          }
-        });
-      });
-      entries.sort(function (a, b) { return (parseInt(b.year,10)||0) - (parseInt(a.year,10)||0); });
-      return entries;
-    }
+    function getChampionships(memberId, leagueData) { return CARDS.championships(memberId, leagueData); }
 
     // ── Count total seasons played ──
-    function countSeasons(memberId, leagueData) {
-      var total = 0;
-      (leagueData || []).forEach(function (league) {
-        (league.seasons || []).forEach(function (season) {
-          if (!season.isFinal) return;   // completed seasons only
-          var inRoster    = (season.roster    || []).some(function (r) { return r.memberId === memberId; });
-          var inStandings = (season.standings || []).some(function (r) { return r.memberId === memberId; });
-          if (inRoster || inStandings) total++;
-        });
-      });
-      return total;
-    }
+    function countSeasons(memberId, leagueData) { return CARDS.seasons(memberId, leagueData); }
 
     // ── Get all non-championship awards won, sorted by year desc ──
-    function getAwardsWon(memberId, leagueData) {
-      var awards  = [];
-      var schemas = window.SPORT_STAT_SCHEMAS || {};
-
-      (leagueData || []).forEach(function (league) {
-        var schema    = schemas[league.sport] || schemas.other || {};
-        var awardDefs = schema.awards || [];
-
-        (league.seasons || []).forEach(function (season) {
-          if (!season.isFinal) return;   // completed seasons only
-          var stats       = season.stats       || {};
-          var customStats = season.customStats || [];
-
-          // Schema-defined awards — skip champion
-          awardDefs.forEach(function (a) {
-            if (a.key === 'champion') return;
-            var statDef = (schema.stats || []).find(function (s) { return s.awardKey === a.key; });
-            var statKey = statDef ? statDef.key : a.key;
-            var stat    = stats[statKey];
-            if (!stat || stat.memberId !== memberId) return;
-            awards.push({
-              awardName:  (league.awards && league.awards[a.key]) || a.defaultLabel || a.key,
-              awardImage: (league.awardImages && league.awardImages[a.key]) || '',
-              year:       season.year || '?',
-              leagueName: league.name || ''
-            });
-          });
-
-          // Custom awards
-          (league.customAwards || []).forEach(function (ca) {
-            var entry = customStats.find(function (cs) { return cs.customAwardId === ca.id; });
-            if (!entry || entry.memberId !== memberId) return;
-            awards.push({
-              awardName:  ca.label || 'Award',
-              awardImage: ca.image || '',
-              year:       season.year || '?',
-              leagueName: league.name || ''
-            });
-          });
-        });
-      });
-
-      awards.sort(function (a, b) { return (parseInt(b.year,10)||0) - (parseInt(a.year,10)||0); });
-      return awards;
-    }
+    function getAwardsWon(memberId, leagueData) { return CARDS.awards(memberId, leagueData); }
 
     // ── Initials fallback ──
     function initials(name) {
@@ -1298,53 +1237,9 @@
       return qualifies ? { per: per, total: total, since: since } : null;
     }
     /* ── Hall of Fame ─────────────────────────────────────────
-       In when ANY one of these is reached (completed seasons only):
-         Titles:  7 OFC  ·  5 BRC  ·  8 combined
-         Awards: 25 OFC  · 15 BRC  · 40 combined
-       Per-league paths keep it fair for playas who only play one league.
-       Alumni keep what they earned. Class = the season they first reached a path;
-       inductee numbers follow that order. The Watch meter shows each playa's best path. */
-    var HOF_PATHS = [
-      { key: 'ofcT', label: 'OFC Titles', need: 7 },
-      { key: 'brcT', label: 'BRC Titles', need: 5 },
-      { key: 'allT', label: 'Titles',     need: 8 },
-      { key: 'ofcA', label: 'OFC Awards', need: 25 },
-      { key: 'brcA', label: 'BRC Awards', need: 15 },
-      { key: 'allA', label: 'Awards',     need: 40 }
-    ];
-    var HOF_CACHE = null;
-    function hofTable(leagueData) {
-      if (HOF_CACHE && HOF_CACHE.ld === leagueData) return HOF_CACHE;
-      var roster = (window.OFL_DATA && window.OFL_DATA.masterRoster) || [];
-      var sportOf = {}; (leagueData || []).forEach(function (l) { sportOf[l.name || ''] = l.sport; });
-      var info = {};
-      roster.forEach(function (m) {
-        var years = {};
-        function add(y, k) { y = parseInt(y, 10) || 0; (years[y] = years[y] || { ofcT: 0, brcT: 0, ofcA: 0, brcA: 0 })[k]++; }
-        getChampionships(m.id, leagueData).forEach(function (t) { add(t.year, sportOf[t.leagueName] === 'madness' ? 'brcT' : 'ofcT'); });
-        getAwardsWon(m.id, leagueData).forEach(function (a) { add(a.year, sportOf[a.leagueName] === 'madness' ? 'brcA' : 'ofcA'); });
-        var c = { ofcT: 0, brcT: 0, ofcA: 0, brcA: 0, allT: 0, allA: 0 }, cls = null, path = null;
-        Object.keys(years).map(Number).sort(function (a, b) { return a - b; }).forEach(function (y) {
-          var e = years[y];
-          c.ofcT += e.ofcT; c.brcT += e.brcT; c.ofcA += e.ofcA; c.brcA += e.brcA;
-          c.allT = c.ofcT + c.brcT; c.allA = c.ofcA + c.brcA;
-          if (cls === null) {
-            var hit = HOF_PATHS.filter(function (pt) { return c[pt.key] >= pt.need; })[0];
-            if (hit) { cls = y; path = hit.label; }
-          }
-        });
-        var best = HOF_PATHS.reduce(function (b, pt) { var v = c[pt.key] / pt.need; return v > b.v ? { v: v, label: pt.label } : b; }, { v: 0, label: '' });
-        info[m.id] = { counts: c, pct: Math.min(1, best.v), bestPath: best.label, inducted: cls !== null, classYear: cls, path: path, no: 0, titles: c.allT, awards: c.allA };
-      });
-      var inducted = roster.filter(function (m) { return info[m.id].inducted; }).sort(function (a, b) {
-        var x = info[a.id], y = info[b.id];
-        return (x.classYear - y.classYear) || (y.titles - x.titles) || (y.awards - x.awards) || String(a.name).localeCompare(String(b.name));
-      });
-      inducted.forEach(function (m, i) { info[m.id].no = i + 1; });
-      HOF_CACHE = { ld: leagueData, info: info };
-      return HOF_CACHE;
-    }
-    function hofInfo(mid, leagueData) { return hofTable(leagueData).info[mid] || { inducted: false, pct: 0, titles: 0, awards: 0 }; }
+       Paths, class year, inductee number and the Watch meter live in ofl-engine.js
+       (OFL_ENGINE.cards.hof) so the cards and the Playa Profile always agree. */
+    function hofInfo(mid, leagueData) { return CARDS.hof(mid, leagueData); }
     function roman(n) { var r = '', v = [[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']]; v.forEach(function (p) { while (n >= p[0]) { r += p[1]; n -= p[0]; } }); return r; }
     /* Twinkling specks across a Hall of Fame card face (random spots, random timing) */
     function hofGlimmer(n) {
@@ -1380,11 +1275,20 @@
     /* OFC season lines + career numbers for one member */
     function ofcStats(mid, leagueData) {
       var lg = (leagueData || []).find(function (l) { return l.sport === 'football'; });
-      var out = { rows: [], w: 0, l: 0, t: 0, pf: 0, games: 0, titles: 0, po: 0, finals: 0, hi: null, best: null };
+      var out = { rows: [], w: 0, l: 0, t: 0, pf: 0, games: 0, titles: 0, po: 0, finals: 0, hi: null, best: null, pw: 0, pl: 0, pt: 0 };
       if (!lg) return out;
       (lg.seasons || []).slice().sort(function (a, b) { return (parseInt(b.year, 10) || 0) - (parseInt(a.year, 10) || 0); }).forEach(function (s) {
-        if (!s.isFinal) return;   // completed seasons only
         var row = (s.standings || []).find(function (r) { return r.memberId === mid; });
+        // Season in progress: only its W-L counts (finished weeks + completed playoff rounds)
+        if (!s.isFinal) {
+          var lr = row && window.OFL_ENGINE ? window.OFL_ENGINE.ofc.parseRec(row.record) : null;
+          if (lr) {
+            var lp = window.OFL_ENGINE.ofc.playoffRecord(s, mid);
+            out.w += lr.w + lp.w; out.l += lr.l + lp.l; out.t += lr.t + lp.t; out.games += lr.w + lr.l + lr.t + lp.gp;
+            out.pw += lp.w; out.pl += lp.l; out.pt += lp.t;
+          }
+          return;
+        }
         // weekly highs
         (s.weeks || []).forEach(function (w) {
           if (!w.isComplete) return;
@@ -1397,7 +1301,11 @@
         if (!row) return;
         var p = (row.record || '').split('-').map(Number);
         var w = p[0] || 0, l = p[1] || 0, t = p[2] || 0;
-        out.w += w; out.l += l; out.t += t; out.pf += n2(row.pointsFor); out.games += w + l + t;
+        /* Overall record = regular season + every playoff game (incl. 3rd place + Toilet Bowl) */
+        var pr = window.OFL_ENGINE ? window.OFL_ENGINE.ofc.playoffRecord(s, mid) : { w: 0, l: 0, t: 0 };
+        var aw = w + pr.w, al = l + pr.l, at = t + pr.t;
+        out.w += aw; out.l += al; out.t += at; out.pf += n2(row.pointsFor); out.games += aw + al + at;
+        out.pw += pr.w; out.pl += pr.l; out.pt += pr.t;
         var res = '', live = !s.isFinal;
         if (!live) {
           var po = s.playoffs || {};
@@ -1408,7 +1316,7 @@
           else res = '—';
         } else res = 'Live';
         if (!live && (!out.best || w > out.best.w || (w === out.best.w && n2(row.pointsFor) > out.best.pf))) out.best = { w: w, l: l, pf: n2(row.pointsFor), year: s.year };
-        out.rows.push({ year: s.year, team: row.teamName || row.team || '', rec: row.record || '', pf: n2(row.pointsFor), rank: row.rank, res: res, champ: res === 'Champ' });
+        out.rows.push({ year: s.year, team: row.teamName || row.team || '', rec: row.record ? aw + '-' + al + (at ? '-' + at : '') : '', pf: n2(row.pointsFor), rank: row.rank, res: res, champ: res === 'Champ' });
       });
       return out;
     }
@@ -1666,6 +1574,7 @@
         })(o.rows[o.rows.length - 1]) : '') +
         '<div class="pv-sec">Career Highlights</div>' +
         '<div class="pv-fact"><span>Titles &middot; Finals &middot; Playoffs</span><b>' + o.titles + ' &middot; ' + o.finals + ' &middot; ' + o.po + '</b></div>' +
+        (o.pw + o.pl + o.pt ? '<div class="pv-fact"><span>Playoffs W&ndash;L</span><b>' + o.pw + '-' + o.pl + (o.pt ? '-' + o.pt : '') + '</b></div>' : '') +
         (o.hi ? '<div class="pv-fact"><span>Career-high week</span><b>' + o.hi.score.toFixed(2) + ' (' + o.hi.year + ' Wk ' + o.hi.week + ')</b></div>' : '') +
         (o.best ? '<div class="pv-fact"><span>Best season</span><b>' + o.best.w + '-' + o.best.l + ' (' + o.best.year + ')</b></div>' : '') +
         '<div class="pv-fact"><span>Avg points / season</span><b>' + (o.rows.length ? (o.pf / o.rows.length).toFixed(1) : '0') + '</b></div>';

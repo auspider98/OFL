@@ -11,8 +11,9 @@
  *    .util  — formatting + seeded random helpers
  *    .ofc   — standings, schedule, scoring model, playoff-odds simulation
  *    .brc   — bracket rounds, results, who picked what, max possible points
+ *    .cards — titles, seasons, awards and the Hall of Fame (finished seasons only)
  *
- *  Used by: race.html, gazette.html, ofl-newsroom.js (league.html card)
+ *  Used by: race.html, gazette.html, playas.html, playa.html, team.html, records.html, standings.html, league.html (standings), ofl-newsroom.js (league.html card)
  * ============================================================
  */
 (function () {
@@ -119,6 +120,45 @@
     return { rows: rows, map: map };
   }
   function rec(r) { return r.w + '–' + r.l + (r.t ? '–' + r.t : ''); }
+
+  /* Playoff record for one member in one season: every playoff game counts
+     (wild card, semifinals, title game, 3rd place and Toilet Bowl).
+     Finished seasons (isFinal) count every round. A season in progress counts only the
+     rounds switched to complete in ofl-data.html (season.playoffRoundsComplete).
+     Returns { w, l, t, gp } */
+  function playoffRecord(season, mid) {
+    var out = { w: 0, l: 0, t: 0, gp: 0 };
+    if (!season || !mid) return out;
+    var po = season.playoffs || {}, done = season.playoffRoundsComplete || {};
+    ['wildcard', 'semis', 'finals', 'consolation'].forEach(function (k) {
+      if (!season.isFinal && !done[k]) return;
+      (po[k] || []).forEach(function (g) {
+        if (g.homeMemberId !== mid && g.awayMemberId !== mid) return;
+        if (!g.homeMemberId || !g.awayMemberId) return;
+        if (g.homeScore === '' || g.homeScore == null || g.awayScore === '' || g.awayScore == null) return;
+        var hs = num(g.homeScore), as = num(g.awayScore);
+        if (!hs && !as) return;
+        var me = g.homeMemberId === mid ? hs : as, op = g.homeMemberId === mid ? as : hs;
+        if (me > op) out.w++; else if (me < op) out.l++; else out.t++;
+        out.gp++;
+      });
+    });
+    return out;
+  }
+  /* "10-5" / "10–5–1" → { w, l, t } (null if blank) */
+  function parseRec(str) {
+    if (str == null || str === '') return null;
+    var p = String(str).split(/[-–]/).map(function (v) { return parseInt(v, 10) || 0; });
+    return p.length >= 2 ? { w: p[0], l: p[1], t: p[2] || 0 } : null;
+  }
+  /* Overall record = regular season (typed standings record) + playoffs.
+     Returns { reg:{w,l,t}, po:{w,l,t,gp}, all:{w,l,t} } */
+  function overallRecord(season, mid, regStr) {
+    var row = (season.standings || []).find(function (r) { return r.memberId === mid; }) || {};
+    var reg = parseRec(regStr != null ? regStr : row.record) || { w: 0, l: 0, t: 0 };
+    var po = playoffRecord(season, mid);
+    return { reg: reg, po: po, all: { w: reg.w + po.w, l: reg.l + po.l, t: reg.t + po.t } };
+  }
 
   /* Remaining regular-season schedule after week k: real matchups if loaded, else Yahoo's repeating cycle.
      Returns { games: [{ id, week, h, a }], source: 'loaded' | 'pattern' } */
@@ -353,12 +393,140 @@
     return m;
   }
 
+  /* ══════════════════════════════════════════════════════════
+     CARDS — titles, seasons, awards, Hall of Fame
+     Finished seasons (isFinal) only, so a champion entered early never counts.
+     Shared by playas.html (trading cards) and playa.html (Playa Profile) so the
+     numbers always match. leagueData is optional; it defaults to OFL_DATA.leagueData.
+  ══════════════════════════════════════════════════════════ */
+  function ld(leagueData) { return leagueData || DATA.leagueData || []; }
+
+  /* Titles → [{ year, leagueName, sport }], newest first */
+  function championships(mid, leagueData) {
+    var entries = [];
+    ld(leagueData).forEach(function (league) {
+      (league.seasons || []).forEach(function (season) {
+        if (season.isFinal && season.championMemberId && season.championMemberId === mid) {
+          entries.push({ year: season.year || '?', leagueName: league.name || '', sport: league.sport || '' });
+        }
+      });
+    });
+    entries.sort(function (a, b) { return (parseInt(b.year, 10) || 0) - (parseInt(a.year, 10) || 0); });
+    return entries;
+  }
+
+  /* Seasons played (on the roster or in the standings) */
+  function seasonsPlayed(mid, leagueData) {
+    var total = 0;
+    ld(leagueData).forEach(function (league) {
+      (league.seasons || []).forEach(function (season) {
+        if (!season.isFinal) return;
+        var inRoster    = (season.roster    || []).some(function (r) { return r.memberId === mid; });
+        var inStandings = (season.standings || []).some(function (r) { return r.memberId === mid; });
+        if (inRoster || inStandings) total++;
+      });
+    });
+    return total;
+  }
+
+  /* Awards won, not counting the championship → [{ awardName, awardImage, year, leagueName, sport }], newest first */
+  function awardsWon(mid, leagueData) {
+    var awards  = [];
+    var schemas = window.SPORT_STAT_SCHEMAS || {};
+    ld(leagueData).forEach(function (league) {
+      var schema    = schemas[league.sport] || schemas.other || {};
+      var awardDefs = schema.awards || [];
+      (league.seasons || []).forEach(function (season) {
+        if (!season.isFinal) return;
+        var stats       = season.stats       || {};
+        var customStats = season.customStats || [];
+        // Schema-defined awards — skip champion
+        awardDefs.forEach(function (a) {
+          if (a.key === 'champion') return;
+          var statDef = (schema.stats || []).find(function (s) { return s.awardKey === a.key; });
+          var statKey = statDef ? statDef.key : a.key;
+          var stat    = stats[statKey];
+          if (!stat || stat.memberId !== mid) return;
+          awards.push({
+            awardName:  (league.awards && league.awards[a.key]) || a.defaultLabel || a.key,
+            awardImage: (league.awardImages && league.awardImages[a.key]) || '',
+            year:       season.year || '?',
+            leagueName: league.name || '',
+            sport:      league.sport || ''
+          });
+        });
+        // Custom awards
+        (league.customAwards || []).forEach(function (ca) {
+          var entry = customStats.find(function (cs) { return cs.customAwardId === ca.id; });
+          if (!entry || entry.memberId !== mid) return;
+          awards.push({
+            awardName:  ca.label || 'Award',
+            awardImage: ca.image || '',
+            year:       season.year || '?',
+            leagueName: league.name || '',
+            sport:      league.sport || ''
+          });
+        });
+      });
+    });
+    awards.sort(function (a, b) { return (parseInt(b.year, 10) || 0) - (parseInt(a.year, 10) || 0); });
+    return awards;
+  }
+
+  /* Hall of Fame — in when ANY one of these is reached:
+       Titles:  7 OFC  ·  5 BRC  ·  8 combined
+       Awards: 25 OFC  · 15 BRC  · 40 combined
+     Alumni keep what they earned. Class = the season they first reached a path;
+     inductee numbers follow that order. pct = progress on their best path (0..1). */
+  var HOF_PATHS = [
+    { key: 'ofcT', label: 'OFC Titles', need: 7 },
+    { key: 'brcT', label: 'BRC Titles', need: 5 },
+    { key: 'allT', label: 'Titles',     need: 8 },
+    { key: 'ofcA', label: 'OFC Awards', need: 25 },
+    { key: 'brcA', label: 'BRC Awards', need: 15 },
+    { key: 'allA', label: 'Awards',     need: 40 }
+  ];
+  var HOF_CACHE = null;
+  function hofTable(leagueData) {
+    leagueData = ld(leagueData);
+    if (HOF_CACHE && HOF_CACHE.ld === leagueData) return HOF_CACHE;
+    var roster = (window.OFL_DATA && window.OFL_DATA.masterRoster) || [];
+    var sportOf = {}; leagueData.forEach(function (l) { sportOf[l.name || ''] = l.sport; });
+    var info = {};
+    roster.forEach(function (m) {
+      var years = {};
+      function add(y, k) { y = parseInt(y, 10) || 0; (years[y] = years[y] || { ofcT: 0, brcT: 0, ofcA: 0, brcA: 0 })[k]++; }
+      championships(m.id, leagueData).forEach(function (t) { add(t.year, sportOf[t.leagueName] === 'madness' ? 'brcT' : 'ofcT'); });
+      awardsWon(m.id, leagueData).forEach(function (a) { add(a.year, sportOf[a.leagueName] === 'madness' ? 'brcA' : 'ofcA'); });
+      var c = { ofcT: 0, brcT: 0, ofcA: 0, brcA: 0, allT: 0, allA: 0 }, cls = null, path = null;
+      Object.keys(years).map(Number).sort(function (a, b) { return a - b; }).forEach(function (y) {
+        var e = years[y];
+        c.ofcT += e.ofcT; c.brcT += e.brcT; c.ofcA += e.ofcA; c.brcA += e.brcA;
+        c.allT = c.ofcT + c.brcT; c.allA = c.ofcA + c.brcA;
+        if (cls === null) {
+          var hit = HOF_PATHS.filter(function (pt) { return c[pt.key] >= pt.need; })[0];
+          if (hit) { cls = y; path = hit.label; }
+        }
+      });
+      var best = HOF_PATHS.reduce(function (b, pt) { var v = c[pt.key] / pt.need; return v > b.v ? { v: v, label: pt.label } : b; }, { v: 0, label: '' });
+      info[m.id] = { counts: c, pct: Math.min(1, best.v), bestPath: best.label, inducted: cls !== null, classYear: cls, path: path, no: 0, titles: c.allT, awards: c.allA };
+    });
+    var inducted = roster.filter(function (m) { return info[m.id].inducted; }).sort(function (a, b) {
+      var x = info[a.id], y = info[b.id];
+      return (x.classYear - y.classYear) || (y.titles - x.titles) || (y.awards - x.awards) || String(a.name).localeCompare(String(b.name));
+    });
+    inducted.forEach(function (m, i) { info[m.id].no = i + 1; });
+    HOF_CACHE = { ld: leagueData, info: info };
+    return HOF_CACHE;
+  }
+  function hofInfo(mid, leagueData) { return hofTable(leagueData).info[mid] || { inducted: false, pct: 0, titles: 0, awards: 0 }; }
+
   window.OFL_ENGINE = {
     util: { esc: esc, num: num, f2: f2, initials: initials, ord: ord, hex: hex, hash: hash, pctTxt: pctTxt, rng: rng, gauss: gauss, member: member },
     ofc: {
       league: OFC, seasons: SEASONS, SIMS: SIMS, SEED: SEED, SHRINK: SHRINK, PLAYOFF_TEAMS: PLAYOFF_TEAMS,
       sortedWeeks: sortedWeeks, completeWeeks: completeWeeks, lastDone: lastDone, gamesOf: gamesOf, teamIds: teamIds,
-      regWeeks: regWeeks, standingsThrough: standingsThrough, rec: rec,
+      regWeeks: regWeeks, standingsThrough: standingsThrough, rec: rec, playoffRecord: playoffRecord, parseRec: parseRec, overallRecord: overallRecord,
       remainingSchedule: remainingSchedule, scoringModel: scoringModel,
       simulate: simulate, simulateLite: simulateLite, odds: odds
     },
@@ -366,6 +534,10 @@
       league: BRC, seasons: BSEASONS, RKEYS: RKEYS, RURL: RURL, RNAME: RNAME, RPTS: RPTS,
       analysisFor: analysisFor, roundsOf: roundsOf, normTeam: normTeam, assignRank: assignRank,
       picks: picks, resultsThrough: resultsThrough, slotOrder: slotOrder, maxPts: maxPts
+    },
+    cards: {
+      championships: championships, seasons: seasonsPlayed, awards: awardsWon,
+      HOF_PATHS: HOF_PATHS, hofTable: hofTable, hof: hofInfo
     }
   };
 })();

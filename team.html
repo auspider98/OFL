@@ -182,6 +182,13 @@
       font-family: var(--font-body); font-size: 0.46rem;
       letter-spacing: 0.28em; text-transform: uppercase; color: var(--accent-dim);
     }
+    /* Regular season / playoff split under an overall record */
+    .team-rec-split {
+      display: block; margin-top: 0.3rem;
+      font-family: var(--font-body); font-size: 0.44rem; font-weight: 400;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-dim); white-space: nowrap;
+    }
+    .team-table .team-rec-split { margin-top: 0.15rem; font-size: 0.42rem; letter-spacing: 0.08em; }
 
 
     /* ══════════════════════════════════════════════════════════
@@ -772,6 +779,7 @@
           teamName:     row.teamName || '—',
           logo:         logoSrc,
           record:       (row.record || ''),
+          ovr:          window.OFL_ENGINE ? window.OFL_ENGINE.ofc.overallRecord(season, memberId, row.record) : null,
           pointsFor:    row.pointsFor    || row.totalPoints || '',
           pointsAgainst:row.pointsAgainst || '',
           rank:         rank,
@@ -864,6 +872,7 @@
     /* ── Career overview stats ────────────────────────────── */
     function buildCareerStats(memberId, ofcLeague) {
       var wins = 0, losses = 0, ties = 0;
+      var regW = 0, regL = 0, regT = 0, poW = 0, poL = 0, poT = 0;
       var playoffAppearances = 0, championships = 0, finalAppearances = 0;
       var mvpCount = 0;
 
@@ -876,9 +885,14 @@
         // Parse W-L-T from record string e.g. "10-3" or "9-3-1"
         if (row.record) {
           var parts = row.record.split('-').map(Number);
-          wins    += parts[0] || 0;
-          losses  += parts[1] || 0;
-          ties    += parts[2] || 0;
+          regW += parts[0] || 0;
+          regL += parts[1] || 0;
+          regT += parts[2] || 0;
+        }
+        // Playoff games (every round, incl. 3rd place + Toilet Bowl) once the season is final
+        if (window.OFL_ENGINE) {
+          var po = window.OFL_ENGINE.ofc.playoffRecord(season, memberId);
+          poW += po.w; poL += po.l; poT += po.t;
         }
 
         var pr = getPlayoffResult(memberId, season, ofcLeague);
@@ -896,10 +910,11 @@
         return (s.standings || []).some(function (r) { return r.memberId === memberId; });
       }).length;
 
+      wins = regW + poW; losses = regL + poL; ties = regT + poT;
       var totalGames = wins + losses + ties;
       var winPct = totalGames > 0 ? ((wins + ties * 0.5) / totalGames) : 0;
 
-      return { wins, losses, ties, playoffAppearances, championships, finalAppearances, mvpCount, winPct, seasonsPlayed };
+      return { wins, losses, ties, regW, regL, regT, poW, poL, poT, playoffAppearances, championships, finalAppearances, mvpCount, winPct, seasonsPlayed };
     }
 
     /* ── Head-to-head records ─────────────────────────────── */
@@ -910,6 +925,7 @@
 
       (ofcLeague.seasons || []).forEach(function (season) {
         (season.weeks || []).forEach(function (week) {
+          if (!week.isComplete) return;   // finished weeks only
           (week.games || []).forEach(function (game) {
             /* Support both nested {home,away} and flat homeMemberId shapes */
             var homeId    = (game.home && game.home.memberId) || game.homeMemberId || '';
@@ -933,6 +949,30 @@
             if (!rec.seasons[season.year]) rec.seasons[season.year] = { wins: 0, losses: 0, ties: 0 };
             var seasonRec = rec.seasons[season.year];
 
+            if (myScore > oppScore)       { rec.wins++;   seasonRec.wins++;   }
+            else if (myScore < oppScore)  { rec.losses++; seasonRec.losses++; }
+            else                          { rec.ties++;   seasonRec.ties++;   }
+          });
+        });
+
+        // Playoff meetings count too: every round once the season is final,
+        // or rounds switched to complete in ofl-data.html for a season in progress
+        var po = season.playoffs || {}, poDone = season.playoffRoundsComplete || {};
+        ['wildcard', 'semis', 'finals', 'consolation'].forEach(function (rk) {
+          if (!season.isFinal && !poDone[rk]) return;
+          (po[rk] || []).forEach(function (g) {
+            var isHome = g.homeMemberId === memberId, isAway = g.awayMemberId === memberId;
+            if (!isHome && !isAway) return;
+            var oppId = isHome ? g.awayMemberId : g.homeMemberId;
+            if (!oppId) return;
+            if (g.homeScore === '' || g.homeScore == null || g.awayScore === '' || g.awayScore == null) return;
+            var hs = parseFloat(g.homeScore) || 0, as = parseFloat(g.awayScore) || 0;
+            if (!hs && !as) return;
+            var myScore = isHome ? hs : as, oppScore = isHome ? as : hs;
+            if (!records[oppId]) records[oppId] = { wins: 0, losses: 0, ties: 0, seasons: {} };
+            var rec = records[oppId];
+            if (!rec.seasons[season.year]) rec.seasons[season.year] = { wins: 0, losses: 0, ties: 0 };
+            var seasonRec = rec.seasons[season.year];
             if (myScore > oppScore)       { rec.wins++;   seasonRec.wins++;   }
             else if (myScore < oppScore)  { rec.losses++; seasonRec.losses++; }
             else                          { rec.ties++;   seasonRec.ties++;   }
@@ -1201,12 +1241,17 @@
       var pct = career.winPct;
       var pctStr = (pct * 100).toFixed(1) + '%';
       var recordStr = career.wins + '\u2013' + career.losses + (career.ties ? '\u2013' + career.ties : '');
+      var splitStr = (career.poW + career.poL + career.poT)
+        ? 'Reg ' + career.regW + '\u2013' + career.regL + (career.regT ? '\u2013' + career.regT : '') +
+          ' &middot; Playoffs ' + career.poW + '\u2013' + career.poL + (career.poT ? '\u2013' + career.poT : '')
+        : '';
 
       var careerStripHtml =
         '<div class="team-career-strip section-reveal">' +
           '<div class="team-career-stat">' +
             '<div class="team-career-stat-value">' + recordStr + '</div>' +
             '<div class="team-career-stat-label">Career Record</div>' +
+            (splitStr ? '<span class="team-rec-split">' + splitStr + '</span>' : '') +
           '</div>' +
           '<div class="team-career-stat">' +
             '<div class="team-career-stat-value">' + pctStr + '</div>' +
@@ -1233,6 +1278,14 @@
       /* ═════════════════════════════════════════════════════
          SEASON LOG
       ═════════════════════════════════════════════════════ */
+      /* Overall record (regular season + playoffs); split shown when playoff games were played */
+      function seasonRecHtml(s) {
+        var o = s.ovr;
+        if (!o || !o.po.gp) return esc(s.record);
+        function r(x) { return x.w + '-' + x.l + (x.t ? '-' + x.t : ''); }
+        return esc(r(o.all)) + '<span class="team-rec-split">Reg ' + esc(r(o.reg)) + ' &middot; PO ' + esc(r(o.po)) + '</span>';
+      }
+
       var seasonRowsHtml = seasonLog.map(function (s) {
         var logoCell = s.logo
           ? '<img class="season-team-logo" src="' + esc(s.logo) + '" alt="" />'
@@ -1243,7 +1296,7 @@
         return '<tr' + wrAttrs + '>' +
           '<td>' + esc(s.year) + '</td>' +
           '<td class="team-name-cell">' + logoCell + esc(s.teamName) + '</td>' +
-          '<td class="num">' + esc(s.record) + '</td>' +
+          '<td class="num">' + seasonRecHtml(s) + '</td>' +
           '<td class="num">' + esc(s.pointsFor ? parseFloat(s.pointsFor).toFixed(1) : '—') + '</td>' +
           '<td class="num">' + esc(s.pointsAgainst ? parseFloat(s.pointsAgainst).toFixed(1) : '—') + '</td>' +
           (s.luck !== null && s.luck !== undefined

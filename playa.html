@@ -69,6 +69,23 @@
     .pp-stat-v { font-family: var(--font-display); font-weight: 300; font-size: 2.6rem; line-height: 1; color: var(--accent); margin-bottom: 0.35rem; }
     .pp-stat-v.is-pc { color: var(--pc); }
     .pp-stat-l { font-family: var(--font-body); font-size: 0.46rem; letter-spacing: 0.28em; text-transform: uppercase; color: var(--accent-dim); }
+    /* Regular season / playoff split under the overall OFC record */
+    .pp-stat-s { margin-top: 0.3rem; font-family: var(--font-body); font-size: 0.42rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-dim); opacity: 0.85; white-space: nowrap; }
+
+    /* ── Hall of Fame Watch / plaque (matches the trading-card back) ── */
+    .pp-hof { border: 1px solid var(--drawer-border); background: rgba(255,255,255,0.02); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 1rem 1.3rem 1.05rem; }
+    .pp-watch { display: flex; align-items: center; gap: 0.9rem; }
+    .pp-watch-bar { flex: 1; height: 6px; background: rgba(232,232,232,0.12); border-radius: 3px; overflow: hidden; }
+    .pp-watch-bar i { display: block; height: 100%; background: linear-gradient(90deg, #7a6bff, #4dd6ff, #f6ff6b); border-radius: 3px; }
+    .pp-watch b { font-family: var(--font-display); font-weight: 300; font-size: 1.6rem; line-height: 1; color: var(--accent); min-width: 3.2rem; text-align: right; }
+    .pp-watch-path { font-family: var(--font-body); font-size: 0.46rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent-dim); margin-top: 0.55rem; }
+    .pp-hof.is-in { border: 2px solid transparent; background: linear-gradient(#0b0b0d, #0b0b0d) padding-box, linear-gradient(120deg, #ff4d6d, #ffb84d, #f6ff6b, #4dff9a, #4dd6ff, #7a6bff, #ff4dd8) border-box; box-shadow: 0 0 30px rgba(140,120,255,0.25); }
+    .pp-plaque { display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; }
+    .pp-plaque div { padding: 0 0.4rem; min-width: 0; }
+    .pp-plaque div + div { border-left: 1px solid rgba(255,255,255,0.14); }
+    .pp-plaque b { display: block; font-family: var(--font-display); font-weight: 300; font-size: 1.6rem; line-height: 1.1;
+      background: linear-gradient(90deg, #ffd1dc, #ffe9a8, #c9ffd9, #b8ecff, #d9c9ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .pp-plaque span { display: block; font-family: var(--font-body); font-size: 0.42rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent-dim); margin-top: 0.35rem; }
 
     /* ── Through the Years: mirrored finish chart ─────────
        BRC bars grow up, OFC bars grow down, sharing the year axis.
@@ -146,6 +163,19 @@
     .pp-btn { font-family: var(--font-body); font-size: 0.5rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); text-decoration: none; border: 1px solid var(--drawer-border); padding: 0.45rem 0.75rem; transition: border-color 0.2s; background: none; cursor: pointer; }
     .pp-btn:hover { border-color: var(--lc, var(--pc)); }
 
+    /* ── Trophy Case (awards, grouped by name) ───────────── */
+    .pp-cols.is-trophy { margin-bottom: 0; }
+    .pp-aw-list { display: flex; flex-direction: column; gap: 0.75rem; }
+    .pp-aw { display: flex; align-items: center; gap: 0.75rem; }
+    .pp-aw-img { width: 38px; height: 38px; flex: none; display: flex; align-items: center; justify-content: center; }
+    .pp-aw-img img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5)); }
+    .pp-aw-img span { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border: 1px solid var(--drawer-border); color: var(--lc, var(--pc)); font-size: 0.85rem; }
+    .pp-aw-info { flex: 1; min-width: 0; }
+    .pp-aw-n { font-family: var(--font-body); font-size: 0.7rem; font-weight: 700; line-height: 1.3; color: var(--accent); }
+    .pp-aw-y { font-family: var(--font-body); font-size: 0.52rem; letter-spacing: 0.1em; color: var(--accent-dim); margin-top: 0.15rem; }
+    .pp-aw-x { flex: none; font-family: var(--font-display); font-weight: 300; font-size: 1.5rem; line-height: 1; color: var(--lc, var(--pc)); }
+    .pp-shoe { border: 1px dashed var(--drawer-border); padding: 1.1rem 1.3rem; text-align: center; font-family: var(--font-display); font-weight: 300; font-style: italic; font-size: 1.15rem; line-height: 1.35; color: var(--accent-dim); }
+
     /* ── Bracket Battles (matches the Head to Head cards) ── */
     .pp-bb { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
     .pp-bb-card { display: block; border: 1px solid var(--drawer-border); background: rgba(255,255,255,0.02); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); text-decoration: none; color: inherit; overflow: hidden; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; }
@@ -221,6 +251,9 @@
       .pp-stat:nth-child(3) { border-right: none; }
       .pp-stat:nth-child(n+4) { border-top: 1px solid var(--drawer-border); }
       .pp-stat-v { font-size: 2rem; }
+      .pp-hof { padding: 0.9rem 1rem; }
+      .pp-plaque b { font-size: 1.1rem; }
+      .pp-plaque span { letter-spacing: 0.15em; }
       .pp-tl { padding: 0.8rem 0.5rem 0.7rem 0.2rem; }
       .pp-tl-lane { padding: 0 0.4rem 0 0.3rem; letter-spacing: 0.15em; font-size: 0.42rem; }
       .pp-tl-half, .pp-tl-axis { gap: 2px; }
@@ -279,12 +312,13 @@
     function pic(src, label) { return src ? '<img src="' + esc(src) + '" alt="" />' : '<span>' + esc(initials(label)) + '</span>'; }
     function plural(n, a, b) { return n === 1 ? a : b; }
     function entry(mm, key) { return (mm.leagues || []).find(function (l) { return l.leagueKey === key; }) || null; }
+    function roman(n) { var r = '', v = [[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']]; v.forEach(function (p) { while (n >= p[0]) { r += p[1]; n -= p[0]; } }); return r; }
 
     /* ══════════════════════════════════════════════════════════
        CAREER BUILDERS
     ══════════════════════════════════════════════════════════ */
     function ofcCareer(m) {
-      var out = { years: {}, list: [], w: 0, l: 0, t: 0, pf: 0, titles: 0, runner: 0, po: 0, n: 0, best: null, live: null };
+      var out = { years: {}, list: [], w: 0, l: 0, t: 0, pf: 0, titles: 0, runner: 0, po: 0, n: 0, best: null, live: null, rw: 0, rl: 0, rt: 0, pw: 0, pl: 0, pt: 0 };
       E.ofc.seasons.forEach(function (s) {
         var K = E.ofc.lastDone(s); if (!K) return;
         var st = E.ofc.standingsThrough(s, K), me = st.map[m];
@@ -295,13 +329,20 @@
           ['wildcard', 'semis', 'finals'].forEach(function (r) { (po[r] || []).forEach(function (g) { inPO[g.homeMemberId] = 1; inPO[g.awayMemberId] = 1; }); });
           (po.finals || []).forEach(function (g) { fin[g.homeMemberId] = 1; fin[g.awayMemberId] = 1; });
           res = s.championMemberId === m ? 'champ' : (s.runnerUpMemberId === m || fin[m]) ? 'runner' : (inPO[m] || (!Object.keys(inPO).length && me.rank <= E.ofc.PLAYOFF_TEAMS)) ? 'po' : 'miss';
-          out.n++; out.w += me.w; out.l += me.l; out.t += me.t; out.pf += me.pf;
+          /* Overall record = regular season + every playoff game (incl. 3rd place + Toilet Bowl) */
+          var prc = E.ofc.playoffRecord(s, m);
+          out.n++; out.w += me.w + prc.w; out.l += me.l + prc.l; out.t += me.t + prc.t; out.pf += me.pf;
+          out.rw += me.w; out.rl += me.l; out.rt += me.t; out.pw += prc.w; out.pl += prc.l; out.pt += prc.t;
           if (res === 'champ') out.titles++; if (res === 'runner') out.runner++; if (res !== 'miss') out.po++;
           var pct = (me.w + me.t / 2) / Math.max(1, me.w + me.l + me.t);
           if (!out.best || pct > out.best.pct || (pct === out.best.pct && me.pf > out.best.pf)) out.best = { yr: yr, pct: pct, rec: E.ofc.rec(me), pf: me.pf, rank: me.rank, res: res };
         } else {
           res = 'live';
           out.live = { yr: yr, K: K, me: me, n: st.rows.length, odds: null, season: s };
+          /* Season in progress: only its W-L joins the career record (finished weeks + completed playoff rounds) */
+          var lprc = E.ofc.playoffRecord(s, m);
+          out.w += me.w + lprc.w; out.l += me.l + lprc.l; out.t += me.t + lprc.t;
+          out.rw += me.w; out.rl += me.l; out.rt += me.t; out.pw += lprc.w; out.pl += lprc.l; out.pt += lprc.t;
         }
         /* Finish = the Team page Season Log "Finish" (standings sorted by total points); live season uses the current rank */
         var byPts = (s.standings || []).slice().sort(function (a, b) { return (parseFloat(b.totalPoints) || 0) - (parseFloat(a.totalPoints) || 0); });
@@ -327,7 +368,7 @@
     var BRC_ROWS = E.brc.seasons.map(function (s) { return { s: s, yr: parseInt(s.year, 10), rows: brcRows(s) }; });
 
     function brcCareer(m) {
-      var out = { years: {}, list: [], n: 0, titles: 0, pod: 0, best: 99, pctSum: 0, picks: 0, hits: 0, bestPts: null, live: null, vs: {} };
+      var out = { years: {}, list: [], n: 0, titles: 0, pod: 0, best: 99, pctSum: 0, finSum: 0, beat: 0, faced: 0, picks: 0, hits: 0, bestPts: null, live: null, vs: {} };
       BRC_ROWS.forEach(function (B) {
         var me = B.rows.find(function (x) { return x.id === m; });
         if (!me) return;
@@ -339,10 +380,13 @@
         if (!s.isFinal) { out.live = row; return; }
         out.n++; if (champ) out.titles++; if (me.rank <= 3) out.pod++;
         out.best = Math.min(out.best, me.rank); out.pctSum += n > 1 ? (me.rank - 1) / (n - 1) : 0;
+        out.finSum += me.rank;   // BRC Avg = average finish (matches the chart's "Career avg")
         if (hit !== null) { out.picks++; if (hit) out.hits++; }
-        /* Bracket Battles: finished ahead / behind each family member */
+        /* Bracket Battles: finished ahead / behind each family member.
+           Field Beaten % = everyone they finished ahead of ÷ everyone they faced (ties don't count as beaten) */
         B.rows.forEach(function (o) {
           if (o.id === m) return;
+          out.faced++; if (me.rank < o.rank) out.beat++;
           var v = out.vs[o.id] || (out.vs[o.id] = { id: o.id, a: 0, b: 0, t: 0 });
           if (me.rank < o.rank) v.a++; else if (me.rank > o.rank) v.b++; else v.t++;
         });
@@ -411,16 +455,35 @@
         '</header>';
 
       /* ── Résumé ── */
+      var brcAvg = B.n ? B.finSum / B.n : null;
       var stats = [
         ['OFL Titles', titles, titles > 0],
         [plural(O.n + B.n, 'Season', 'Seasons'), O.n + B.n, false],
-        hasO && O.n ? ['OFC Record', O.w + '&ndash;' + O.l + (O.t ? '&ndash;' + O.t : ''), false] : null,
+        hasO && O.n ? ['OFC Record', O.w + '&ndash;' + O.l + (O.t ? '&ndash;' + O.t : ''), false,
+          (O.pw + O.pl + O.pt) ? 'Reg ' + O.rw + '&ndash;' + O.rl + (O.rt ? '&ndash;' + O.rt : '') + ' &middot; PO ' + O.pw + '&ndash;' + O.pl + (O.pt ? '&ndash;' + O.pt : '') : ''] : null,
         hasO && O.n ? ['OFC Playoffs', O.po, O.po > 0] : null,
         hasO && !O.n && O.live ? ['OFC Rookie &middot; Live', E.ofc.rec(O.live.me), true] : null,
         hasB ? ['BRC Podiums', B.pod, B.pod > 0] : null,
-        hasB ? ['BRC Best', B.n ? ord(B.best) : '&mdash;', B.best === 1] : null
+        hasB ? ['BRC Avg', brcAvg !== null ? brcAvg.toFixed(1) : '&mdash;', brcAvg !== null && brcAvg < 3] : null
       ].filter(Boolean);
-      var strip = '<div class="pp-strip">' + stats.map(function (x) { return '<div class="pp-stat"><div class="pp-stat-v' + (x[2] ? ' is-pc' : '') + '">' + x[1] + '</div><div class="pp-stat-l">' + x[0] + '</div></div>'; }).join('') + '</div>';
+      var strip = '<div class="pp-strip">' + stats.map(function (x) { return '<div class="pp-stat"><div class="pp-stat-v' + (x[2] ? ' is-pc' : '') + '">' + x[1] + '</div><div class="pp-stat-l">' + x[0] + '</div>' + (x[3] ? '<div class="pp-stat-s">' + x[3] + '</div>' : '') + '</div>'; }).join('') + '</div>';
+
+      /* ── Hall of Fame Watch (meter only, never the math) / inductee plaque ──
+         Same numbers as the trading card: OFL_ENGINE.cards.hof, finished seasons only. */
+      var HF = E.cards.hof(m), hof = '';
+      if (HF.inducted) {
+        hof = '<section class="pp-sec"><p class="pp-h"><span>Hall of Fame</span><span>Inducted ' + HF.classYear + '</span></p>' +
+          '<div class="pp-hof is-in"><div class="pp-plaque">' +
+            '<div><b>' + HF.classYear + '</b><span>Class</span></div>' +
+            '<div><b>No. ' + roman(HF.no) + '</b><span>Inductee</span></div>' +
+            '<div><b>' + esc(HF.path) + '</b><span>Path</span></div>' +
+          '</div></div></section>';
+      } else if (HF.pct > 0) {
+        var hp = Math.min(99, Math.floor(HF.pct * 100));
+        hof = '<section class="pp-sec"><p class="pp-h"><span>Hall of Fame Watch</span></p>' +
+          '<div class="pp-hof"><div class="pp-watch"><div class="pp-watch-bar"><i style="width:' + hp + '%"></i></div><b>' + hp + '%</b></div>' +
+          '<div class="pp-watch-path">Closest: ' + esc(HF.bestPath) + '</div></div></section>';
+      }
 
       /* ── Through the Years: mirrored finish chart ── */
       var tl = '';
@@ -518,7 +581,6 @@
         '</div>');
       }
       if (hasB) {
-        var avgTop = B.n ? Math.max(1, Math.round((B.pctSum / B.n) * 100)) : null;
         var latestName = B.list.length ? B.list[0].name : '';
         panels.push('<div class="pp-card" style="--lc:' + BRC_BLUE + '">' +
           '<div class="pp-card-top"><div><div class="pp-card-k">Bracket Challenge</div><div class="pp-card-t">' + (latestName ? '&ldquo;' + esc(latestName) + '&rdquo;' : 'BRC') + '</div></div></div>' +
@@ -528,7 +590,7 @@
             '<div><b>' + B.pod + '</b><span>Podiums</span></div>' +
             '<div><b>' + (B.n ? ord(B.best) : '&mdash;') + '</b><span>Best</span></div>' +
             '<div><b>' + B.n + '</b><span>Brackets</span></div>' +
-            '<div><b>' + (avgTop !== null ? 'Top ' + avgTop + '%' : '&mdash;') + '</b><span>Avg Finish</span></div>' +
+            '<div><b>' + (B.faced ? Math.round(B.beat / B.faced * 100) + '%' : '&mdash;') + '</b><span>Field Beaten</span></div>' +
             '<div><b>' + (B.picks ? B.hits + '/' + B.picks : '&mdash;') + '</b><span>Champ Picks</span></div>' +
           '</div>' +
           (B.picks ? '<p class="pp-line">' + (B.hits ? 'Called the national champion <b>' + B.hits + ' ' + plural(B.hits, 'time', 'times') + '</b> in ' + B.picks + ' ' + plural(B.picks, 'try', 'tries') + '.' : B.picks >= 3 ? 'Has never once called the national champion. <b>0 for ' + B.picks + '</b>.' : 'Champion picks on file: <b>0 for ' + B.picks + '</b>. Still looking for the first one.') + '</p>' : '') +
@@ -536,6 +598,35 @@
         '</div>');
       }
       var cols2 = panels.length ? '<div class="pp-cols' + (panels.length === 1 ? ' is-one' : '') + '">' + panels.join('') + '</div>' : '';
+
+      /* ── Trophy Case: awards grouped by name (championships live in Titles, like the cards) ── */
+      var AW = E.cards.awards(m);
+      var awCol = function (sport, label, color) {
+        var list = AW.filter(function (a) { return a.sport === sport; });
+        if (!list.length) return '';
+        var g = {}, keys = [];
+        list.forEach(function (a) {
+          if (!g[a.awardName]) { g[a.awardName] = { name: a.awardName, img: a.awardImage, years: [] }; keys.push(a.awardName); }
+          g[a.awardName].years.push(a.year);
+          if (!g[a.awardName].img && a.awardImage) g[a.awardName].img = a.awardImage;
+        });
+        var yn = function (y) { return parseInt(y, 10) || 0; };
+        var rows = keys.map(function (k) { return g[k]; }).sort(function (x, y) {
+          return y.years.length - x.years.length || Math.max.apply(null, y.years.map(yn)) - Math.max.apply(null, x.years.map(yn)) || x.name.localeCompare(y.name);
+        });
+        return '<div class="pp-card" style="--lc:' + color + '">' +
+          '<div class="pp-card-top"><div><div class="pp-card-k">' + label + ' Hardware</div><div class="pp-card-t">' + list.length + ' ' + plural(list.length, 'Award', 'Awards') + '</div></div></div>' +
+          '<div class="pp-aw-list">' + rows.map(function (r) {
+            var ys = r.years.slice().sort(function (a, b) { return yn(a) - yn(b); }).map(function (y) { return '&rsquo;' + esc(String(y).slice(-2)); }).join(' &middot; ');
+            return '<div class="pp-aw"><div class="pp-aw-img">' + (r.img ? '<img src="' + esc(r.img) + '" alt="" loading="lazy" />' : '<span>&#9733;</span>') + '</div>' +
+              '<div class="pp-aw-info"><div class="pp-aw-n">' + esc(r.name) + '</div><div class="pp-aw-y">' + ys + '</div></div>' +
+              (r.years.length > 1 ? '<div class="pp-aw-x">&times;' + r.years.length + '</div>' : '') + '</div>';
+          }).join('') + '</div></div>';
+      };
+      var awCols = [awCol('football', 'OFC', pc), awCol('madness', 'BRC', BRC_BLUE)].filter(Boolean);
+      var trophy = '<section class="pp-sec"><p class="pp-h"><span>Trophy Case</span>' + (AW.length ? '<span>' + AW.length + ' ' + plural(AW.length, 'Award', 'Awards') + '</span>' : '') + '</p>' +
+        (awCols.length ? '<div class="pp-cols is-trophy' + (awCols.length === 1 ? ' is-one' : '') + '">' + awCols.join('') + '</div>'
+          : '<div class="pp-shoe">Trophy case: currently a shoe rack.</div>') + '</section>';
 
       /* ── Bracket Battles ── */
       var bb = '';
@@ -575,7 +666,7 @@
         '<div class="pp-bit"><div class="pp-bit-t" id="ppBit">' + esc(gags[hash(m + new Date().toDateString()) % gags.length]) + '</div>' +
         (gags.length > 1 ? '<button class="pp-btn" id="ppBitMore">Another One</button>' : '') + '</div></section>' : '';
 
-      root.innerHTML = hero + '<div class="pp-body"><div class="pp-wrap">' + strip + tl + cols2 + bb + blog + bit +
+      root.innerHTML = hero + '<div class="pp-body"><div class="pp-wrap">' + strip + hof + tl + cols2 + trophy + bb + blog + bit +
         '<p class="pp-line" style="text-align:center;margin-top:1rem"><a class="pp-btn" href="playa.html">All Playas</a></p></div></div>';
       N.lowercase(root);
 

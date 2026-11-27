@@ -9,6 +9,7 @@
   <script src="admin-config.js"></script>
   <script src="ofl-data.js"></script>
   <script src="admin.js"></script>
+  <script src="ofl-engine.js"></script>
 
   <style>
     /* ── Page layout ─────────────────────────────────────── */
@@ -459,6 +460,12 @@
           var team        = row.teamName || '';
 
           if (rec) { careerWins[mid].wins += rec.w; careerWins[mid].losses += rec.l; }
+          // Career wins/losses = overall: every playoff game counts too (incl. 3rd place + Toilet Bowl).
+          // Season in progress: only rounds switched to complete in ofl-data.html (the engine checks)
+          if (window.OFL_ENGINE) {
+            var poRec = window.OFL_ENGINE.ofc.playoffRecord(s, mid);
+            careerWins[mid].wins += poRec.w; careerWins[mid].losses += poRec.l;
+          }
 
           if (!fin) {
             // season still being played — no playoff / last-place finishes yet
@@ -517,6 +524,7 @@
         // MVP counts
         var mvpCounts = {};
         (s.weeks||[]).forEach(function(wk) {
+          if (!wk.isComplete) return;   // finished weeks only
           var hs = wk.highScorer;
           if (hs && hs.memberId) {
             if (!mvpCareer[hs.memberId]) mvpCareer[hs.memberId] = {count:0, name:hs.ownerName||'?', memberId:hs.memberId};
@@ -543,8 +551,9 @@
           mvpSeasonArr.push({memberId:c.memberId, name:c.name, year:s.year, team:c.team||'', value:c.count});
         });
 
-        // Single-game records — also track team name per side
+        // Single-game records — also track team name per side (finished weeks only)
         (s.weeks||[]).forEach(function(wk) {
+          if (!wk.isComplete) return;
           (wk.games||[]).forEach(function(gm) {
             var hs  = parseFloat((gm.home||{}).score) || 0;
             var as_ = parseFloat((gm.away||{}).score) || 0;
@@ -572,7 +581,10 @@
         // OFC has no Wild Card round (ofl-data.html hides it), so skip any stray entries there
         var po = s.playoffs || {};
         var poRounds = league.name === 'OFC' ? ['semis','finals','consolation'] : ['wildcard','semis','finals','consolation'];
+        // Season in progress: only rounds switched to complete in ofl-data.html
+        var poDone = s.playoffRoundsComplete || {};
         poRounds.forEach(function(roundKey) {
+          if (!fin && !poDone[roundKey]) return;
           (po[roundKey]||[]).forEach(function(mu) {
             var hs = parseFloat(mu.homeScore) || 0;
             var as_ = parseFloat(mu.awayScore) || 0;

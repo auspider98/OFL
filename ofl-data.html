@@ -2898,6 +2898,35 @@ document.addEventListener('DOMContentLoaded', function () {
             var roundEl = document.createElement('div');
             roundEl.className = 'playoff-round';
             roundEl.innerHTML = '<div class="admin-subsection-label playoff-round-label">'+esc(round.label)+'</div>';
+
+            /* ── Round Complete toggle (football) ──
+               Stored as season.playoffRoundsComplete = { semis: true, ... }.
+               A season in progress counts a round's games in overall records
+               only once it's switched on. Finished seasons count every round. */
+            if (league.sport === 'football') {
+              var rcRow = document.createElement('div');
+              rcRow.className = 'field-row';
+              rcRow.innerHTML =
+                '<div class="field-label">Round Complete' +
+                  '<span class="field-hint">Counts this round\'s games in overall records while the season is in progress. Finished seasons count every round</span>' +
+                '</div>' +
+                '<label class="toggle-switch">' +
+                  '<input type="checkbox" class="po-round-complete"' + ((season.playoffRoundsComplete || {})[round.key] ? ' checked' : '') + ' />' +
+                  '<span class="toggle-track"></span>' +
+                '</label>';
+              rcRow.querySelector('.po-round-complete').addEventListener('change', function () {
+                if (this.checked) {
+                  if (!season.playoffRoundsComplete) season.playoffRoundsComplete = {};
+                  season.playoffRoundsComplete[round.key] = true;
+                } else if (season.playoffRoundsComplete) {
+                  delete season.playoffRoundsComplete[round.key];
+                  if (!Object.keys(season.playoffRoundsComplete).length) delete season.playoffRoundsComplete;
+                }
+                markDirty();
+              });
+              roundEl.appendChild(rcRow);
+            }
+
             var matchupsEl = document.createElement('div');
             roundEl.appendChild(matchupsEl);
 

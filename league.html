@@ -1194,6 +1194,20 @@
         (hasPR ? '<th class="standings-luck-cell">PR</th>' : '') +
       '</tr>';
 
+      // ── Overall record (OFC): regular season + every playoff game ──
+      // Finished seasons count every round; a live season counts rounds marked complete.
+      // Same row order; the Record column just includes the playoffs. Hover shows the split.
+      var showOverall = isFootball && !!window.OFL_ENGINE;
+      var anyPlayoffGames = showOverall && (season.standings || []).some(function (r) {
+        return window.OFL_ENGINE.ofc.playoffRecord(season, r.memberId).gp > 0;
+      });
+      function overallRecCell(row) {
+        var o = window.OFL_ENGINE.ofc.overallRecord(season, row.memberId, row.record);
+        if (!row.record || !o.po.gp) return esc(row.record || '');
+        function r(x) { return x.w + '-' + x.l + (x.t ? '-' + x.t : ''); }
+        return '<span title="' + esc('Regular season ' + r(o.reg) + ' · Playoffs ' + r(o.po)) + '">' + esc(r(o.all)) + '</span>';
+      }
+
       // ── Clinch / elimination tags (live football seasons only) ──
       var clinch = (isFootball && !season.isFinal) ? computeClinchStatus(season) : {};
       var CLINCH_TAGS = {
@@ -1219,6 +1233,7 @@
           (rankCol ? '<td class="standings-rank-cell">' + esc(row.rank || (i + 1)) + '</td>' : '') +
           cols.map(function (c) {
             if (c.key === 'team') return '<td>' + teamCellHtml(row, clinchTag(row.memberId)) + '</td>';
+            if (c.key === 'record' && showOverall) return '<td>' + overallRecCell(row) + '</td>';
             return '<td>' + esc(resolveCell(row, c.key)) + '</td>';
           }).join('') +
           (hasLuck ? luckCellHtml(row.memberId) : '') +
@@ -1235,7 +1250,9 @@
           '</div>'
         : '';
 
-      return '<table class="league-standings-table"><thead>' + thead + '</thead><tbody>' + tbody + '</tbody></table>' + legend;
+      var recCol = cols.some(function (c) { return c.key === 'record'; });
+      var overallNote = (anyPlayoffGames && recCol) ? '<div class="standings-clinch-legend"><span>Records include playoff games</span></div>' : '';
+      return '<table class="league-standings-table"><thead>' + thead + '</thead><tbody>' + tbody + '</tbody></table>' + legend + overallNote;
     }
 
     // ── Regular-season length for a football season (set per season in ofl-data.html) ──
@@ -1719,7 +1736,13 @@
       if (season.championName) {
         var champLines = [];
         if (season.championName && season.championName !== season.championTeamName) champLines.push(season.championName);
-        if (season.record)             champLines.push(season.record);
+        // Football: show the champion's overall record (regular season + playoffs)
+        var champRec = season.record || '';
+        if (champRec && league.sport === 'football' && season.isFinal && season.championMemberId && window.OFL_ENGINE) {
+          var chOvr = window.OFL_ENGINE.ofc.overallRecord(season, season.championMemberId, champRec);
+          if (chOvr.po.gp) champRec = chOvr.all.w + '-' + chOvr.all.l + (chOvr.all.t ? '-' + chOvr.all.t : '');
+        }
+        if (champRec)                  champLines.push(champRec);
         if (season.championshipScore)  champLines.push(season.championshipScore);
         html += buildStatCard(
           awards['champion'] || 'Champion',
@@ -2310,6 +2333,11 @@
 
       if (isFootball) {
         var record = season.record || '';
+        // Overall record: the champion's regular season + every playoff game (finished seasons)
+        if (record && season.isFinal && season.championMemberId && window.OFL_ENGINE) {
+          var cOvr = window.OFL_ENGINE.ofc.overallRecord(season, season.championMemberId, record);
+          if (cOvr.po.gp) record = cOvr.all.w + '-' + cOvr.all.l + (cOvr.all.t ? '-' + cOvr.all.t : '');
+        }
         if (record) detailLines.push({ label: 'Record', value: record });
       } else if (isMadness) {
         var wb = (season.stats && season.stats.winningBracket) || {};

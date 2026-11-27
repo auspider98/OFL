@@ -10,6 +10,7 @@
   <script src="admin-config.js"></script>
   <script src="ofl-data.js"></script>
   <script src="admin.js"></script>
+  <script src="ofl-engine.js"></script>
 
   <style>
     /* ── Page layout ─────────────────────────────────────── */
@@ -698,6 +699,11 @@
 
             if (sport === 'football') {
               var rec = parseRecord(row.record);
+              // Overall record: every playoff game counts too (incl. 3rd place + Toilet Bowl), once the season is final
+              if (rec && window.OFL_ENGINE) {
+                var poRec = window.OFL_ENGINE.ofc.playoffRecord(season, mid);
+                rec = { w: rec.w + poRec.w, l: rec.l + poRec.l, t: rec.t + poRec.t };
+              }
               if (rec) {
                 bucket.wins   += rec.w;
                 bucket.losses += rec.l;
